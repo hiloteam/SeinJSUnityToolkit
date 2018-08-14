@@ -1,5 +1,5 @@
-# UnityGLTFExporter
-Export unity scene to gltf, forked by sketchfab/UnityGLTF.
+# UnityGLTFManager
+Export unity scene to gltf, or import gltf to unity, forked by sketchfab/UnityGLTF.
 
 ## Usage
 
