@@ -2,8 +2,10 @@
 using UnityEngine;
 using System.Collections;
 
-public class GlTF_DirectionalLight : GlTF_Light {
-    public GlTF_DirectionalLight() { type = "directional"; }
+public class GlTF_PointLight : GlTF_Light {
+	public float range;
+
+	public GlTF_PointLight () { type = "point"; }
 
 	public override void Write()
 	{
@@ -13,7 +15,9 @@ public class GlTF_DirectionalLight : GlTF_Light {
         color.Write();
         jsonWriter.Write(",\n");
         Indent();
-        jsonWriter.Write("\"intensity\": " + intensity + ",\n");
+        jsonWriter.Write("\"intensity\": " + (intensity * 3) + ",\n");
+        Indent();
+        jsonWriter.Write("\"range\": " + range + ",\n");
         Indent();
         jsonWriter.Write("\"type\": \"" + type + "\"\n");
         IndentOut();

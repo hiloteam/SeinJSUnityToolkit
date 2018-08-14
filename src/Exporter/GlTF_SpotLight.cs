@@ -16,7 +16,7 @@ public class GlTF_SpotLight : GlTF_Light {
 		color.Write();
         jsonWriter.Write(",\n");
         Indent();
-        jsonWriter.Write("\"intensity\": " + intensity + ",\n");
+        jsonWriter.Write("\"intensity\": " + (intensity * 3) + ",\n");
 		Indent();
         jsonWriter.Write ("\"range\": " + range + ",\n");
 		Indent();

@@ -20,14 +20,14 @@ public enum ExporterState
 }
 
 
-public class ExporterSKFB : EditorWindow {
+public class Exporter : EditorWindow {
 
     [MenuItem("Tools/Export to GlTF")]
 	static void Init()
 	{
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX // edit: added Platform Dependent Compilation - win or osx standalone
-		ExporterSKFB window = (ExporterSKFB)EditorWindow.GetWindow(typeof(ExporterSKFB));
-		window.titleContent.text = "Sketchfab";
+		Exporter window = (Exporter)EditorWindow.GetWindow(typeof(Exporter));
+		window.titleContent.text = "Export to GlTF";
 		window.Show();
 #else // and error dialog if not standalone
 		EditorUtility.DisplayDialog("Error", "Your build target must be set to standalone", "Okay");
@@ -47,7 +47,7 @@ public class ExporterSKFB : EditorWindow {
 	[SerializeField]
 	Vector2 loginSize = new Vector2(603, 190);
 	[SerializeField]
-	Vector2 fullSize = new Vector2(603, 320);
+	Vector2 fullSize = new Vector2(603, 240);
 	[SerializeField]
 	Vector2 descSize = new Vector2(603, 175);
 
@@ -67,7 +67,6 @@ public class ExporterSKFB : EditorWindow {
 
 	// Exporter UI: static elements
 	[SerializeField]
-	Texture2D header;
 	GUIStyle exporterTextArea;
 	GUIStyle exporterLabel;
 	GUIStyle exporterClickableLabel;
@@ -132,10 +131,6 @@ public class ExporterSKFB : EditorWindow {
 
 	void OnEnable()
 	{
-		// Try to load header image
-		if(!header)
-			header = (Texture2D)Resources.Load(Application.dataPath + "/Unity-glTF-Exporter/ExporterHeader.png", typeof(Texture2D));
-
 		// Pre-fill model name with scene name if empty
 		if (param_name.Length == 0)
 		{
@@ -235,30 +230,9 @@ public class ExporterSKFB : EditorWindow {
                         resizeWindow(fullSize + new Vector2(0, 20));
                     else
                         resizeWindow(fullSize);
-					//if (true || accessResponse["access_token"] != null)
-					//{
-					//	access_token = accessResponse["access_token"];
-					//	expiresIn = accessResponse["expires_in"].AsFloat;
-					//	lastTokenTime = convertToSeconds(DateTime.Now);
-					//	publisher.getAccountType(access_token);
-					//	if (exporterVersion != latestVersion)
-					//		resizeWindow(fullSize + new Vector2(0, 20));
-					//	else
-					//		resizeWindow(fullSize);
-					//}
-					//else
-					//{
-					//	string errorDesc = accessResponse["error_description"];
-					//	EditorUtility.DisplayDialog("Authentication failed", "Failed to authenticate on Sketchfab.com.\nPlease check your credentials\n\nError: " + errorDesc, "Ok");
-					//	publisher.setIdle();
-					//}
-
 					break;
 				case ExporterState.PUBLISH_MODEL:
-					//foreach(string key in www.responseHeaders.Keys)
-					//{
-					//    Debug.Log("[" + key + "] = " + www.responseHeaders[key]);
-					//}
+
 					if (www.responseHeaders["STATUS"].Contains("201") == true)
 					{
 						string urlid = www.responseHeaders["LOCATION"].Split('/')[www.responseHeaders["LOCATION"].Split('/').Length -1];
@@ -385,12 +359,6 @@ public class ExporterSKFB : EditorWindow {
 			exporterClickableLabel = new GUIStyle(EditorStyles.centeredGreyMiniLabel);
 			exporterClickableLabel.richText = true;
 		}
-		//Header
-		GUILayout.BeginHorizontal();
-		GUILayout.FlexibleSpace();
-		GUILayout.Label(header);
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
 
 		GUILayout.Space(SPACE_SIZE);
 
@@ -425,7 +393,7 @@ public class ExporterSKFB : EditorWindow {
 
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
-		if (GUILayout.Button ("Save Local", GUILayout.Width(250), GUILayout.Height(40))) {
+		if (GUILayout.Button ("Save", GUILayout.Width(250), GUILayout.Height(40))) {
 			if (System.IO.File.Exists(zipPath))
 			{
 				System.IO.File.Delete(zipPath);
@@ -445,9 +413,6 @@ public class ExporterSKFB : EditorWindow {
 		parameters["tags"] = "unity unity3D " + param_tags;
 		parameters["private"] = param_private ? "1" : "0";
 		parameters["isPublished"] = param_autopublish ? "1" : "0";
-		//string category = categories[categoriesNames[categoryIndex]];
-		//Debug.Log(category);
-		//parameters["categories"] = category;
 		if (param_private)
 			parameters["password"] = param_password;
 
