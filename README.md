@@ -1,9 +1,9 @@
 # UnityGLTFManager
-Export unity scene to gltf, or import gltf to unity, forked by sketchfab/UnityGLTF.
+Export unity scene to gltf, or import gltf to unity, fork from sketchfab/UnityGLTF.
 
 ## Usage
 
-Double click bin/UnityGlTFManager.unitypackage and import all to your project, then check the 'Topbar -> Tools -> Export to GlTF'.
+Double click bin/UnityGlTFManager.unitypackage and import all to your project, then check the 'Topbar -> Tools -> Export to GlTF' and 'Topbar -> Tools -> Import GlTF'.
 
 ## Features
 
