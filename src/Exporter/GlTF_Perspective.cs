@@ -24,10 +24,10 @@ public class GlTF_Perspective : GlTF_Camera  {
 		IndentIn();
 		Indent();		jsonWriter.Write ("\"perspective\": {\n");
 		IndentIn();
-		Indent();		jsonWriter.Write ("\"aspect_ratio\": "+aspect_ratio.ToString()+",\n");
-		Indent();		jsonWriter.Write ("\"yfov\": "+yfov.ToString()+",\n");
-		Indent();		jsonWriter.Write ("\"zfar\": "+zfar.ToString()+",\n");
-		Indent();		jsonWriter.Write ("\"znear\": "+znear.ToString()+",\n");
+		Indent();		jsonWriter.Write ("\"aspect_ratio\": " + aspect_ratio.ToString() + ",\n");
+        Indent();		jsonWriter.Write ("\"yfov\": " + (yfov / 180 * System.Math.PI).ToString() + ",\n");
+		Indent();		jsonWriter.Write ("\"zfar\": " + zfar.ToString() + ",\n");
+		Indent();		jsonWriter.Write ("\"znear\": " + znear.ToString() + ",\n");
 		Indent();		jsonWriter.Write("\"name\": \"" + name + "\"\n");
 		IndentOut();
 		Indent();		jsonWriter.Write ("},\n");

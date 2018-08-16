@@ -41,7 +41,7 @@ public class SceneToGlTFWiz : MonoBehaviour
 
 	static bool done = true;
 
-	public static void parseUnityCamera(Transform tr)
+	public static GlTF_Camera parseUnityCamera(Transform tr)
 	{
 		if (tr.GetComponent<Camera>().orthographic)
 		{
@@ -53,6 +53,8 @@ public class SceneToGlTFWiz : MonoBehaviour
 			cam.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
 			//cam.orthographic.xmag = tr.camera.
 			GlTF_Writer.cameras.Add(cam);
+
+            return cam;
 		}
 		else
 		{
@@ -65,6 +67,8 @@ public class SceneToGlTFWiz : MonoBehaviour
 			cam.yfov = tr.GetComponent<Camera>().fieldOfView;
 			cam.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
 			GlTF_Writer.cameras.Add(cam);
+
+            return cam;
 		}
 	}
 
@@ -194,13 +198,15 @@ public class SceneToGlTFWiz : MonoBehaviour
 			node.id = GlTF_Node.GetNameFromObject(tr);
 			node.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
 
-			if (tr.GetComponent<Camera>() != null)
-				parseUnityCamera(tr);
-
+            if (tr.GetComponent<Camera>() != null) {
+                GlTF_Camera cam = parseUnityCamera(tr);
+                node.cameraIndex = GlTF_Writer.cameras.IndexOf(cam);
+            }
+				
             if (tr.GetComponent<Light>() != null) {
-                GlTF_Light light = parseUnityLight(tr);
+                GlTF_Light l = parseUnityLight(tr);
                 node.lightName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
-                node.lightIndex = GlTF_Writer.lights.IndexOf(light);
+                node.lightIndex = GlTF_Writer.lights.IndexOf(l);
             }
 
 			Mesh m = GetMesh(tr);
