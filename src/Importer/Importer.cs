@@ -82,10 +82,10 @@ namespace GlTF
 
 		private string unzipGltfArchive(string zipPath)
 		{
-			if (!Directory.Exists(_unzipDirectory))
-				Directory.CreateDirectory(_unzipDirectory);
-			else
-				deleteExistingGLTF();
+            if (Directory.Exists(_unzipDirectory))
+                (new DirectoryInfo(_unzipDirectory)).Delete(true);
+
+            Directory.CreateDirectory(_unzipDirectory);
 
 			// Extract archive
 			ZipFile zipfile = ZipFile.Read(zipPath);
