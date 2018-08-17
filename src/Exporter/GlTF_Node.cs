@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 public class GlTF_Node : GlTF_Writer {
 	public string cameraName;
-    public int cameraIndex = -1;
 	public bool hasParent = false;
 	public List<string> childrenNames = new List<string>();
 	public bool uniqueItems = true;
@@ -52,7 +51,7 @@ public class GlTF_Node : GlTF_Writer {
 		{
 			CommaNL();
 			Indent();
-            jsonWriter.Write ("\"camera\": " + cameraIndex);
+			jsonWriter.Write ("\"camera\": \""+cameraName+"\"");
 		}
 		else if (lightIndex != -1)
 		{

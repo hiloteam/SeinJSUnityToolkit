@@ -170,15 +170,11 @@ namespace GlTF
 			GUILayout.FlexibleSpace();
 			if (GUILayout.Button("Select file", GUILayout.Height(UI_SIZE.y), GUILayout.Width(minWidthButton)))
 			{
-				string newImportDir = EditorUtility.OpenFolderPanel("Choose import directory", GLTFUtils.getPathAbsoluteFromProject(_importDirectory), GLTFUtils.getPathAbsoluteFromProject(_importDirectory));
-				if (GLTFUtils.isFolderInProjectDirectory(newImportDir))
-				{
-					_importDirectory = newImportDir;
-				}
-				else if (newImportDir != "")
-				{
-					EditorUtility.DisplayDialog("Error", "Please select a path within your current Unity project (with Assets/)", "Ok");
-				}
+                _importFilePath = EditorUtility.OpenFilePanel("Choose gltf or zip file", "", "zip,gltf,glb");
+
+                string modelfileName = Path.GetFileNameWithoutExtension(_importFilePath);
+                _importDirectory = GLTFUtils.unifyPathSeparator(Path.Combine(_defaultImportDirectory, modelfileName));
+                _currentSampleName = modelfileName;
 			}
 
 			GUILayout.EndHorizontal();

@@ -16,10 +16,11 @@ public class GlTF_Matrix : GlTF_FloatArray {
             m.m21 *= -1;
             m.m22 *= -1;
             m.m23 *= -1;
-        } else if (convertRightHanded && convertLeftRight) {
-             // unity: m[row][col]
-             // gltf: column major
-            convertMatrixLeftToRightHandedness(ref m);   
+        } else {
+            // unity: m[row][col]
+            // gltf: column major
+            if (convertRightHanded && convertLeftRight)
+                convertMatrixLeftToRightHandedness(ref m);   
         }
 
 		items = new float[] {

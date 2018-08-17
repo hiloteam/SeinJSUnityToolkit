@@ -97,8 +97,15 @@ namespace GlTF
 				e.Extract(_unzipDirectory, ExtractExistingFileAction.OverwriteSilently);
 			}
 
+            string realDirectory = _unzipDirectory;
+            foreach (string path in _unzippedFiles) {
+                if (Path.GetExtension(path) == ".gltf") {
+                    realDirectory = Path.GetDirectoryName(path);
+                }
+            }
 
-			return findGltfFile(_unzipDirectory);
+
+            return findGltfFile(realDirectory);
 		}
 
 		private string unzipGLTFArchiveData(byte[] zipData)
