@@ -444,29 +444,60 @@ public class GlTF_Writer {
 			Indent();		jsonWriter.Write ("]");
 		}
 
-		if(hasSpecularMaterials)
-		{
-			CommaNL();
-			Indent(); jsonWriter.Write("\"extensionsRequired\": [\n");
-			IndentIn();
-			Indent(); jsonWriter.Write("\"KHR_materials_pbrSpecularGlossiness\"\n");
-			IndentOut();
-			Indent(); jsonWriter.Write("]");
-		}
+        if (hasSpecularMaterials || lights.Count > 0)
+        {
+            CommaNL();
+            Indent(); jsonWriter.Write("\"extensionsRequired\": [\n");
+            IndentIn();
+            if (hasSpecularMaterials) {
+                Indent(); jsonWriter.Write("\"KHR_materials_pbrSpecularGlossiness\"");
+                if (lights.Count > 0)
+                {
+                    jsonWriter.Write(",\n");
+                } else {
+                    jsonWriter.Write("\n");
+                }
+            }
+            if (lights.Count > 0) {
+                Indent(); jsonWriter.Write("\"KHR_lights_punctual\"\n");
+            }
+            IndentOut();
+            Indent(); jsonWriter.Write("]");
+        }
 
-		if(hasSpecularMaterials || binary)
+        if(hasSpecularMaterials || binary || lights.Count > 0)
 		{
 			CommaNL();
 			Indent(); jsonWriter.Write("\"extensionsUsed\": [\n");
 			IndentIn();
 			if (hasSpecularMaterials)
 			{
-				Indent(); jsonWriter.Write("\"KHR_materials_pbrSpecularGlossiness\"\n");
+				Indent(); jsonWriter.Write("\"KHR_materials_pbrSpecularGlossiness\"");
+                if (binary)
+                {
+                    jsonWriter.Write(",\n");
+                }
+                else
+                {
+                    jsonWriter.Write("\n");
+                }
 			}
-			if (binary)
-			{
-				Indent(); jsonWriter.Write("\"KHR_binary_glTF\"\n");
-			}
+            if (binary)
+            {
+                Indent(); jsonWriter.Write("\"KHR_binary_glTF\"");
+                if (lights.Count > 0)
+                {
+                    jsonWriter.Write(",\n");
+                }
+                else
+                {
+                    jsonWriter.Write("\n");
+                }
+            }
+            if (lights.Count > 0)
+            {
+                Indent(); jsonWriter.Write("\"KHR_lights_punctual\"\n");
+            }
 			IndentOut();
 			Indent(); jsonWriter.Write("]");
 		}
