@@ -90,6 +90,8 @@ public class Exporter : EditorWindow {
 	private string user_password = "";
 
 	private bool opt_exportAnimation = true;
+    private bool opt_halfSpotAngle = true;
+    private bool opt_quadraticAttenuation = true;
 	private string param_name = "";
 	private string param_description = "";
 	private string param_tags = "";
@@ -373,10 +375,12 @@ public class Exporter : EditorWindow {
 		GUILayout.Space(SPACE_SIZE);
 
 		GUILayout.Label("Options", EditorStyles.boldLabel);
-		GUILayout.BeginHorizontal();
-		opt_exportAnimation = EditorGUILayout.Toggle("Export animation (beta)", opt_exportAnimation);
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
+
+        EditorGUIUtility.labelWidth = 200;
+
+        opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
+        opt_halfSpotAngle = EditorGUILayout.Toggle("Half spot angle(Hilo3d, Threejs...)", opt_halfSpotAngle);
+        opt_quadraticAttenuation = EditorGUILayout.Toggle("Light quadratic attenuation(Hilo3d...)", opt_quadraticAttenuation);	
 
 		//GUILayout.Space(SPACE_SIZE);
 
@@ -400,7 +404,7 @@ public class Exporter : EditorWindow {
 			}
             zipPath = Application.temporaryCachePath + "/" + "scene.zip";
             exportPath = Application.temporaryCachePath + "/" + "scene.gltf";
-			exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
+			exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true, opt_halfSpotAngle, opt_quadraticAttenuation);
 			OpenInFileBrowser.Open (Path.GetDirectoryName(exportPath));
 		}
 	}

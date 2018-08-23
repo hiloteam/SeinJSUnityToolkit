@@ -15,9 +15,16 @@ public class GlTF_PointLight : GlTF_Light {
         color.Write();
         jsonWriter.Write(",\n");
         Indent();
-        jsonWriter.Write("\"intensity\": " + (intensity * 3) + ",\n");
+        double ins = intensity;
+        double rg = range;
+        if (quadraticAttenuation)
+        {
+            ins *= 3;
+            rg *= 3;
+        }
+        jsonWriter.Write("\"intensity\": " + ins + ",\n");
         Indent();
-        jsonWriter.Write("\"range\": " + range + ",\n");
+        jsonWriter.Write("\"range\": " + rg + ",\n");
         Indent();
         jsonWriter.Write("\"type\": \"" + type + "\"\n");
         IndentOut();

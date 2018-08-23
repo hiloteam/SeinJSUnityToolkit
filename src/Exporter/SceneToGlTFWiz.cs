@@ -82,7 +82,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         done = false;
     }
 
-    public static GlTF_Light parseUnityLight(Transform tr)
+    public static GlTF_Light parseUnityLight(Transform tr, bool halfSpotAngle, bool quadraticAttenuation)
     {
         switch (tr.GetComponent<Light>().type)
         {
@@ -92,6 +92,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 pl.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 pl.intensity = tr.GetComponent<Light>().intensity;
                 pl.range = tr.GetComponent<Light>().range;
+                pl.halfSpotAngle = halfSpotAngle;
+                pl.quadraticAttenuation = quadraticAttenuation;
                 GlTF_Writer.lights.Add(pl);
                 return pl;
 
@@ -102,6 +104,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 sl.intensity = tr.GetComponent<Light>().intensity;
                 sl.range = tr.GetComponent<Light>().range;
                 sl.spotAngle = tr.GetComponent<Light>().spotAngle;
+                sl.halfSpotAngle = halfSpotAngle;
+                sl.quadraticAttenuation = quadraticAttenuation;
                 GlTF_Writer.lights.Add(sl);
                 return sl;
 
@@ -110,6 +114,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 dl.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
                 dl.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 dl.intensity = tr.GetComponent<Light>().intensity;
+                dl.halfSpotAngle = halfSpotAngle;
+                dl.quadraticAttenuation = quadraticAttenuation;
                 GlTF_Writer.lights.Add(dl);
                 return dl;
 
@@ -118,6 +124,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 al.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
                 al.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 al.intensity = tr.GetComponent<Light>().intensity;
+                al.halfSpotAngle = halfSpotAngle;
+                al.quadraticAttenuation = quadraticAttenuation;
                 GlTF_Writer.lights.Add(al);
                 return al;
         }
@@ -125,9 +133,9 @@ public class SceneToGlTFWiz : MonoBehaviour
         return null;
     }
 
-    public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true)
+    public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true, bool halfSpotAngle = true, bool quadraticAttenuation = true)
     {
-        StartCoroutine(Export(path, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
+        StartCoroutine(Export(path, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages, halfSpotAngle, quadraticAttenuation));
     }
 
     public int getNbSelectedObjects()
@@ -135,7 +143,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         return nbSelectedObjects;
     }
 
-    public IEnumerator Export(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false)
+    public IEnumerator Export(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false, bool halfSpotAngle = true, bool quadraticAttenuation = true)
     {
         writer = new GlTF_Writer();
         writer.Init();
@@ -206,7 +214,7 @@ public class SceneToGlTFWiz : MonoBehaviour
 
             if (tr.GetComponent<Light>() != null)
             {
-                GlTF_Light l = parseUnityLight(tr);
+                GlTF_Light l = parseUnityLight(tr, halfSpotAngle, quadraticAttenuation);
                 node.lightName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 node.lightIndex = GlTF_Writer.lights.IndexOf(l);
             }

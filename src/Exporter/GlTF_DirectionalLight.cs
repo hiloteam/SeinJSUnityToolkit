@@ -13,7 +13,12 @@ public class GlTF_DirectionalLight : GlTF_Light {
         color.Write();
         jsonWriter.Write(",\n");
         Indent();
-        jsonWriter.Write("\"intensity\": " + (intensity * 3) + ",\n");
+        double ins = intensity;
+        if (quadraticAttenuation)
+        {
+            ins *= 3;
+        }
+        jsonWriter.Write("\"intensity\": " + ins + ",\n");
         Indent();
         jsonWriter.Write("\"type\": \"" + type + "\"\n");
         IndentOut();
