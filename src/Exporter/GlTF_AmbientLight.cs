@@ -11,7 +11,7 @@ public class GlTF_AmbientLight : GlTF_Light {
         jsonWriter.Write("{\n");
         IndentIn();
         color.Write();
-        jsonWriter.Write("\n");
+        jsonWriter.Write(",\n");
         Indent();
         jsonWriter.Write("\"type\": \"" + type + "\"\n");
         IndentOut();
