@@ -158,9 +158,10 @@ public class SceneToGlTFWiz : MonoBehaviour
         // Create rootNode
         GlTF_Node correctionNode = new GlTF_Node();
         correctionNode.id = "node_scene_root";
+        correctionNode.uuid = GlTF_Node.GetIDFromObject(correctionNode);
         correctionNode.name = "node_scene_root";
         GlTF_Writer.nodes.Add(correctionNode);
-        GlTF_Writer.nodeNames.Add(correctionNode.name);
+        GlTF_Writer.nodeIDs.Add(correctionNode.uuid);
         GlTF_Writer.rootNodes.Add(correctionNode);
 
         //path = toGlTFname(path);
@@ -204,6 +205,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             // Initialize the node
             GlTF_Node node = new GlTF_Node();
             node.id = GlTF_Node.GetNameFromObject(tr);
+            node.uuid = GlTF_Node.GetIDFromObject(tr);
             node.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
 
             if (tr.GetComponent<Camera>() != null)
@@ -519,7 +521,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
 
             if (!node.hasParent)
-                correctionNode.childrenNames.Add(node.id);
+                correctionNode.childrenIDs.Add(node.uuid);
 
             if (tr.GetComponent<Camera>() != null)
             {
@@ -549,10 +551,10 @@ public class SceneToGlTFWiz : MonoBehaviour
             foreach (Transform t in tr.transform)
             {
                 if (t.gameObject.activeInHierarchy)
-                    node.childrenNames.Add(GlTF_Node.GetNameFromObject(t));
+                    node.childrenIDs.Add(GlTF_Node.GetIDFromObject(t));
             }
 
-            GlTF_Writer.nodeNames.Add(node.id);
+            GlTF_Writer.nodeIDs.Add(node.uuid);
             GlTF_Writer.nodes.Add(node);
         }
 

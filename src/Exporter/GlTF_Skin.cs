@@ -58,7 +58,7 @@ public class GlTF_Skin : GlTF_Writer {
 		foreach (Transform j in joints)
 		{
 			CommaNL();
-			Indent();	jsonWriter.Write ("" + GlTF_Writer.nodeNames.IndexOf(GlTF_Node.GetNameFromObject(j)));
+			Indent();	jsonWriter.Write ("" + GlTF_Writer.nodeIDs.IndexOf(GlTF_Node.GetIDFromObject(j)));
 		}
 
 		IndentOut();

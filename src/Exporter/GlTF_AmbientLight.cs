@@ -5,8 +5,8 @@ using System.Collections;
 public class GlTF_AmbientLight : GlTF_Light {
     public GlTF_AmbientLight() { type = "ambient"; }
 
-    public override void Write()
-    {
+	public override void Write()
+	{
         Indent();
         jsonWriter.Write("{\n");
         IndentIn();
@@ -24,6 +24,6 @@ public class GlTF_AmbientLight : GlTF_Light {
         IndentOut();
         Indent();
         jsonWriter.Write("}");
-    }
+	}
 }
 #endif

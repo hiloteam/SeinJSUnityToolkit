@@ -31,7 +31,7 @@ public class GlTF_Writer {
 	public static List<GlTF_Mesh> meshes = new List<GlTF_Mesh>();
 	public static List<GlTF_Accessor> accessors = new List<GlTF_Accessor>();
 
-	public static List<string> nodeNames = new List<string>();
+	public static List<int> nodeIDs = new List<int>();
 	public static List<GlTF_Node> nodes = new List<GlTF_Node>();
 
 	public static List<string> materialNames = new List<string>();
@@ -155,7 +155,7 @@ public class GlTF_Writer {
 		accessors = new List<GlTF_Accessor>();
 
 		nodes = new List<GlTF_Node>();
-		nodeNames = new List<string>();
+        nodeIDs = new List<int>();
 
 		materialNames = new List<string>();
 		materials = new List<GlTF_Material>();
@@ -208,7 +208,8 @@ public class GlTF_Writer {
 	}
 
 	public string id;
-	public string name; // name of this object
+    public int uuid;
+    public string name; // name of this object
 
 	// Extra data for objects
 	public Dictionary<string, string> extraString = new Dictionary<string, string>();

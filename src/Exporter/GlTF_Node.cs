@@ -8,7 +8,7 @@ public class GlTF_Node : GlTF_Writer
     public string cameraName;
     public int cameraIndex = -1;
     public bool hasParent = false;
-    public List<string> childrenNames = new List<string>();
+    public List<int> childrenIDs = new List<int>();
     public bool uniqueItems = true;
     public string lightName;
     public int lightIndex = -1;
@@ -42,6 +42,15 @@ public class GlTF_Node : GlTF_Writer
         return name;
     }
 
+    public static int GetIDFromObject(Transform o) {
+        return o.GetHashCode();
+    }
+
+    public static int GetIDFromObject(GlTF_Node o)
+    {
+        return o.GetHashCode();
+    }
+
     public override void Write()
     {
         Indent();
@@ -69,15 +78,15 @@ public class GlTF_Node : GlTF_Writer
             jsonWriter.Write("\"mesh\": " + meshIndex);
         }
 
-        if (childrenNames != null && childrenNames.Count > 0)
+        if (childrenIDs != null && childrenIDs.Count > 0)
         {
             CommaNL();
             Indent(); jsonWriter.Write("\"children\": [\n");
             IndentIn();
-            foreach (string ch in childrenNames)
+            foreach (int ch in childrenIDs)
             {
                 CommaNL();
-                Indent(); jsonWriter.Write(GlTF_Writer.nodeNames.IndexOf(ch));
+                Indent(); jsonWriter.Write(GlTF_Writer.nodeIDs.IndexOf(ch));
             }
             jsonWriter.WriteLine();
             IndentOut();
