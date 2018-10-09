@@ -59,9 +59,10 @@ public class GlTF_Animation : GlTF_Writer {
 
 				Transform targetObject = targetTr;
 				string targetId = GlTF_Node.GetNameFromObject(targetObject);
+                int targetUUID = GlTF_Node.GetIDFromObject(targetObject);
 
-				// Initialize accessors for current animation
-				GlTF_Accessor timeAccessor = new GlTF_Accessor(targetId + "_TimeAccessor_" + clip.name, GlTF_Accessor.Type.SCALAR, GlTF_Accessor.ComponentType.FLOAT);
+                // Initialize accessors for current animation
+                GlTF_Accessor timeAccessor = new GlTF_Accessor(targetId + "_TimeAccessor_" + clip.name, GlTF_Accessor.Type.SCALAR, GlTF_Accessor.ComponentType.FLOAT);
 				timeAccessor.bufferView = GlTF_Writer.floatBufferView;
 				int timeAccessorIndex = GlTF_Writer.accessors.Count;
 				GlTF_Writer.accessors.Add(timeAccessor);
@@ -70,7 +71,8 @@ public class GlTF_Animation : GlTF_Writer {
 				GlTF_Channel chTranslation = new GlTF_Channel("translation", animSamplers.Count);
 				GlTF_Target targetTranslation = new GlTF_Target();
 				targetTranslation.id = targetId;
-				targetTranslation.path = "translation";
+                targetTranslation.uuid = targetUUID;
+                targetTranslation.path = "translation";
 				chTranslation.target = targetTranslation;
 				channels.Add(chTranslation);
 
@@ -84,7 +86,8 @@ public class GlTF_Animation : GlTF_Writer {
 				GlTF_Channel chRotation = new GlTF_Channel("rotation", animSamplers.Count);
 				GlTF_Target targetRotation = new GlTF_Target();
 				targetRotation.id = GlTF_Node.GetNameFromObject(targetObject);
-				targetRotation.path = "rotation";
+                targetRotation.uuid = targetUUID;
+                targetRotation.path = "rotation";
 				chRotation.target = targetRotation;
 				channels.Add(chRotation);
 
@@ -98,7 +101,8 @@ public class GlTF_Animation : GlTF_Writer {
 				GlTF_Channel chScale = new GlTF_Channel("scale", animSamplers.Count);
 				GlTF_Target targetScale = new GlTF_Target();
 				targetScale.id = GlTF_Node.GetNameFromObject(targetObject);
-				targetScale.path = "scale";
+                targetScale.uuid = targetUUID;
+                targetScale.path = "scale";
 				chScale.target = targetScale;
 				channels.Add(chScale);
 

@@ -27,19 +27,9 @@ public class GlTF_Node : GlTF_Writer
 
     public static string GetNameFromObject(Transform o)
     {
-        //return "node_" + GlTF_Writer.GetNameFromObject(o, true);
-        string name = "";
         Transform obj = o;
 
-        while (obj != null)
-        {
-            name = obj.name + "-" + name;
-            obj = obj.parent;
-        }
-
-        name = "node_" + name.Substring(0, name.Length - 1);
-
-        return name;
+        return obj.name;
     }
 
     public static int GetIDFromObject(Transform o) {

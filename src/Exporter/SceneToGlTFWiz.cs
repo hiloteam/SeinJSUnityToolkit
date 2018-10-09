@@ -157,9 +157,9 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         // Create rootNode
         GlTF_Node correctionNode = new GlTF_Node();
-        correctionNode.id = "node_scene_root";
+        correctionNode.id = "root";
         correctionNode.uuid = GlTF_Node.GetIDFromObject(correctionNode);
-        correctionNode.name = "node_scene_root";
+        correctionNode.name = "root";
         GlTF_Writer.nodes.Add(correctionNode);
         GlTF_Writer.nodeIDs.Add(correctionNode.uuid);
         GlTF_Writer.rootNodes.Add(correctionNode);
