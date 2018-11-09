@@ -3,6 +3,15 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+class GlTF_Light_EX: GlTF_Writer {
+    public int index;
+
+    public override void Write()
+    {
+        jsonWriter.Write("\"KHR_lights_punctual\": { \"light\": " + index + "}");
+    }
+}
+
 public class GlTF_Node : GlTF_Writer
 {
     public string cameraName;
@@ -24,6 +33,8 @@ public class GlTF_Node : GlTF_Writer
     public int skinIndex = -1;
     public List<string> skeletons = new List<string>();
     public bool additionalProperties = false;
+    public GlTF_SeinNode seinNode;
+    public GlTF_SeinPhysicBody physicBody;
 
     public static string GetNameFromObject(Transform o)
     {
@@ -43,6 +54,8 @@ public class GlTF_Node : GlTF_Writer
 
     public override void Write()
     {
+        List<GlTF_Writer> extensions = new List<GlTF_Writer>();
+
         Indent();
         jsonWriter.Write("{\n");
         IndentIn();
@@ -55,17 +68,29 @@ public class GlTF_Node : GlTF_Writer
             Indent();
             jsonWriter.Write("\"camera\": " + cameraIndex);
         }
-        else if (lightIndex != -1)
+
+        if (lightIndex != -1)
         {
-            CommaNL();
-            Indent();
-            jsonWriter.Write("\"extensions\": { \"KHR_lights_punctual\": { \"light\": " + lightIndex + "}}");
+            var lightWriter = new GlTF_Light_EX();
+            lightWriter.index = lightIndex;
+            extensions.Add(lightWriter);
         }
-        else if (meshIndex != -1)
+
+        if (meshIndex != -1)
         {
             CommaNL();
             Indent();
             jsonWriter.Write("\"mesh\": " + meshIndex);
+        }
+
+        if (seinNode != null)
+        {
+            extensions.Add(seinNode);
+        }
+
+        if (physicBody != null)
+        {
+            extensions.Add(physicBody);
         }
 
         if (childrenIDs != null && childrenIDs.Count > 0)
@@ -112,6 +137,27 @@ public class GlTF_Node : GlTF_Writer
         {
             CommaNL();
             Indent(); jsonWriter.Write("\"skin\": " + skinIndex + "\n");
+        }
+
+        if (extensions.Count > 0) {
+            CommaNL();
+            Indent(); jsonWriter.Write("\"extensions\": {\n");
+            IndentIn();
+            for (var i = 0; i < extensions.Count; i += 1)
+            {
+                var extension = extensions[i];
+
+                Indent();
+                extension.Write();
+
+                if (i != extensions.Count - 1)
+                {
+                    jsonWriter.Write(",");
+                }
+                jsonWriter.Write("\n");
+            }
+            IndentOut();
+            Indent(); jsonWriter.Write("}\n");
         }
 
         IndentOut();

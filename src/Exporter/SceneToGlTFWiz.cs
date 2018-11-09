@@ -33,8 +33,6 @@ public enum IMAGETYPE
 
 public class SceneToGlTFWiz : MonoBehaviour
 {
-    public int jpgQuality = 85;
-
     public GlTF_Writer writer;
     string savedPath = "";
     int nbSelectedObjects = 0;
@@ -82,7 +80,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         done = false;
     }
 
-    public static GlTF_Light parseUnityLight(Transform tr, bool halfSpotAngle, bool quadraticAttenuation)
+    public static GlTF_Light parseUnityLight(Transform tr)
     {
         switch (tr.GetComponent<Light>().type)
         {
@@ -92,8 +90,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 pl.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 pl.intensity = tr.GetComponent<Light>().intensity;
                 pl.range = tr.GetComponent<Light>().range;
-                pl.halfSpotAngle = halfSpotAngle;
-                pl.quadraticAttenuation = quadraticAttenuation;
+                pl.halfSpotAngle = Exporter.opt_halfSpotAngle;
+                pl.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(pl);
                 return pl;
 
@@ -104,8 +102,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 sl.intensity = tr.GetComponent<Light>().intensity;
                 sl.range = tr.GetComponent<Light>().range;
                 sl.spotAngle = tr.GetComponent<Light>().spotAngle;
-                sl.halfSpotAngle = halfSpotAngle;
-                sl.quadraticAttenuation = quadraticAttenuation;
+                sl.halfSpotAngle = Exporter.opt_halfSpotAngle;
+                sl.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(sl);
                 return sl;
 
@@ -114,8 +112,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 dl.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
                 dl.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 dl.intensity = tr.GetComponent<Light>().intensity;
-                dl.halfSpotAngle = halfSpotAngle;
-                dl.quadraticAttenuation = quadraticAttenuation;
+                dl.halfSpotAngle = Exporter.opt_halfSpotAngle;
+                dl.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(dl);
                 return dl;
 
@@ -124,8 +122,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 al.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
                 al.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 al.intensity = tr.GetComponent<Light>().intensity;
-                al.halfSpotAngle = halfSpotAngle;
-                al.quadraticAttenuation = quadraticAttenuation;
+                al.halfSpotAngle = Exporter.opt_halfSpotAngle;
+                al.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(al);
                 return al;
         }
@@ -133,9 +131,9 @@ public class SceneToGlTFWiz : MonoBehaviour
         return null;
     }
 
-    public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true, bool halfSpotAngle = true, bool quadraticAttenuation = true)
+    public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true)
     {
-        StartCoroutine(Export(path, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages, halfSpotAngle, quadraticAttenuation));
+        StartCoroutine(Export(path, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
     }
 
     public int getNbSelectedObjects()
@@ -143,7 +141,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         return nbSelectedObjects;
     }
 
-    public IEnumerator Export(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false, bool halfSpotAngle = true, bool quadraticAttenuation = true)
+    public IEnumerator Export(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false)
     {
         writer = new GlTF_Writer();
         writer.Init();
@@ -155,15 +153,7 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         writer.extraString.Add("exporterVersion", GlTF_Writer.exporterVersion);
 
-        // Create rootNode
-        GlTF_Node correctionNode = new GlTF_Node();
-        correctionNode.id = "root";
-        correctionNode.uuid = GlTF_Node.GetIDFromObject(correctionNode);
-        correctionNode.name = "root";
-        GlTF_Writer.nodes.Add(correctionNode);
-        GlTF_Writer.nodeIDs.Add(correctionNode.uuid);
-        GlTF_Writer.rootNodes.Add(correctionNode);
-
+       
         //path = toGlTFname(path);
         savedPath = Path.GetDirectoryName(path);
 
@@ -216,9 +206,34 @@ public class SceneToGlTFWiz : MonoBehaviour
 
             if (tr.GetComponent<Light>() != null)
             {
-                GlTF_Light l = parseUnityLight(tr, halfSpotAngle, quadraticAttenuation);
+                GlTF_Light l = parseUnityLight(tr);
                 node.lightName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
                 node.lightIndex = GlTF_Writer.lights.IndexOf(l);
+            }
+
+            if (tr.GetComponent<SeinNode>() != null)
+            {
+                node.seinNode = new GlTF_SeinNode();
+                node.seinNode.node = tr.GetComponent<SeinNode>();
+            }
+
+            if (tr.GetComponent<SeinRigidBody>() != null)
+            {
+                if (node.physicBody == null) {
+                    node.physicBody = new GlTF_SeinPhysicBody();
+                }
+
+                node.physicBody.rigidbody = tr.GetComponent<SeinRigidBody>();
+            }
+
+            if (tr.GetComponents<Collider>().Length != 0)
+            {
+                if (node.physicBody == null)
+                {
+                    node.physicBody = new GlTF_SeinPhysicBody();
+                }
+
+                node.physicBody.colliders = new List<Collider>(tr.GetComponents<Collider>());
             }
 
             Mesh m = GetMesh(tr);
@@ -520,8 +535,9 @@ public class SceneToGlTFWiz : MonoBehaviour
                     node.rotation = new GlTF_Rotation(tr.localRotation);
             }
 
-            if (!node.hasParent)
-                correctionNode.childrenIDs.Add(node.uuid);
+            if (!node.hasParent) {
+                GlTF_Writer.rootNodes.Add(node);
+            }
 
             if (tr.GetComponent<Camera>() != null)
             {
@@ -815,6 +831,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             Texture2D newtex = new Texture2D(width, height);
             newtex.SetPixels(outputColors);
             newtex.Apply();
+            TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
             string pathInArchive = Path.GetDirectoryName(assetPath);
             string exportDir = Path.Combine(savedPath, pathInArchive);
@@ -824,7 +841,7 @@ public class SceneToGlTFWiz : MonoBehaviour
 
             string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_converted_metalRoughness.jpg";
             string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
-            File.WriteAllBytes(exportPath, newtex.EncodeToJPG(jpgQuality));
+            File.WriteAllBytes(exportPath, newtex.EncodeToJPG(Exporter.opt_jpgQuality));
 
             if (!GlTF_Writer.exportedFiles.ContainsKey(exportPath))
                 GlTF_Writer.exportedFiles.Add(exportPath, pathInArchive);
@@ -1152,6 +1169,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         Texture2D newtex = new Texture2D(inputTexture.width, inputTexture.height);
         newtex.SetPixels(newTextureColors);
         newtex.Apply();
+        TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
         string pathInArchive = Path.GetDirectoryName(pathInProject);
         string exportDir = Path.Combine(exportDirectory, pathInArchive);
@@ -1162,7 +1180,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         string outputFilename = Path.GetFileNameWithoutExtension(pathInProject) + (format == IMAGETYPE.RGBA ? ".png" : ".jpg");
         string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
         string pathInGltfFile = pathInArchive + "/" + outputFilename;
-        File.WriteAllBytes(exportPath, (format == IMAGETYPE.RGBA ? newtex.EncodeToPNG() : newtex.EncodeToJPG(format == IMAGETYPE.NORMAL_MAP ? 95 : jpgQuality)));
+        File.WriteAllBytes(exportPath, (format == IMAGETYPE.RGBA ? newtex.EncodeToPNG() : newtex.EncodeToJPG(format == IMAGETYPE.NORMAL_MAP ? 95 : Exporter.opt_jpgQuality)));
 
         if (!GlTF_Writer.exportedFiles.ContainsKey(exportPath))
             GlTF_Writer.exportedFiles.Add(exportPath, pathInArchive);

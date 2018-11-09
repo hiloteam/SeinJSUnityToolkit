@@ -42,12 +42,16 @@ public class Exporter : EditorWindow {
 	public static string reportAnIssueUrl = "https://help.sketchfab.com/hc/en-us/requests/new?type=exporters&subject=Unity+Exporter";
 	public static string privateUrl = "https://help.sketchfab.com/hc/en-us/articles/115000422206-Private-Models";
 	public static string draftUrl = "https://help.sketchfab.com/hc/en-us/articles/115000472906-Draft-Mode";
+    public static int opt_maxSize = 1024;
+    public static bool opt_halfSpotAngle = true;
+    public static bool opt_quadraticAttenuation = true;
+    public static int opt_jpgQuality= 85;
 
-	// UI dimensions (to be cleaned)
-	[SerializeField]
+    // UI dimensions (to be cleaned)
+    [SerializeField]
 	Vector2 loginSize = new Vector2(603, 190);
 	[SerializeField]
-	Vector2 fullSize = new Vector2(603, 240);
+	Vector2 fullSize = new Vector2(603, 340);
 	[SerializeField]
 	Vector2 descSize = new Vector2(603, 175);
 
@@ -90,9 +94,8 @@ public class Exporter : EditorWindow {
 	private string user_password = "";
 
 	private bool opt_exportAnimation = true;
-    private bool opt_halfSpotAngle = true;
-    private bool opt_quadraticAttenuation = true;
-	private string param_name = "";
+    //private bool opt_quadraticAttenuation = true;
+    private string param_name = "";
 	private string param_description = "";
 	private string param_tags = "";
 	private bool param_autopublish = true;
@@ -201,28 +204,28 @@ public class Exporter : EditorWindow {
 			switch (state)
 			{
 				case ExporterState.CHECK_VERSION:
-					JSONNode githubResponse = JSON.Parse(this.jsonify(www.text));
-					if(githubResponse != null && githubResponse[0]["tag_name"] != null)
-					{
-						latestVersion = githubResponse[0]["tag_name"];
-						if (exporterVersion != latestVersion)
-						{
-							bool update = EditorUtility.DisplayDialog("Exporter update", "A new version is available \n(you have version " + exporterVersion + ")\nIt's strongly rsecommended that you update now. The latest version may include important bug fixes and improvements", "Update", "Skip");
-							if (update)
-							{
-								Application.OpenURL(latestReleaseUrl);
-							}
-						}
-						else
-						{
-							resizeWindow(fullSize);
-						}
-					}
-					else
-					{
-						latestVersion = "";
-						resizeWindow(fullSize + new Vector2(0, 15));
-					}
+					//JSONNode githubResponse = JSON.Parse(this.jsonify(www.text));
+					//if(githubResponse != null && githubResponse[0]["tag_name"] != null)
+					//{
+					//	latestVersion = githubResponse[0]["tag_name"];
+					//	if (exporterVersion != latestVersion)
+					//	{
+					//		bool update = EditorUtility.DisplayDialog("Exporter update", "A new version is available \n(you have version " + exporterVersion + ")\nIt's strongly rsecommended that you update now. The latest version may include important bug fixes and improvements", "Update", "Skip");
+					//		if (update)
+					//		{
+					//			Application.OpenURL(latestReleaseUrl);
+					//		}
+					//	}
+					//	else
+					//	{
+					//		resizeWindow(fullSize);
+					//	}
+					//}
+					//else
+					//{
+					//	latestVersion = "";
+					//	resizeWindow(fullSize + new Vector2(0, 15));
+					//}
 					publisher.setIdle();
 					break;
 				case ExporterState.REQUEST_CODE:
@@ -370,17 +373,23 @@ public class Exporter : EditorWindow {
 		// Model name
 		GUILayout.Label("Name");
 		param_name = EditorGUILayout.TextField(param_name);
-		GUILayout.Label("(" + param_name.Length + "/" + NAME_LIMIT + ")", EditorStyles.centeredGreyMiniLabel);
-		EditorStyles.textField.wordWrap = true;
 		GUILayout.Space(SPACE_SIZE);
 
-		GUILayout.Label("Options", EditorStyles.boldLabel);
+        GUILayout.Label("Texture properties", EditorStyles.boldLabel);
+
+        GUILayout.Label("Texture max size");
+        Exporter.opt_maxSize = EditorGUILayout.IntField(Exporter.opt_maxSize);
+        GUILayout.Label("Texture jpg quality");
+        Exporter.opt_jpgQuality = EditorGUILayout.IntField(Exporter.opt_jpgQuality);
+        GUILayout.Space(SPACE_SIZE);
+
+        GUILayout.Label("Options", EditorStyles.boldLabel);
 
         EditorGUIUtility.labelWidth = 200;
 
         opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
-        opt_halfSpotAngle = EditorGUILayout.Toggle("Half spot angle(Hilo3d, Threejs...)", opt_halfSpotAngle);
-        opt_quadraticAttenuation = EditorGUILayout.Toggle("Light quadratic attenuation(Hilo3d...)", opt_quadraticAttenuation);	
+        Exporter.opt_halfSpotAngle = EditorGUILayout.Toggle("Half spot angle(Hilo3d, Threejs...)", Exporter.opt_halfSpotAngle);
+        Exporter.opt_quadraticAttenuation = EditorGUILayout.Toggle("Light quadratic attenuation(Hilo3d...)", Exporter.opt_quadraticAttenuation);	
 
 		//GUILayout.Space(SPACE_SIZE);
 
@@ -402,9 +411,9 @@ public class Exporter : EditorWindow {
 			{
 				System.IO.File.Delete(zipPath);
 			}
-            zipPath = Application.temporaryCachePath + "/" + "scene.zip";
-            exportPath = Application.temporaryCachePath + "/" + "scene.gltf";
-			exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true, opt_halfSpotAngle, opt_quadraticAttenuation);
+            zipPath = Application.temporaryCachePath + "/" + param_name + ".zip";
+            exportPath = Application.temporaryCachePath + "/" + param_name + ".gltf";
+			exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
 			OpenInFileBrowser.Open (Path.GetDirectoryName(exportPath));
 		}
 	}
