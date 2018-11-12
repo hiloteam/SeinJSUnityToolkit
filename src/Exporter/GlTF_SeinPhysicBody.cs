@@ -34,22 +34,28 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                 jsonWriter.Write("{\n");
                 IndentIn();
                 Indent();
-                jsonWriter.Write("\"name\": \"" + collider.name + "\",\n");
+                jsonWriter.Write("\"isTrigger\": " + (collider.isTrigger ? "true" : "false") + ",\n");
 
                 if (collider is SphereCollider) {
                     Indent();
+                    jsonWriter.Write("\"name\": \"sphere" + i + "\",\n");
+                    Indent();
                     jsonWriter.Write("\"type\": \"SPHERE\",\n");
                     Indent();
-                    jsonWriter.Write("\"center\": \"" + ((SphereCollider)collider).center + "\",\n");
+                    var center = ((SphereCollider)collider).center;
+                    jsonWriter.Write("\"offset\": {" + "\"x\": " + center.x + ", \"y\": " + center.y + ", \"z\": " + center.z + "},\n");
                     Indent();
-                    jsonWriter.Write("\"radius\": \"" + ((SphereCollider)collider).radius + "\"\n");
+                    jsonWriter.Write("\"radius\": " + ((SphereCollider)collider).radius + "\n");
                 } else if (collider is BoxCollider) {
+                    Indent();
+                    jsonWriter.Write("\"name\": \"box" + i + "\",\n");
                     Indent();
                     jsonWriter.Write("\"type\": \"BOX\",\n");
                     Indent();
-                    jsonWriter.Write("\"center\": \"" + ((BoxCollider)collider).center + "\",\n");
+                    var center = ((BoxCollider)collider).center;
+                    jsonWriter.Write("\"offset\": {" + "\"x\": " + center.x + ", \"y\": " + center.y + ", \"z\": " + center.z + "},\n");
                     Indent();
-                    jsonWriter.Write("\"extents\": \"" + ((BoxCollider)collider).size + "\"\n");
+                    jsonWriter.Write("\"size\": " + ((BoxCollider)collider).size.ToString().Replace('(', '[').Replace(')', ']') + "\n");
                 } else {
                     Debug.LogWarning("In current time, Sein only supports shpere and box collider !");
                 }

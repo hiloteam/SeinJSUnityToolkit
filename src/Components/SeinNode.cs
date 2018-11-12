@@ -32,5 +32,5 @@ public class SeinNode : MonoBehaviour {
 
     // no logic component
     // onUpdate will not be trigger
-    public bool isStatic = true;
+    public bool isStatic = false;
 }
