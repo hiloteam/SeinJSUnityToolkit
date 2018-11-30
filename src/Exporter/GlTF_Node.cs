@@ -61,7 +61,9 @@ public class GlTF_Node : GlTF_Writer
         IndentIn();
         Indent();
         CommaNL();
-        jsonWriter.Write("\"name\": \"" + id + "\"");
+        string nodeName;
+        nodeName = GlTF_Writer.nodeNames.TryGetValue(uuid, out nodeName) ? nodeName : id;
+        jsonWriter.Write("\"name\": \"" + nodeName + "\"");
         if (cameraName != null)
         {
             CommaNL();
@@ -101,7 +103,8 @@ public class GlTF_Node : GlTF_Writer
             foreach (int ch in childrenIDs)
             {
                 CommaNL();
-                Indent(); jsonWriter.Write(GlTF_Writer.nodeIDs.IndexOf(ch));
+                int index = GlTF_Writer.nodeIDs.IndexOf(ch);
+                Indent(); jsonWriter.Write(index);
             }
             jsonWriter.WriteLine();
             IndentOut();

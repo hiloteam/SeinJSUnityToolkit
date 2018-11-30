@@ -33,8 +33,9 @@ public class GlTF_Writer {
 
 	public static List<int> nodeIDs = new List<int>();
 	public static List<GlTF_Node> nodes = new List<GlTF_Node>();
+    public static Dictionary<int, string> nodeNames = new Dictionary<int, string>();
 
-	public static List<string> materialNames = new List<string>();
+    public static List<string> materialNames = new List<string>();
 	public static List<GlTF_Material> materials = new List<GlTF_Material>();
 	public static List<string> samplerNames = new List<string>();
 	public static List<GlTF_Sampler> samplers = new List<GlTF_Sampler>();
@@ -156,8 +157,9 @@ public class GlTF_Writer {
 
 		nodes = new List<GlTF_Node>();
         nodeIDs = new List<int>();
+        nodeNames = new Dictionary<int, string>();
 
-		materialNames = new List<string>();
+        materialNames = new List<string>();
 		materials = new List<GlTF_Material>();
 
 		samplerNames = new List<string>();

@@ -564,10 +564,32 @@ public class SceneToGlTFWiz : MonoBehaviour
                 node.skinIndex = GlTF_Writer.skins.IndexOf(skin);
             }
 
+            Dictionary<string, int> names = new Dictionary<string, int>();
+            int index = 0;
             foreach (Transform t in tr.transform)
             {
                 if (t.gameObject.activeInHierarchy)
-                    node.childrenIDs.Add(GlTF_Node.GetIDFromObject(t));
+                {
+                    int cID = GlTF_Node.GetIDFromObject(t);
+                    node.childrenIDs.Add(cID);
+
+                    int i;
+                    i = names.TryGetValue(t.name, out i) ? i : -1;
+                    i += 1;
+
+                    if (i == 0)
+                    {
+                        names.Add(t.name, i);
+                    }
+                    else
+                    {
+                        names[t.name] = i;
+                        string nodeName = t.name + "-" + i;
+                        GlTF_Writer.nodeNames[cID] = nodeName;
+                    }
+
+                    index += 1;
+                }
             }
 
             GlTF_Writer.nodeIDs.Add(node.uuid);
