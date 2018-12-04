@@ -13,11 +13,11 @@ public class GlTF_Matrix : GlTF_FloatArray
 
         if (convertRightHanded && isLight)
         {
-            m.m00 *= -1;
-            m.m10 *= -1;
-            m.m21 *= -1;
-            m.m22 *= -1;
-            m.m23 *= -1;
+            //m.m00 *= -1;
+            //m.m10 *= -1;
+            //m.m21 *= -1;
+            //m.m22 *= -1;
+            //m.m23 *= -1;
         }
         else if (convertRightHanded && convertLeftRight)
         {

@@ -20,7 +20,9 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
         Indent();
         jsonWriter.Write("\"unControl\": " + (rigidbody.unControl ? "true" : "false") + ",\n");
         Indent();
-        jsonWriter.Write("\"physicStatic\": " + (rigidbody.physicStatic ? "true" : "false"));
+        jsonWriter.Write("\"physicStatic\": " + (rigidbody.physicStatic ? "true" : "false") + ",\n");
+        Indent();
+        jsonWriter.Write("\"sleeping\": " + (rigidbody.sleeping ? "true" : "false"));
         if (colliders.Count > 0) {
             jsonWriter.Write(",\n");
             Indent();
@@ -53,7 +55,7 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                     jsonWriter.Write("\"type\": \"BOX\",\n");
                     Indent();
                     var center = ((BoxCollider)collider).center;
-                    jsonWriter.Write("\"offset\": {" + "\"x\": " + center.x + ", \"y\": " + center.y + ", \"z\": " + center.z + "},\n");
+                    jsonWriter.Write("\"offset\": {" + "\"x\": " + center.x + ", \"y\": " + center.y + ", \"z\": " + -center.z + "},\n");
                     Indent();
                     jsonWriter.Write("\"size\": " + ((BoxCollider)collider).size.ToString().Replace('(', '[').Replace(')', ']') + "\n");
                 } else {
