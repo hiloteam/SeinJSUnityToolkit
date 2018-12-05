@@ -6,7 +6,7 @@ public class SeinRigidBody : MonoBehaviour
 {
     public static string extensionName = "Sein_physicBody";
 
-    [Header("Node Type")]
+    [Header("Body Options")]
     // If this node is toplevel, selfType will default to Actor
     // If not toplevel, it will default to Inherit
     // If parent's type is Component, it must be Component
@@ -15,4 +15,5 @@ public class SeinRigidBody : MonoBehaviour
     public float restitution = 0;
     public bool unControl = false;
     public bool physicStatic = false;
+    public bool sleeping = false;
 }

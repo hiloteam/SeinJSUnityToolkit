@@ -71,7 +71,11 @@ public class GlTF_Writer {
 	}
 	static public string GetNameFromObject(Object o, bool useId = false)
 	{
-		var ret = cleanNonAlphanumeric(o.name);
+        if (o == null)
+        {
+            return "";
+        }
+        var ret = cleanNonAlphanumeric(o.name);
 		if (useId)
 		{
 			ret += "_" + o.GetInstanceID();

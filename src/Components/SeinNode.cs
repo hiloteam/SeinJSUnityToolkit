@@ -33,4 +33,7 @@ public class SeinNode : MonoBehaviour {
     // no logic component
     // onUpdate will not be trigger
     public bool isStatic = false;
+
+    // skip
+    public bool skipThisNode = false;
 }

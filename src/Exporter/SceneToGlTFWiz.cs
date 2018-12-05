@@ -566,8 +566,10 @@ public class SceneToGlTFWiz : MonoBehaviour
 
             Dictionary<string, int> names = new Dictionary<string, int>();
             int index = 0;
+            SeinNode seinNode = tr.GetComponent<SeinNode>();
+            bool needCheckConfilct = seinNode == null || !seinNode.skipThisNode;
             foreach (Transform t in tr.transform)
-            {
+            { 
                 if (t.gameObject.activeInHierarchy)
                 {
                     int cID = GlTF_Node.GetIDFromObject(t);
@@ -577,17 +579,22 @@ public class SceneToGlTFWiz : MonoBehaviour
                     i = names.TryGetValue(t.name, out i) ? i : -1;
                     i += 1;
 
+                    string nodeName = t.name;
                     if (i == 0)
                     {
                         names.Add(t.name, i);
+                        if (needCheckConfilct && nodeName == tr.name)
+                        {
+                            nodeName += "-" + i;
+                        }
                     }
                     else
                     {
                         names[t.name] = i;
-                        string nodeName = t.name + "-" + i;
-                        GlTF_Writer.nodeNames[cID] = nodeName;
+                        nodeName += "-" + i;
                     }
 
+                    GlTF_Writer.nodeNames[cID] = nodeName;
                     index += 1;
                 }
             }
