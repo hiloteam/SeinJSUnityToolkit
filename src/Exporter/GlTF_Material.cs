@@ -122,33 +122,60 @@ public class GlTF_Material : GlTF_Writer {
 		Indent(); jsonWriter.Write("{\n");
 		IndentIn();
 		writeExtras();
-		if (isMetal)
-		{
-			Indent(); jsonWriter.Write("\"pbrMetallicRoughness\": {\n");
-		}
-		else
-		{
-			Indent(); jsonWriter.Write("\"extensions\": {\n");
-			IndentIn();
 
-			Indent(); jsonWriter.Write("\"KHR_materials_pbrSpecularGlossiness\": {\n");
-		}
-		IndentIn();
-		foreach (var v in pbrValues)
-		{
-			CommaNL();
-			Indent(); v.Write();
-		}
-		if (!isMetal)
-		{
-			IndentOut();
-			Indent(); jsonWriter.Write("}");
-			jsonWriter.Write("\n");
-		}
+        if (Exporter.opt_noLighting)
+        {
+            Indent(); jsonWriter.Write("\"pbrMetallicRoughness\": {\n");
+            IndentIn();
+            foreach (var v in pbrValues)
+            {
+                if (v.name == "baseColorFactor" || v.name == "baseColorTexture")
+                {
+                    CommaNL();
+                    Indent(); v.Write();
+                }
+            }
 
-		jsonWriter.Write("\n");
-		IndentOut();
-		Indent(); jsonWriter.Write("},\n");
+            jsonWriter.Write("\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("},\n");
+
+            Indent(); jsonWriter.Write("\"extensions\": {\n");
+            IndentIn();
+            Indent(); jsonWriter.Write("\"KHR_materials_unlit\": {}\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("},\n");
+        }
+        else
+        {
+            if (isMetal)
+            {
+                Indent(); jsonWriter.Write("\"pbrMetallicRoughness\": {\n");
+            }
+            else
+            {
+                Indent(); jsonWriter.Write("\"extensions\": {\n");
+                IndentIn();
+
+                Indent(); jsonWriter.Write("\"KHR_materials_pbrSpecularGlossiness\": {\n");
+            }
+            IndentIn();
+            foreach (var v in pbrValues)
+            {
+                CommaNL();
+                Indent(); v.Write();
+            }
+            if (!isMetal)
+            {
+                IndentOut();
+                Indent(); jsonWriter.Write("}");
+                jsonWriter.Write("\n");
+            }
+
+            jsonWriter.Write("\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("},\n");
+        }
 
 		// write common values
 		foreach (var v in values)

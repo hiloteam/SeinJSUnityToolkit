@@ -46,6 +46,7 @@ public class Exporter : EditorWindow {
     public static bool opt_halfSpotAngle = true;
     public static bool opt_quadraticAttenuation = true;
     public static int opt_jpgQuality= 85;
+    public static bool opt_noLighting= false;
 
     // UI dimensions (to be cleaned)
     [SerializeField]
@@ -388,16 +389,19 @@ public class Exporter : EditorWindow {
         EditorGUIUtility.labelWidth = 200;
 
         opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
-        Exporter.opt_halfSpotAngle = EditorGUILayout.Toggle("Half spot angle(Hilo3d, Threejs...)", Exporter.opt_halfSpotAngle);
-        Exporter.opt_quadraticAttenuation = EditorGUILayout.Toggle("Light quadratic attenuation(Hilo3d...)", Exporter.opt_quadraticAttenuation);	
+        opt_halfSpotAngle = EditorGUILayout.Toggle("Half spot angle(Hilo3d, Threejs...)", Exporter.opt_halfSpotAngle);
+        opt_quadraticAttenuation = EditorGUILayout.Toggle("Light quadratic attenuation(Hilo3d...)", Exporter.opt_quadraticAttenuation);
 
-		//GUILayout.Space(SPACE_SIZE);
+        GUILayout.Label("Materials", EditorStyles.boldLabel);
+        opt_noLighting = EditorGUILayout.Toggle("No Lighting(Always for mobile)", Exporter.opt_noLighting);
 
-		//if (categories.Count > 0)
-		//	categoryIndex = EditorGUILayout.Popup(categoryIndex, categoriesNames.ToArray());
+        //GUILayout.Space(SPACE_SIZE);
 
-		//GUILayout.Space(SPACE_SIZE);
-		bool enable = updateExporterStatus();
+        //if (categories.Count > 0)
+        //	categoryIndex = EditorGUILayout.Popup(categoryIndex, categoriesNames.ToArray());
+
+        //GUILayout.Space(SPACE_SIZE);
+        bool enable = updateExporterStatus();
 
 		if (enable)
 			GUI.color = blueColor;

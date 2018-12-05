@@ -346,6 +346,12 @@ public class GlTF_Writer {
         extensionsRequired.Add(SeinRigidBody.extensionName);
         extensionsUsed.Add(SeinRigidBody.extensionName);
 
+        if (Exporter.opt_noLighting)
+        {
+            extensionsRequired.Add("KHR_materials_unlit");
+            extensionsUsed.Add("KHR_materials_unlit");
+        }
+
         jsonWriter.Write ("{\n");
 		IndentIn();
 
@@ -459,7 +465,7 @@ public class GlTF_Writer {
 			Indent();		jsonWriter.Write ("]");
 		}
 
-        if (hasSpecularMaterials || lights.Count > 0)
+        if (!Exporter.opt_noLighting && (hasSpecularMaterials || lights.Count > 0))
         {
             extensionsRequired.Add("KHR_lights_punctual");
             extensionsUsed.Add("KHR_lights_punctual");
@@ -468,11 +474,12 @@ public class GlTF_Writer {
                 extensionsRequired.Add("KHR_materials_pbrSpecularGlossiness");
                 extensionsUsed.Add("KHR_materials_pbrSpecularGlossiness");
             }
-            if (binary)
-            {
-                extensionsUsed.Add("KHR_binary_glTF");
-                Indent(); jsonWriter.Write("\"KHR_binary_glTF\"");
-            }
+        }
+
+        if (binary)
+        {
+            extensionsUsed.Add("KHR_binary_glTF");
+            Indent(); jsonWriter.Write("\"KHR_binary_glTF\"");
         }
 
         if (extensionsRequired.Count > 0)
