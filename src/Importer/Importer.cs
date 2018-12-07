@@ -18,7 +18,7 @@ namespace GlTF
 
 		// Settings
 		string _unzipDirectory = Application.temporaryCachePath + "/unzip";
-		string _importDirectory = Application.dataPath + "/Import";
+		string _importDirectory = Application.dataPath + "/Resources";
 		string _currentSampleName = "Imported";
 		bool _addToCurrentScene = false;
 		string _gltfInput;
@@ -41,7 +41,7 @@ namespace GlTF
 			{
 				if (!GLTFUtils.isFolderInProjectDirectory(importDirectory))
 				{
-					Debug.LogError("Import directory in not in Assets");
+					Debug.LogError("Import directory in not in Assets/Resources");
 				}
 				else
 				{
@@ -99,7 +99,7 @@ namespace GlTF
 
             string realDirectory = _unzipDirectory;
             foreach (string path in _unzippedFiles) {
-                if (Path.GetExtension(path) == ".gltf") {
+                if (!path.Contains("__MACOSX") && Path.GetExtension(path) == ".gltf") {
                     realDirectory = Path.GetDirectoryName(path);
                 }
             }
@@ -136,7 +136,7 @@ namespace GlTF
 		{
 			if (!GLTFUtils.isFolderInProjectDirectory(_importDirectory))
 			{
-				Debug.LogError("Import directory is outside of project directory. Please select path in Assets/");
+				Debug.LogError("Import directory is outside of project directory. Please select path in Assets/Resources/");
 				return;
 			}
 

@@ -47,7 +47,7 @@ namespace GlTF
 			_importer = new GlTFImporter(UpdateProgress, OnFinishImport);
 			_unzippedFiles = new List<string>();
 			_unzipDirectory = Application.temporaryCachePath + "/unzip";
-			_defaultImportDirectory = Application.dataPath + "/Import";
+			_defaultImportDirectory = Application.dataPath + "/Resources";
 			_importDirectory = _defaultImportDirectory;
 			_importFilePath = _sourceFileHint;
             _ui = new GlTFUI();
@@ -260,7 +260,7 @@ namespace GlTF
 
 		private bool isDirectoryInProject()
 		{
-			return _importDirectory.Contains(Application.dataPath);
+			return _importDirectory.Contains(Application.dataPath) || !_importDirectory.Contains("/Resources");
 		}
 
 		private void processImportButton()
@@ -271,7 +271,20 @@ namespace GlTF
 				return;
 			}
 
-			_importer.configure(_importDirectory, _currentSampleName, _addToCurrentScene);
+            if (Directory.Exists(_importDirectory))
+            {
+                if (!EditorUtility.DisplayDialog(
+                    "Resources already existed",
+                    "Are you sure you want to replace it? Don't forget to sync your prefab if necessary !",
+                    "Replace",
+                    "Cancel"
+                ))
+                {
+                    return;
+                }
+            }
+
+            _importer.configure(_importDirectory, _currentSampleName, _addToCurrentScene);
 			_importer.loadFromFile(_importFilePath);
 		}
 
