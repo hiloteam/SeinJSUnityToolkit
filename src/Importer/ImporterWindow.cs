@@ -317,7 +317,10 @@ namespace GlTF
 				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.SKIN:
 					element = "Skin";
 					break;
-			}
+                case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.SKINNEDMESH:
+                    element = "SkinnedMesh";
+                    break;
+            }
 
 			EditorUtility.DisplayProgressBar("Importing glTF", "Importing " + element + " (" + current + " / " + total + ")", (float)current / (float)total);
 			this.Repaint();

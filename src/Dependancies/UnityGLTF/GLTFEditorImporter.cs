@@ -43,9 +43,10 @@ namespace UnityGLTF
 		private List<string> _assetsToRemove;
 		Dictionary<int, GameObject> _importedObjects;
 		Dictionary<int, List<SkinnedMeshRenderer>>_skinIndexToGameObjects;
+        Dictionary<Node, List<GameObject>> _skinObjectsStore = new Dictionary<Node, List<GameObject>>();
 
-		// Import Progress
-		public enum IMPORT_STEP
+        // Import Progress
+        public enum IMPORT_STEP
 		{
 			READ_FILE,
 			BUFFER,
@@ -55,7 +56,8 @@ namespace UnityGLTF
 			MESH,
 			NODE,
 			ANIMATION,
-			SKIN
+			SKIN,
+            SKINNEDMESH
 		}
 
 		public delegate void RefreshWindow();
@@ -114,7 +116,9 @@ namespace UnityGLTF
 			_importedObjects.Clear();
 			_addToCurrentScene = addScene;
 			_skinIndexToGameObjects.Clear();
-		}
+            _skinObjectsStore.Clear();
+
+        }
 
 		public void Update()
 		{
@@ -200,8 +204,10 @@ namespace UnityGLTF
 				LoadMaterialsEnum();
 			LoadMeshesEnum();
 			LoadSceneEnum();
+            LoadSkinnedMeshesEnum();
 
-			if (_root.Animations != null && _root.Animations.Count > 0)
+
+            if (_root.Animations != null && _root.Animations.Count > 0)
 				LoadAnimationsEnum();
 
 			if (_root.Skins != null && _root.Skins.Count > 0)
@@ -237,7 +243,13 @@ namespace UnityGLTF
 		{
 			_taskManager.addTask(LoadScene());
 		}
-		private void LoadAnimationsEnum()
+
+        private void LoadSkinnedMeshesEnum()
+        {
+            _taskManager.addTask(LoadSkinnedMeshes());
+        }
+
+        private void LoadAnimationsEnum()
 		{
 			_taskManager.addTask(LoadAnimations());
 		}
@@ -686,9 +698,9 @@ namespace UnityGLTF
 
 				mesh.boneWeights = bws;
 
-				// initialize inverseBindMatrix array with identity matrix in order to output a valid mesh object
-				Matrix4x4[] bindposes = new Matrix4x4[maxBonesIndex];
-				for(int j=0; j < maxBonesIndex; ++j)
+                // initialize inverseBindMatrix array with identity matrix in order to output a valid mesh object
+                Matrix4x4[] bindposes = new Matrix4x4[maxBonesIndex + 1];
+				for(int j=0; j <= maxBonesIndex; ++j)
 				{
 					bindposes[j] = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
 				}
@@ -788,7 +800,30 @@ namespace UnityGLTF
 			yield return null;
 		}
 
-		private IEnumerator LoadAnimations()
+        private IEnumerator LoadSkinnedMeshes()
+        {
+            int i = 0;
+            foreach (var pair in _skinObjectsStore)
+            {
+                setProgress(IMPORT_STEP.SKINNEDMESH, i, _skinObjectsStore.Count);
+
+                var node = pair.Key;
+                int j = 0;
+                foreach (var go in pair.Value)
+                {
+                    BuildSkinnedMesh(go, node.Skin.Value, node.Mesh.Id, j);
+                    _skinIndexToGameObjects[node.Skin.Id].Add(go.GetComponent<SkinnedMeshRenderer>());
+                    j += 1;
+                }
+
+                i += 1;
+            }
+
+            yield return null;
+        }
+
+
+        private IEnumerator LoadAnimations()
 		{
 			for (int i = 0; i < _root.Animations.Count; ++i)
 			{
@@ -929,7 +964,7 @@ namespace UnityGLTF
 
 			skinMesh.sharedMesh.bindposes = bindPoseMatrices.ToArray();
 			if(skin.Skeleton != null && _importedObjects.ContainsKey(skin.Skeleton.Id))
-				skinMesh.rootBone = skin.Skeleton == null ? _importedObjects[skin.Skeleton.Id].transform : null;
+				skinMesh.rootBone = skin.Skeleton != null ? _importedObjects[skin.Skeleton.Id].transform : null;
 		}
 
 		protected virtual void LoadSkinnedMeshAttributes(int meshIndex, int primitiveIndex, ref Vector4[] boneIndexes, ref Vector4[] weights)
@@ -981,9 +1016,11 @@ namespace UnityGLTF
 				{
 					if (!_skinIndexToGameObjects.ContainsKey(node.Skin.Id))
 						_skinIndexToGameObjects[node.Skin.Id] = new List<SkinnedMeshRenderer>();
+                    
+                    _skinObjectsStore.Add(node, new List<GameObject> { nodeObj });
 
-					BuildSkinnedMesh(nodeObj, node.Skin.Value, node.Mesh.Id, 0);
-					_skinIndexToGameObjects[node.Skin.Id].Add(nodeObj.GetComponent<SkinnedMeshRenderer>());
+                    //BuildSkinnedMesh(nodeObj, node.Skin.Value, node.Mesh.Id, 0);
+					//_skinIndexToGameObjects[node.Skin.Id].Add(nodeObj.GetComponent<SkinnedMeshRenderer>());
 				}
 				else if (hasMorphOnly)
 				{
@@ -1006,8 +1043,10 @@ namespace UnityGLTF
 					GameObject go = createGameObject(node.Name ?? "GLTFNode_" + i);
 					if (isSkinned)
 					{
-						BuildSkinnedMesh(go, node.Skin.Value, node.Mesh.Id, i);
-						_skinIndexToGameObjects[node.Skin.Id].Add(go.GetComponent<SkinnedMeshRenderer>());
+                        _skinObjectsStore[node].Add(go);
+
+                        //BuildSkinnedMesh(go, node.Skin.Value, node.Mesh.Id, i);
+						//_skinIndexToGameObjects[node.Skin.Id].Add(go.GetComponent<SkinnedMeshRenderer>());
 					}
 					else if (hasMorphOnly)
 					{
