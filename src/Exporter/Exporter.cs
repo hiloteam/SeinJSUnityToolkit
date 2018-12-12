@@ -47,6 +47,7 @@ public class Exporter : EditorWindow {
     public static bool opt_quadraticAttenuation = true;
     public static int opt_jpgQuality= 85;
     public static bool opt_noLighting= false;
+    public static bool opt_splitChunks = false;
 
     // UI dimensions (to be cleaned)
     [SerializeField]
@@ -385,10 +386,11 @@ public class Exporter : EditorWindow {
         GUILayout.Space(SPACE_SIZE);
 
         GUILayout.Label("Options", EditorStyles.boldLabel);
-
-        EditorGUIUtility.labelWidth = 200;
-
         opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
+        opt_splitChunks = EditorGUILayout.Toggle("Split chunks", opt_splitChunks);
+
+        GUILayout.Label("Lights", EditorStyles.boldLabel);
+        EditorGUIUtility.labelWidth = 200;
         opt_halfSpotAngle = EditorGUILayout.Toggle("Half spot angle(Hilo3d, Threejs...)", Exporter.opt_halfSpotAngle);
         opt_quadraticAttenuation = EditorGUILayout.Toggle("Light quadratic attenuation(Hilo3d...)", Exporter.opt_quadraticAttenuation);
 
@@ -410,7 +412,7 @@ public class Exporter : EditorWindow {
 
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
-		if (GUILayout.Button ("Save", GUILayout.Width(250), GUILayout.Height(40))) {
+		if (GUILayout.Button ("Export", GUILayout.Width(250), GUILayout.Height(40))) {
 			if (System.IO.File.Exists(zipPath))
 			{
 				System.IO.File.Delete(zipPath);
@@ -418,7 +420,7 @@ public class Exporter : EditorWindow {
             zipPath = Application.temporaryCachePath + "/" + param_name + ".zip";
             exportPath = Application.temporaryCachePath + "/" + param_name + ".gltf";
 			exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
-			OpenInFileBrowser.Open (Path.GetDirectoryName(exportPath));
+			OpenInFileBrowser.Open(Path.GetDirectoryName(exportPath));
 		}
 	}
 

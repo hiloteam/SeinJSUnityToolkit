@@ -45,7 +45,7 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                     jsonWriter.Write("\"type\": \"SPHERE\",\n");
                     Indent();
                     var center = ((SphereCollider)collider).center;
-                    jsonWriter.Write("\"offset\": {" + "\"x\": " + center.x + ", \"y\": " + center.y + ", \"z\": " + center.z + "},\n");
+                    jsonWriter.Write("\"offset\": [" + center.x + ", " + center.y + ", " + center.z + "],\n");
                     Indent();
                     jsonWriter.Write("\"radius\": " + ((SphereCollider)collider).radius + "\n");
                 } else if (collider is BoxCollider) {
@@ -55,7 +55,7 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                     jsonWriter.Write("\"type\": \"BOX\",\n");
                     Indent();
                     var center = ((BoxCollider)collider).center;
-                    jsonWriter.Write("\"offset\": {" + "\"x\": " + center.x + ", \"y\": " + center.y + ", \"z\": " + -center.z + "},\n");
+                    jsonWriter.Write("\"offset\": [" + center.x + ", " + center.y + ", " + center.z + "],\n");
                     Indent();
                     jsonWriter.Write("\"size\": " + ((BoxCollider)collider).size.ToString().Replace('(', '[').Replace(')', ']') + "\n");
                 } else {

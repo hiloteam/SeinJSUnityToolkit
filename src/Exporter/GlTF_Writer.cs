@@ -359,7 +359,7 @@ public class GlTF_Writer {
 		CommaNL();
 		Indent();	jsonWriter.Write ("\"asset\": {\n");
 		IndentIn();
-		Indent();	jsonWriter.Write ("\"generator\": \"Unity "+ Application.unityVersion + "\",\n");
+		Indent();	jsonWriter.Write ("\"generator\": \"Sein.js Unity Toolkit\",\n");
 
 		writeExtras();
 
@@ -567,7 +567,7 @@ public class GlTF_Writer {
 			jsonWriter.Write ("]");
 		}
 
-        if (lights != null && lights.Count > 0)
+        if (!Exporter.opt_noLighting && lights != null && lights.Count > 0)
         {
             CommaNL();
             Indent();

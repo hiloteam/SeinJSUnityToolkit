@@ -133,7 +133,23 @@ public class SceneToGlTFWiz : MonoBehaviour
 
     public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true)
     {
-        StartCoroutine(Export(path, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
+        Transform[] transforms;
+
+        if (!Exporter.opt_splitChunks)
+        {
+            // collect all objects in the selection deeply, add to lists
+            transforms = Selection.GetTransforms(SelectionMode.Deep);
+            StartCoroutine(Export(path, transforms, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
+            return;
+        }
+
+        // collect all objects in the selection, add to lists
+        transforms = Selection.GetTransforms(SelectionMode.TopLevel);
+        var dirPath = Path.GetDirectoryName(path);
+        foreach (Transform tr in transforms)
+        {
+            StartCoroutine(Export(Path.Combine(dirPath, tr.name + ".gltf"), tr.GetComponentsInChildren<Transform>(), presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
+        }
     }
 
     public int getNbSelectedObjects()
@@ -141,7 +157,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         return nbSelectedObjects;
     }
 
-    public IEnumerator Export(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false)
+    public IEnumerator Export(string path, Transform[] transforms, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false)
     {
         writer = new GlTF_Writer();
         writer.Init();
@@ -161,8 +177,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         Dictionary<string, GlTF_Skin> parsedSkins = new Dictionary<string, GlTF_Skin>();
         parsedSkins.Clear();
 
-        // first, collect objects in the scene, add to lists
-        Transform[] transforms = Selection.GetTransforms(SelectionMode.Deep);
         List<Transform> trs = new List<Transform>(transforms);
         // Prefilter selected nodes and look for skinning in order to list "bones" nodes
         //FIXME: improve this
@@ -567,7 +581,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             Dictionary<string, int> names = new Dictionary<string, int>();
             int index = 0;
             SeinNode seinNode = tr.GetComponent<SeinNode>();
-            bool needCheckConfilct = seinNode == null || !seinNode.skipThisNode;
+            bool needCheckConfilct = seinNode == null || (!seinNode.skipThisNode && seinNode.selfType != ESeinNodeType.Actor);
             foreach (Transform t in tr.transform)
             { 
                 if (t.gameObject.activeInHierarchy)
@@ -862,7 +876,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             newtex.Apply();
             TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
-            string pathInArchive = Path.GetDirectoryName(assetPath);
+            string pathInArchive = Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "");
             string exportDir = Path.Combine(savedPath, pathInArchive);
 
             if (!Directory.Exists(exportDir))
@@ -1200,7 +1214,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         newtex.Apply();
         TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
-        string pathInArchive = Path.GetDirectoryName(pathInProject);
+        string pathInArchive = Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "");
         string exportDir = Path.Combine(exportDirectory, pathInArchive);
 
         if (!Directory.Exists(exportDir))
