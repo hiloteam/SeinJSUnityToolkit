@@ -29,7 +29,8 @@ public class GlTF_Writer {
 	public static List<GlTF_Camera> cameras = new List<GlTF_Camera>();
 	public static List<GlTF_Light> lights = new List<GlTF_Light>();
 	public static List<GlTF_Mesh> meshes = new List<GlTF_Mesh>();
-	public static List<GlTF_Accessor> accessors = new List<GlTF_Accessor>();
+    public static Dictionary<Mesh, GlTF_Mesh> exportMeshes = new Dictionary<Mesh, GlTF_Mesh>();
+    public static List<GlTF_Accessor> accessors = new List<GlTF_Accessor>();
 
 	public static List<int> nodeIDs = new List<int>();
 	public static List<GlTF_Node> nodes = new List<GlTF_Node>();
@@ -157,6 +158,7 @@ public class GlTF_Writer {
 		cameras = new List<GlTF_Camera>();
 		lights = new List<GlTF_Light>();
 		meshes = new List<GlTF_Mesh>();
+        exportMeshes = new Dictionary<Mesh, GlTF_Mesh>();
 		accessors = new List<GlTF_Accessor>();
 
 		nodes = new List<GlTF_Node>();

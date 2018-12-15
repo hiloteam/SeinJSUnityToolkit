@@ -43,26 +43,30 @@ public class SceneToGlTFWiz : MonoBehaviour
     {
         if (tr.GetComponent<Camera>().orthographic)
         {
+            var camera = tr.GetComponent<Camera>();
+            Matrix4x4 matrix = camera.projectionMatrix;
             GlTF_Orthographic cam;
             cam = new GlTF_Orthographic();
-            cam.type = "orthographic";
-            cam.zfar = tr.GetComponent<Camera>().farClipPlane;
-            cam.znear = tr.GetComponent<Camera>().nearClipPlane;
             cam.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
-            //cam.orthographic.xmag = tr.camera.
+            cam.type = "orthographic";
+            cam.zfar = (matrix[2, 3] / matrix[2, 2]) - (1 / matrix[2, 2]);
+            cam.znear = cam.zfar + (2 / matrix[2, 2]);
+            cam.xmag = 1 / matrix[0, 0];
+            cam.ymag = 1 / matrix[1, 1];
             GlTF_Writer.cameras.Add(cam);
 
             return cam;
         }
         else
         {
+            var camera = tr.GetComponent<Camera>();
             GlTF_Perspective cam;
             cam = new GlTF_Perspective();
             cam.type = "perspective";
-            cam.zfar = tr.GetComponent<Camera>().farClipPlane;
-            cam.znear = tr.GetComponent<Camera>().nearClipPlane;
-            cam.aspect_ratio = tr.GetComponent<Camera>().aspect;
-            cam.yfov = tr.GetComponent<Camera>().fieldOfView;
+            cam.zfar = camera.farClipPlane;
+            cam.znear = camera.nearClipPlane;
+            cam.aspect_ratio = camera.aspect;
+            cam.yfov = camera.fieldOfView;
             cam.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
             GlTF_Writer.cameras.Add(cam);
 
@@ -133,6 +137,16 @@ public class SceneToGlTFWiz : MonoBehaviour
 
     public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true)
     {
+        var dirPath = Path.GetDirectoryName(path);
+        DirectoryInfo directory = new DirectoryInfo(dirPath);
+
+        //delete files:
+        foreach (System.IO.FileInfo file in directory.GetFiles())
+            file.Delete();
+        //delete directories in this directory:
+        foreach (System.IO.DirectoryInfo subDirectory in directory.GetDirectories())
+            subDirectory.Delete(true);
+
         Transform[] transforms;
 
         if (!Exporter.opt_splitChunks)
@@ -145,7 +159,6 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         // collect all objects in the selection, add to lists
         transforms = Selection.GetTransforms(SelectionMode.TopLevel);
-        var dirPath = Path.GetDirectoryName(path);
         foreach (Transform tr in transforms)
         {
             StartCoroutine(Export(Path.Combine(dirPath, tr.name + ".gltf"), tr.GetComponentsInChildren<Transform>(), presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
@@ -251,10 +264,10 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
 
             Mesh m = GetMesh(tr);
-            if (m != null)
+            if (m != null && !GlTF_Writer.exportMeshes.ContainsKey(m))
             {
                 GlTF_Mesh mesh = new GlTF_Mesh();
-                mesh.name = GlTF_Writer.cleanNonAlphanumeric(GlTF_Mesh.GetNameFromObject(m) + tr.name);
+                mesh.name = GlTF_Writer.cleanNonAlphanumeric(m.name);
 
                 GlTF_Accessor positionAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "position"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
                 positionAccessor.bufferView = GlTF_Writer.vec3BufferView;
@@ -487,7 +500,12 @@ public class SceneToGlTFWiz : MonoBehaviour
                 // the mesh would need to be baked here.
                 mesh.Populate(m);
                 GlTF_Writer.meshes.Add(mesh);
+                GlTF_Writer.exportMeshes.Add(m, mesh);
                 node.meshIndex = GlTF_Writer.meshes.IndexOf(mesh);
+            }
+            else if (m != null)
+            {
+                node.meshIndex = GlTF_Writer.meshes.IndexOf(GlTF_Writer.exportMeshes[m]);
             }
 
             // Parse animations

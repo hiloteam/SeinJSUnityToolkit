@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class GlTF_SeinPhysicBody : GlTF_Writer
 {
-    public SeinRigidBody rigidbody = new SeinRigidBody();
+    public SeinRigidBody rigidbody = null;
     public List<Collider> colliders = new List<Collider>();
 
     public override void Write()
