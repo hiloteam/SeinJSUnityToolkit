@@ -253,6 +253,16 @@ public class SceneToGlTFWiz : MonoBehaviour
                 node.physicBody.rigidbody = tr.GetComponent<SeinRigidBody>();
             }
 
+            if (tr.GetComponent<SeinAnimator>() != null)
+            {
+                if (node.animator == null)
+                {
+                    node.animator = new GlTF_SeinAnimator();
+                }
+
+                node.animator.animator = tr.GetComponent<SeinAnimator>();
+            }
+
             if (tr.GetComponents<Collider>().Length != 0)
             {
                 if (node.physicBody == null)
