@@ -349,6 +349,8 @@ public class GlTF_Writer {
         extensionsUsed.Add(SeinRigidBody.extensionName);
         extensionsRequired.Add(SeinAnimator.extensionName);
         extensionsUsed.Add(SeinAnimator.extensionName);
+        extensionsRequired.Add(SeinCustomMaterial.extensionName);
+        extensionsUsed.Add(SeinCustomMaterial.extensionName);
 
         if (Exporter.opt_noLighting)
         {

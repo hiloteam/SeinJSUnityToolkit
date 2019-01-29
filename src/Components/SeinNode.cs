@@ -22,6 +22,10 @@ public class SeinNode : MonoBehaviour {
     // If not toplevel, it will default to Inherit
     public ESeinNodeType childrenType = ESeinNodeType.Component;
 
+    [Header("Custom Class")]
+    // For customizing Actor or Component
+    public string className = "";
+
     // Only works when selfType is Actor
     [Header("Properties for actor")]
     public new string tag = "";

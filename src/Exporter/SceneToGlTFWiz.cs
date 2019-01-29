@@ -394,6 +394,12 @@ public class SceneToGlTFWiz : MonoBehaviour
                             GlTF_Material material = new GlTF_Material();
                             material.name = GlTF_Writer.cleanNonAlphanumeric(mat.name);
                             primitive.materialIndex = GlTF_Writer.materials.Count;
+
+                            if (tr.GetComponent<SeinCustomMaterial>())
+                            {
+                                material.seinCustomMaterial = tr.GetComponent<SeinCustomMaterial>();
+                            }
+
                             GlTF_Writer.materialNames.Add(matName);
                             GlTF_Writer.materials.Add(material);
 
@@ -1017,6 +1023,30 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         //Check transparency
         bool hasTransparency = handleTransparency(ref mat, ref material);
+
+        if (material.seinCustomMaterial)
+        {
+            if (material.seinCustomMaterial.uniformsTexture.Length != 0)
+            {
+                foreach (var uniform in material.seinCustomMaterial.uniformsTexture)
+                {
+                    int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                    uniform.index = diffuseTextureIndex;
+                    uniform.texCoord = 0;
+                }
+            }
+
+            if (material.seinCustomMaterial.uniformsCubeTexture.Length != 0)
+            {
+                foreach (var uniform in material.seinCustomMaterial.uniformsCubeTexture)
+                {
+                    // todo: support cubemap
+                    //int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                    //uniform.index = diffuseTextureIndex;
+                    //uniform.texCoord = 0;
+                }
+            }
+        }
 
         //Parse diffuse channel texture and color
         if (mat.HasProperty("_MainTex") && mat.GetTexture("_MainTex") != null)

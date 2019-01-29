@@ -14,6 +14,8 @@ public class GlTF_SeinNode : GlTF_Writer
         Indent();
         jsonWriter.Write("\"childrenType\": " + node.childrenType.ToString("d") + ",\n");
         Indent();
+        jsonWriter.Write("\"className\": " + node.className + ",\n");
+        Indent();
         jsonWriter.Write("\"tag\": \"" + node.tag + "\",\n");
         Indent();
         jsonWriter.Write("\"persistent\": " + (node.persistent ? "true" : "false") + ",\n");
