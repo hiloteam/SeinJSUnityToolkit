@@ -34,8 +34,29 @@ public class Exporter : EditorWindow {
 #endif
 	}
 
-	// Static data
-	public static string skfbUrl = "https://sketchfab.com/";
+    public static String MakeRelativePath(String fromPath, String toPath)
+    {
+        if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
+        if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
+
+        Uri fromUri = new Uri(fromPath);
+        Uri toUri = new Uri(toPath);
+
+        if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
+
+        Uri relativeUri = fromUri.MakeRelativeUri(toUri);
+        String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+
+        if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
+        {
+            relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
+
+        return relativePath;
+    }
+
+    // Static data
+    public static string skfbUrl = "https://sketchfab.com/";
 	public static string latestReleaseUrl = "https://github.com/sketchfab/Unity-glTF-Exporter/releases";
 	public static string resetPasswordUrl = "https://sketchfab.com/login/reset-password";
 	public static string createAccountUrl = "https://sketchfab.com/signup";
@@ -53,7 +74,7 @@ public class Exporter : EditorWindow {
     [SerializeField]
 	Vector2 loginSize = new Vector2(603, 190);
 	[SerializeField]
-	Vector2 fullSize = new Vector2(603, 340);
+	Vector2 fullSize = new Vector2(603, 500);
 	[SerializeField]
 	Vector2 descSize = new Vector2(603, 175);
 
@@ -85,7 +106,9 @@ public class Exporter : EditorWindow {
 	GameObject exporterGo;
 	ExporterScript publisher;
 	SceneToGlTFWiz exporter;
-	private string exportPath;
+    private JSONNode config;
+    private string exportFolder;
+    private string exportPath;
 	private string zipPath;
 
 	////Account settings
@@ -97,7 +120,7 @@ public class Exporter : EditorWindow {
 
 	private bool opt_exportAnimation = true;
     //private bool opt_quadraticAttenuation = true;
-    private string param_name = "";
+    private string param_name = "scene";
 	private string param_description = "";
 	private string param_tags = "";
 	private bool param_autopublish = true;
@@ -123,8 +146,8 @@ public class Exporter : EditorWindow {
 	//private List<String> tagList;
 	void Awake()
 	{
-		zipPath = Application.temporaryCachePath + "/" + "scene.zip";
-        exportPath = Application.temporaryCachePath + "/" + "scene.gltf";
+        config = JSON.Parse(File.ReadAllText(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json")));
+        exportFolder = Path.GetFullPath(Path.Combine(Application.dataPath, config["exportPath"]));
 
 		exporterGo = new GameObject("Exporter");
 		publisher = exporterGo.AddComponent<ExporterScript>();
@@ -377,6 +400,27 @@ public class Exporter : EditorWindow {
 		param_name = EditorGUILayout.TextField(param_name);
 		GUILayout.Space(SPACE_SIZE);
 
+        GUILayout.Label("Export folder");
+        GUILayout.BeginHorizontal();
+        GUILayout.TextField(exportFolder, GUILayout.MinWidth(350), GUILayout.Height(21));
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Select file", GUILayout.Height(21), GUILayout.Width(150)))
+        {
+            var tmp= EditorUtility.OpenFolderPanel("Choose a folder", exportFolder, "");
+            if (tmp != "")
+            {
+                exportFolder = tmp;
+
+                config["exportPath"] = MakeRelativePath(exportFolder, Application.dataPath);
+                File.WriteAllText(
+                Path.Combine(
+                    Application.dataPath, "./SeinJSUnityToolkit/config.json"),
+                    config.ToString()
+                );
+            }
+        }
+        GUILayout.EndHorizontal();
+
         GUILayout.Label("Texture properties", EditorStyles.boldLabel);
 
         GUILayout.Label("Texture max size");
@@ -413,13 +457,19 @@ public class Exporter : EditorWindow {
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
 		if (GUILayout.Button ("Export", GUILayout.Width(250), GUILayout.Height(40))) {
-			if (System.IO.File.Exists(zipPath))
-			{
-				System.IO.File.Delete(zipPath);
-			}
-            zipPath = Application.temporaryCachePath + "/" + param_name + ".zip";
-            exportPath = Application.temporaryCachePath + "/" + param_name + ".gltf";
-			exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
+		
+            if (!Directory.Exists(exportFolder))
+            {
+                EditorUtility.DisplayDialog("Error", "Folder for exporting is not existed: \"" + exportFolder + "\"", "OK");
+                return;
+            }
+            exportPath = Path.Combine(exportFolder, param_name + ".gltf");
+            zipPath = Path.Combine(exportFolder, param_name + ".zip");
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+            exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
 			OpenInFileBrowser.Open(Path.GetDirectoryName(exportPath));
 		}
 	}
