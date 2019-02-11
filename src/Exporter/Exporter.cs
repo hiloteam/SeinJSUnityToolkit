@@ -148,8 +148,12 @@ public class Exporter : EditorWindow {
 	{
         config = JSON.Parse(File.ReadAllText(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json")));
         exportFolder = Path.GetFullPath(Path.Combine(Application.dataPath, config["exportPath"]));
+        if (!Directory.Exists(exportFolder))
+        {
+            Directory.CreateDirectory(exportFolder);
+        }
 
-		exporterGo = new GameObject("Exporter");
+        exporterGo = new GameObject("Exporter");
 		publisher = exporterGo.AddComponent<ExporterScript>();
 		exporter = exporterGo.AddComponent<SceneToGlTFWiz>();
 		//FIXME: Make sure that object is deleted;
