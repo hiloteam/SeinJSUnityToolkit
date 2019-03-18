@@ -790,12 +790,22 @@ namespace UnityGLTF
 				throw new Exception("No default scene in gltf file.");
 			}
 
-			_sceneObject = createGameObject(_currentSampleName);
-			foreach (var node in scene.Nodes)
-			{
-				var nodeObj = CreateNode(node.Value, node.Id);
-				nodeObj.transform.SetParent(_sceneObject.transform, false);
-			}
+            if (scene.Nodes.Count == 1)
+            {
+                var node = scene.Nodes[0];
+                var name = GLTFUtils.cleanName(_currentSampleName);
+                _sceneObject = CreateNode(node.Value, node.Id);
+                _sceneObject.name = name;
+            }
+            else
+            {
+                _sceneObject = createGameObject(_currentSampleName);
+                foreach (var node in scene.Nodes)
+                {
+                    var nodeObj = CreateNode(node.Value, node.Id);
+                    nodeObj.transform.SetParent(_sceneObject.transform, false);
+                }
+            }
 
 			yield return null;
 		}
@@ -825,22 +835,31 @@ namespace UnityGLTF
 
         private IEnumerator LoadAnimations()
 		{
-			for (int i = 0; i < _root.Animations.Count; ++i)
+            List<AnimationClip> clips = new List<AnimationClip>();
+            var count = _root.Animations.Count;
+
+            for (int i = 0; i < count; i++)
 			{
 				AnimationClip clip = new AnimationClip();
 				clip.wrapMode = UnityEngine.WrapMode.Loop;
 				LoadAnimation(_root.Animations[i], i, clip);
 				setProgress(IMPORT_STEP.ANIMATION, (i + 1), _root.Animations.Count);
 				_assetManager.saveAnimationClip(clip);
-				yield return null;
+                clips.Add(clip);
+
+                if (i == count - 1)
+                {
+                    _assetManager.createAnimatorAsset(clips);
+                }
+                 yield return null;
 			}
-		}
+        }
 
 		private void LoadAnimation(GLTF.Schema.Animation gltfAnimation, int index, AnimationClip clip)
 		{
             if (gltfAnimation.Name != null)
             {
-                gltfAnimation.Name = gltfAnimation.Name.Replace('|', '-');
+                gltfAnimation.Name = gltfAnimation.Name.Replace('|', '-').Replace('.', '-');
             }
 
             clip.name = gltfAnimation.Name != null && gltfAnimation.Name.Length > 0 ? gltfAnimation.Name : "GLTFAnimation_" + index;
@@ -932,7 +951,12 @@ namespace UnityGLTF
 
 		private void LoadSkin(GLTF.Schema.Skin skin, int index)
 		{
-			Transform[] boneList = new Transform[skin.Joints.Count];
+            if (!_skinIndexToGameObjects.ContainsKey(index))
+            {
+                return;
+            }
+
+            Transform[] boneList = new Transform[skin.Joints.Count];
 			for (int i = 0; i < skin.Joints.Count; ++i)
 			{
 				boneList[i] = _importedObjects[skin.Joints[i].Id].transform;
@@ -1018,9 +1042,6 @@ namespace UnityGLTF
 						_skinIndexToGameObjects[node.Skin.Id] = new List<SkinnedMeshRenderer>();
                     
                     _skinObjectsStore.Add(node, new List<GameObject> { nodeObj });
-
-                    //BuildSkinnedMesh(nodeObj, node.Skin.Value, node.Mesh.Id, 0);
-					//_skinIndexToGameObjects[node.Skin.Id].Add(nodeObj.GetComponent<SkinnedMeshRenderer>());
 				}
 				else if (hasMorphOnly)
 				{
@@ -1040,13 +1061,10 @@ namespace UnityGLTF
 
 				for(int i = 1; i < _assetManager._parsedMeshData[node.Mesh.Id].Count; ++i)
 				{
-					GameObject go = createGameObject(node.Name ?? "GLTFNode_" + i);
+					GameObject go = createGameObject(node.Name != null ? node.Name + "-" + i : "GLTFNode_" + i);
 					if (isSkinned)
 					{
                         _skinObjectsStore[node].Add(go);
-
-                        //BuildSkinnedMesh(go, node.Skin.Value, node.Mesh.Id, i);
-						//_skinIndexToGameObjects[node.Skin.Id].Add(go.GetComponent<SkinnedMeshRenderer>());
 					}
 					else if (hasMorphOnly)
 					{

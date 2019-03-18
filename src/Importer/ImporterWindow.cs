@@ -13,7 +13,7 @@ namespace GlTF
 {
 	class GlTFImporterWindow : EditorWindow
 	{
-        [MenuItem("Tools/Import glTF")]
+        [MenuItem("SeinJS/Import glTF")]
 		static void Init()
 		{
 			GlTFImporterWindow window = (GlTFImporterWindow)EditorWindow.GetWindow(typeof(GlTFImporterWindow));
@@ -41,8 +41,9 @@ namespace GlTF
 		float minWidthButton = 150;
 		Vector2 _scrollView;
 		string _sourceFileHint = "Select or drag and drop a file";
+        Texture2D header;
 
-		private void Initialize()
+        private void Initialize()
 		{
 			_importer = new GlTFImporter(UpdateProgress, OnFinishImport);
 			_unzippedFiles = new List<string>();
@@ -136,18 +137,36 @@ namespace GlTF
 			}
 		}
 
-		// UI
-		private void OnGUI()
+        private void OnEnable()
+        {
+            if (!header)
+            {
+                header = new Texture2D(1, 1);
+                header.LoadImage(File.ReadAllBytes(Application.dataPath + "/SeinJSUnityToolkit/logo.png"));
+                header.Apply();
+            }
+        }
+
+        // UI
+        private void OnGUI()
 		{
 			checkValidity();
 
-			if (_ui == null)
+            if (_ui == null)
 				return;
 
-			handleDragNDrop();
+            minSize = new Vector2(600, 360);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(header);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+            handleDragNDrop();
 
 			_scrollView = GUILayout.BeginScrollView(_scrollView);
-			displayInputInfos();
+            displayInputInfos();
 			displayImportDirectory();
 			displayImportOptions();
 			GUILayout.EndScrollView();
