@@ -219,7 +219,7 @@ public class Exporter : EditorWindow {
 
 	void OnGUI()
 	{
-        minSize = new Vector2(600, 450);
+        minSize = new Vector2(600, 500);
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
@@ -286,9 +286,9 @@ public class Exporter : EditorWindow {
         Exporter.opt_jpgQuality = EditorGUILayout.IntField(Exporter.opt_jpgQuality);
         GUILayout.Space(SPACE_SIZE);
 
-        //GUILayout.Label("Options", EditorStyles.boldLabel);
+        GUILayout.Label("Options", EditorStyles.boldLabel);
         //opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
-        //opt_splitChunks = EditorGUILayout.Toggle("Split chunks", opt_splitChunks);
+        opt_splitChunks = EditorGUILayout.Toggle("Split chunks", opt_splitChunks);
 
         //GUILayout.Label("Lights", EditorStyles.boldLabel);
         //EditorGUIUtility.labelWidth = 200;
