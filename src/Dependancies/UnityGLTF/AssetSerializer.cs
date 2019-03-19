@@ -23,7 +23,7 @@ public class AssetManager
 	public List<Texture2D> _parsedImages;
 	public List<Texture2D> _parsedTextures;
 	public List<int> _usedSources;
-	public Animator _animator;
+	public AnimatorController _animatorController;
 	private string _prefabName;
 
 	public AssetManager(string projectDirectoryPath, string modelName="Imported")
@@ -272,17 +272,25 @@ public class AssetManager
 		// Add animation to animator
 		AnimationClip loadedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
 		loadedClip.wrapMode = WrapMode.Loop;
-		createAnimatorAsset(loadedClip);
 	}
 
-	// https://docs.unity3d.com/ScriptReference/Animations.AnimatorController.html
-	private void createAnimatorAsset(AnimationClip clip)
+    // https://docs.unity3d.com/ScriptReference/Animations.AnimatorController.html
+    public void createAnimatorAsset(List<AnimationClip> clips)
 	{
 		string animatorname = getPrefabName(_prefabName);
 		string animatorPath = GLTFUtils.getPathProjectFromAbsolute(_importAnimationDirectory + "/" + animatorname + ".controller");
-		AnimatorController.CreateAnimatorControllerAtPathWithClip(animatorPath, clip);
-		if (_animator == null)
-			_animator = AssetDatabase.LoadAssetAtPath<Animator>(animatorPath);
+		var controller = AnimatorController.CreateAnimatorControllerAtPath(animatorPath);
+
+        foreach (var clip in clips)
+        {
+            Motion motion = (Motion)clip as Motion;
+            controller.AddMotion(motion);
+        }
+
+        if (_animatorController == null)
+        {
+            _animatorController = controller;
+        }
 	}
 
 	public string getPrefabName(string sceneObjectName)
@@ -362,7 +370,19 @@ public class AssetManager
             AssetDatabase.Refresh();
         }
 
-		_generatedFiles.Add(fullPath);
+        var animator = sceneObject.GetComponent<Animator>();
+        if (animator)
+        {
+            Object.DestroyImmediate(animator);
+        }
+
+        if (_animatorController)
+        {
+            animator = sceneObject.AddComponent<Animator>();
+            animator.runtimeAnimatorController = _animatorController;
+        }
+
+        _generatedFiles.Add(fullPath);
 		return PrefabUtility.CreatePrefab(prefabPathInProject, sceneObject);
 	}
 
