@@ -107,11 +107,13 @@ public class GlTF_Material : GlTF_Writer {
         }
     }
 
+    public bool useKHRTechnique = false;
     public int instanceTechniqueIndex;
     public bool isMetal = false;
     public float shininess;
     public List<Value> values = new List<Value>();
     public List<Value> pbrValues = new List<Value>();
+    public List<Value> khrValues = new List<Value>();
 
     public static string GetNameFromObject(Object o)
     {
@@ -180,6 +182,26 @@ public class GlTF_Material : GlTF_Writer {
             WirteCustomUiforms(seinCustomMaterial.uniformsIntVec2);
             WirteCustomUiforms(seinCustomMaterial.uniformsIntVec3);
             WirteCustomUiforms(seinCustomMaterial.uniformsIntVec4);
+            jsonWriter.Write("\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("}\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("}\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("},\n");
+        } else if (useKHRTechnique) {
+            Indent(); jsonWriter.Write("\"extensions\": {\n");
+            IndentIn();
+            Indent(); jsonWriter.Write("\"KHR_techniques_webgl\": {\n");
+            IndentIn();
+            Indent(); jsonWriter.Write("\"technique\": " + instanceTechniqueIndex + ",\n");
+            Indent(); jsonWriter.Write("\"values\": {\n");
+            IndentIn();
+            foreach (var v in khrValues)
+            {
+                CommaNL();
+                Indent(); v.Write();
+            }
             jsonWriter.Write("\n");
             IndentOut();
             Indent(); jsonWriter.Write("}\n");

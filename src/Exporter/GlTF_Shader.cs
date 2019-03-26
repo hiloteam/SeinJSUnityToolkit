@@ -18,9 +18,20 @@ public class GlTF_Shader : GlTF_Writer {
 		return typeName + "_" + name;
 	}
 
-	public override void Write()
+    public static string convertShader(string src, string header) {
+        return header + src
+                .Replace("gl_ModelViewProjectionMatrix", "u_modelViewProjectionMatrix")
+                .Replace("gl_ProjectionMatrix", "u_projectionMatrix")
+                .Replace("gl_ModelViewMatrix", "u_modelViewMatrix")
+                .Replace("gl_NormalMatrix", "u_normalMatrix")
+                .Replace("gl_Vertex", "vec4(a_position, 1.)")
+                .Replace("gl_MultiTexCoord", "a_texcoord")
+                .Replace("gl_Normal", "a_normal");
+    }
+
+    public override void Write()
 	{
-		Indent();		jsonWriter.Write ("\"" + name + "\": {\n");
+		Indent();		jsonWriter.Write ("{\n");
 		IndentIn();
 		Indent();		jsonWriter.Write ("\"type\": " + TypeStr() +",\n");
 		Indent();		jsonWriter.Write ("\"uri\": \"" + uri +"\"\n");

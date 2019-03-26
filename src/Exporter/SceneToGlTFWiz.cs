@@ -14,6 +14,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Ionic.Zip;
 
 public enum IMAGETYPE
@@ -267,7 +268,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 if (node.physicBody == null)
                 {
-                    node.physicBody = new GlTF_SeinPhysicBody();
+                    throw new Exception("You must add `SeinRigidBody` component before add Collider!");
                 }
 
                 node.physicBody.colliders = new List<Collider>(tr.GetComponents<Collider>());
@@ -403,110 +404,29 @@ public class SceneToGlTFWiz : MonoBehaviour
                             GlTF_Writer.materialNames.Add(matName);
                             GlTF_Writer.materials.Add(material);
 
-                            //technique
-                            var s = mat.shader;
-                            var techName = GlTF_Technique.GetNameFromObject(s);
-                            if (GlTF_Writer.techniqueNames.Contains(techName))
+                            if (mat.shader.name.Contains("Standard"))
                             {
-                                material.instanceTechniqueIndex = GlTF_Writer.techniqueNames.IndexOf(techName);// THIS INDIRECTION CAN BE REMOVED!
+                                unityToPBRMaterial(mat, ref material);
+                            } else if (material.seinCustomMaterial)
+                            {
+                                createSeinCustomMaterial(mat, ref material);
                             }
                             else
                             {
-                                GlTF_Technique tech = new GlTF_Technique();
-                                tech.name = techName;
-                                GlTF_Technique.Parameter tParam = new GlTF_Technique.Parameter();
-                                tParam.name = "position";
-                                tParam.type = GlTF_Technique.Type.FLOAT_VEC3;
-                                tParam.semantic = GlTF_Technique.Semantic.POSITION;
-                                tech.parameters.Add(tParam);
-                                GlTF_Technique.Attribute tAttr = new GlTF_Technique.Attribute();
-                                tAttr.name = "a_position";
-                                tAttr.param = tParam.name;
-                                tech.attributes.Add(tAttr);
-
-                                if (normalAccessor != null)
-                                {
-                                    tParam = new GlTF_Technique.Parameter();
-                                    tParam.name = "normal";
-                                    tParam.type = GlTF_Technique.Type.FLOAT_VEC3;
-                                    tParam.semantic = GlTF_Technique.Semantic.NORMAL;
-                                    tech.parameters.Add(tParam);
-                                    tAttr = new GlTF_Technique.Attribute();
-                                    tAttr.name = "a_normal";
-                                    tAttr.param = tParam.name;
-                                    tech.attributes.Add(tAttr);
-                                }
-
-                                if (uv0Accessor != null)
-                                {
-                                    tParam = new GlTF_Technique.Parameter();
-                                    tParam.name = "texcoord0";
-                                    tParam.type = GlTF_Technique.Type.FLOAT_VEC2;
-                                    tParam.semantic = GlTF_Technique.Semantic.TEXCOORD_0;
-                                    tech.parameters.Add(tParam);
-                                    tAttr = new GlTF_Technique.Attribute();
-                                    tAttr.name = "a_texcoord0";
-                                    tAttr.param = tParam.name;
-                                    tech.attributes.Add(tAttr);
-                                }
-
-                                if (uv1Accessor != null)
-                                {
-                                    tParam = new GlTF_Technique.Parameter();
-                                    tParam.name = "texcoord1";
-                                    tParam.type = GlTF_Technique.Type.FLOAT_VEC2;
-                                    tParam.semantic = GlTF_Technique.Semantic.TEXCOORD_1;
-                                    tech.parameters.Add(tParam);
-                                    tAttr = new GlTF_Technique.Attribute();
-                                    tAttr.name = "a_texcoord1";
-                                    tAttr.param = tParam.name;
-                                    tech.attributes.Add(tAttr);
-                                }
-
-                                if (uv2Accessor != null)
-                                {
-                                    tParam = new GlTF_Technique.Parameter();
-                                    tParam.name = "texcoord2";
-                                    tParam.type = GlTF_Technique.Type.FLOAT_VEC2;
-                                    tParam.semantic = GlTF_Technique.Semantic.TEXCOORD_2;
-                                    tech.parameters.Add(tParam);
-                                    tAttr = new GlTF_Technique.Attribute();
-                                    tAttr.name = "a_texcoord2";
-                                    tAttr.param = tParam.name;
-                                    tech.attributes.Add(tAttr);
-                                }
-
-                                if (uv3Accessor != null)
-                                {
-                                    tParam = new GlTF_Technique.Parameter();
-                                    tParam.name = "texcoord3";
-                                    tParam.type = GlTF_Technique.Type.FLOAT_VEC2;
-                                    tParam.semantic = GlTF_Technique.Semantic.TEXCOORD_3;
-                                    tech.parameters.Add(tParam);
-                                    tAttr = new GlTF_Technique.Attribute();
-                                    tAttr.name = "a_texcoord3";
-                                    tAttr.param = tParam.name;
-                                    tech.attributes.Add(tAttr);
-                                }
-
-                                tech.AddDefaultUniforms();
-
-                                // Populate technique with shader data
-                                GlTF_Writer.techniqueNames.Add(techName);
-                                GlTF_Writer.techniques.Add(tech);
-
-                                // create program
-                                GlTF_Program program = new GlTF_Program();
-                                program.name = GlTF_Program.GetNameFromObject(s);
-                                tech.program = program.name;
-                                foreach (var attr in tech.attributes)
-                                {
-                                    program.attributes.Add(attr.name);
-                                }
-                                GlTF_Writer.programs.Add(program);
+                                createKHRWebGLMaterial(mat, ref attributes, ref material);
                             }
 
-                            unityToPBRMaterial(mat, ref material);
+                            // Unity materials are single sided by default
+                            GlTF_Material.BoolValue doubleSided = new GlTF_Material.BoolValue();
+                            doubleSided.name = "doubleSided";
+                            doubleSided.value = mat.doubleSidedGI;
+                            material.values.Add(doubleSided);
+
+                            //GlTF_Material.StringValue alphaMode = new GlTF_Material.StringValue();
+                            //alphaMode.name = "alphaMode";
+                            //if (mat.GetInt("ren"))
+                            //alphaMode.value = mat.;
+                            //material.values.Add(alphaMode);
                         }
                     }
                     mesh.primitives.Add(primitive);
@@ -910,7 +830,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             newtex.Apply();
             TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
-            string pathInArchive = Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "");
+            string pathInArchive = Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", "");
             string exportDir = Path.Combine(savedPath, pathInArchive);
 
             if (!Directory.Exists(exportDir))
@@ -995,58 +915,221 @@ public class SceneToGlTFWiz : MonoBehaviour
         return GlTF_Writer.textureNames.IndexOf(texName);
     }
 
+    private void createKHRWebGLMaterial(Material mat, ref GlTF_Attributes attributes, ref GlTF_Material material)
+    {
+        //technique
+        material.useKHRTechnique = true;
+        var s = mat.shader;
+        var techName = GlTF_Technique.GetNameFromObject(s);
+        if (GlTF_Writer.techniqueNames.Contains(techName))
+        {
+            material.instanceTechniqueIndex = GlTF_Writer.techniqueNames.IndexOf(techName);// THIS INDIRECTION CAN BE REMOVED!
+        }
+        else
+        {
+            GlTF_Technique tech = new GlTF_Technique();
+            tech.name = techName;
+            GlTF_Technique.Attribute tAttr = new GlTF_Technique.Attribute();
+            tAttr.name = "a_position";
+            tAttr.type = GlTF_Technique.Type.FLOAT_VEC3;
+            tAttr.semantic = GlTF_Technique.Semantic.POSITION;
+            tech.attributes.Add(tAttr);
+
+            if (attributes.normalAccessor != null)
+            {
+                tAttr = new GlTF_Technique.Attribute();
+                tAttr.name = "a_normal";
+                tAttr.type = GlTF_Technique.Type.FLOAT_VEC3;
+                tAttr.semantic = GlTF_Technique.Semantic.NORMAL;
+                tech.attributes.Add(tAttr);
+            }
+
+            if (attributes.texCoord0Accessor != null)
+            {
+                tAttr = new GlTF_Technique.Attribute();
+                tAttr.name = "a_texcoord0";
+                tAttr.type = GlTF_Technique.Type.FLOAT_VEC2;
+                tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_0;
+                tech.attributes.Add(tAttr);
+            }
+
+            if (attributes.texCoord1Accessor != null)
+            {
+                tAttr = new GlTF_Technique.Attribute();
+                tAttr.name = "a_texcoord1";
+                tAttr.type = GlTF_Technique.Type.FLOAT_VEC2;
+                tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_1;
+                tech.attributes.Add(tAttr);
+            }
+
+            if (attributes.texCoord2Accessor != null)
+            {
+                tAttr = new GlTF_Technique.Attribute();
+                tAttr.name = "a_texcoord2";
+                tAttr.type = GlTF_Technique.Type.FLOAT_VEC2;
+                tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_2;
+                tech.attributes.Add(tAttr);
+            }
+
+            if (attributes.texCoord3Accessor != null)
+            {
+                tAttr = new GlTF_Technique.Attribute();
+                tAttr.name = "a_texcoord3";
+                tAttr.type = GlTF_Technique.Type.FLOAT_VEC2;
+                tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_3;
+                tech.attributes.Add(tAttr);
+            }
+
+            tech.AddDefaultUniforms();
+
+            // Populate technique with shader data
+            GlTF_Writer.techniqueNames.Add(techName);
+            GlTF_Writer.techniques.Add(tech);
+
+            int vsIndex = -1;
+            int fsIndex = -1;
+            string shaderPath = AssetDatabase.GetAssetPath(s);
+
+            if (GlTF_Writer.shaderPathes.Contains(shaderPath))
+            {
+                vsIndex = GlTF_Writer.shaderPathes.IndexOf(shaderPath);
+                fsIndex = vsIndex + 1;
+            }
+            else
+            {
+                string shaderSavePath = shaderPath.Replace("Assets/Resources/", "").Replace("Assets/", "").Replace(".shader", "");
+                string exportDir = Path.Combine(savedPath, shaderSavePath);
+
+                if (!Directory.Exists(exportDir))
+                    Directory.CreateDirectory(exportDir);
+
+                string shaderContent = File.ReadAllText(shaderPath);
+                Match m = Regex.Match(shaderContent, @"[\s\S]+#ifdef VERTEX([\s\S]+)#endif[\s\S]+#ifdef FRAGMENT([\s\S]+)#endif[\s\S]+");
+                File.WriteAllText(exportDir + "/vertex.glsl", GlTF_Shader.convertShader(m.Groups[1].Value, tech.generateShaderHeader(true)));
+                File.WriteAllText(exportDir + "/fragment.glsl", GlTF_Shader.convertShader(m.Groups[2].Value, tech.generateShaderHeader(false)));
+                var vs = new GlTF_Shader();
+                vs.type = GlTF_Shader.Type.Vertex;
+                vs.uri = shaderSavePath + "/vertex.glsl";
+                GlTF_Writer.shaders.Add(vs);
+                var fs = new GlTF_Shader();
+                fs.type = GlTF_Shader.Type.Fragment;
+                fs.uri = shaderSavePath + "/fragment.glsl";
+                GlTF_Writer.shaders.Add(fs);
+                GlTF_Writer.shaderPathes.Add(shaderPath);
+
+                vsIndex = GlTF_Writer.shaders.Count - 2;
+                fsIndex = GlTF_Writer.shaders.Count - 1;
+            }
+
+            // create program
+            GlTF_Program program = new GlTF_Program();
+            program.name = GlTF_Program.GetNameFromObject(s);
+            program.vertexShader = vsIndex;
+            program.fragmentShader = fsIndex;
+            GlTF_Writer.programs.Add(program);
+            tech.program = GlTF_Writer.programs.Count - 1;
+
+            bool hasTransparency = handleTransparency(ref mat, ref material);
+            var count = ShaderUtil.GetPropertyCount(s);
+            for (var i = 0; i < count; i++)
+            {
+                var pName = ShaderUtil.GetPropertyName(s, i);
+                var type = ShaderUtil.GetPropertyType(s, i);
+                var uni = new GlTF_Technique.Uniform();
+                uni.name = pName;
+                switch (type) {
+                    case ShaderUtil.ShaderPropertyType.Color:
+                        var colorValue = new GlTF_Material.ColorValue();
+                        colorValue.name = pName;
+                        Color c = mat.GetColor(pName);
+                        clampColor(ref c);
+                        colorValue.color = c;
+                        material.khrValues.Add(colorValue);
+                        uni.type = GlTF_Technique.Type.FLOAT_VEC4;
+                        tech.uniforms.Add(uni);
+                        break;
+                    case ShaderUtil.ShaderPropertyType.Float:
+                        var floatValue = new GlTF_Material.FloatValue();
+                        floatValue.name = pName;
+                        float f = mat.GetFloat(pName);
+                        floatValue.value = f;
+                        material.khrValues.Add(floatValue);
+                        uni.type = GlTF_Technique.Type.FLOAT;
+                        tech.uniforms.Add(uni);
+                        break;
+                    case ShaderUtil.ShaderPropertyType.Vector:
+                        var vecValue = new GlTF_Material.VectorValue();
+                        vecValue.name = pName;
+                        var vec = mat.GetVector(pName);
+                        vecValue.vector = vec;
+                        material.khrValues.Add(vecValue);
+                        uni.type = GlTF_Technique.Type.FLOAT_VEC4;
+                        tech.uniforms.Add(uni);
+                        break;
+                    case ShaderUtil.ShaderPropertyType.TexEnv:
+                        if (mat.GetTexture(pName) != null)
+                        {
+                            var textureValue = new GlTF_Material.DictValue();
+                            textureValue.name = pName;
+
+                            int index = processTexture((Texture2D)mat.GetTexture(pName), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                            textureValue.intValue.Add("index", index);
+                            textureValue.intValue.Add("texCoord", 0);
+                            material.khrValues.Add(textureValue);
+                            uni.type = GlTF_Technique.Type.SAMPLER_2D;
+                            tech.uniforms.Add(uni);
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    private void createSeinCustomMaterial(Material mat, ref GlTF_Material material)
+    {
+        bool hasTransparency = handleTransparency(ref mat, ref material);
+
+        if (material.seinCustomMaterial.uniformsTexture.Length != 0)
+        {
+            foreach (var uniform in material.seinCustomMaterial.uniformsTexture)
+            {
+                int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                uniform.index = diffuseTextureIndex;
+                uniform.texCoord = 0;
+            }
+        }
+
+        if (material.seinCustomMaterial.uniformsCubeTexture.Length != 0)
+        {
+            foreach (var uniform in material.seinCustomMaterial.uniformsCubeTexture)
+            {
+                // todo: support cubemap
+                //int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                //uniform.index = diffuseTextureIndex;
+                //uniform.texCoord = 0;
+            }
+        }
+    }
+
     // Convert material from Unity to glTF PBR
     private void unityToPBRMaterial(Material mat, ref GlTF_Material material)
     {
         bool isMaterialPBR = true;
         bool isMetal = true;
         bool hasPBRMap = false;
+        // Is metal workflow used
+        isMetal = mat.shader.name == "Standard";
+        GlTF_Writer.hasSpecularMaterials = GlTF_Writer.hasSpecularMaterials || !isMetal;
+        material.isMetal = isMetal;
 
-        if (!mat.shader.name.Contains("Standard"))
-        {
-            Debug.Log("Material " + mat.shader + " is not fully supported");
-            isMaterialPBR = false;
-        }
-        else
-        {
-            // Is metal workflow used
-            isMetal = mat.shader.name == "Standard";
-            GlTF_Writer.hasSpecularMaterials = GlTF_Writer.hasSpecularMaterials || !isMetal;
-            material.isMetal = isMetal;
+        // Is smoothness defined by diffuse texture or PBR texture' alpha?
+        if (mat.GetFloat("_SmoothnessTextureChannel") != 0)
+            Debug.Log("Smoothness uses diffuse's alpha channel. Unsupported for now");
 
-            // Is smoothness defined by diffuse texture or PBR texture' alpha?
-            if (mat.GetFloat("_SmoothnessTextureChannel") != 0)
-                Debug.Log("Smoothness uses diffuse's alpha channel. Unsupported for now");
-
-            hasPBRMap = (!isMetal && mat.GetTexture("_SpecGlossMap") != null || isMetal && mat.GetTexture("_MetallicGlossMap") != null);
-        }
+        hasPBRMap = (!isMetal && mat.GetTexture("_SpecGlossMap") != null || isMetal && mat.GetTexture("_MetallicGlossMap") != null);
 
         //Check transparency
         bool hasTransparency = handleTransparency(ref mat, ref material);
-
-        if (material.seinCustomMaterial)
-        {
-            if (material.seinCustomMaterial.uniformsTexture.Length != 0)
-            {
-                foreach (var uniform in material.seinCustomMaterial.uniformsTexture)
-                {
-                    int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
-                    uniform.index = diffuseTextureIndex;
-                    uniform.texCoord = 0;
-                }
-            }
-
-            if (material.seinCustomMaterial.uniformsCubeTexture.Length != 0)
-            {
-                foreach (var uniform in material.seinCustomMaterial.uniformsCubeTexture)
-                {
-                    // todo: support cubemap
-                    //int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
-                    //uniform.index = diffuseTextureIndex;
-                    //uniform.texCoord = 0;
-                }
-            }
-        }
 
         //Parse diffuse channel texture and color
         if (mat.HasProperty("_MainTex") && mat.GetTexture("_MainTex") != null)
@@ -1180,13 +1263,8 @@ public class SceneToGlTFWiz : MonoBehaviour
             textureValue.floatValue.Add("strength", mat.GetFloat("_OcclusionStrength"));
             material.values.Add(textureValue);
         }
-
-        // Unity materials are single sided by default
-        GlTF_Material.BoolValue doubleSided = new GlTF_Material.BoolValue();
-        doubleSided.name = "doubleSided";
-        doubleSided.value = false;
-        material.values.Add(doubleSided);
     }
+
     private bool getPixelsFromTexture(ref Texture2D texture, out Color[] pixels)
     {
         //Make texture readable
@@ -1272,7 +1350,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         newtex.Apply();
         TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
-        string pathInArchive = Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "");
+        string pathInArchive = Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "").Replace("Assets/", "");
         string exportDir = Path.Combine(exportDirectory, pathInArchive);
 
         if (!Directory.Exists(exportDir))

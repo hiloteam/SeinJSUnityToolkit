@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class GlTF_Technique : GlTF_Writer {
 	public enum Type {
+        UNKNOWN = 0,
 		FLOAT = 5126,
 		FLOAT_VEC2 = 35664,
 		FLOAT_VEC3 = 35665,
@@ -24,28 +25,25 @@ public class GlTF_Technique : GlTF_Writer {
 		TEXCOORD_3,
 		MODELVIEW,
 		PROJECTION,
-		MODELVIEWINVERSETRANSPOSE
+        MODELVIEWPROJECTION,
+        MODELVIEWINVERSETRANSPOSE
 	}
 
-	public class Parameter {
+    public class Attribute {
 		public string name;
-		public Type type;
-		public Semantic semantic = Semantic.UNKNOWN;
-	}
-
-	public class Attribute {
-		public string name;
-		public string param;
+        public Type type;
+        public Semantic semantic;
 	}
 
 	public class Uniform {
-		public string name;
-		public string param;
-	}
+        public string name;
+        public Type type;
+		public Semantic semantic;
+        public bool isDefault = false;
+    }
 
-	public string program;
-	public List<Attribute> attributes = new List<Attribute>();
-	public List<Parameter> parameters = new List<Parameter>();
+	public int program;
+    public List<Attribute> attributes = new List<Attribute>();
 	public List<Uniform> uniforms = new List<Uniform>();
 
 	public static string GetNameFromObject(Object o)
@@ -55,71 +53,98 @@ public class GlTF_Technique : GlTF_Writer {
 
 	public void AddDefaultUniforms()
 	{
-		var tParam = new Parameter();
-		tParam.name = "modelViewMatrix";
-		tParam.type = Type.FLOAT_MAT4;
-		tParam.semantic = Semantic.MODELVIEW;
-		parameters.Add(tParam);
 		var uni = new Uniform();
 		uni.name = "u_modelViewMatrix";
-		uni.param = tParam.name;
-		uniforms.Add(uni);
+        uni.semantic = Semantic.MODELVIEW;
+        uni.type = Type.FLOAT_MAT4;
+        uni.isDefault = true;
+        uniforms.Add(uni);
 
-		tParam = new Parameter();
-		tParam.name = "projectionMatrix";
-		tParam.type = Type.FLOAT_MAT4;
-		tParam.semantic = Semantic.PROJECTION;
-		parameters.Add(tParam);
 		uni = new Uniform();
 		uni.name = "u_projectionMatrix";
-		uni.param = tParam.name;
-		uniforms.Add(uni);
+        uni.semantic = Semantic.PROJECTION;
+        uni.type = Type.FLOAT_MAT4;
+        uni.isDefault = true;
+        uniforms.Add(uni);
 
-		tParam = new Parameter();
-		tParam.name = "normalMatrix";
-		tParam.type = Type.FLOAT_MAT3;
-		tParam.semantic = Semantic.MODELVIEWINVERSETRANSPOSE;
-		parameters.Add(tParam);
-		uni = new Uniform();
-		uni.name = "u_normalMatrix";
-		uni.param = tParam.name;
-		uniforms.Add(uni);
+        uni = new Uniform();
+        uni.name = "u_modelViewProjectionMatrix";
+        uni.semantic = Semantic.MODELVIEWPROJECTION;
+        uni.type = Type.FLOAT_MAT4;
+        uni.isDefault = true;
+        uniforms.Add(uni);
+
+        uni = new Uniform();
+        uni.name = "u_normalMatrix";
+        uni.semantic = Semantic.MODELVIEWINVERSETRANSPOSE;
+        uni.type = Type.FLOAT_MAT3;
+        uni.isDefault = true;
+        uniforms.Add(uni);
 	}
 
-	public override void Write()
+    public string generateShaderHeader(bool isVS)
+    {
+        var header = isVS ? "precision HILO_MAX_VERTEX_PRECISION float;\n" : "precision HILO_MAX_FRAGMENT_PRECISION float;\n";
+
+        if (isVS)
+        {
+            foreach (var a in attributes)
+            {
+                header += "attribute " + TypeToShader(a.type) + " " + a.name + ";\n";
+            }
+        }
+
+        foreach (var u in uniforms)
+        {
+            if (u.isDefault)
+            {
+                header += "uniform " + TypeToShader(u.type) + " " + u.name + ";\n";
+            }
+        }
+
+        return header;
+    }
+
+    protected string TypeToShader(Type type)
+    {
+        switch (type)
+        {
+            case Type.FLOAT:
+                return "float";
+            case Type.FLOAT_MAT3:
+                return "mat3";
+            case Type.FLOAT_MAT4:
+                return "mat4";
+            case Type.FLOAT_VEC2:
+                return "vec2";
+            case Type.FLOAT_VEC3:
+                return "vec3";
+            case Type.FLOAT_VEC4:
+                return "vec4";
+            case Type.SAMPLER_2D:
+                return "sampler2D";
+        }
+
+        return "";
+    }
+
+    public override void Write()
 	{
-		Indent();		jsonWriter.Write ("\"" + name + "\": {\n");
+		Indent();		jsonWriter.Write ("{\n");
 		IndentIn();
-		Indent();		jsonWriter.Write ("\"program\": \"" + program +"\",\n");
-		Indent();		jsonWriter.Write ("\"parameters\": {\n");
-		IndentIn();
-		foreach (var p in parameters)
-		{
-			CommaNL();
-			Indent();	jsonWriter.Write ("\"" + p.name + "\": {\n");
-			IndentIn();
-			Indent();	jsonWriter.Write ("\"type\": " + (int)p.type);
-			if (p.semantic != Semantic.UNKNOWN)
-			{
-				jsonWriter.Write (",\n");
-				Indent();	jsonWriter.Write ("\"semantic\": \"" + p.semantic + "\"\n");
-			} else {
-				jsonWriter.Write ("\n");
-			}
-			IndentOut();
-			Indent();	jsonWriter.Write ("}");
-		}
-		jsonWriter.Write ("\n");
-		IndentOut();
-		Indent();		jsonWriter.Write ("},\n");
+		Indent();		jsonWriter.Write ("\"program\": " + program +",\n");
 
 		Indent();		jsonWriter.Write ("\"attributes\": {\n");
 		IndentIn();
 		foreach (var a in attributes)
 		{
 			CommaNL();
-			Indent();	jsonWriter.Write ("\"" + a.name + "\": \"" + a.param + "\"");
-		}
+			Indent();	jsonWriter.Write ("\"" + a.name + "\": {\n");
+            IndentIn();
+            Indent(); jsonWriter.Write("\"semantic\": \"" + a.semantic + "\"\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("}");
+        }
 		jsonWriter.Write ("\n");
 		IndentOut();
 		Indent();		jsonWriter.Write ("},\n");
@@ -128,9 +153,28 @@ public class GlTF_Technique : GlTF_Writer {
 		IndentIn();
 		foreach (var u in uniforms)
 		{
-			CommaNL();
-			Indent();	jsonWriter.Write ("\"" + u.name + "\": \"" + u.param + "\"");
-		}
+            CommaNL();
+            Indent(); jsonWriter.Write("\"" + u.name + "\": {\n");
+            IndentIn();
+            if (u.semantic != Semantic.UNKNOWN)
+            {
+                Indent(); jsonWriter.Write("\"semantic\": \"" + u.semantic + "\"");
+                if (u.type != Type.UNKNOWN)
+                {
+                    jsonWriter.Write(",\n");
+                }
+                else
+                {
+                    jsonWriter.Write("\n");
+                }
+            }
+            if (u.type != Type.UNKNOWN)
+            {
+                Indent(); jsonWriter.Write("\"type\": " + (int)u.type + "\n");
+            }
+            IndentOut();
+            Indent(); jsonWriter.Write("}");
+        }
 		jsonWriter.Write ("\n");
 		IndentOut();
 		Indent();		jsonWriter.Write ("}\n");

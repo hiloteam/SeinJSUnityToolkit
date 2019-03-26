@@ -53,7 +53,8 @@ public class GlTF_Writer {
 
 	public static List<GlTF_Program> programs = new List<GlTF_Program>();
 	public static List<GlTF_Shader> shaders = new List<GlTF_Shader>();
-	public static List<GlTF_Skin> skins = new List<GlTF_Skin>();
+    public static List<string> shaderPathes = new List<string>();
+    public static List<GlTF_Skin> skins = new List<GlTF_Skin>();
 	public static List<GlTF_Node> rootNodes = new List<GlTF_Node>();
 
 	// Keys are original file path, values correspond to the directory in the output zip file
@@ -183,6 +184,7 @@ public class GlTF_Writer {
 
 		programs = new List<GlTF_Program>();
 		shaders = new List<GlTF_Shader>();
+        shaderPathes = new List<string>();
 		skins = new List<GlTF_Skin>();
 		rootNodes = new List<GlTF_Node>();
 
@@ -352,12 +354,6 @@ public class GlTF_Writer {
         extensionsRequired.Add(SeinCustomMaterial.extensionName);
         extensionsUsed.Add(SeinCustomMaterial.extensionName);
 
-        if (Exporter.opt_noLighting)
-        {
-            extensionsRequired.Add("KHR_materials_unlit");
-            extensionsUsed.Add("KHR_materials_unlit");
-        }
-
         jsonWriter.Write ("{\n");
 		IndentIn();
 
@@ -471,6 +467,18 @@ public class GlTF_Writer {
 			Indent();		jsonWriter.Write ("]");
 		}
 
+        if (techniques.Count > 0)
+        {
+            extensionsRequired.Add("KHR_techniques_webgl");
+            extensionsUsed.Add("KHR_techniques_webgl");
+        }
+
+        if (Exporter.opt_noLighting)
+        {
+            extensionsRequired.Add("KHR_materials_unlit");
+            extensionsUsed.Add("KHR_materials_unlit");
+        }
+
         if (!Exporter.opt_noLighting && (hasSpecularMaterials || lights.Count > 0))
         {
             extensionsRequired.Add("KHR_lights_punctual");
@@ -541,7 +549,57 @@ public class GlTF_Writer {
 			Indent();	jsonWriter.Write ("]");
 		}
 
-		if (materials.Count > 0)
+        if (techniques.Count > 0)
+        {
+            CommaNL();
+            Indent(); jsonWriter.Write("\"extensions\": {\n");
+            IndentIn();
+            Indent(); jsonWriter.Write("\"KHR_techniques_webgl\": {\n");
+            IndentIn();
+
+            CommaNL();
+            Indent(); jsonWriter.Write("\"programs\": [\n");
+            IndentIn();
+            foreach (GlTF_Program p in programs)
+            {
+                CommaNL();
+                p.Write();
+            }
+            jsonWriter.WriteLine();
+            IndentOut();
+            Indent(); jsonWriter.Write("]");
+
+            CommaNL();
+            Indent(); jsonWriter.Write("\"shaders\": [\n");
+            IndentIn();
+            foreach (GlTF_Shader s in shaders)
+            {
+                CommaNL();
+                s.Write();
+            }
+            jsonWriter.WriteLine();
+            IndentOut();
+            Indent(); jsonWriter.Write("]");
+
+            CommaNL();
+            Indent(); jsonWriter.Write("\"techniques\": [\n");
+            IndentIn();
+            foreach (GlTF_Technique t in techniques)
+            {
+                CommaNL();
+                t.Write();
+            }
+            jsonWriter.WriteLine();
+            IndentOut();
+            Indent(); jsonWriter.Write("]\n");
+
+            IndentOut();
+            Indent(); jsonWriter.Write("}\n");
+            IndentOut();
+            Indent(); jsonWriter.Write("}");
+        }
+
+        if (materials.Count > 0)
 		{
 			CommaNL();
 			Indent();	jsonWriter.Write ("\"materials\": [\n");
