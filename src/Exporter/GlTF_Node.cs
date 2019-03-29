@@ -36,6 +36,7 @@ public class GlTF_Node : GlTF_Writer
     public GlTF_SeinNode seinNode;
     public GlTF_SeinPhysicBody physicBody;
     public GlTF_SeinAnimator animator;
+    public GlTF_SeinRenderer seinRenderer;
 
     public static string GetNameFromObject(Transform o)
     {
@@ -99,6 +100,11 @@ public class GlTF_Node : GlTF_Writer
         if (animator != null)
         {
             extensions.Add(animator);
+        }
+
+        if (seinRenderer != null)
+        {
+            extensions.Add(seinRenderer);
         }
 
         if (childrenIDs != null && childrenIDs.Count > 0)

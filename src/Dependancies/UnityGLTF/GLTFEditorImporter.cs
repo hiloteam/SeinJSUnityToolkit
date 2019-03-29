@@ -26,9 +26,10 @@ namespace UnityGLTF
 		private string _gltfDirectoryPath;
 		private string _glTFPath = "";
 		private bool _addToCurrentScene;
+        private bool _generateLightMapUvs = false;
 
-		// GLTF data
-		private byte[] _glTFData;
+        // GLTF data
+        private byte[] _glTFData;
 		protected GLTFRoot _root;
 		AssetManager _assetManager;
 		private int _nbParsedNodes;
@@ -106,7 +107,7 @@ namespace UnityGLTF
 		/// <param name="gltfPath">Absolute path to the glTF file to import</param>
 		/// <param name="importPath">Path in current project where to import the model</param>
 		/// <param name="modelName">Name of the model prefab to create<param>
-		public void setupForPath(string gltfPath, string importPath, string modelName, bool addScene=false)
+		public void setupForPath(string gltfPath, string importPath, string modelName, bool addScene=false, bool generateLightMapUvs = false)
 		{
 			_glTFPath = gltfPath;
 			_gltfDirectoryPath = Path.GetDirectoryName(_glTFPath);
@@ -115,7 +116,8 @@ namespace UnityGLTF
 			_assetManager = new AssetManager(_projectDirectoryPath, _currentSampleName);
 			_importedObjects.Clear();
 			_addToCurrentScene = addScene;
-			_skinIndexToGameObjects.Clear();
+            _generateLightMapUvs = generateLightMapUvs;
+            _skinIndexToGameObjects.Clear();
             _skinObjectsStore.Clear();
 
         }
@@ -641,7 +643,7 @@ namespace UnityGLTF
 					? meshAttributes[SemanticProperties.TexCoord(1)].AccessorContent.AsTexcoords.ToUnityVector2()
 					: null,
 
-				uv3 = primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(2))
+                uv3 = primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(2))
 					? meshAttributes[SemanticProperties.TexCoord(2)].AccessorContent.AsTexcoords.ToUnityVector2()
 					: null,
 
@@ -662,7 +664,12 @@ namespace UnityGLTF
 					: null
 			};
 
-			if (primitive.Attributes.ContainsKey(SemanticProperties.JOINT) && primitive.Attributes.ContainsKey(SemanticProperties.WEIGHT))
+            if (mesh.uv2 == null && _generateLightMapUvs)
+            {
+                Unwrapping.GenerateSecondaryUVSet(mesh);
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.JOINT) && primitive.Attributes.ContainsKey(SemanticProperties.WEIGHT))
 			{
 				Vector4[] bones = new Vector4[1];
 				Vector4[] weights = new Vector4[1];

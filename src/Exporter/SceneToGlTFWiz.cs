@@ -29,7 +29,51 @@ public enum IMAGETYPE
     A,
     G_INVERT,
     NORMAL_MAP,
-    IGNORE
+    IGNORE,
+    HDR
+}
+
+public static class KTXHeader
+{
+    public static byte[] IDENTIFIER = { 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A };
+    public static byte[] ENDIANESS_LE = { 1, 2, 3, 4 };
+
+    // constants for glInternalFormat
+    public static int GL_ETC1_RGB8_OES = 0x8D64;
+
+    public static int GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG = 0x8C00;
+    public static int GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG = 0x8C01;
+    public static int GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG = 0x8C02;
+    public static int GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8C03;
+
+    public static int GL_ATC_RGB_AMD = 0x8C92;
+    public static int GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD = 0x87EE;
+
+    public static int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
+    public static int GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9276;
+    public static int GL_COMPRESSED_RGBA8_ETC2_EAC = 0x9278;
+    public static int GL_COMPRESSED_R11_EAC = 0x9270;
+    public static int GL_COMPRESSED_SIGNED_R11_EAC = 0x9271;
+    public static int GL_COMPRESSED_RG11_EAC = 0x9272;
+    public static int GL_COMPRESSED_SIGNED_RG11_EAC = 0x9273;
+
+    public static int GL_COMPRESSED_RED_RGTC1 = 0x8DBB;
+    public static int GL_COMPRESSED_RG_RGTC2 = 0x8DBD;
+    public static int GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F;
+    public static int GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C;
+
+    public static int GL_R16F = 0x822D;
+    public static int GL_RG16F = 0x822F;
+    public static int GL_RGBA16F = 0x881A;
+    public static int GL_R32F = 0x822E;
+    public static int GL_RG32F = 0x8230;
+    public static int GL_RGBA32F = 0x8814;
+
+    // constants for glBaseInternalFormat
+    public static int GL_RED = 0x1903;
+    public static int GL_RGB = 0x1907;
+    public static int GL_RGBA = 0x1908;
+    public static int GL_RG = 0x8227;
 }
 
 public class SceneToGlTFWiz : MonoBehaviour
@@ -274,174 +318,205 @@ public class SceneToGlTFWiz : MonoBehaviour
                 node.physicBody.colliders = new List<Collider>(tr.GetComponents<Collider>());
             }
 
+            Renderer mr = GetRenderer(tr);
             Mesh m = GetMesh(tr);
-            if (m != null && !GlTF_Writer.exportMeshes.ContainsKey(m))
+            if (m != null)
             {
-                GlTF_Mesh mesh = new GlTF_Mesh();
-                mesh.name = GlTF_Writer.cleanNonAlphanumeric(m.name);
-
-                GlTF_Accessor positionAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "position"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
-                positionAccessor.bufferView = GlTF_Writer.vec3BufferView;
-                GlTF_Writer.accessors.Add(positionAccessor);
-
-                GlTF_Accessor normalAccessor = null;
-                if (m.normals.Length > 0)
+                string materialsID = "";
+                var sm = mr.sharedMaterials;
+                foreach (var mat in sm)
                 {
-                    normalAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "normal"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
-                    normalAccessor.bufferView = GlTF_Writer.vec3BufferView;
-                    GlTF_Writer.accessors.Add(normalAccessor);
+                    materialsID += GlTF_Material.GetNameFromObject(mat);
                 }
 
-                GlTF_Accessor colorAccessor = null;
-                if (m.colors.Length > 0)
+                if (GlTF_Writer.exportMeshes.ContainsKey(m) && GlTF_Writer.exportMeshes[m].ContainsKey(materialsID))
                 {
-                    colorAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "color"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.FLOAT);
-                    colorAccessor.bufferView = GlTF_Writer.vec4BufferView;
-                    GlTF_Writer.accessors.Add(colorAccessor);
+                    node.meshIndex = GlTF_Writer.meshes.IndexOf(GlTF_Writer.exportMeshes[m][materialsID]);
+                    createLightMap(GetRenderer(tr), ref node);
                 }
-
-                GlTF_Accessor uv0Accessor = null;
-                if (m.uv.Length > 0)
+                else
                 {
-                    uv0Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv0"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
-                    uv0Accessor.bufferView = GlTF_Writer.vec2BufferView;
-                    GlTF_Writer.accessors.Add(uv0Accessor);
-                }
+                    GlTF_Mesh mesh = new GlTF_Mesh();
+                    mesh.name = GlTF_Writer.cleanNonAlphanumeric(m.name);
+                    mesh.materialsID = materialsID;
 
-                GlTF_Accessor uv1Accessor = null;
-                if (m.uv2.Length > 0)
-                {
-                    // check if object is affected by a lightmap
-                    uv1Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv1"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
-                    uv1Accessor.bufferView = GlTF_Writer.vec2BufferView;
-                    GlTF_Writer.accessors.Add(uv1Accessor);
-                }
+                    GlTF_Accessor positionAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "position"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
+                    positionAccessor.bufferView = GlTF_Writer.vec3BufferView;
+                    GlTF_Writer.accessors.Add(positionAccessor);
 
-                GlTF_Accessor uv2Accessor = null;
-                if (m.uv3.Length > 0)
-                {
-                    uv2Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv2"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
-                    uv2Accessor.bufferView = GlTF_Writer.vec2BufferView;
-                    GlTF_Writer.accessors.Add(uv2Accessor);
-                }
-
-                GlTF_Accessor uv3Accessor = null;
-                if (m.uv4.Length > 0)
-                {
-                    uv3Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv3"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
-                    uv3Accessor.bufferView = GlTF_Writer.vec2BufferView;
-                    GlTF_Writer.accessors.Add(uv3Accessor);
-                }
-
-                GlTF_Accessor jointAccessor = null;
-                if (exportAnimation && m.boneWeights.Length > 0)
-                {
-                    jointAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "joints"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.USHORT);
-                    jointAccessor.bufferView = GlTF_Writer.vec4UshortBufferView;
-                    GlTF_Writer.accessors.Add(jointAccessor);
-                }
-
-                GlTF_Accessor weightAccessor = null;
-                if (exportAnimation && m.boneWeights.Length > 0)
-                {
-                    weightAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "weights"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.FLOAT);
-                    weightAccessor.bufferView = GlTF_Writer.vec4BufferView;
-                    GlTF_Writer.accessors.Add(weightAccessor);
-                }
-
-                GlTF_Accessor tangentAccessor = null;
-                if (m.tangents.Length > 0)
-                {
-                    tangentAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "tangents"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.FLOAT);
-                    tangentAccessor.bufferView = GlTF_Writer.vec4BufferView;
-                    GlTF_Writer.accessors.Add(tangentAccessor);
-                }
-
-                var smCount = m.subMeshCount;
-                for (var i = 0; i < smCount; ++i)
-                {
-                    GlTF_Primitive primitive = new GlTF_Primitive();
-                    primitive.name = GlTF_Primitive.GetNameFromObject(m, i);
-                    primitive.index = i;
-                    GlTF_Attributes attributes = new GlTF_Attributes();
-                    attributes.positionAccessor = positionAccessor;
-                    attributes.normalAccessor = normalAccessor;
-                    attributes.colorAccessor = colorAccessor;
-                    attributes.texCoord0Accessor = uv0Accessor;
-                    attributes.texCoord1Accessor = uv1Accessor;
-                    attributes.texCoord2Accessor = uv2Accessor;
-                    attributes.texCoord3Accessor = uv3Accessor;
-                    attributes.jointAccessor = jointAccessor;
-                    attributes.weightAccessor = weightAccessor;
-                    attributes.tangentAccessor = tangentAccessor;
-                    primitive.attributes = attributes;
-                    GlTF_Accessor indexAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "indices_" + i), GlTF_Accessor.Type.SCALAR, GlTF_Accessor.ComponentType.USHORT);
-                    indexAccessor.bufferView = GlTF_Writer.ushortBufferView;
-                    GlTF_Writer.accessors.Add(indexAccessor);
-                    primitive.indices = indexAccessor;
-
-                    var mr = GetRenderer(tr);
-                    var sm = mr.sharedMaterials;
-                    if (i < sm.Length)
+                    GlTF_Accessor normalAccessor = null;
+                    if (m.normals.Length > 0)
                     {
-                        var mat = sm[i];
-                        var matName = GlTF_Material.GetNameFromObject(mat);
-                        if (GlTF_Writer.materialNames.Contains(matName))
+                        normalAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "normal"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
+                        normalAccessor.bufferView = GlTF_Writer.vec3BufferView;
+                        GlTF_Writer.accessors.Add(normalAccessor);
+                    }
+
+                    GlTF_Accessor colorAccessor = null;
+                    if (m.colors.Length > 0)
+                    {
+                        colorAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "color"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.FLOAT);
+                        colorAccessor.bufferView = GlTF_Writer.vec4BufferView;
+                        GlTF_Writer.accessors.Add(colorAccessor);
+                    }
+
+                    GlTF_Accessor uv0Accessor = null;
+                    if (m.uv.Length > 0)
+                    {
+                        uv0Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv0"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
+                        uv0Accessor.bufferView = GlTF_Writer.vec2BufferView;
+                        GlTF_Writer.accessors.Add(uv0Accessor);
+                    }
+
+                    GlTF_Accessor uv1Accessor = null;
+                    if (m.uv2.Length > 0)
+                    {
+                        // check if object is affected by a lightmap
+                        uv1Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv1"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
+                        uv1Accessor.bufferView = GlTF_Writer.vec2BufferView;
+                        GlTF_Writer.accessors.Add(uv1Accessor);
+                    }
+
+                    GlTF_Accessor uv2Accessor = null;
+                    if (m.uv3.Length > 0)
+                    {
+                        uv2Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv2"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
+                        uv2Accessor.bufferView = GlTF_Writer.vec2BufferView;
+                        GlTF_Writer.accessors.Add(uv2Accessor);
+                    }
+
+                    GlTF_Accessor uv3Accessor = null;
+                    if (m.uv4.Length > 0)
+                    {
+                        uv3Accessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "uv3"), GlTF_Accessor.Type.VEC2, GlTF_Accessor.ComponentType.FLOAT);
+                        uv3Accessor.bufferView = GlTF_Writer.vec2BufferView;
+                        GlTF_Writer.accessors.Add(uv3Accessor);
+                    }
+
+                    GlTF_Accessor jointAccessor = null;
+                    if (exportAnimation && m.boneWeights.Length > 0)
+                    {
+                        jointAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "joints"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.USHORT);
+                        jointAccessor.bufferView = GlTF_Writer.vec4UshortBufferView;
+                        GlTF_Writer.accessors.Add(jointAccessor);
+                    }
+
+                    GlTF_Accessor weightAccessor = null;
+                    if (exportAnimation && m.boneWeights.Length > 0)
+                    {
+                        weightAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "weights"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.FLOAT);
+                        weightAccessor.bufferView = GlTF_Writer.vec4BufferView;
+                        GlTF_Writer.accessors.Add(weightAccessor);
+                    }
+
+                    GlTF_Accessor tangentAccessor = null;
+                    if (m.tangents.Length > 0)
+                    {
+                        tangentAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "tangents"), GlTF_Accessor.Type.VEC4, GlTF_Accessor.ComponentType.FLOAT);
+                        tangentAccessor.bufferView = GlTF_Writer.vec4BufferView;
+                        GlTF_Writer.accessors.Add(tangentAccessor);
+                    }
+
+                    var smCount = m.subMeshCount;
+                    GlTF_Mesh m2 = null;
+                    if (GlTF_Writer.exportMeshes.ContainsKey(m))
+                    {
+                        foreach (GlTF_Mesh item in GlTF_Writer.exportMeshes[m].Values)
                         {
-                            primitive.materialIndex = GlTF_Writer.materialNames.IndexOf(matName); // THIS INDIRECTION CAN BE REMOVED!
+                            m2 = item;
+                            break;
+                        }
+                    }
+
+                    for (var i = 0; i < smCount; ++i)
+                    {
+                        GlTF_Primitive primitive = new GlTF_Primitive();
+                        primitive.name = GlTF_Primitive.GetNameFromObject(m, i);
+                        primitive.index = i;
+                        GlTF_Attributes attributes = new GlTF_Attributes();
+
+                        if (m2 != null)
+                        {
+                            attributes = primitive.attributes = m2.primitives[i].attributes;
+                            primitive.indices = m2.primitives[i].indices;
                         }
                         else
                         {
-                            GlTF_Material material = new GlTF_Material();
-                            material.name = GlTF_Writer.cleanNonAlphanumeric(mat.name);
-                            primitive.materialIndex = GlTF_Writer.materials.Count;
+                            attributes.positionAccessor = positionAccessor;
+                            attributes.normalAccessor = normalAccessor;
+                            attributes.colorAccessor = colorAccessor;
+                            attributes.texCoord0Accessor = uv0Accessor;
+                            attributes.texCoord1Accessor = uv1Accessor;
+                            attributes.texCoord2Accessor = uv2Accessor;
+                            attributes.texCoord3Accessor = uv3Accessor;
+                            attributes.jointAccessor = jointAccessor;
+                            attributes.weightAccessor = weightAccessor;
+                            attributes.tangentAccessor = tangentAccessor;
+                            primitive.attributes = attributes;
+                            GlTF_Accessor indexAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "indices_" + i), GlTF_Accessor.Type.SCALAR, GlTF_Accessor.ComponentType.USHORT);
+                            indexAccessor.bufferView = GlTF_Writer.ushortBufferView;
+                            GlTF_Writer.accessors.Add(indexAccessor);
+                            primitive.indices = indexAccessor;
+                        }
 
-                            if (tr.GetComponent<SeinCustomMaterial>())
-                            {
-                                material.seinCustomMaterial = tr.GetComponent<SeinCustomMaterial>();
-                            }
+                        if (i < sm.Length)
+                        {
+                            var mat = sm[i];
+                            var matName = GlTF_Material.GetNameFromObject(mat);
 
-                            GlTF_Writer.materialNames.Add(matName);
-                            GlTF_Writer.materials.Add(material);
-
-                            if (mat.shader.name.Contains("Standard"))
+                            if (GlTF_Writer.materialNames.Contains(matName))
                             {
-                                unityToPBRMaterial(mat, ref material);
-                            } else if (material.seinCustomMaterial)
-                            {
-                                createSeinCustomMaterial(mat, ref material);
+                                primitive.materialIndex = GlTF_Writer.materialNames.IndexOf(matName); // THIS INDIRECTION CAN BE REMOVED!
                             }
                             else
                             {
-                                createKHRWebGLMaterial(mat, ref attributes, ref material);
+                                GlTF_Material material = new GlTF_Material();
+                                material.name = GlTF_Writer.cleanNonAlphanumeric(mat.name);
+                                primitive.materialIndex = GlTF_Writer.materials.Count;
+
+                                if (tr.GetComponent<SeinCustomMaterial>())
+                                {
+                                    material.seinCustomMaterial = tr.GetComponent<SeinCustomMaterial>();
+                                }
+
+                                GlTF_Writer.materialNames.Add(matName);
+                                GlTF_Writer.materials.Add(material);
+
+                                if (mat.shader.name.Contains("Standard"))
+                                {
+                                    unityToPBRMaterial(mat, ref material);
+                                }
+                                else if (material.seinCustomMaterial)
+                                {
+                                    createSeinCustomMaterial(mat, ref material);
+                                }
+                                else
+                                {
+                                    createKHRWebGLMaterial(mat, attributes, ref material);
+                                }
+
+                                // Unity materials are single sided by default
+                                GlTF_Material.BoolValue doubleSided = new GlTF_Material.BoolValue();
+                                doubleSided.name = "doubleSided";
+                                doubleSided.value = false;
+                                material.values.Add(doubleSided);
                             }
-
-                            // Unity materials are single sided by default
-                            GlTF_Material.BoolValue doubleSided = new GlTF_Material.BoolValue();
-                            doubleSided.name = "doubleSided";
-                            doubleSided.value = mat.doubleSidedGI;
-                            material.values.Add(doubleSided);
-
-                            //GlTF_Material.StringValue alphaMode = new GlTF_Material.StringValue();
-                            //alphaMode.name = "alphaMode";
-                            //if (mat.GetInt("ren"))
-                            //alphaMode.value = mat.;
-                            //material.values.Add(alphaMode);
                         }
+                        mesh.primitives.Add(primitive);
                     }
-                    mesh.primitives.Add(primitive);
-                }
 
-                // If gameobject having SkinnedMeshRenderer component has been transformed,
-                // the mesh would need to be baked here.
-                mesh.Populate(m);
-                GlTF_Writer.meshes.Add(mesh);
-                GlTF_Writer.exportMeshes.Add(m, mesh);
-                node.meshIndex = GlTF_Writer.meshes.IndexOf(mesh);
-            }
-            else if (m != null)
-            {
-                node.meshIndex = GlTF_Writer.meshes.IndexOf(GlTF_Writer.exportMeshes[m]);
+                    createLightMap(GetRenderer(tr), ref node);
+                    // If gameobject having SkinnedMeshRenderer component has been transformed,
+                    // the mesh would need to be baked here.
+                    mesh.Populate(m);
+                    GlTF_Writer.meshes.Add(mesh);
+                    if (!GlTF_Writer.exportMeshes.ContainsKey(m))
+                    {
+                        GlTF_Writer.exportMeshes.Add(m, new Dictionary<string, GlTF_Mesh>());
+                    }
+                    GlTF_Writer.exportMeshes[m].Add(materialsID, mesh);
+                    node.meshIndex = GlTF_Writer.meshes.IndexOf(mesh);
+                }
             }
 
             // Parse animations
@@ -830,13 +905,14 @@ public class SceneToGlTFWiz : MonoBehaviour
             newtex.Apply();
             TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
-            string pathInArchive = Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", "");
+            string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
             string exportDir = Path.Combine(savedPath, pathInArchive);
 
             if (!Directory.Exists(exportDir))
                 Directory.CreateDirectory(exportDir);
 
             string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_converted_metalRoughness.jpg";
+            outputFilename = GlTF_Writer.cleanPath(outputFilename);
             string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
             File.WriteAllBytes(exportPath, newtex.EncodeToJPG(Exporter.opt_jpgQuality));
 
@@ -915,7 +991,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         return GlTF_Writer.textureNames.IndexOf(texName);
     }
 
-    private void createKHRWebGLMaterial(Material mat, ref GlTF_Attributes attributes, ref GlTF_Material material)
+    private void createKHRWebGLMaterial(Material mat, GlTF_Attributes attributes, ref GlTF_Material material)
     {
         //technique
         material.useKHRTechnique = true;
@@ -1265,6 +1341,29 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
     }
 
+    private void createLightMap(Renderer mr, ref GlTF_Node node)
+    {
+        var seinRenderer = new GlTF_SeinRenderer();
+        int lightmapIndex = mr.lightmapIndex;
+
+        if (Exporter.opt_exportLightMap && lightmapIndex > -1)
+        {
+            Vector4 lightmapScaleOffset = mr.lightmapScaleOffset;
+
+            var lightData = LightmapSettings.lightmaps[lightmapIndex];
+            var lightTexture = lightData.lightmapColor;
+            var lightTextureIndex = processTexture(lightTexture, IMAGETYPE.HDR);
+            seinRenderer.uvScale = new Vector2(lightmapScaleOffset.x, lightmapScaleOffset.y);
+            seinRenderer.uvOffset = new Vector2(lightmapScaleOffset.z, lightmapScaleOffset.w);
+            seinRenderer.lightMapIndex = lightTextureIndex;
+        }
+
+        seinRenderer.castShadows = mr.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On;
+        seinRenderer.receiveShadows = mr.receiveShadows;
+
+        node.seinRenderer = seinRenderer;
+    }
+
     private bool getPixelsFromTexture(ref Texture2D texture, out Color[] pixels)
     {
         //Make texture readable
@@ -1345,21 +1444,43 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
         }
 
+        //Texture2D newtex = new Texture2D(inputTexture.width, inputTexture.height, inputTexture.format, false);
         Texture2D newtex = new Texture2D(inputTexture.width, inputTexture.height);
         newtex.SetPixels(newTextureColors);
         newtex.Apply();
-        TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
 
-        string pathInArchive = Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "").Replace("Assets/", "");
+        if (format != IMAGETYPE.HDR)
+        {
+            TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
+        }
+
+        string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "").Replace("Assets/", ""));
         string exportDir = Path.Combine(exportDirectory, pathInArchive);
 
         if (!Directory.Exists(exportDir))
             Directory.CreateDirectory(exportDir);
 
-        string outputFilename = Path.GetFileNameWithoutExtension(pathInProject) + (format == IMAGETYPE.RGBA ? ".png" : ".jpg");
+        string outputFilename = Path.GetFileNameWithoutExtension(pathInProject) + (format == IMAGETYPE.RGBA ? ".png" : format == IMAGETYPE.HDR ? ".png" : ".jpg");
+        outputFilename = GlTF_Writer.cleanPath(outputFilename);
         string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
         string pathInGltfFile = pathInArchive + "/" + outputFilename;
-        File.WriteAllBytes(exportPath, (format == IMAGETYPE.RGBA ? newtex.EncodeToPNG() : newtex.EncodeToJPG(format == IMAGETYPE.NORMAL_MAP ? 95 : Exporter.opt_jpgQuality)));
+
+        byte[] content = { };
+        if (format == IMAGETYPE.RGBA)
+        {
+            content = newtex.EncodeToPNG();
+        }
+        else if (format == IMAGETYPE.HDR)
+        {
+            // to ktx format
+            content = texToKTX(newtex);
+        }
+        else
+        {
+            content = newtex.EncodeToJPG(format == IMAGETYPE.NORMAL_MAP ? 95 : Exporter.opt_jpgQuality);
+        }
+
+        File.WriteAllBytes(exportPath, content);
 
         if (!GlTF_Writer.exportedFiles.ContainsKey(exportPath))
             GlTF_Writer.exportedFiles.Add(exportPath, pathInArchive);
@@ -1367,6 +1488,13 @@ public class SceneToGlTFWiz : MonoBehaviour
             Debug.LogError("Texture '" + inputTexture + "' already exists");
 
         return pathInGltfFile;
+    }
+
+    private byte[] texToKTX(Texture2D tex)
+    {
+        Debug.Log(tex.format);
+        //
+        return tex.EncodeToPNG();
     }
 }
 #endif

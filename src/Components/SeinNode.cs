@@ -29,6 +29,7 @@ public class SeinNode : MonoBehaviour {
     // Only works when selfType is Actor
     [Header("Properties for actor")]
     public new string tag = "";
+    public int layer = 0xfffffff;
 
     public bool persistent = false;
     

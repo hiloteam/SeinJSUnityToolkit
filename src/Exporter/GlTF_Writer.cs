@@ -29,7 +29,7 @@ public class GlTF_Writer {
 	public static List<GlTF_Camera> cameras = new List<GlTF_Camera>();
 	public static List<GlTF_Light> lights = new List<GlTF_Light>();
 	public static List<GlTF_Mesh> meshes = new List<GlTF_Mesh>();
-    public static Dictionary<Mesh, GlTF_Mesh> exportMeshes = new Dictionary<Mesh, GlTF_Mesh>();
+    public static Dictionary<Mesh, Dictionary<string, GlTF_Mesh>> exportMeshes = new Dictionary<Mesh, Dictionary<string, GlTF_Mesh>>();
     public static List<GlTF_Accessor> accessors = new List<GlTF_Accessor>();
 
 	public static List<int> nodeIDs = new List<int>();
@@ -65,13 +65,18 @@ public class GlTF_Writer {
 	public static bool hasSpecularMaterials = false;
 	public static bool convertRightHanded = true;
 	public static string exporterVersion = "0.8.0";
-	public static Regex rgx = new Regex("[^a-zA-Z0-9 -_.]");
-	
-	static public string cleanNonAlphanumeric(string s)
+	public static Regex rgx = new Regex("[^a-zA-Z0-9-_.]");
+    public static Regex rgxPath = new Regex("[^a-zA-Z0-9-_./]");
+
+    static public string cleanNonAlphanumeric(string s)
 	{
 		return rgx.Replace(s, "");
 	}
-	static public string GetNameFromObject(Object o, bool useId = false)
+    static public string cleanPath(string s)
+    {
+        return rgxPath.Replace(s, "").ToLower();
+    }
+    static public string GetNameFromObject(Object o, bool useId = false)
 	{
         if (o == null)
         {
@@ -159,7 +164,7 @@ public class GlTF_Writer {
 		cameras = new List<GlTF_Camera>();
 		lights = new List<GlTF_Light>();
 		meshes = new List<GlTF_Mesh>();
-        exportMeshes = new Dictionary<Mesh, GlTF_Mesh>();
+        exportMeshes = new Dictionary<Mesh, Dictionary<string, GlTF_Mesh>>();
 		accessors = new List<GlTF_Accessor>();
 
 		nodes = new List<GlTF_Node>();
@@ -188,7 +193,7 @@ public class GlTF_Writer {
 		skins = new List<GlTF_Skin>();
 		rootNodes = new List<GlTF_Node>();
 
-		bakeAnimation = true;
+        bakeAnimation = true;
 		hasSpecularMaterials = false;
 	}
 
@@ -353,6 +358,8 @@ public class GlTF_Writer {
         extensionsUsed.Add(SeinAnimator.extensionName);
         extensionsRequired.Add(SeinCustomMaterial.extensionName);
         extensionsUsed.Add(SeinCustomMaterial.extensionName);
+        extensionsUsed.Add(GlTF_SeinRenderer.extensionName);
+        extensionsRequired.Add(GlTF_SeinRenderer.extensionName);
 
         jsonWriter.Write ("{\n");
 		IndentIn();

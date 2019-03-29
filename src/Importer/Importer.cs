@@ -21,7 +21,8 @@ namespace GlTF
 		string _importDirectory = Application.dataPath + "/Resources";
 		string _currentSampleName = "Imported";
 		bool _addToCurrentScene = false;
-		string _gltfInput;
+        bool _generateLightMapUvs = false;
+        string _gltfInput;
 
 		public GlTFImporter(GLTFEditorImporter.ProgressCallback progressCallback, GLTFEditorImporter.RefreshWindow finishCallback)
 		{
@@ -34,7 +35,7 @@ namespace GlTF
 			_importer.Update();
 		}
 
-		public void configure(string importDirectory, string prefabName, bool addToScene = false)
+		public void configure(string importDirectory, string prefabName, bool addToScene = false, bool generateLightMapUvs = false)
 		{
 
 			if (importDirectory.Length > 0)
@@ -53,7 +54,8 @@ namespace GlTF
 				_currentSampleName = prefabName;
 
 			_addToCurrentScene = addToScene;
-		}
+            _generateLightMapUvs = generateLightMapUvs;
+        }
 
 		private string findGltfFile(string directory)
 		{
@@ -146,7 +148,7 @@ namespace GlTF
 			}
 
 			_gltfInput = unzipGLTFArchiveData(data);
-			_importer.setupForPath(_gltfInput, _importDirectory, _currentSampleName, _addToCurrentScene);
+			_importer.setupForPath(_gltfInput, _importDirectory, _currentSampleName, _addToCurrentScene, _generateLightMapUvs);
 			_importer.Load();
 		}
 
@@ -164,7 +166,7 @@ namespace GlTF
 				_gltfInput = unzipGltfArchive(filepath);
 			}
 
-			_importer.setupForPath(_gltfInput, _importDirectory, _currentSampleName, _addToCurrentScene);
+			_importer.setupForPath(_gltfInput, _importDirectory, _currentSampleName, _addToCurrentScene, _generateLightMapUvs);
 			_importer.Load();
 		}
 

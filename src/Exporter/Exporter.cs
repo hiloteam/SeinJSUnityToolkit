@@ -62,6 +62,7 @@ public class Exporter : EditorWindow {
     public static int opt_jpgQuality= 85;
     public static bool opt_noLighting= false;
     public static bool opt_splitChunks = false;
+    public static bool opt_exportLightMap = true;
 
     // UI dimensions (to be cleaned)
     [SerializeField]
@@ -92,7 +93,7 @@ public class Exporter : EditorWindow {
     private string exportPath;
 	private string zipPath;
 
-	private bool opt_exportAnimation = true;
+    private bool opt_exportAnimation = true;
     //private bool opt_quadraticAttenuation = true;
     private string param_name = "scene";
 	private string param_description = "";
@@ -288,7 +289,8 @@ public class Exporter : EditorWindow {
 
         GUILayout.Label("Options", EditorStyles.boldLabel);
         //opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
-        opt_splitChunks = EditorGUILayout.Toggle("Split chunks", opt_splitChunks);
+        opt_splitChunks = EditorGUILayout.Toggle("Split Chunks", opt_splitChunks);
+        opt_exportLightMap = EditorGUILayout.Toggle("Export LightMap", opt_exportLightMap);
 
         //GUILayout.Label("Lights", EditorStyles.boldLabel);
         //EditorGUIUtility.labelWidth = 200;

@@ -13,7 +13,7 @@ namespace GlTF
 {
 	class GlTFImporterWindow : EditorWindow
 	{
-        [MenuItem("SeinJS/Import glTF")]
+        [MenuItem("SeinJS/Import GlTF")]
 		static void Init()
 		{
 			GlTFImporterWindow window = (GlTFImporterWindow)EditorWindow.GetWindow(typeof(GlTFImporterWindow));
@@ -33,6 +33,7 @@ namespace GlTF
 
 		static string _currentSampleName = "Imported";
 		bool _addToCurrentScene = false;
+        bool _generateLightMapUvs = false;
 
 		private List<string> _unzippedFiles;
 
@@ -236,7 +237,8 @@ namespace GlTF
 			GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();
 
-			_addToCurrentScene = GUILayout.Toggle(_addToCurrentScene, "Add to current scene");
+            _generateLightMapUvs = GUILayout.Toggle(_generateLightMapUvs, "Generate LightMap Uvs to channel 2");
+            _addToCurrentScene = GUILayout.Toggle(_addToCurrentScene, "Add to current scene");
 			GUILayout.Space(2);
 		}
 
@@ -303,7 +305,7 @@ namespace GlTF
                 }
             }
 
-            _importer.configure(_importDirectory, _currentSampleName, _addToCurrentScene);
+            _importer.configure(_importDirectory, _currentSampleName, _addToCurrentScene, _generateLightMapUvs);
 			_importer.loadFromFile(_importFilePath);
 		}
 

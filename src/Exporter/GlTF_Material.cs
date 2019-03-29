@@ -207,6 +207,7 @@ public class GlTF_Material : GlTF_Writer {
             Indent(); jsonWriter.Write("}\n");
             IndentOut();
             Indent(); jsonWriter.Write("}\n");
+
             IndentOut();
             Indent(); jsonWriter.Write("},\n");
         } else if (Exporter.opt_noLighting)
@@ -254,8 +255,7 @@ public class GlTF_Material : GlTF_Writer {
             if (!isMetal)
             {
                 IndentOut();
-                Indent(); jsonWriter.Write("}");
-                jsonWriter.Write("\n");
+                Indent(); jsonWriter.Write("}\n");
             }
 
             jsonWriter.Write("\n");
@@ -263,18 +263,18 @@ public class GlTF_Material : GlTF_Writer {
             Indent(); jsonWriter.Write("},\n");
         }
 
-		// write common values
-		foreach (var v in values)
+        // write common values
+        foreach (var v in values)
 		{
 			CommaNL();
 			Indent(); v.Write();
 		}
-		CommaNL();
-		Indent();		jsonWriter.Write ("\"name\": \"" + name + "\"\n");
-		IndentOut();
-		Indent();		jsonWriter.Write ("}");
 
-	}
+        CommaNL();
+        Indent(); jsonWriter.Write("\"name\": \"" + name + "\"\n");
+        IndentOut();
+        Indent(); jsonWriter.Write("}");
+    }
 
 }
 #endif

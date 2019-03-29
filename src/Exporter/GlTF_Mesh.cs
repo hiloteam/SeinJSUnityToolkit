@@ -4,9 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GlTF_Mesh : GlTF_Writer {
-	public List<GlTF_Primitive> primitives;
+    public List<GlTF_Primitive> primitives;
+    public string materialsID = "";
 
-	public GlTF_Mesh() { primitives = new List<GlTF_Primitive>(); }
+    public GlTF_Mesh() { primitives = new List<GlTF_Primitive>(); }
 
 	public static string GetNameFromObject(Object o)
 	{
@@ -44,8 +45,8 @@ public class GlTF_Mesh : GlTF_Writer {
 		}
 		jsonWriter.WriteLine();
 		IndentOut();
-		Indent();	jsonWriter.Write ("]\n");
-		IndentOut();
+		Indent();	jsonWriter.Write("]\n");
+        IndentOut();
 		Indent();	jsonWriter.Write ("}");
 	}
 }

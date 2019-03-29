@@ -18,6 +18,8 @@ public class GlTF_SeinNode : GlTF_Writer
         Indent();
         jsonWriter.Write("\"tag\": \"" + node.tag + "\",\n");
         Indent();
+        jsonWriter.Write("\"layer\": \"" + node.layer + "\",\n");
+        Indent();
         jsonWriter.Write("\"persistent\": " + (node.persistent ? "true" : "false") + ",\n");
         Indent();
         jsonWriter.Write("\"emitComponentsDestroy\": " + (node.emitComponentsDestroy ? "true" : "false") + ",\n");
