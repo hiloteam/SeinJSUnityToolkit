@@ -1431,26 +1431,32 @@ public class SceneToGlTFWiz : MonoBehaviour
             Debug.Log("Failed to convert texture " + inputTexture.name + " (unsupported type or format)");
             return "";
         }
-        Color[] newTextureColors = new Color[inputTexture.height * inputTexture.width];
-
-        for (int i = 0; i < height; ++i)
-        {
-            for (int j = 0; j < width; ++j)
-            {
-                newTextureColors[i * width + j] = textureColors[(height - i - 1) * width + j];
-                if (format == IMAGETYPE.RGBA_OPAQUE)
-                    newTextureColors[i * width + j].a = 1.0f;
-            }
-        }
 
         //Texture2D newtex = new Texture2D(inputTexture.width, inputTexture.height, inputTexture.format, false);
-        Texture2D newtex = new Texture2D(inputTexture.width, inputTexture.height);
-        newtex.SetPixels(newTextureColors);
-        newtex.Apply();
+        Texture2D newtex = null;
 
         if (format != IMAGETYPE.HDR)
         {
+            Color[] newTextureColors = new Color[inputTexture.height * inputTexture.width];
+
+            for (int i = 0; i < height; ++i)
+            {
+                for (int j = 0; j < width; ++j)
+                {
+                    newTextureColors[i * width + j] = textureColors[(height - i - 1) * width + j];
+                    if (format == IMAGETYPE.RGBA_OPAQUE)
+                        newTextureColors[i * width + j].a = 1.0f;
+                }
+            }
+
+            newtex = new Texture2D(inputTexture.width, inputTexture.height);
+            newtex.SetPixels(newTextureColors);
+            newtex.Apply();
             TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
+        }
+        else
+        {
+            newtex = texToRGBD(textureColors, inputTexture.width, inputTexture.height);
         }
 
         string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "").Replace("Assets/", ""));
@@ -1471,8 +1477,8 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
         else if (format == IMAGETYPE.HDR)
         {
-            // to ktx format
-            content = texToKTX(newtex);
+            // rgbd format
+            content = newtex.EncodeToPNG();
         }
         else
         {
@@ -1489,11 +1495,42 @@ public class SceneToGlTFWiz : MonoBehaviour
         return pathInGltfFile;
     }
 
-    private byte[] texToKTX(Texture2D tex)
+    private Texture2D texToRGBD(Color[] colors, int width, int height)
     {
-        Debug.Log(tex.format);
-        //
-        return tex.EncodeToPNG();
+        var tex = new Texture2D(width, height);
+        Color[] newColors = new Color[width * height];
+
+        for (int i = 0; i < height; ++i)
+        {
+            for (int j = 0; j < width; ++j)
+            {
+                var origColor = colors[(height - i - 1) * width + j];
+                var color = new Color(0, 0, 0, 1);
+
+                if (origColor.a >= 0.0001f)
+                {
+                    var d = 1f / Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
+
+                    if (d > 1f)
+                    {
+                        d = 1f;
+                    }
+
+                    color = new Color(
+                        origColor.r / d,
+                        origColor.g / d,
+                        origColor.b / d,
+                        d
+                    );
+                }
+
+                newColors[i * width + j] = color;
+            }
+        }
+
+        tex.SetPixels(newColors);
+        tex.Apply();
+        return tex;
     }
 }
 #endif
