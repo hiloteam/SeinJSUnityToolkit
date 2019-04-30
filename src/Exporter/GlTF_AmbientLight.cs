@@ -7,23 +7,18 @@ public class GlTF_AmbientLight : GlTF_Light {
 
 	public override void Write()
 	{
-        Indent();
-        jsonWriter.Write("{\n");
+        jsonWriter.Write("\"" + "Sein_ambientLight" + "\": {\n");
         IndentIn();
         color.Write();
         jsonWriter.Write(",\n");
-        Indent();
         double ins = intensity;
         if (quadraticAttenuation)
         {
             ins *= 3;
         }
-        jsonWriter.Write("\"intensity\": " + ins + ",\n");
-        Indent();
-        jsonWriter.Write("\"type\": \"" + type + "\"\n");
+        Indent(); jsonWriter.Write("\"intensity\": " + ins + "\n");
         IndentOut();
-        Indent();
-        jsonWriter.Write("}");
+        Indent(); jsonWriter.Write("}");
 	}
 }
 #endif

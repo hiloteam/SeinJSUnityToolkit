@@ -35,6 +35,7 @@ public class GlTF_Writer {
 	public static List<int> nodeIDs = new List<int>();
 	public static List<GlTF_Node> nodes = new List<GlTF_Node>();
     public static Dictionary<int, string> nodeNames = new Dictionary<int, string>();
+    public static Dictionary<Transform, GlTF_Node> nodeTransforms = new Dictionary<Transform, GlTF_Node>();
 
     public static List<string> materialNames = new List<string>();
 	public static List<GlTF_Material> materials = new List<GlTF_Material>();
@@ -57,8 +58,11 @@ public class GlTF_Writer {
     public static List<GlTF_Skin> skins = new List<GlTF_Skin>();
 	public static List<GlTF_Node> rootNodes = new List<GlTF_Node>();
 
-	// Keys are original file path, values correspond to the directory in the output zip file
-	public static Dictionary<string, string> exportedFiles = new Dictionary<string, string>();
+    public static List<SeinAudioClip> audioClips = new List<SeinAudioClip>();
+    public static Dictionary<SeinAudioClip, string> audioClipURIs = new Dictionary<SeinAudioClip, string>();
+
+    // Keys are original file path, values correspond to the directory in the output zip file
+    public static Dictionary<string, string> exportedFiles = new Dictionary<string, string>();
 	// Exporter specifics
 	public static bool bakeAnimation;
 	public static bool exportPBRMaterials;
@@ -170,6 +174,7 @@ public class GlTF_Writer {
 		nodes = new List<GlTF_Node>();
         nodeIDs = new List<int>();
         nodeNames = new Dictionary<int, string>();
+        nodeTransforms = new Dictionary<Transform, GlTF_Node>();
 
         materialNames = new List<string>();
 		materials = new List<GlTF_Material>();
@@ -193,9 +198,12 @@ public class GlTF_Writer {
 		skins = new List<GlTF_Skin>();
 		rootNodes = new List<GlTF_Node>();
 
+        audioClips = new List<SeinAudioClip>();
+        audioClipURIs = new Dictionary<SeinAudioClip, string>();
+
         bakeAnimation = true;
-		hasSpecularMaterials = false;
-	}
+        hasSpecularMaterials = false;
+    }
 
 	public void Indent() {
 		for (int i = 0; i < indent; i++)
@@ -360,6 +368,22 @@ public class GlTF_Writer {
         extensionsUsed.Add(SeinCustomMaterial.extensionName);
         extensionsUsed.Add(GlTF_SeinRenderer.extensionName);
         extensionsRequired.Add(GlTF_SeinRenderer.extensionName);
+
+        if (audioClips.Count > 0)
+        {
+            extensionsRequired.Add("Sein_audioClips");
+            extensionsRequired.Add("Sein_audioListener");
+            extensionsRequired.Add("Sein_audioSource");
+            extensionsUsed.Add("Sein_audioClips");
+            extensionsUsed.Add("Sein_audioListener");
+            extensionsUsed.Add("Sein_audioSource");
+        }
+
+        if (Exporter.opt_exportEnvLight)
+        {
+            extensionsRequired.Add("Sein_ambientLight");
+            extensionsUsed.Add("Sein_ambientLight");
+        }
 
         jsonWriter.Write ("{\n");
 		IndentIn();
@@ -556,55 +580,120 @@ public class GlTF_Writer {
 			Indent();	jsonWriter.Write ("]");
 		}
 
+        CommaNL();
+        Indent(); jsonWriter.Write("\"extensions\": {\n");
+
+        var extensions = new List<string>();
         if (techniques.Count > 0)
         {
-            CommaNL();
-            Indent(); jsonWriter.Write("\"extensions\": {\n");
-            IndentIn();
-            Indent(); jsonWriter.Write("\"KHR_techniques_webgl\": {\n");
-            IndentIn();
-
-            CommaNL();
-            Indent(); jsonWriter.Write("\"programs\": [\n");
-            IndentIn();
-            foreach (GlTF_Program p in programs)
-            {
-                CommaNL();
-                p.Write();
-            }
-            jsonWriter.WriteLine();
-            IndentOut();
-            Indent(); jsonWriter.Write("]");
-
-            CommaNL();
-            Indent(); jsonWriter.Write("\"shaders\": [\n");
-            IndentIn();
-            foreach (GlTF_Shader s in shaders)
-            {
-                CommaNL();
-                s.Write();
-            }
-            jsonWriter.WriteLine();
-            IndentOut();
-            Indent(); jsonWriter.Write("]");
-
-            CommaNL();
-            Indent(); jsonWriter.Write("\"techniques\": [\n");
-            IndentIn();
-            foreach (GlTF_Technique t in techniques)
-            {
-                CommaNL();
-                t.Write();
-            }
-            jsonWriter.WriteLine();
-            IndentOut();
-            Indent(); jsonWriter.Write("]\n");
-
-            IndentOut();
-            Indent(); jsonWriter.Write("}\n");
-            IndentOut();
-            Indent(); jsonWriter.Write("}");
+            extensions.Add("techniques");
         }
+        if (audioClips.Count > 0)
+        {
+            extensions.Add("audioClips");
+        }
+        if (!Exporter.opt_noLighting && lights != null && lights.Count > 0)
+        {
+            extensions.Add("lights");
+        }
+        var length = extensions.Count;
+        var index = 0;
+
+        foreach (var ex in extensions)
+        {
+            IndentIn();
+            Indent();
+
+            if (ex == "techniques")
+            {
+                jsonWriter.Write("\"KHR_techniques_webgl\": {\n");
+                IndentIn();
+
+                CommaNL();
+                Indent(); jsonWriter.Write("\"programs\": [\n");
+                IndentIn();
+                foreach (GlTF_Program p in programs)
+                {
+                    CommaNL();
+                    p.Write();
+                }
+                jsonWriter.WriteLine();
+                IndentOut();
+                Indent(); jsonWriter.Write("]");
+
+                CommaNL();
+                Indent(); jsonWriter.Write("\"shaders\": [\n");
+                IndentIn();
+                foreach (GlTF_Shader s in shaders)
+                {
+                    CommaNL();
+                    s.Write();
+                }
+                jsonWriter.WriteLine();
+                IndentOut();
+                Indent(); jsonWriter.Write("]");
+
+                CommaNL();
+                Indent(); jsonWriter.Write("\"techniques\": [\n");
+                IndentIn();
+                foreach (GlTF_Technique t in techniques)
+                {
+                    CommaNL();
+                    t.Write();
+                }
+                jsonWriter.WriteLine();
+                IndentOut();
+                Indent(); jsonWriter.Write("]\n");
+            }
+            else if (ex == "audioClips")
+            {
+                jsonWriter.Write("\"Sein_audioClips\": {\n");
+                IndentIn();
+                Indent(); jsonWriter.Write("\"clips\": [\n");
+                IndentIn();
+                var len = audioClips.Count;
+                var i = 0;
+                foreach (var clip in audioClips)
+                {
+                    Indent(); jsonWriter.Write("{\n");
+                    IndentIn();
+                    Indent(); jsonWriter.Write("\"mode\": \"" + clip.mode + "\",\n");
+                    Indent(); jsonWriter.Write("\"isLazy\": " + (clip.isLazy ? "true" : "false") + ",\n");
+                    Indent(); jsonWriter.Write("\"uri\": \"" + audioClipURIs[clip] + "\"\n");
+                    IndentOut();
+                    Indent(); jsonWriter.Write(i == len - 1 ? "}\n" : "},\n");
+
+                    i += 1;
+                }
+                IndentOut();
+                Indent(); jsonWriter.Write("]\n");
+            }
+            else if (ex == "lights")
+            {
+                jsonWriter.Write("\"KHR_lights_punctual\": {\n");
+                IndentIn();
+                Indent();
+                jsonWriter.Write("\"lights\": [\n");
+                IndentIn();
+                foreach (GlTF_Light l in lights)
+                {
+                    CommaNL();
+                    l.Write();
+                }
+                jsonWriter.WriteLine();
+                IndentOut();
+                Indent();
+                jsonWriter.Write("]\n");
+            }
+            IndentOut();
+            Indent();
+            jsonWriter.Write(index == length - 1? "}\n" : "},\n");
+            index += 1;
+        }
+
+        IndentOut();
+        Indent(); jsonWriter.Write("}");
+        CommaNL();
 
         if (materials.Count > 0)
 		{
@@ -637,35 +726,6 @@ public class GlTF_Writer {
 			Indent();
 			jsonWriter.Write ("]");
 		}
-
-        if (!Exporter.opt_noLighting && lights != null && lights.Count > 0)
-        {
-            CommaNL();
-            Indent();
-            jsonWriter.Write("\"extensions\": {\n");
-            IndentIn();
-            Indent();
-            jsonWriter.Write("\"KHR_lights_punctual\": {\n");
-            IndentIn();
-            Indent();
-            jsonWriter.Write("\"lights\": [\n");
-            IndentIn();
-            foreach (GlTF_Light l in lights)
-            {
-                CommaNL();
-                l.Write();
-            }
-            jsonWriter.WriteLine();
-            IndentOut();
-            Indent();
-            jsonWriter.Write("]\n");
-            IndentOut();
-            Indent();
-            jsonWriter.Write("}\n");
-            IndentOut();
-            Indent();
-            jsonWriter.Write("}");
-        }
 
 		if (nodes != null && nodes.Count > 0)
 		{

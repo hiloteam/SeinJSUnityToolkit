@@ -84,6 +84,8 @@ public class SeinAnimator : MonoBehaviour
     // If not set, use all
     [StringInList()]
     public string[] modelAnimations;
+    [StringInList()]
+    public string defaultAnimation;
 
     public void OnEnable()
     {

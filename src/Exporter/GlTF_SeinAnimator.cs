@@ -13,7 +13,9 @@ public class GlTF_SeinAnimator : GlTF_Writer
         jsonWriter.Write("\"" + SeinAnimator.extensionName + "\": {\n");
         IndentIn();
         Indent();
-        jsonWriter.Write("\"modelAnimations\": [ \n");
+        jsonWriter.Write("\"defaultAnimation\": \"" + animator.defaultAnimation + "\",\n");
+        Indent();
+        jsonWriter.Write("\"modelAnimations\": [\n");
         IndentIn();
 
         var length = modelAnimations.Length;

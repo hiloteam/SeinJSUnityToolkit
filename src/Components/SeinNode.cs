@@ -37,7 +37,7 @@ public class SeinNode : MonoBehaviour {
 
     // no logic component
     // onUpdate will not be trigger
-    public bool updateOnEverTick = false;
+    public bool updateOnEverTick = true;
 
     // no need update matrix
     public bool isStatic = false;

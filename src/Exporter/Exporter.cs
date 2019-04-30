@@ -39,13 +39,13 @@ public class Exporter : EditorWindow {
         if (String.IsNullOrEmpty(fromPath)) throw new ArgumentNullException("fromPath");
         if (String.IsNullOrEmpty(toPath)) throw new ArgumentNullException("toPath");
 
-        Uri fromUri = new Uri(fromPath);
+        Uri fromUri = new Uri(fromPath + "/a.txt");
         Uri toUri = new Uri(toPath);
 
         if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
 
         Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-        String relativePath = Uri.UnescapeDataString(relativeUri.ToString());
+        String relativePath = Uri.UnescapeDataString(relativeUri.ToString()).Replace("/a.txt", "");
 
         if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
         {
@@ -63,6 +63,7 @@ public class Exporter : EditorWindow {
     public static bool opt_noLighting= false;
     public static bool opt_splitChunks = false;
     public static bool opt_exportLightMap = true;
+    public static bool opt_exportEnvLight = false;
 
     // UI dimensions (to be cleaned)
     [SerializeField]
@@ -269,7 +270,7 @@ public class Exporter : EditorWindow {
             {
                 exportFolder = tmp;
 
-                config["exportPath"] = MakeRelativePath(exportFolder, Application.dataPath);
+                config["exportPath"] = MakeRelativePath(Application.dataPath, exportFolder);
                 File.WriteAllText(
                 Path.Combine(
                     Application.dataPath, "./SeinJSUnityToolkit/config.json"),
@@ -291,6 +292,7 @@ public class Exporter : EditorWindow {
         //opt_exportAnimation = EditorGUILayout.Toggle("Export animation", opt_exportAnimation);
         opt_splitChunks = EditorGUILayout.Toggle("Split Chunks", opt_splitChunks);
         opt_exportLightMap = EditorGUILayout.Toggle("Export LightMap", opt_exportLightMap);
+        opt_exportEnvLight = EditorGUILayout.Toggle("Export Env Light", opt_exportEnvLight);
 
         //GUILayout.Label("Lights", EditorStyles.boldLabel);
         //EditorGUIUtility.labelWidth = 200;

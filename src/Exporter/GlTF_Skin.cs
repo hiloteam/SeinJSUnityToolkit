@@ -7,6 +7,7 @@ public class GlTF_Skin : GlTF_Writer {
 	public int invBindMatricesAccessorIndex;
 	public List<Transform> joints;
 	public Transform mesh;
+    public int skeleton;
 
 	public GlTF_Skin() { }
 
@@ -52,7 +53,8 @@ public class GlTF_Skin : GlTF_Writer {
 		IndentIn();
 
 		Indent(); jsonWriter.Write("\"inverseBindMatrices\": "+ invBindMatricesAccessorIndex + ",\n");
-		Indent(); jsonWriter.Write ("\"joints\": [\n");
+        Indent(); jsonWriter.Write("\"skeleton\": " + skeleton + ",\n");
+        Indent(); jsonWriter.Write ("\"joints\": [\n");
 
 		IndentIn();
 		foreach (Transform j in joints)

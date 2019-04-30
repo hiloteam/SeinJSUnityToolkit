@@ -995,7 +995,7 @@ namespace UnityGLTF
 
 			skinMesh.sharedMesh.bindposes = bindPoseMatrices.ToArray();
 			if(skin.Skeleton != null && _importedObjects.ContainsKey(skin.Skeleton.Id))
-				skinMesh.rootBone = skin.Skeleton != null ? _importedObjects[skin.Skeleton.Id].transform : null;
+				skinMesh.rootBone = _importedObjects[skin.Skeleton.Id].transform;
 		}
 
 		protected virtual void LoadSkinnedMeshAttributes(int meshIndex, int primitiveIndex, ref Vector4[] boneIndexes, ref Vector4[] weights)

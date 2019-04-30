@@ -164,16 +164,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 dl.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(dl);
                 return dl;
-
-            case LightType.Area:
-                GlTF_AmbientLight al = new GlTF_AmbientLight();
-                al.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
-                al.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
-                al.intensity = tr.GetComponent<Light>().intensity;
-                al.halfSpotAngle = Exporter.opt_halfSpotAngle;
-                al.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
-                GlTF_Writer.lights.Add(al);
-                return al;
         }
 
         return null;
@@ -253,6 +243,26 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
         }
 
+        if (Exporter.opt_exportEnvLight)
+        {
+            if (RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Flat)
+            {
+                GlTF_Node node = new GlTF_Node();
+                node.id = "sein-ambient-light";
+                node.uuid = node.GetHashCode();
+                node.name = "sein-ambient-light";
+                var l = new GlTF_AmbientLight();
+                l.color = new GlTF_ColorRGB(RenderSettings.ambientLight);
+                l.intensity = RenderSettings.ambientIntensity;
+                node.seinAmibentLight = l;
+
+                GlTF_Writer.rootNodes.Add(node);
+                GlTF_Writer.nodes.Add(node);
+                GlTF_Writer.nodeIDs.Add(node.uuid);
+                GlTF_Writer.nodeNames.Add(node.uuid, node.name);
+            }
+        }
+
         nbSelectedObjects = trs.Count;
         int nbDisabledObjects = 0;
         foreach (Transform tr in trs)
@@ -268,6 +278,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             node.id = GlTF_Node.GetNameFromObject(tr);
             node.uuid = GlTF_Node.GetIDFromObject(tr);
             node.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
+            GlTF_Writer.nodeTransforms.Add(tr, node);
 
             if (tr.GetComponent<Camera>() != null)
             {
@@ -278,8 +289,11 @@ public class SceneToGlTFWiz : MonoBehaviour
             if (tr.GetComponent<Light>() != null)
             {
                 GlTF_Light l = parseUnityLight(tr);
-                node.lightName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
-                node.lightIndex = GlTF_Writer.lights.IndexOf(l);
+                if (l != null)
+                {
+                    node.lightName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
+                    node.lightIndex = GlTF_Writer.lights.IndexOf(l);
+                }
             }
 
             if (tr.GetComponent<SeinNode>() != null)
@@ -311,10 +325,39 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 if (node.physicBody == null)
                 {
-                    throw new Exception("You must add `SeinRigidBody` component before add Collider!");
+                    node.physicBody = new GlTF_SeinPhysicBody();
+                    node.physicBody.rigidbody = SeinRigidBody.CreateBodyForPickOnly();
                 }
 
                 node.physicBody.colliders = new List<Collider>(tr.GetComponents<Collider>());
+            }
+
+            if (tr.GetComponent<SeinAudioListener>() != null)
+            {
+                if (node.seinAudioListener == null)
+                {
+                    node.seinAudioListener = new GlTF_SeinAudioListener();
+                }
+
+                node.seinAudioListener.listener = tr.GetComponent<SeinAudioListener>();
+            }
+
+            if (tr.GetComponent<SeinAudioSource>() != null)
+            {
+                if (node.seinAudioSource == null)
+                {
+                    node.seinAudioSource = new GlTF_SeinAudioSource();
+                }
+
+                node.seinAudioSource.source = tr.GetComponent<SeinAudioSource>();
+                foreach (var clip in node.seinAudioSource.source.clips)
+                {
+                    if (!GlTF_Writer.audioClips.Contains(clip.clip))
+                    {
+                        processAudioClip(clip.clip);
+                        GlTF_Writer.audioClips.Add(clip.clip);
+                    }
+                }
             }
 
             Renderer mr = GetRenderer(tr);
@@ -594,6 +637,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                 GlTF_Skin skin = new GlTF_Skin();
 
                 skin.name = GlTF_Writer.cleanNonAlphanumeric(skinMesh.rootBone.name) + "_skeleton_" + GlTF_Writer.cleanNonAlphanumeric(node.name) + tr.GetInstanceID();
+                skin.skeleton = GlTF_Writer.nodes.IndexOf(GlTF_Writer.nodeTransforms[skinMesh.rootBone]);
 
                 // Create invBindMatrices accessor
                 invBindMatrixAccessor = new GlTF_Accessor(skin.name + "invBindMatrices", GlTF_Accessor.Type.MAT4, GlTF_Accessor.ComponentType.FLOAT);
@@ -943,6 +987,25 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         return GlTF_Writer.textureNames.IndexOf(texName);
 
+    }
+
+    private void processAudioClip(SeinAudioClip audioClip)
+    {
+        var clip = audioClip.clip;
+
+        string assetPath = AssetDatabase.GetAssetPath(clip);
+        string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
+        string exportDir = Path.Combine(savedPath, pathInArchive);
+
+        if (!Directory.Exists(exportDir))
+            Directory.CreateDirectory(exportDir);
+
+        string outputFilename = Path.GetFileName(assetPath);
+        outputFilename = GlTF_Writer.cleanPath(outputFilename);
+        string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
+        FileUtil.CopyFileOrDirectory(assetPath, exportPath);
+
+        GlTF_Writer.audioClipURIs.Add(audioClip, pathInArchive + "/" + outputFilename);
     }
 
     // Get or create texture object, image and sampler

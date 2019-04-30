@@ -24,9 +24,9 @@ public class GlTF_SeinNode : GlTF_Writer
         Indent();
         jsonWriter.Write("\"emitComponentsDestroy\": " + (node.emitComponentsDestroy ? "true" : "false") + ",\n");
         Indent();
-        jsonWriter.Write("\"updateOnEverTick\": " + (node.updateOnEverTick ? "false" : "true") + ",\n");
+        jsonWriter.Write("\"updateOnEverTick\": " + (node.updateOnEverTick ? "true" : "false") + ",\n");
         Indent();
-        jsonWriter.Write("\"isStatic\": " + (node.isStatic ? "false" : "true") + ",\n");
+        jsonWriter.Write("\"isStatic\": " + (node.isStatic ? "true" : "false") + ",\n");
         Indent();
         jsonWriter.Write("\"skipThisNode\": " + (node.skipThisNode ? "true" : "false") + "\n");
         IndentOut();

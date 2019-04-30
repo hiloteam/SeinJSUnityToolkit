@@ -37,6 +37,9 @@ public class GlTF_Node : GlTF_Writer
     public GlTF_SeinPhysicBody physicBody;
     public GlTF_SeinAnimator animator;
     public GlTF_SeinRenderer seinRenderer;
+    public GlTF_SeinAudioListener seinAudioListener;
+    public GlTF_SeinAudioSource seinAudioSource;
+    public GlTF_AmbientLight seinAmibentLight;
 
     public static string GetNameFromObject(Transform o)
     {
@@ -105,6 +108,21 @@ public class GlTF_Node : GlTF_Writer
         if (seinRenderer != null)
         {
             extensions.Add(seinRenderer);
+        }
+
+        if (seinAudioListener != null)
+        {
+            extensions.Add(seinAudioListener);
+        }
+
+        if (seinAudioSource != null)
+        {
+            extensions.Add(seinAudioSource);
+        }
+
+        if (seinAmibentLight != null)
+        {
+            extensions.Add(seinAmibentLight);
         }
 
         if (childrenIDs != null && childrenIDs.Count > 0)

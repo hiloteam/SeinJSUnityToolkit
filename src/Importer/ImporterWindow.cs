@@ -8,6 +8,7 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using Ionic.Zip;
+using SimpleJSON;
 
 namespace GlTF
 {
@@ -35,7 +36,8 @@ namespace GlTF
 		bool _addToCurrentScene = false;
         bool _generateLightMapUvs = false;
 
-		private List<string> _unzippedFiles;
+        private JSONNode config;
+        private List<string> _unzippedFiles;
 
 		// UI elements
 		Vector2 UI_SIZE = new Vector2(350, 21);
@@ -138,6 +140,16 @@ namespace GlTF
 			}
 		}
 
+        void Awake()
+        {
+            config = JSON.Parse(File.ReadAllText(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json")));
+            _importDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, config["importPath"]));
+            if (!Directory.Exists(_importDirectory))
+            {
+                Directory.CreateDirectory(_importDirectory);
+            }
+        }
+
         private void OnEnable()
         {
             if (!header)
@@ -204,22 +216,26 @@ namespace GlTF
 		{
 			_ui.displaySubContent("Import into");
 			GUILayout.BeginHorizontal();
-			GUILayout.TextField(GLTFUtils.getPathProjectFromAbsolute(_importDirectory), GUILayout.MinWidth(UI_SIZE.x), GUILayout.Height(UI_SIZE.y));
+            _importDirectory = GUILayout.TextField(_importDirectory, GUILayout.MinWidth(UI_SIZE.x), GUILayout.Height(UI_SIZE.y));
 			GUILayout.FlexibleSpace();
 			if (GUILayout.Button("Change destination", GUILayout.Height(UI_SIZE.y), GUILayout.Width(minWidthButton)))
 			{
-				string newImportDir = EditorUtility.OpenFolderPanel("Choose import directory", GLTFUtils.getPathAbsoluteFromProject(_importDirectory), GLTFUtils.getPathAbsoluteFromProject(_importDirectory));
-				if (GLTFUtils.isFolderInProjectDirectory(newImportDir))
+                string newImportDir = EditorUtility.OpenFolderPanel("Choose import directory", _importDirectory, "");
+                if (newImportDir == "")
+                {
+
+                }
+                else if (GLTFUtils.isFolderInProjectDirectory(newImportDir))
 				{
-					_importDirectory = newImportDir;
-				}
-				else if (newImportDir != "")
-				{
-					EditorUtility.DisplayDialog("Error", "Please select a path within your current Unity project (with Assets/)", "Ok");
-				}
+                    _importDirectory = config["importPath"] = Exporter.MakeRelativePath(Application.dataPath, newImportDir);
+                    File.WriteAllText(
+                        Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json"),
+                        config.ToString()
+                    );
+                }
 				else
 				{
-					// Path is empty, user canceled. Do nothing
+					EditorUtility.DisplayDialog("Error", "Please select a path within your current Unity project (with Assets/)", "Ok");
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -274,7 +290,7 @@ namespace GlTF
 			if (!isDirectoryInProject())
 			{
 				Debug.Log("Import directory is outside of project directory. Please select path in Assets/");
-				_importDirectory = "";
+				_importDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, config["importPath"]));
 				return;
 			}
 		}
