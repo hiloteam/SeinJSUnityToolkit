@@ -34,16 +34,23 @@ namespace UnityGLTF.Cache
 		/// </summary>
 		public List<MeshCacheData[]> MeshCache { get; private set; }
 
-		/// <summary>
-		/// Creates an asset cache which caches objects used in scene
-		/// </summary>
-		/// <param name="imageCacheSize"></param>
-		/// <param name="textureCacheSize"></param>
-		/// <param name="materialCacheSize"></param>
-		/// <param name="bufferCacheSize"></param>
-		/// <param name="meshCacheSize"></param>
-		public AssetCache(int imageCacheSize, int textureCacheSize, int materialCacheSize, int bufferCacheSize,
-			int meshCacheSize)
+        public SeinAudioClip[] AudioClipCache { get; private set; }
+
+        /// <summary>
+        /// Creates an asset cache which caches objects used in scene
+        /// </summary>
+        /// <param name="imageCacheSize"></param>
+        /// <param name="textureCacheSize"></param>
+        /// <param name="materialCacheSize"></param>
+        /// <param name="bufferCacheSize"></param>
+        /// <param name="meshCacheSize"></param>
+        public AssetCache(
+            int imageCacheSize,
+            int textureCacheSize,
+            int materialCacheSize,
+            int bufferCacheSize,
+			int meshCacheSize
+        )
 		{
 			// todo: add optimization to set size to be the JSON size
 			ImageCache = new Texture2D[imageCacheSize];
@@ -51,19 +58,26 @@ namespace UnityGLTF.Cache
 			MaterialCache = new MaterialCacheData[materialCacheSize];
 			BufferCache = new Dictionary<int, byte[]>(bufferCacheSize);
 			MeshCache = new List<MeshCacheData[]>(meshCacheSize);
+            AudioClipCache = null;
 			for(int i = 0; i < meshCacheSize; ++i)
 			{
 				MeshCache.Add(null);
 			}
 		}
 
-		public void Dispose()
+        public void InitAudioClips(int size)
+        {
+            AudioClipCache = new SeinAudioClip[size];
+        }
+
+        public void Dispose()
 		{
 			ImageCache = null;
 			TextureCache = null;
 			MaterialCache = null;
 			BufferCache.Clear();
 			MeshCache = null;
+            AudioClipCache = null;
 		}
 	}
 }

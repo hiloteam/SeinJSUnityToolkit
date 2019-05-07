@@ -37,6 +37,7 @@ public class GlTF_SeinAudioSource : GlTF_Writer
             IndentOut();
             Indent(); jsonWriter.Write("},\n");
         }
+        Indent(); jsonWriter.Write("\"defaultClip\": \"" + source.defaultClip + "\",\n");
         Indent(); jsonWriter.Write("\"clips\": {\n");
         IndentIn();
         var length = source.clips.Length;

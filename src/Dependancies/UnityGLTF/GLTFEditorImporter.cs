@@ -52,6 +52,7 @@ namespace UnityGLTF
 			READ_FILE,
 			BUFFER,
 			IMAGE,
+            AUDIO,
 			TEXTURE,
 			MATERIAL,
 			MESH,
@@ -99,7 +100,10 @@ namespace UnityGLTF
 			_taskManager = new TaskManager();
 			_assetsToRemove = new List<string>();
 			defaultMaterial = new UnityEngine.Material(Shader.Find("Standard"));
-		}
+            GLTFProperty.RegisterExtension(new Sein_audioClipsExtensionFactory());
+            GLTFProperty.RegisterExtension(new Sein_audioSourceExtensionFactory());
+            GLTFProperty.RegisterExtension(new Sein_audioListenerExtensionFactory());
+        }
 
 		/// <summary>
 		/// Setup importer for an import
@@ -204,7 +208,14 @@ namespace UnityGLTF
 				SetupTexturesEnum();
 			if (_root.Materials != null)
 				LoadMaterialsEnum();
-			LoadMeshesEnum();
+
+            var extensions = _root.Extensions;
+            if (extensions != null && extensions.ContainsKey("Sein_audioClips"))
+            {
+                LoadAudioClipsEnum();
+            }
+
+            LoadMeshesEnum();
 			LoadSceneEnum();
             LoadSkinnedMeshesEnum();
 
@@ -241,7 +252,12 @@ namespace UnityGLTF
 			_taskManager.addTask(LoadMeshes());
 		}
 
-		private void LoadSceneEnum()
+        private void LoadAudioClipsEnum()
+        {
+            _taskManager.addTask(LoadAudioClips());
+        }
+
+        private void LoadSceneEnum()
 		{
 			_taskManager.addTask(LoadScene());
 		}
@@ -398,7 +414,55 @@ namespace UnityGLTF
 			_assetManager.registerTexture(source);
 		}
 
-		private IEnumerator LoadMaterials()
+        private IEnumerator LoadAudioClips()
+        {
+            var extensions = _root.Extensions;
+            var extension = (Sein_audioClipsExtension)extensions["Sein_audioClips"];
+            var clips = extension.clips;
+            _assetCache.InitAudioClips(clips.Count);
+
+            for (int i = 0; i < clips.Count; ++i)
+            {
+                var clip = clips[i];
+                LoadAudioClip(_gltfDirectoryPath, clip, i);
+                setProgress(IMPORT_STEP.AUDIO, (i + 1), clips.Count);
+                yield return null;
+            }
+        }
+
+        private void LoadAudioClip(string rootPath, GLTF.Schema.SeinAudioClip clip, int clipID)
+        {
+            if (_assetCache.AudioClipCache[clipID] == null)
+            {
+                if (clip.uri != null)
+                {
+                    // Is base64 uri ?
+                    var uri = clip.uri;
+
+                    //Regex regex = new Regex(Base64StringInitializer);
+                    //Match match = regex.Match(uri);
+                    //if (match.Success)
+                    //{
+                    //    var base64Data = uri.Substring(match.Length);
+                    //    var clipData = Convert.FromBase64String(base64Data);
+
+                    //    _assetManager.registerImageFromData(clipData, clip, clipID);
+                    //}
+                    //else 
+                    if (File.Exists(Path.Combine(rootPath, uri))) // File is a real file
+                    {
+                        clip.uri = Path.Combine(rootPath, uri);
+                        _assetCache.AudioClipCache[clipID] = _assetManager.copyAndRegisterAudioClipInProject(clip, clipID);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Audio clip not found");
+                    }
+                }
+            }
+        }
+
+        private IEnumerator LoadMaterials()
 		{
 			for(int i = 0; i < _root.Materials.Count; ++i)
 			{
@@ -1091,6 +1155,8 @@ namespace UnityGLTF
 				}
 			}
 
+            processSeinComponents(nodeObj, node);
+
 			if (node.Children != null)
 			{
 				foreach (var child in node.Children)
@@ -1110,7 +1176,41 @@ namespace UnityGLTF
 			return _assetManager.createGameObject(name);
 		}
 
-		private bool isValidSkin(int skinIndex)
+        private void processSeinComponents(GameObject go, Node node)
+        {
+            if (node.Extensions == null)
+            {
+                return;
+            }
+
+            if (node.Extensions.ContainsKey("Sein_audioSource"))
+            {
+                var source = (Sein_audioSourceExtension)node.Extensions["Sein_audioSource"];
+                var audioSource = go.AddComponent<SeinAudioSource>();
+                audioSource.defaultClip = source.defaultClip;
+                audioSource.needAutoPlay = source.needAutoPlay;
+                audioSource.isSpaceAudio = source.isSpaceAudio;
+                audioSource.autoPlayOptions = source.autoPlayOptions;
+                audioSource.spaceOptions = source.spaceOptions;
+                audioSource.clips = new SeinAudioOneClip[source.clips.Count];
+                for (int i = 0; i < source.clips.Count; i += 1)
+                {
+                    var clip = new SeinAudioOneClip();
+                    clip.name = source.clips[i].Key;
+                    clip.clip = _assetCache.AudioClipCache[source.clips[i].Value];
+                    audioSource.clips[i] = clip;
+                }
+            }
+
+            if (node.Extensions.ContainsKey("Sein_audioListener"))
+            {
+                var source = (Sein_audioListenerExtension)node.Extensions["Sein_audioListener"];
+                var audioSource = go.AddComponent<SeinAudioListener>();
+                audioSource.rotatable = source.rotatable;
+            }
+        }
+
+        private bool isValidSkin(int skinIndex)
 		{
 			if (skinIndex >= _root.Skins.Count)
 				return false;

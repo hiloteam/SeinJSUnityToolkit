@@ -8,230 +8,274 @@ using UnityEditor.Animations;
 
 public class AssetManager
 {
-	// Files/Directories
-	protected string _importDirectory;
-	protected string _importMeshesDirectory;
-	protected string _importMaterialsDirectory;
-	protected string _importTexturesDirectory;
-	protected string _importAnimationDirectory;
-	public List<string> _generatedFiles;
+    // Files/Directories
+    protected string _importDirectory;
+    protected string _importMeshesDirectory;
+    protected string _importMaterialsDirectory;
+    protected string _importTexturesDirectory;
+    protected string _importAnimationDirectory;
+    protected string _importAudioClipDirectory;
+    public List<string> _generatedFiles;
 
-	// Import data
-	public List<GameObject> _createdGameObjects;
-	public List<List<KeyValuePair<Mesh, Material>>> _parsedMeshData;
-	public List<Material> _parsedMaterials;
-	public List<Texture2D> _parsedImages;
-	public List<Texture2D> _parsedTextures;
-	public List<int> _usedSources;
-	public AnimatorController _animatorController;
-	private string _prefabName;
+    // Import data
+    public List<GameObject> _createdGameObjects;
+    public List<List<KeyValuePair<Mesh, Material>>> _parsedMeshData;
+    public List<Material> _parsedMaterials;
+    public List<Texture2D> _parsedImages;
+    public List<Texture2D> _parsedTextures;
+    public List<int> _usedSources;
+    public AnimatorController _animatorController;
+    private string _prefabName;
 
-	public AssetManager(string projectDirectoryPath, string modelName="Imported")
-	{
-		// Prepare hierarchy un project
-		_importDirectory = projectDirectoryPath;
-		Directory.CreateDirectory(_importDirectory);
+    public AssetManager(string projectDirectoryPath, string modelName = "Imported")
+    {
+        // Prepare hierarchy un project
+        _importDirectory = projectDirectoryPath;
+        Directory.CreateDirectory(_importDirectory);
 
-		_importTexturesDirectory = Path.Combine(_importDirectory, "textures");
-		Directory.CreateDirectory(_importTexturesDirectory);
+        _importTexturesDirectory = Path.Combine(_importDirectory, "textures");
+        Directory.CreateDirectory(_importTexturesDirectory);
 
-		_importMeshesDirectory = Path.Combine(_importDirectory, "meshes");
-		Directory.CreateDirectory(_importMeshesDirectory);
+        _importMeshesDirectory = Path.Combine(_importDirectory, "meshes");
+        Directory.CreateDirectory(_importMeshesDirectory);
 
-		_importMaterialsDirectory = Path.Combine(_importDirectory, "materials");
-		Directory.CreateDirectory(_importMaterialsDirectory);
+        _importMaterialsDirectory = Path.Combine(_importDirectory, "materials");
+        Directory.CreateDirectory(_importMaterialsDirectory);
 
-		_createdGameObjects = new List<GameObject>();
-		_parsedMeshData = new List<List<KeyValuePair<Mesh, Material>>>();
-		_parsedMaterials = new List<Material>();
-		_parsedImages = new List<Texture2D>();
-		_parsedTextures = new List<Texture2D>();
-		_usedSources = new List<int>();
-		_generatedFiles = new List<string>();
+        _createdGameObjects = new List<GameObject>();
+        _parsedMeshData = new List<List<KeyValuePair<Mesh, Material>>>();
+        _parsedMaterials = new List<Material>();
+        _parsedImages = new List<Texture2D>();
+        _parsedTextures = new List<Texture2D>();
+        _usedSources = new List<int>();
+        _generatedFiles = new List<string>();
 
-		_prefabName = modelName;
-	}
+        _prefabName = modelName;
+    }
 
-	private void createAnimationDirectory()
-	{
-		_importAnimationDirectory = Path.Combine(_importDirectory, "animations");
-		Directory.CreateDirectory(_importAnimationDirectory);
-	}
+    private void createAnimationDirectory()
+    {
+        _importAnimationDirectory = Path.Combine(_importDirectory, "animations");
+        Directory.CreateDirectory(_importAnimationDirectory);
+    }
 
-	public void softClean()
-	{
-		_parsedMeshData.Clear();
-		_parsedImages.Clear();
-		_parsedTextures.Clear();
-		_parsedMaterials.Clear();
-		_usedSources.Clear();
+    private void createAudioClipDirectory()
+    {
+        _importAudioClipDirectory = Path.Combine(_importDirectory, "audios");
+        Directory.CreateDirectory(_importAudioClipDirectory);
+    }
 
-		for (int i = 0; i < _createdGameObjects.Count; ++i)
-		{
-			Object.DestroyImmediate(_createdGameObjects[i]);
-		}
-		_createdGameObjects.Clear();
-		AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
-	}
+    public void softClean()
+    {
+        _parsedMeshData.Clear();
+        _parsedImages.Clear();
+        _parsedTextures.Clear();
+        _parsedMaterials.Clear();
+        _usedSources.Clear();
 
-	public void hardClean()
-	{
-		softClean();
+        for (int i = 0; i < _createdGameObjects.Count; ++i)
+        {
+            Object.DestroyImmediate(_createdGameObjects[i]);
+        }
+        _createdGameObjects.Clear();
+        AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
+    }
 
-		for(int i=0; i < _createdGameObjects.Count; ++i)
-		{
-			Object.DestroyImmediate(_createdGameObjects[i]);
-		}
+    public void hardClean()
+    {
+        softClean();
 
-		GLTFUtils.removeFileList(_generatedFiles.ToArray());
-		AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
+        for (int i = 0; i < _createdGameObjects.Count; ++i)
+        {
+            Object.DestroyImmediate(_createdGameObjects[i]);
+        }
 
-		// Remove directories if empty
-		GLTFUtils.removeEmptyDirectory(_importMeshesDirectory);
-		GLTFUtils.removeEmptyDirectory(_importTexturesDirectory);
-		GLTFUtils.removeEmptyDirectory(_importMaterialsDirectory);
-		GLTFUtils.removeEmptyDirectory(_importAnimationDirectory);
-		_createdGameObjects.Clear();
+        GLTFUtils.removeFileList(_generatedFiles.ToArray());
+        AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
 
-		AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
-		GLTFUtils.removeEmptyDirectory(_importDirectory);
-		AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
-	}
+        // Remove directories if empty
+        GLTFUtils.removeEmptyDirectory(_importMeshesDirectory);
+        GLTFUtils.removeEmptyDirectory(_importTexturesDirectory);
+        GLTFUtils.removeEmptyDirectory(_importMaterialsDirectory);
+        GLTFUtils.removeEmptyDirectory(_importAnimationDirectory);
+        _createdGameObjects.Clear();
 
-	public GameObject createGameObject(string name)
-	{
-		GameObject go = new GameObject(name);
-		_createdGameObjects.Add(go);
-		return go;
-	}
+        AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
+        GLTFUtils.removeEmptyDirectory(_importDirectory);
+        AssetDatabase.Refresh(); // also triggers Resources.UnloadUnusedAssets()
+    }
 
-	public void addPrimitiveMeshData(int meshIndex, int primitiveIndex, UnityEngine.Mesh mesh, UnityEngine.Material material)
-	{
-		if(meshIndex >= _parsedMeshData.Count)
-		{
-			_parsedMeshData.Add(new List<KeyValuePair<Mesh, Material>>());
-		}
+    public GameObject createGameObject(string name)
+    {
+        GameObject go = new GameObject(name);
+        _createdGameObjects.Add(go);
+        return go;
+    }
 
-		if(primitiveIndex != _parsedMeshData[meshIndex].Count)
-		{
-			Debug.LogError("Array offset in mesh data");
-		}
+    public void addPrimitiveMeshData(int meshIndex, int primitiveIndex, UnityEngine.Mesh mesh, UnityEngine.Material material)
+    {
+        if (meshIndex >= _parsedMeshData.Count)
+        {
+            _parsedMeshData.Add(new List<KeyValuePair<Mesh, Material>>());
+        }
 
-		_parsedMeshData[meshIndex].Add(new KeyValuePair<Mesh, Material>(mesh, material));
-	}
+        if (primitiveIndex != _parsedMeshData[meshIndex].Count)
+        {
+            Debug.LogError("Array offset in mesh data");
+        }
 
-	public Mesh getMesh(int nodeIndex, int primitiveIndex)
-	{
-		return _parsedMeshData[nodeIndex][primitiveIndex].Key;
-	}
+        _parsedMeshData[meshIndex].Add(new KeyValuePair<Mesh, Material>(mesh, material));
+    }
 
-	public Material getMaterial(int meshIndex, int primitiveIndex)
-	{
-		return _parsedMeshData[meshIndex][primitiveIndex].Value;
-	}
+    public Mesh getMesh(int nodeIndex, int primitiveIndex)
+    {
+        return _parsedMeshData[nodeIndex][primitiveIndex].Key;
+    }
 
-	public UnityEngine.Material getMaterial(int index)
-	{
-		return _parsedMaterials[index];
-	}
+    public Material getMaterial(int meshIndex, int primitiveIndex)
+    {
+        return _parsedMeshData[meshIndex][primitiveIndex].Value;
+    }
 
-	public string getImportTextureDir()
-	{
-		return _importTexturesDirectory;
-	}
+    public UnityEngine.Material getMaterial(int index)
+    {
+        return _parsedMaterials[index];
+    }
 
-	public UnityEngine.Texture2D getTexture(int index)
-	{
-		return _parsedTextures[index];
-	}
+    public string getImportTextureDir()
+    {
+        return _importTexturesDirectory;
+    }
 
-	public void setTextureNormalMap(int index)
-	{
-		Texture2D texture = _parsedTextures[index];
-		TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
-		im.textureType = TextureImporterType.NormalMap;
-		im.SaveAndReimport();
-	}
+    public UnityEngine.Texture2D getTexture(int index)
+    {
+        return _parsedTextures[index];
+    }
 
-	public void updateTexture(Texture2D texture, int imageIndex, int textureIndex)
-	{
-		_parsedTextures[imageIndex] = texture;
-	}
+    public void setTextureNormalMap(int index)
+    {
+        Texture2D texture = _parsedTextures[index];
+        TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
+        im.textureType = TextureImporterType.NormalMap;
+        im.SaveAndReimport();
+    }
 
-	public Texture2D getOrCreateTexture(int imageIndex, int textureIndex)
-	{
-		if(_usedSources.Contains(imageIndex))
-		{
-			// Duplicate image
-			string origin = AssetDatabase.GetAssetPath(_parsedImages[imageIndex]);
-			string dest = Path.Combine(Path.GetDirectoryName(origin), Path.GetFileNameWithoutExtension(origin) + "_" + textureIndex + Path.GetExtension(origin));
-			AssetDatabase.CopyAsset(origin, dest);
-			Texture2D duplicate = AssetDatabase.LoadAssetAtPath<Texture2D>(dest);
-			return duplicate;
-		}
-		else
-		{
-			_usedSources.Add(imageIndex);
-			return _parsedImages[imageIndex];
-		}
-	}
+    public void updateTexture(Texture2D texture, int imageIndex, int textureIndex)
+    {
+        _parsedTextures[imageIndex] = texture;
+    }
 
-	public void registerTexture(Texture2D texture)
-	{
-		_parsedTextures.Add(texture);
-	}
+    public Texture2D getOrCreateTexture(int imageIndex, int textureIndex)
+    {
+        if (_usedSources.Contains(imageIndex))
+        {
+            // Duplicate image
+            string origin = AssetDatabase.GetAssetPath(_parsedImages[imageIndex]);
+            string dest = Path.Combine(Path.GetDirectoryName(origin), Path.GetFileNameWithoutExtension(origin) + "_" + textureIndex + Path.GetExtension(origin));
+            AssetDatabase.CopyAsset(origin, dest);
+            Texture2D duplicate = AssetDatabase.LoadAssetAtPath<Texture2D>(dest);
+            return duplicate;
+        }
+        else
+        {
+            _usedSources.Add(imageIndex);
+            return _parsedImages[imageIndex];
+        }
+    }
 
-	public string generateName(string name, int index)
-	{
-		return GLTFUtils.cleanName(name + "_" + index).Replace(":", "_");
-	}
+    public void registerTexture(Texture2D texture)
+    {
+        _parsedTextures.Add(texture);
+    }
 
-	public void registerImageFromData(byte[] imageData, int imageID, string imageName="")
-	{
-		Texture2D texture = new Texture2D(4, 4);
-		texture.name = imageName;
-		texture.LoadImage(imageData);
-		GL.sRGBWrite = true;
-		saveTexture(GLTFTextureUtils.flipTexture(texture), imageID);
-	}
+    public string generateName(string name, int index)
+    {
+        return GLTFUtils.cleanName(name + "_" + index).Replace(":", "_");
+    }
 
-	public void copyAndRegisterImageInProject(string inputImage, int imageID)
-	{
-		string imageName = Path.GetFileNameWithoutExtension(inputImage);
-		byte[] imageData = File.ReadAllBytes(inputImage);
-		bool srgb = GL.sRGBWrite;
-		GL.sRGBWrite = true;
-		registerImageFromData(imageData, imageID, imageName);
-		GL.sRGBWrite = srgb;
-	}
+    public void registerImageFromData(byte[] imageData, int imageID, string imageName = "")
+    {
+        Texture2D texture = new Texture2D(4, 4);
+        texture.name = imageName;
+        texture.LoadImage(imageData);
+        GL.sRGBWrite = true;
+        saveTexture(GLTFTextureUtils.flipTexture(texture), imageID);
+    }
 
-	// File serialization
-	public Mesh saveMesh(Mesh mesh, string objectName = "Scene")
-	{
-		string baseName = GLTFUtils.cleanName(objectName + ".asset");
-		string fullPath = Path.Combine(_importMeshesDirectory, baseName);
-		string meshProjectPath = GLTFUtils.getPathProjectFromAbsolute(fullPath);
+    public void copyAndRegisterImageInProject(string inputImage, int imageID)
+    {
+        string imageName = Path.GetFileNameWithoutExtension(inputImage);
+        byte[] imageData = File.ReadAllBytes(inputImage);
+        bool srgb = GL.sRGBWrite;
+        GL.sRGBWrite = true;
+        registerImageFromData(imageData, imageID, imageName);
+        GL.sRGBWrite = srgb;
+    }
 
-		serializeAsset(mesh,meshProjectPath, fullPath, true);
-		return AssetDatabase.LoadAssetAtPath(meshProjectPath, typeof(Mesh)) as Mesh;
-	}
+    // File serialization
+    public Mesh saveMesh(Mesh mesh, string objectName = "Scene")
+    {
+        string baseName = GLTFUtils.cleanName(objectName + ".asset");
+        string fullPath = Path.Combine(_importMeshesDirectory, baseName);
+        string meshProjectPath = GLTFUtils.getPathProjectFromAbsolute(fullPath);
 
-	public Texture2D saveTexture(Texture2D texture, int index = -1, string imageName = "")
-	{
-		string basename = GLTFUtils.cleanName(texture.name + (index >= 0 ? "_" + index.ToString() : "") + ".png"); // Extension will be overridden
-		string fullPath = Path.Combine(_importTexturesDirectory, basename);
+        serializeAsset(mesh, meshProjectPath, fullPath, true);
+        return AssetDatabase.LoadAssetAtPath(meshProjectPath, typeof(Mesh)) as Mesh;
+    }
 
-		// Write texture
-		string newAssetPath = GLTFTextureUtils.writeTextureOnDisk(texture, fullPath, true);
+    public Texture2D saveTexture(Texture2D texture, int index = -1, string imageName = "")
+    {
+        string basename = GLTFUtils.cleanName(texture.name + (index >= 0 ? "_" + index.ToString() : "") + ".png"); // Extension will be overridden
+        string fullPath = Path.Combine(_importTexturesDirectory, basename);
 
-		// Reload as asset
-		string projectPath = GLTFUtils.getPathProjectFromAbsolute(newAssetPath);
-		Texture2D tex = (Texture2D)AssetDatabase.LoadAssetAtPath(projectPath, typeof(Texture2D));
-		_parsedImages.Add(tex);
-		return tex;
-	}
+        // Write texture
+        string newAssetPath = GLTFTextureUtils.writeTextureOnDisk(texture, fullPath, true);
 
-	public void serializeAsset(Object asset, string projectPath, string fullPath, bool overrideFile=true)
+        // Reload as asset
+        string projectPath = GLTFUtils.getPathProjectFromAbsolute(newAssetPath);
+        Texture2D tex = (Texture2D)AssetDatabase.LoadAssetAtPath(projectPath, typeof(Texture2D));
+        _parsedImages.Add(tex);
+        return tex;
+    }
+
+    public SeinAudioClip copyAndRegisterAudioClipInProject(GLTF.Schema.SeinAudioClip clip, int id)
+    {
+        if (_importAudioClipDirectory == null)
+        {
+            createAudioClipDirectory();
+        }
+
+        string directory = GLTFUtils.getPathProjectFromAbsolute(_importAudioClipDirectory);
+        var tmp = clip.name.Split('.');
+        var name = tmp[0] + "_" + id;
+        string path = directory + "/" + name + "." + tmp[1];
+        if (File.Exists(path))
+        {
+            FileUtil.ReplaceFile(clip.uri, path);
+        }
+        else
+        {
+            FileUtil.CopyFileOrDirectory(clip.uri, path);
+        }
+        AssetDatabase.Refresh();
+        var unityClip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+
+        path = directory + "/" + name + ".asset";
+        var seinClip = ScriptableObject.CreateInstance<SeinAudioClip>();
+        seinClip.clip = unityClip;
+        seinClip.mode = clip.mode;
+        seinClip.isLazy = clip.isLazy;
+
+        AssetDatabase.CreateAsset(seinClip, path);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+
+        seinClip = AssetDatabase.LoadAssetAtPath<SeinAudioClip>(path);
+
+        return seinClip;
+    }
+
+    public void serializeAsset(Object asset, string projectPath, string fullPath, bool overrideFile=true)
 	{
 		if(overrideFile == true && File.Exists(fullPath))
 		{
@@ -391,6 +435,12 @@ public class AssetManager
         var allComponents = new List<Component>(origObj.GetComponents<Component>());
         foreach (Component comp in allComponents)
         {
+            var t = comp.GetType();
+            if (obj.GetComponent(t) != null)
+            {
+                continue;
+            }
+
             try
             {
                 UnityEditorInternal.ComponentUtility.CopyComponent(comp);

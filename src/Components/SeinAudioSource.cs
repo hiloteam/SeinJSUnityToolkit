@@ -45,7 +45,7 @@ public class SeinAudioSourceAutoPlayOptions
     public float end = 0;
 }
 
-[AddComponentMenu("Sein/Audio Extension/Sein Audio Source "), ExecuteInEditMode]
+[AddComponentMenu("Sein/Audio Extension/Sein Audio Source"), ExecuteInEditMode]
 public class SeinAudioSource : MonoBehaviour
 {
     public static string extensionName = "Sein_audioSource";

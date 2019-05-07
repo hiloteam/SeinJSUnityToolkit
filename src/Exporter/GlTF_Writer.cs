@@ -693,7 +693,6 @@ public class GlTF_Writer {
 
         IndentOut();
         Indent(); jsonWriter.Write("}");
-        CommaNL();
 
         if (materials.Count > 0)
 		{

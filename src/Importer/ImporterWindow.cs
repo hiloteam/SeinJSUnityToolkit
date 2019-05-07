@@ -345,7 +345,10 @@ namespace GlTF
 				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.MESH:
 					element = "Mesh";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.NODE:
+                case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.AUDIO:
+                    element = "AudioClips";
+                    break;
+                case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.NODE:
 					element = "Node";
 					break;
 				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.ANIMATION:
