@@ -580,9 +580,6 @@ public class GlTF_Writer {
 			Indent();	jsonWriter.Write ("]");
 		}
 
-        CommaNL();
-        Indent(); jsonWriter.Write("\"extensions\": {\n");
-
         var extensions = new List<string>();
         if (techniques.Count > 0)
         {
@@ -596,103 +593,108 @@ public class GlTF_Writer {
         {
             extensions.Add("lights");
         }
-        var length = extensions.Count;
-        var index = 0;
 
-        foreach (var ex in extensions)
+        if (extensions.Count > 0)
         {
+            CommaNL();
+            Indent(); jsonWriter.Write("\"extensions\": {\n");
             IndentIn();
-            Indent();
 
-            if (ex == "techniques")
+            foreach (var ex in extensions)
             {
-                jsonWriter.Write("\"KHR_techniques_webgl\": {\n");
-                IndentIn();
-
                 CommaNL();
-                Indent(); jsonWriter.Write("\"programs\": [\n");
-                IndentIn();
-                foreach (GlTF_Program p in programs)
-                {
-                    CommaNL();
-                    p.Write();
-                }
-                jsonWriter.WriteLine();
-                IndentOut();
-                Indent(); jsonWriter.Write("]");
+                Indent();
 
-                CommaNL();
-                Indent(); jsonWriter.Write("\"shaders\": [\n");
-                IndentIn();
-                foreach (GlTF_Shader s in shaders)
+                if (ex == "techniques")
                 {
-                    CommaNL();
-                    s.Write();
-                }
-                jsonWriter.WriteLine();
-                IndentOut();
-                Indent(); jsonWriter.Write("]");
-
-                CommaNL();
-                Indent(); jsonWriter.Write("\"techniques\": [\n");
-                IndentIn();
-                foreach (GlTF_Technique t in techniques)
-                {
-                    CommaNL();
-                    t.Write();
-                }
-                jsonWriter.WriteLine();
-                IndentOut();
-                Indent(); jsonWriter.Write("]\n");
-            }
-            else if (ex == "audioClips")
-            {
-                jsonWriter.Write("\"Sein_audioClips\": {\n");
-                IndentIn();
-                Indent(); jsonWriter.Write("\"clips\": [\n");
-                IndentIn();
-                var len = audioClips.Count;
-                var i = 0;
-                foreach (var clip in audioClips)
-                {
-                    Indent(); jsonWriter.Write("{\n");
+                    jsonWriter.Write("\"KHR_techniques_webgl\": {\n");
                     IndentIn();
-                    Indent(); jsonWriter.Write("\"mode\": \"" + clip.mode + "\",\n");
-                    Indent(); jsonWriter.Write("\"isLazy\": " + (clip.isLazy ? "true" : "false") + ",\n");
-                    Indent(); jsonWriter.Write("\"uri\": \"" + audioClipURIs[clip] + "\"\n");
-                    IndentOut();
-                    Indent(); jsonWriter.Write(i == len - 1 ? "}\n" : "},\n");
 
-                    i += 1;
-                }
-                IndentOut();
-                Indent(); jsonWriter.Write("]\n");
-            }
-            else if (ex == "lights")
-            {
-                jsonWriter.Write("\"KHR_lights_punctual\": {\n");
-                IndentIn();
-                Indent();
-                jsonWriter.Write("\"lights\": [\n");
-                IndentIn();
-                foreach (GlTF_Light l in lights)
-                {
                     CommaNL();
-                    l.Write();
+                    Indent(); jsonWriter.Write("\"programs\": [\n");
+                    IndentIn();
+                    foreach (GlTF_Program p in programs)
+                    {
+                        CommaNL();
+                        p.Write();
+                    }
+                    jsonWriter.WriteLine();
+                    IndentOut();
+                    Indent(); jsonWriter.Write("]");
+
+                    CommaNL();
+                    Indent(); jsonWriter.Write("\"shaders\": [\n");
+                    IndentIn();
+                    foreach (GlTF_Shader s in shaders)
+                    {
+                        CommaNL();
+                        s.Write();
+                    }
+                    jsonWriter.WriteLine();
+                    IndentOut();
+                    Indent(); jsonWriter.Write("]");
+
+                    CommaNL();
+                    Indent(); jsonWriter.Write("\"techniques\": [\n");
+                    IndentIn();
+                    foreach (GlTF_Technique t in techniques)
+                    {
+                        CommaNL();
+                        t.Write();
+                    }
+                    jsonWriter.WriteLine();
+                    IndentOut();
+                    Indent(); jsonWriter.Write("]");
                 }
+                else if (ex == "audioClips")
+                {
+                    jsonWriter.Write("\"Sein_audioClips\": {\n");
+                    IndentIn();
+                    Indent(); jsonWriter.Write("\"clips\": [\n");
+                    IndentIn();
+                    foreach (var clip in audioClips)
+                    {
+                        CommaNL();
+                        Indent(); jsonWriter.Write("{\n");
+                        IndentIn();
+                        Indent(); jsonWriter.Write("\"mode\": \"" + clip.mode + "\",\n");
+                        Indent(); jsonWriter.Write("\"isLazy\": " + (clip.isLazy ? "true" : "false") + ",\n");
+                        Indent(); jsonWriter.Write("\"uri\": \"" + audioClipURIs[clip] + "\"\n");
+                        IndentOut();
+                        Indent(); jsonWriter.Write("}");
+                        jsonWriter.WriteLine();
+                    }
+                    IndentOut();
+                    Indent(); jsonWriter.Write("]");
+                }
+                else if (ex == "lights")
+                {
+                    jsonWriter.Write("\"KHR_lights_punctual\": {\n");
+                    IndentIn();
+                    Indent();
+                    jsonWriter.Write("\"lights\": [\n");
+                    IndentIn();
+                    foreach (GlTF_Light l in lights)
+                    {
+                        CommaNL();
+                        l.Write();
+                    }
+                    jsonWriter.WriteLine();
+                    IndentOut();
+                    Indent();
+                    jsonWriter.Write("]");
+                }
+
                 jsonWriter.WriteLine();
                 IndentOut();
                 Indent();
-                jsonWriter.Write("]\n");
+                jsonWriter.Write("}");
             }
-            IndentOut();
-            Indent();
-            jsonWriter.Write(index == length - 1? "}\n" : "},\n");
-            index += 1;
-        }
 
-        IndentOut();
-        Indent(); jsonWriter.Write("}");
+            jsonWriter.WriteLine();
+            IndentOut();
+            Indent(); jsonWriter.Write("}");
+        }
 
         if (materials.Count > 0)
 		{
