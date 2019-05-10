@@ -24,10 +24,19 @@ public class SeinUtils: Editor
         {
             yield return www.SendWebRequest();
 
-            coroutine = null;
+            while (!www.isDone)
+            {
+                yield return 1;
+            }
 
             if (www.isNetworkError || www.isHttpError)
             {
+                EditorUtility.DisplayDialog(
+                    "Error occured while checking for update!",
+                    www.error,
+                    "OK"
+                );
+                coroutine = null;
                 yield break;
             }
 
@@ -35,6 +44,7 @@ public class SeinUtils: Editor
 
             if (response == "")
             {
+                coroutine = null;
                 yield break;
             }
 
@@ -42,6 +52,7 @@ public class SeinUtils: Editor
 
             if (json.Count < 1)
             {
+                coroutine = null;
                 yield break;
             }
 
@@ -51,6 +62,12 @@ public class SeinUtils: Editor
 
             if (newVersion <= version)
             {
+                EditorUtility.DisplayDialog(
+                    "This verison is last !",
+                    "No need to update tools.",
+                    "OK"
+                );
+                coroutine = null;
                 yield break;
             }
 
@@ -61,6 +78,7 @@ public class SeinUtils: Editor
                     "Cancel"
                 ))
             {
+                coroutine = null;
                 Application.OpenURL(url);
             }
         }
