@@ -100,9 +100,12 @@ namespace UnityGLTF
 			_taskManager = new TaskManager();
 			_assetsToRemove = new List<string>();
 			defaultMaterial = new UnityEngine.Material(Shader.Find("Standard"));
+            GLTFProperty.RegisterExtension(new Sein_nodeExtensionFactory());
             GLTFProperty.RegisterExtension(new Sein_audioClipsExtensionFactory());
             GLTFProperty.RegisterExtension(new Sein_audioSourceExtensionFactory());
             GLTFProperty.RegisterExtension(new Sein_audioListenerExtensionFactory());
+            GLTFProperty.RegisterExtension(new Sein_animatorListenerExtensionFactory());
+            GLTFProperty.RegisterExtension(new Sein_physicBodyExtensionFactory());
         }
 
 		/// <summary>
@@ -1183,6 +1186,21 @@ namespace UnityGLTF
                 return;
             }
 
+            if (node.Extensions.ContainsKey("Sein_node"))
+            {
+                var n = (Sein_nodeExtension)node.Extensions["Sein_node"];
+                var seinNode = go.AddComponent<SeinNode>();
+                seinNode.selfType = n.selfType;
+                seinNode.className = n.className;
+                seinNode.tag = n.tag;
+                seinNode.layer = n.layer;
+                seinNode.persistent = n.persistent;
+                seinNode.emitComponentsDestroy = n.emitComponentsDestroy;
+                seinNode.updateOnEverTick = n.updateOnEverTick;
+                seinNode.isStatic = n.isStatic;
+                seinNode.skipThisNode = n.skipThisNode;
+            }
+
             if (node.Extensions.ContainsKey("Sein_audioSource"))
             {
                 var source = (Sein_audioSourceExtension)node.Extensions["Sein_audioSource"];
@@ -1207,6 +1225,46 @@ namespace UnityGLTF
                 var source = (Sein_audioListenerExtension)node.Extensions["Sein_audioListener"];
                 var audioSource = go.AddComponent<SeinAudioListener>();
                 audioSource.rotatable = source.rotatable;
+            }
+
+            if (node.Extensions.ContainsKey("Sein_animator"))
+            {
+                var ani = (Sein_animatorListenerExtension)node.Extensions["Sein_animator"];
+                var animator = go.AddComponent<SeinAnimator>();
+                animator.modelAnimations = ani.modelAnimations;
+                animator.defaultAnimation = ani.defaultAnimation;
+            }
+
+            if (node.Extensions.ContainsKey("Sein_physicBody"))
+            {
+                var physicBody = (Sein_physicBodyExtension)node.Extensions["Sein_physicBody"];
+                var rigidBody = go.AddComponent<SeinRigidBody>();
+                rigidBody.mass = physicBody.rigidBody.mass;
+                rigidBody.restitution = physicBody.rigidBody.restitution;
+                rigidBody.friction = physicBody.rigidBody.friction;
+                rigidBody.unControl = physicBody.rigidBody.unControl;
+                rigidBody.physicStatic = physicBody.rigidBody.physicStatic;
+                rigidBody.sleeping = physicBody.rigidBody.sleeping;
+
+                foreach (var c in physicBody.colliders)
+                {
+                    if (c is SphereCollider)
+                    {
+                        var collider = go.AddComponent<SphereCollider>();
+                        collider.center = ((SphereCollider)c).center;
+                        collider.radius = ((SphereCollider)c).radius;
+                        collider.isTrigger = c.isTrigger;
+                    }
+                    else if (c is BoxCollider)
+                    {
+                        var collider = go.AddComponent<BoxCollider>();
+                        collider.center = ((BoxCollider)c).center;
+                        collider.size = ((BoxCollider)c).size;
+                        collider.isTrigger = c.isTrigger;
+                    }
+                }
+
+                UnityEngine.Object.DestroyImmediate(physicBody.tmpGo);
             }
         }
 

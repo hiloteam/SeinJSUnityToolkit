@@ -20,7 +20,12 @@ namespace GlTF
 			GlTFImporterWindow window = (GlTFImporterWindow)EditorWindow.GetWindow(typeof(GlTFImporterWindow));
 			window.titleContent.text = "Importer";
 			window.Show(true);
-		}
+
+            if (!SeinUtils.inited)
+            {
+                SeinUtils.Init();
+            }
+        }
 
 		// GlTF elements
 		GlTFUI _ui;

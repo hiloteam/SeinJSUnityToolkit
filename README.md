@@ -16,3 +16,4 @@ Double click bin/UnityGlTFManager.unitypackage and import all to your project, t
 6. Support Unlit mode.
 7. Support importing gltf file to unity.
 8. Support exporting lightmap.
+9. Support import gltf file with Sein.js extensions.

@@ -32,6 +32,10 @@ public class Exporter : EditorWindow {
 #else // and error dialog if not standalone
 		EditorUtility.DisplayDialog("Error", "Your build target must be set to standalone", "Okay");
 #endif
+        if (!SeinUtils.inited)
+        {
+            SeinUtils.Init();
+        }
 	}
 
     public static String MakeRelativePath(String fromPath, String toPath)
@@ -123,8 +127,8 @@ public class Exporter : EditorWindow {
 		//FIXME: Make sure that object is deleted;
 		exporterGo.hideFlags = HideFlags.HideAndDontSave;
 		//publisher.getCategories();
-		resizeWindow(loginSize);
-	}
+		resizeWindow(fullSize);
+    }
 
 	void OnEnable()
 	{
@@ -139,7 +143,7 @@ public class Exporter : EditorWindow {
 		{
 			param_name = EditorSceneManager.GetActiveScene().name;
 		}
-		resizeWindow(loginSize);
+		resizeWindow(fullSize);
 	}
 
 	int convertToSeconds(DateTime time)
