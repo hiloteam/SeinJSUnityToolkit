@@ -18,6 +18,7 @@ namespace UnityGLTF
 	///
 	public class GLTFEditorImporter
 	{
+        public static bool extensionsInited = false;
 		public bool _useGLTFMaterial = false;
 		bool _isDone = false;
 
@@ -100,12 +101,17 @@ namespace UnityGLTF
 			_taskManager = new TaskManager();
 			_assetsToRemove = new List<string>();
 			defaultMaterial = new UnityEngine.Material(Shader.Find("Standard"));
-            GLTFProperty.RegisterExtension(new Sein_nodeExtensionFactory());
-            GLTFProperty.RegisterExtension(new Sein_audioClipsExtensionFactory());
-            GLTFProperty.RegisterExtension(new Sein_audioSourceExtensionFactory());
-            GLTFProperty.RegisterExtension(new Sein_audioListenerExtensionFactory());
-            GLTFProperty.RegisterExtension(new Sein_animatorListenerExtensionFactory());
-            GLTFProperty.RegisterExtension(new Sein_physicBodyExtensionFactory());
+            if (!extensionsInited)
+            {
+                GLTFProperty.RegisterExtension(new Sein_nodeExtensionFactory());
+                GLTFProperty.RegisterExtension(new Sein_audioClipsExtensionFactory());
+                GLTFProperty.RegisterExtension(new Sein_audioSourceExtensionFactory());
+                GLTFProperty.RegisterExtension(new Sein_audioListenerExtensionFactory());
+                GLTFProperty.RegisterExtension(new Sein_animatorListenerExtensionFactory());
+                GLTFProperty.RegisterExtension(new Sein_physicBodyExtensionFactory());
+
+                extensionsInited = true;
+            }
         }
 
 		/// <summary>
