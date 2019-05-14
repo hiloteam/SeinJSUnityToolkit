@@ -524,7 +524,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 GlTF_Writer.materialNames.Add(matName);
                                 GlTF_Writer.materials.Add(material);
 
-                                if (mat.shader.name.Contains("Standard"))
+                                if (mat.shader.name.Contains("Standard") || mat.shader.name.Contains("Autodesk Interactive"))
                                 {
                                     unityToPBRMaterial(mat, ref material);
                                 }
@@ -889,38 +889,46 @@ public class SceneToGlTFWiz : MonoBehaviour
 
     }
 
-    private int createOcclusionMetallicRoughnessTexture(ref Texture2D occlusion, ref Texture2D metallicRoughness)
+    private int createOcclusionMetallicRoughnessTexture(ref Texture2D metallic, ref Texture2D roughness, ref Texture2D occlusion)
     {
-        string texName = "";
-        int width = -1;
-        int height = -1;
-        string assetPath = "";
-        if (occlusion)
-        {
-            texName = texName + GlTF_Texture.GetNameFromObject(occlusion);
-            assetPath = AssetDatabase.GetAssetPath(occlusion);
-            width = occlusion.width;
-            height = occlusion.height;
-        }
-        else
-        {
-            texName = texName + "_";
-        }
-
-        if (metallicRoughness)
-        {
-            texName = texName + GlTF_Texture.GetNameFromObject(metallicRoughness);
-            assetPath = AssetDatabase.GetAssetPath(metallicRoughness);
-            width = metallicRoughness.width;
-            height = metallicRoughness.height;
-        }
-        else
-        {
-            texName = texName + "_";
-        }
+        string texName = GlTF_Texture.GetNameFromObject(metallic) + "_m_r_ao";
+        var textureM = metallic;
+        var textureR = roughness;
+        var textureAO = occlusion;
 
         if (!GlTF_Writer.textureNames.Contains(texName))
         {
+            int width = textureM.width;
+            int height = textureM.height;
+            string assetPath = AssetDatabase.GetAssetPath(textureM);
+
+            if (textureR != null)
+            {
+                width = textureR.width > width ? textureR.width : width;
+                height = textureR.height > height ? textureR.height : height;
+            }
+
+            if (textureAO != null)
+            {
+                width = textureAO.width > width ? textureAO.width : width;
+                height = textureAO.height > height ? textureAO.height : height;
+            }
+
+            if (textureM.width != width || textureM.height != height)
+            {
+                cloneAndResize(ref metallic, out textureM, width, height);
+            }
+
+            if (textureR != null && (textureR.width != width || textureR.height != height))
+            {
+                cloneAndResize(ref roughness, out textureR, width, height);
+            }
+
+            if (textureAO != null && (textureAO.width != width || textureAO.height != height))
+            {
+                cloneAndResize(ref occlusion, out textureAO, width, height);
+            }
+
             // Create texture
             GlTF_Texture texture = new GlTF_Texture();
             texture.name = texName;
@@ -928,25 +936,34 @@ public class SceneToGlTFWiz : MonoBehaviour
             // Export image
             GlTF_Image img = new GlTF_Image();
             img.name = texName;
-            //img.uri =
 
             // Let's consider that the three textures have the same resolution
             Color[] outputColors = new Color[width * height];
             for (int i = 0; i < outputColors.Length; ++i)
-                outputColors[i] = new Color(1.0f, 1.0f, 1.0f);
-
-            if (occlusion)
-                addTexturePixels(ref occlusion, ref outputColors, IMAGETYPE.R);
-            if (metallicRoughness)
             {
-                addTexturePixels(ref metallicRoughness, ref outputColors, IMAGETYPE.B);
-                addTexturePixels(ref metallicRoughness, ref outputColors, IMAGETYPE.G_INVERT, IMAGETYPE.A);
+                outputColors[i] = new Color(1.0f, 1.0f, 1.0f);
+            }
+
+            addTexturePixels(ref textureM, ref outputColors, IMAGETYPE.B);
+
+            if (textureR != null)
+            {
+                addTexturePixels(ref textureR, ref outputColors, IMAGETYPE.G);
+            }
+
+            if (textureAO != null)
+            {
+                addTexturePixels(ref textureAO, ref outputColors, IMAGETYPE.R);
             }
 
             Texture2D newtex = new Texture2D(width, height);
+            newtex.name = texName;
             newtex.SetPixels(outputColors);
             newtex.Apply();
-            TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
+            if (newtex.width > Exporter.opt_maxSize || newtex.height > Exporter.opt_maxSize)
+            {
+                TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
+            }
 
             string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
             string exportDir = Path.Combine(savedPath, pathInArchive);
@@ -954,7 +971,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             if (!Directory.Exists(exportDir))
                 Directory.CreateDirectory(exportDir);
 
-            string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_converted_metalRoughness.jpg";
+            string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_m_r_ao.jpg";
             outputFilename = GlTF_Writer.cleanPath(outputFilename);
             string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
             File.WriteAllBytes(exportPath, newtex.EncodeToJPG(Exporter.opt_jpgQuality));
@@ -972,11 +989,13 @@ public class SceneToGlTFWiz : MonoBehaviour
 
             // Add sampler
             GlTF_Sampler sampler;
-            var samplerName = GlTF_Sampler.GetNameFromObject(metallicRoughness);
+            var samplerName = GlTF_Sampler.GetNameFromObject(newtex);
             if (!GlTF_Writer.samplerNames.Contains(samplerName))
             {
-                sampler = new GlTF_Sampler(metallicRoughness);
-                sampler.name = samplerName;
+                sampler = new GlTF_Sampler(newtex)
+                {
+                    name = samplerName
+                };
                 GlTF_Writer.samplers.Add(sampler);
                 GlTF_Writer.samplerNames.Add(samplerName);
             }
@@ -987,6 +1006,66 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         return GlTF_Writer.textureNames.IndexOf(texName);
 
+    }
+
+    private void cloneAndResize(ref Texture2D tex, out Texture2D newtex, int width, int height)
+    {
+        TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+
+        if (!im)
+        {
+            newtex = null;
+            return;
+        }
+
+        bool readable = im.isReadable;
+#if UNITY_5_4
+        TextureImporterFormat format = im.textureFormat;
+#else
+        TextureImporterCompression format = im.textureCompression;
+#endif
+        TextureImporterType type = im.textureType;
+        bool isConvertedBump = im.convertToNormalmap;
+
+        if (!readable)
+            im.isReadable = true;
+#if UNITY_5_4
+        if (type != TextureImporterType.Image)
+            im.textureType = TextureImporterType.Image;
+        im.textureFormat = TextureImporterFormat.ARGB32;
+#else
+        if (type != TextureImporterType.Default)
+            im.textureType = TextureImporterType.Default;
+
+        im.textureCompression = TextureImporterCompression.Uncompressed;
+#endif
+        im.SaveAndReimport();
+
+        newtex = new Texture2D(tex.width, tex.height);
+        newtex.name = tex.name;
+        newtex.SetPixels(tex.GetPixels());
+        newtex.Apply();
+        TextureScale.Bilinear(newtex, width, height);
+
+        if (!readable)
+            im.isReadable = false;
+#if UNITY_5_4
+        if (type != TextureImporterType.Image)
+            im.textureType = type;
+#else
+        if (type != TextureImporterType.Default)
+            im.textureType = type;
+#endif
+        if (isConvertedBump)
+            im.convertToNormalmap = true;
+
+#if UNITY_5_4
+        im.textureFormat = format;
+#else
+        im.textureCompression = format;
+#endif
+
+        im.SaveAndReimport();
     }
 
     private void processAudioClip(SeinAudioClip audioClip)
@@ -1256,7 +1335,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         bool isMetal = true;
         bool hasPBRMap = false;
         // Is metal workflow used
-        isMetal = mat.shader.name == "Standard";
+        isMetal = mat.shader.name == "Standard" || mat.shader.name == "Autodesk Interactive";
         GlTF_Writer.hasSpecularMaterials = GlTF_Writer.hasSpecularMaterials || !isMetal;
         material.isMetal = isMetal;
 
@@ -1300,12 +1379,24 @@ public class SceneToGlTFWiz : MonoBehaviour
                 {
                     var textureValue = new GlTF_Material.DictValue();
                     textureValue.name = "metallicRoughnessTexture";
-                    Texture2D metallicRoughnessTexture = (Texture2D)mat.GetTexture("_MetallicGlossMap");
+                    Texture2D metallicTexture = (Texture2D)mat.GetTexture("_MetallicGlossMap");
+                    Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_SpecGlossMap");
                     Texture2D occlusion = (Texture2D)mat.GetTexture("_OcclusionMap");
-                    int metalRoughTextureIndex = createOcclusionMetallicRoughnessTexture(ref occlusion, ref metallicRoughnessTexture);
-                    textureValue.intValue.Add("index", metalRoughTextureIndex);
+                    int metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(ref metallicTexture, ref roughnessTexture, ref occlusion);
+                    textureValue.intValue.Add("index", metalRoughTextureAoIndex);
                     textureValue.intValue.Add("texCoord", 0);
                     material.pbrValues.Add(textureValue);
+
+                    if (occlusion != null)
+                    {
+                        var aoValue = new GlTF_Material.DictValue();
+                        aoValue.name = "occlusionTexture";
+
+                        aoValue.intValue.Add("index", metalRoughTextureAoIndex);
+                        aoValue.intValue.Add("texCoord", 0);
+                        aoValue.floatValue.Add("strength", mat.GetFloat("_OcclusionStrength"));
+                        material.values.Add(aoValue);
+                    }
                 }
 
                 var metallicFactor = new GlTF_Material.FloatValue();
@@ -1389,7 +1480,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         material.values.Add(emissiveFactor);
 
         //Occlusion (kept as separated channel for specular workflow, but merged in R channel for metallic workflow)
-        if (mat.HasProperty("_OcclusionMap") && mat.GetTexture("_OcclusionMap") != null)
+        if ((!isMetal || (isMetal && !hasPBRMap)) && mat.HasProperty("_OcclusionMap") && mat.GetTexture("_OcclusionMap") != null)
         {
             Texture2D occlusionTexture = mat.GetTexture("_OcclusionMap") as Texture2D;
             var textureValue = new GlTF_Material.DictValue();
@@ -1432,6 +1523,12 @@ public class SceneToGlTFWiz : MonoBehaviour
         TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
         if (!im)
         {
+            if (texture)
+            {
+                pixels = texture.GetPixels();
+                return true;
+            }
+
             pixels = new Color[1];
             return false;
         }
@@ -1515,7 +1612,10 @@ public class SceneToGlTFWiz : MonoBehaviour
             newtex = new Texture2D(inputTexture.width, inputTexture.height);
             newtex.SetPixels(newTextureColors);
             newtex.Apply();
-            TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
+            if (newtex.width > Exporter.opt_maxSize || newtex.height > Exporter.opt_maxSize)
+            {
+                TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
+            }
         }
         else
         {
