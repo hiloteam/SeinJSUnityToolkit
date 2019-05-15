@@ -63,6 +63,7 @@ public class Exporter : EditorWindow {
     public static int opt_maxSize = 1024;
     public static bool opt_halfSpotAngle = true;
     public static bool opt_quadraticAttenuation = true;
+    public static bool opt_forcePNG = false;
     public static int opt_jpgQuality= 85;
     public static bool opt_noLighting= false;
     public static bool opt_splitChunks = false;
@@ -70,12 +71,9 @@ public class Exporter : EditorWindow {
     public static bool opt_exportEnvLight = false;
 
     // UI dimensions (to be cleaned)
-    [SerializeField]
-	Vector2 loginSize = new Vector2(603, 190);
 	[SerializeField]
-	Vector2 fullSize = new Vector2(603, 500);
-	[SerializeField]
-	Vector2 descSize = new Vector2(603, 175);
+	Vector2 fullSize = new Vector2(603, 540);
+
 
 	// Fields limits
 	const int NAME_LIMIT = 48;
@@ -165,7 +163,7 @@ public class Exporter : EditorWindow {
 	void expandWindow(bool expand)
 	{
 		windowRect = this.position;
-		windowRect.height = expand ? fullSize.y : loginSize.y;
+		windowRect.height = fullSize.y;
 		position = windowRect;
 	}
 
@@ -243,8 +241,8 @@ public class Exporter : EditorWindow {
 		if(exporterTextArea == null)
 		{
 			exporterTextArea = new GUIStyle(GUI.skin.textArea);
-			exporterTextArea.fixedWidth = descSize.x;
-			exporterTextArea.fixedHeight = descSize.y;
+			exporterTextArea.fixedWidth = fullSize.x;
+			exporterTextArea.fixedHeight = fullSize.y;
 		}
 
 		if(exporterClickableLabel == null)
@@ -286,6 +284,7 @@ public class Exporter : EditorWindow {
 
         GUILayout.Label("Texture properties", EditorStyles.boldLabel);
 
+        Exporter.opt_forcePNG = EditorGUILayout.Toggle("Force export as png", Exporter.opt_forcePNG);
         GUILayout.Label("Texture max size");
         Exporter.opt_maxSize = EditorGUILayout.IntField(Exporter.opt_maxSize);
         GUILayout.Label("Texture jpg quality");
