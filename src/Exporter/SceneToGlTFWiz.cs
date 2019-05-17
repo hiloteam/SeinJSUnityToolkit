@@ -468,7 +468,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         GlTF_Writer.accessors.Add(tangentAccessor);
                     }
 
-                    var smCount = m.subMeshCount;
                     GlTF_Mesh m2 = null;
                     if (GlTF_Writer.exportMeshes.ContainsKey(m))
                     {
@@ -479,6 +478,39 @@ public class SceneToGlTFWiz : MonoBehaviour
                         }
                     }
 
+                    var morphTargets = new List<GlTF_Attributes>();
+                    if (m2 == null && m.blendShapeCount > 0)
+                    {
+                        for (int i = 0; i < m.blendShapeCount; i += 1)
+                        {
+                            var tname = m.GetBlendShapeName(i);
+                            mesh.morphWeights.Add(0);
+                            mesh.morphTargetNames.Add(tname);
+                            var attrs = new GlTF_Attributes();
+                            var avs = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "target_position"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
+                            avs.bufferView = GlTF_Writer.vec3BufferView;
+                            GlTF_Writer.accessors.Add(avs);
+                            attrs.positionAccessor = avs;
+                            if (m.normals.Length > 0)
+                            {
+                                var ans = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "target_normals"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
+                                ans.bufferView = GlTF_Writer.vec3BufferView;
+                                GlTF_Writer.accessors.Add(ans);
+                                attrs.normalAccessor = ans;
+                            }
+                            //if (m.tangents.Length > 0)
+                            //{
+                            //    var ats = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "target_tangents"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
+                            //    ats.bufferView = GlTF_Writer.vec3BufferView;
+                            //    GlTF_Writer.accessors.Add(ats);
+                            //    attrs.tangentAccessor = ats;
+                            //}
+
+                            morphTargets.Add(attrs);
+                        }
+                    }
+
+                    var smCount = m.subMeshCount;
                     for (var i = 0; i < smCount; ++i)
                     {
                         GlTF_Primitive primitive = new GlTF_Primitive();
@@ -490,6 +522,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                         {
                             attributes = primitive.attributes = m2.primitives[i].attributes;
                             primitive.indices = m2.primitives[i].indices;
+                            primitive.morphTargets = m2.primitives[i].morphTargets;
                         }
                         else
                         {
@@ -504,6 +537,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                             attributes.weightAccessor = weightAccessor;
                             attributes.tangentAccessor = tangentAccessor;
                             primitive.attributes = attributes;
+                            primitive.morphTargets = morphTargets;
                             GlTF_Accessor indexAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "indices_" + i), GlTF_Accessor.Type.SCALAR, GlTF_Accessor.ComponentType.USHORT);
                             indexAccessor.bufferView = GlTF_Writer.ushortBufferView;
                             GlTF_Writer.accessors.Add(indexAccessor);
@@ -645,7 +679,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 GlTF_Skin skin = new GlTF_Skin();
 
-                skin.name = GlTF_Writer.cleanNonAlphanumeric(skinMesh.rootBone.name) + "_skeleton_" + GlTF_Writer.cleanNonAlphanumeric(node.name) + tr.GetInstanceID();
+                skin.name = GlTF_Writer.cleanNonAlphanumeric(skinMesh.rootBone.name) + "_skeleton_" + GlTF_Writer.cleanNonAlphanumeric(node.name);
                 skin.skeleton = GlTF_Writer.nodes.IndexOf(GlTF_Writer.nodeTransforms[skinMesh.rootBone]);
 
                 // Create invBindMatrices accessor

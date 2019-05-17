@@ -86,7 +86,7 @@ public class GlTF_Attributes : GlTF_Writer {
 
 	public override void Write ()
 	{
-		Indent();	jsonWriter.Write ("\"attributes\": {\n");
+		jsonWriter.Write ("{\n");
 		IndentIn();
 		if (positionAccessor != null)
 		{
@@ -148,6 +148,5 @@ public class GlTF_Attributes : GlTF_Writer {
 		IndentOut();
 		Indent();	jsonWriter.Write ("}");
 	}
-
 }
 #endif

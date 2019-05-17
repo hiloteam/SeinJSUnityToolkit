@@ -17,3 +17,4 @@ Double click bin/UnityGlTFManager.unitypackage and import all to your project, t
 7. Support importing gltf file to unity.
 8. Support exporting lightmap.
 9. Support import gltf file with Sein.js extensions.
+10. Support import and export morph.
