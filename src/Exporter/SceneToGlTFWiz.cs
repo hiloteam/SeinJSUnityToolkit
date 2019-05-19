@@ -604,35 +604,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 }
             }
 
-            // Parse animations
-            if (exportAnimation)
-            {
-                Animator a = tr.GetComponent<Animator>();
-                if (a != null)
-                {
-                    AnimationClip[] clips = AnimationUtility.GetAnimationClips(tr.gameObject);
-                    for (int i = 0; i < clips.Length; i++)
-                    {
-                        //FIXME It seems not good to generate one animation per animator.
-                        GlTF_Animation anim = new GlTF_Animation(GlTF_Writer.cleanNonAlphanumeric(clips[i].name));
-                        anim.Populate(clips[i], tr, GlTF_Writer.bakeAnimation);
-                        if (anim.channels.Count > 0)
-                            GlTF_Writer.animations.Add(anim);
-                    }
-                }
-
-                Animation animation = tr.GetComponent<Animation>();
-                if (animation != null)
-                {
-                    AnimationClip clip = animation.clip;
-                    //FIXME It seems not good to generate one animation per animator.
-                    GlTF_Animation anim = new GlTF_Animation(GlTF_Writer.cleanNonAlphanumeric(animation.name));
-                    anim.Populate(clip, tr, GlTF_Writer.bakeAnimation);
-                    if (anim.channels.Count > 0)
-                        GlTF_Writer.animations.Add(anim);
-                }
-            }
-
             // Parse transform
             if (tr.parent == null)
             {
@@ -672,27 +643,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 node.cameraName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
             }
 
-            // Parse node's skin data
-            GlTF_Accessor invBindMatrixAccessor = null;
-            SkinnedMeshRenderer skinMesh = tr.GetComponent<SkinnedMeshRenderer>();
-            if (exportAnimation && skinMesh != null && skinMesh.enabled && checkSkinValidity(skinMesh, trs) && skinMesh.rootBone != null)
-            {
-                GlTF_Skin skin = new GlTF_Skin();
-
-                skin.name = GlTF_Writer.cleanNonAlphanumeric(skinMesh.rootBone.name) + "_skeleton_" + GlTF_Writer.cleanNonAlphanumeric(node.name);
-                skin.skeleton = GlTF_Writer.nodes.IndexOf(GlTF_Writer.nodeTransforms[skinMesh.rootBone]);
-
-                // Create invBindMatrices accessor
-                invBindMatrixAccessor = new GlTF_Accessor(skin.name + "invBindMatrices", GlTF_Accessor.Type.MAT4, GlTF_Accessor.ComponentType.FLOAT);
-                invBindMatrixAccessor.bufferView = GlTF_Writer.mat4BufferView;
-                GlTF_Writer.accessors.Add(invBindMatrixAccessor);
-
-                // Generate skin data
-                skin.Populate(tr, ref invBindMatrixAccessor, GlTF_Writer.accessors.Count - 1);
-                GlTF_Writer.skins.Add(skin);
-                node.skinIndex = GlTF_Writer.skins.IndexOf(skin);
-            }
-
             Dictionary<string, int> names = new Dictionary<string, int>();
             int index = 0;
             SeinNode seinNode = tr.GetComponent<SeinNode>();
@@ -714,13 +664,13 @@ public class SceneToGlTFWiz : MonoBehaviour
                         names.Add(t.name, i);
                         if (needCheckConfilct && nodeName == tr.name)
                         {
-                            nodeName += "-" + i;
+                            nodeName += "_" + i;
                         }
                     }
                     else
                     {
                         names[t.name] = i;
-                        nodeName += "-" + i;
+                        nodeName += "_" + i;
                     }
 
                     GlTF_Writer.nodeNames[cID] = nodeName;
@@ -730,6 +680,60 @@ public class SceneToGlTFWiz : MonoBehaviour
 
             GlTF_Writer.nodeIDs.Add(node.uuid);
             GlTF_Writer.nodes.Add(node);
+        }
+
+        foreach (var tr in trs)
+        {
+            var node = GlTF_Writer.nodeTransforms[tr];
+            // Parse node's skin data
+            GlTF_Accessor invBindMatrixAccessor = null;
+            SkinnedMeshRenderer skinMesh = tr.GetComponent<SkinnedMeshRenderer>();
+            if (exportAnimation && skinMesh != null && skinMesh.enabled && checkSkinValidity(skinMesh, trs) && skinMesh.rootBone != null)
+            {
+                GlTF_Skin skin = new GlTF_Skin();
+
+                skin.name = GlTF_Writer.cleanNonAlphanumeric(skinMesh.rootBone.name) + "_skeleton_" + GlTF_Writer.cleanNonAlphanumeric(node.name);
+                skin.skeleton = GlTF_Writer.nodes.IndexOf(GlTF_Writer.nodeTransforms[skinMesh.rootBone]);
+
+                // Create invBindMatrices accessor
+                invBindMatrixAccessor = new GlTF_Accessor(skin.name + "invBindMatrices", GlTF_Accessor.Type.MAT4, GlTF_Accessor.ComponentType.FLOAT);
+                invBindMatrixAccessor.bufferView = GlTF_Writer.mat4BufferView;
+                GlTF_Writer.accessors.Add(invBindMatrixAccessor);
+
+                // Generate skin data
+                skin.Populate(tr, ref invBindMatrixAccessor, GlTF_Writer.accessors.Count - 1);
+                GlTF_Writer.skins.Add(skin);
+                node.skinIndex = GlTF_Writer.skins.IndexOf(skin);
+            }
+
+            // Parse animations
+            if (exportAnimation)
+            {
+                Animator a = tr.GetComponent<Animator>();
+                if (a != null)
+                {
+                    AnimationClip[] clips = AnimationUtility.GetAnimationClips(tr.gameObject);
+                    for (int i = 0; i < clips.Length; i++)
+                    {
+                        //FIXME It seems not good to generate one animation per animator.
+                        GlTF_Animation anim = new GlTF_Animation(GlTF_Writer.cleanNonAlphanumeric(clips[i].name));
+                        anim.Populate(clips[i], tr, GlTF_Writer.bakeAnimation);
+                        if (anim.channels.Count > 0)
+                            GlTF_Writer.animations.Add(anim);
+                    }
+                }
+
+                Animation animation = tr.GetComponent<Animation>();
+                if (animation != null)
+                {
+                    AnimationClip clip = animation.clip;
+                    //FIXME It seems not good to generate one animation per animator.
+                    GlTF_Animation anim = new GlTF_Animation(GlTF_Writer.cleanNonAlphanumeric(animation.name));
+                    anim.Populate(clip, tr, GlTF_Writer.bakeAnimation);
+                    if (anim.channels.Count > 0)
+                        GlTF_Writer.animations.Add(anim);
+                }
+            }
         }
 
         if (GlTF_Writer.meshes.Count == 0)
