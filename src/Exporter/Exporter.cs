@@ -231,6 +231,7 @@ public class Exporter : EditorWindow {
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
+        string defaultExportFolder = Path.GetFullPath(Path.Combine(Application.dataPath, "../Output"));
 
         if (exporterLabel == null)
 		{
@@ -265,6 +266,10 @@ public class Exporter : EditorWindow {
         GUILayout.BeginHorizontal();
         GUILayout.TextField(exportFolder, GUILayout.MinWidth(350), GUILayout.Height(21));
         GUILayout.FlexibleSpace();
+        if (!Directory.Exists(exportFolder))
+        {
+            exportFolder = defaultExportFolder;
+        }
         if (GUILayout.Button("Select file", GUILayout.Height(21), GUILayout.Width(150)))
         {
             var tmp= EditorUtility.OpenFolderPanel("Choose a folder", exportFolder, "");
@@ -316,7 +321,6 @@ public class Exporter : EditorWindow {
 		GUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
 		if (GUILayout.Button ("Export", GUILayout.Width(250), GUILayout.Height(40))) {
-		
             if (!Directory.Exists(exportFolder))
             {
                 EditorUtility.DisplayDialog("Error", "Folder for exporting is not existed: \"" + exportFolder + "\"", "OK");
@@ -328,6 +332,44 @@ public class Exporter : EditorWindow {
             {
                 File.Delete(zipPath);
             }
+
+            DirectoryInfo directory = new DirectoryInfo(exportFolder);
+            var files = directory.GetFiles();
+            var subDirectories = directory.GetDirectories();
+
+            if (
+                exportFolder != defaultExportFolder
+                && (files.Length > 0 || subDirectories.Length > 0)
+            )
+            {
+                if (EditorUtility.DisplayDialog(
+                    "This folder is not empty",
+                    "If your export gltf here, all files and sub directories will be deleted !",
+                    "Continue",
+                    "Cancel"
+                ))
+                {
+                    //delete files:
+                    foreach (System.IO.FileInfo file in files)
+                        file.Delete();
+                    //delete directories in this directory:
+                    foreach (System.IO.DirectoryInfo subDirectory in subDirectories)
+                        subDirectory.Delete(true);
+
+                    exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
+                    OpenInFileBrowser.Open(Path.GetDirectoryName(exportPath));
+                }
+
+                return;
+            }
+
+            //delete files:
+            foreach (System.IO.FileInfo file in files)
+                file.Delete();
+            //delete directories in this directory:
+            foreach (System.IO.DirectoryInfo subDirectory in subDirectories)
+                subDirectory.Delete(true);
+           
             exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
 			OpenInFileBrowser.Open(Path.GetDirectoryName(exportPath));
 		}

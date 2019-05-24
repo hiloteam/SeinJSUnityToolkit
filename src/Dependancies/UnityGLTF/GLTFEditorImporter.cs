@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityGLTF.Cache;
 using UnityGLTF.Extensions;
 using UnityEditor;
+using Newtonsoft.Json.Linq;
 
 namespace UnityGLTF
 {
@@ -690,11 +691,11 @@ namespace UnityGLTF
 			for (int i = 0; i < mesh.Primitives.Count; ++i)
 			{
 				var primitive = mesh.Primitives[i];
-				CreateMeshPrimitive(primitive, mesh.Name, meshId, i); // Converted to mesh
+				CreateMeshPrimitive(mesh, primitive, mesh.Name, meshId, i); // Converted to mesh
 			}
-		}
+        }
 
-		protected virtual void CreateMeshPrimitive(MeshPrimitive primitive, string meshName, int meshID, int primitiveIndex)
+		protected virtual void CreateMeshPrimitive(GLTF.Schema.Mesh m, MeshPrimitive primitive, string meshName, int meshID, int primitiveIndex)
 		{
 			var meshAttributes = BuildMeshAttributes(primitive, meshID, primitiveIndex);
 			var vertexCount = primitive.Attributes[SemanticProperties.POSITION].Value.Count;
@@ -805,12 +806,24 @@ namespace UnityGLTF
 						NumericArray num = new NumericArray();
 						deltaNormals = primitive.Targets[b]["NORMAL"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], true).ToUnityVector3(true);
 					}
-					//if (primitive.Targets[b].ContainsKey("TANGENT"))
-					//{
-					//	deltaTangents = primitive.Targets[b]["TANGENT"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], true).ToUnityVector3(true);
-					//}
+                    //if (primitive.Targets[b].ContainsKey("TANGENT"))
+                    //{
+                    //    NumericArray num = new NumericArray();
+                    //    deltaTangents = primitive.Targets[b]["TANGENT"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], true).ToUnityVector3(true);
+                    //}
 
-					mesh.AddBlendShapeFrame(GLTFUtils.buildBlendShapeName(meshID, b), 1.0f, deltaVertices, deltaNormals, deltaTangents);
+                    string blendShapeName;
+
+                    if (m.Extras != null && m.Extras.Value<JArray>("targetNames") != null)
+                    {
+                        blendShapeName = (string)m.Extras.Value<JArray>("targetNames")[b];
+                    }
+                    else
+                    {
+                        blendShapeName = GLTFUtils.buildBlendShapeName(meshID, b);
+                    }
+
+                    mesh.AddBlendShapeFrame(blendShapeName, 1.0f, deltaVertices, deltaNormals, deltaTangents);
 				}
 			}
 

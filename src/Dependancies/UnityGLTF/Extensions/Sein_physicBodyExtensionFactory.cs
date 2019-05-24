@@ -47,7 +47,7 @@ namespace GLTF.Schema
                 {
                     case ("SPHERE"):
                         var sc = tmpGo.AddComponent<SphereCollider>();
-                        sc.radius = (float)collider["raduis"];
+                        sc.radius = (float)collider["radius"];
                         sc.center = new  UnityEngine.Vector3(
                             (float)collider["offset"][0],
                             (float)collider["offset"][1],

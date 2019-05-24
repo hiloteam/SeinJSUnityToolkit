@@ -172,14 +172,6 @@ public class SceneToGlTFWiz : MonoBehaviour
     public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true)
     {
         var dirPath = Path.GetDirectoryName(path);
-        DirectoryInfo directory = new DirectoryInfo(dirPath);
-
-        //delete files:
-        foreach (System.IO.FileInfo file in directory.GetFiles())
-            file.Delete();
-        //delete directories in this directory:
-        foreach (System.IO.DirectoryInfo subDirectory in directory.GetDirectories())
-            subDirectory.Delete(true);
 
         Transform[] transforms;
         transforms = Selection.GetTransforms(SelectionMode.TopLevel);
@@ -511,6 +503,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                     }
 
                     var smCount = m.subMeshCount;
+                    var customMaterials = tr.GetComponents<SeinCustomMaterial>();
                     for (var i = 0; i < smCount; ++i)
                     {
                         GlTF_Primitive primitive = new GlTF_Primitive();
@@ -559,9 +552,27 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 material.name = GlTF_Writer.cleanNonAlphanumeric(mat.name);
                                 primitive.materialIndex = GlTF_Writer.materials.Count;
 
-                                if (tr.GetComponent<SeinCustomMaterial>())
+                                if (customMaterials.Length == 1)
                                 {
-                                    material.seinCustomMaterial = tr.GetComponent<SeinCustomMaterial>();
+                                    material.seinCustomMaterial = customMaterials[0];
+                                }
+                                else
+                                {
+                                    SeinCustomMaterial cm = null;
+                                    foreach (var tcm in customMaterials)
+                                    {
+                                        if (tcm.unityMaterialName == mat.name)
+                                        {
+                                            cm = tcm;
+                                        }
+                                    }
+
+                                    if (cm == null && customMaterials.Length > i)
+                                    {
+                                        cm = customMaterials[i];
+                                    }
+
+                                    material.seinCustomMaterial = cm;
                                 }
 
                                 GlTF_Writer.materialNames.Add(matName);
@@ -710,6 +721,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             if (exportAnimation)
             {
                 Animator a = tr.GetComponent<Animator>();
+                bool nameConfilct = false;
                 if (a != null)
                 {
                     AnimationClip[] clips = AnimationUtility.GetAnimationClips(tr.gameObject);
@@ -718,8 +730,16 @@ public class SceneToGlTFWiz : MonoBehaviour
                         //FIXME It seems not good to generate one animation per animator.
                         GlTF_Animation anim = new GlTF_Animation(GlTF_Writer.cleanNonAlphanumeric(clips[i].name));
                         anim.Populate(clips[i], tr, GlTF_Writer.bakeAnimation);
+                        if (GlTF_Writer.animationNames.Contains(anim.name))
+                        {
+                            anim.name = node.name + "@" + anim.name;
+                            nameConfilct = true;
+                        }
                         if (anim.channels.Count > 0)
+                        {
                             GlTF_Writer.animations.Add(anim);
+                            GlTF_Writer.animationNames.Add(anim.name);
+                        }
                     }
                 }
 
@@ -730,8 +750,21 @@ public class SceneToGlTFWiz : MonoBehaviour
                     //FIXME It seems not good to generate one animation per animator.
                     GlTF_Animation anim = new GlTF_Animation(GlTF_Writer.cleanNonAlphanumeric(animation.name));
                     anim.Populate(clip, tr, GlTF_Writer.bakeAnimation);
+                    if (GlTF_Writer.animationNames.Contains(anim.name))
+                    {
+                        anim.name = node.name + "@" + anim.name;
+                        nameConfilct = true;
+                    }
                     if (anim.channels.Count > 0)
+                    {
                         GlTF_Writer.animations.Add(anim);
+                        GlTF_Writer.animationNames.Add(anim.name);
+                    }
+                }
+
+                if (nameConfilct && node.animator != null)
+                {
+                    node.animator.animator.prefix = node.name;
                 }
             }
         }
@@ -1598,6 +1631,7 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         seinRenderer.castShadows = mr.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On;
         seinRenderer.receiveShadows = mr.receiveShadows;
+        seinRenderer.gammaCorrection = PlayerSettings.colorSpace == ColorSpace.Linear;
 
         node.seinRenderer = seinRenderer;
     }
@@ -1753,24 +1787,31 @@ public class SceneToGlTFWiz : MonoBehaviour
             for (int j = 0; j < width; ++j)
             {
                 var origColor = colors[(height - i - 1) * width + j];
+                if (origColor.r > 1)
+                {
+                    var x = origColor;
+                }
+                origColor = decodeRGBM(origColor);
+                //if (PlayerSettings.colorSpace == ColorSpace.Gamma)
+                //{
+                //    origColor = gammaToLinear(origColor);
+                //}
+                origColor = gammaToLinear(origColor);
                 var color = new Color(0, 0, 0, 1);
 
-                if (origColor.a >= 0.0001f)
+                var d = 1f / Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
+
+                if (d > 1f)
                 {
-                    var d = 1f / Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
-
-                    if (d > 1f)
-                    {
-                        d = 1f;
-                    }
-
-                    color = new Color(
-                        origColor.r / d,
-                        origColor.g / d,
-                        origColor.b / d,
-                        d
-                    );
+                    d = 1f;
                 }
+
+                color = new Color(
+                    origColor.r / d,
+                    origColor.g / d,
+                    origColor.b / d,
+                    d
+                );
 
                 newColors[i * width + j] = color;
             }
@@ -1779,6 +1820,34 @@ public class SceneToGlTFWiz : MonoBehaviour
         tex.SetPixels(newColors);
         tex.Apply();
         return tex;
+    }
+
+    private Color decodeRGBM(Color color, float multiplier = 5)
+    {
+        float r = color.r * color.a * multiplier;
+        float g = color.g * color.a * multiplier;
+        float b = color.b * color.a * multiplier;
+
+        return new Color(r, g, b, 1);
+    }
+
+    private Color gammaToLinear(Color color)
+    {
+        //return new Color(gammaToLinear(color.r), gammaToLinear(color.g), gammaToLinear(color.b), gammaToLinear(color.a));
+        return color;
+    }
+
+    private float gammaToLinear(float value)
+    {
+        //if (value <= 0.0F)
+        //    return 0.0F;
+        //else if (value <= 0.0031308F)
+        //    return 12.92F * value;
+        //else if (value < 1.0F)
+        //    return 1.055F * (float)Math.Pow(value, 0.4166667F) - 0.055F;
+        //else
+        //return (float)Math.Pow(value, 0.45454545F);
+        return (float)Math.Pow(value, 2.2f);
     }
 }
 #endif

@@ -48,8 +48,9 @@ public class GlTF_Writer {
 	public static List<string> imageNames = new List<string>();
 	public static List<GlTF_Image> images = new List<GlTF_Image>();
 	public static List<GlTF_Animation> animations = new List<GlTF_Animation>();
+    public static List<string> animationNames = new List<string>();
 
-	public static List<string> techniqueNames = new List<string>();
+    public static List<string> techniqueNames = new List<string>();
 	public static List<GlTF_Technique> techniques = new List<GlTF_Technique>();
 
 	public static List<GlTF_Program> programs = new List<GlTF_Program>();
@@ -188,8 +189,9 @@ public class GlTF_Writer {
 		imageNames = new List<string>();
 		images = new List<GlTF_Image>();
 		animations = new List<GlTF_Animation>();
+        animationNames = new List<string>();
 
-		techniqueNames = new List<string>();
+        techniqueNames = new List<string>();
 		techniques = new List<GlTF_Technique>();
 
 		programs = new List<GlTF_Program>();

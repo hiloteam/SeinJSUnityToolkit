@@ -78,6 +78,7 @@ public class SeinCustomMaterialInspector : Editor
     {
         serializedObject.Update();
         EditorGUILayout.PropertyField(serializedObject.FindProperty("className"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("unityMaterialName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("cloneForInst"));
 
         var option = EEditorListOption.ListLabel | EEditorListOption.Buttons | EEditorListOption.ElementLabels;
@@ -97,6 +98,7 @@ public class SeinCustomMaterial : MonoBehaviour
     public static string extensionName = "Sein_customMaterial";
 
     public string className = "";
+    public string unityMaterialName = "";
 
     [Header("Options")]
     public bool cloneForInst = false;

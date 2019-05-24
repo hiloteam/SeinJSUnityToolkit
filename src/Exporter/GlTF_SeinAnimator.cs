@@ -12,6 +12,11 @@ public class GlTF_SeinAnimator : GlTF_Writer
 
         jsonWriter.Write("\"" + SeinAnimator.extensionName + "\": {\n");
         IndentIn();
+        if (animator.prefix != null && animator.prefix != "")
+        {
+            Indent();
+            jsonWriter.Write("\"prefix\": \"" + animator.prefix + "\",\n");
+        }
         Indent();
         jsonWriter.Write("\"defaultAnimation\": \"" + animator.defaultAnimation + "\",\n");
         Indent();

@@ -35,8 +35,6 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                 Indent();
                 jsonWriter.Write("{\n");
                 IndentIn();
-                Indent();
-                jsonWriter.Write("\"isTrigger\": " + (collider.isTrigger ? "true" : "false") + ",\n");
 
                 if (collider is SphereCollider) {
                     Indent();
@@ -47,7 +45,7 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                     var center = ((SphereCollider)collider).center;
                     jsonWriter.Write("\"offset\": [" + center.x + ", " + center.y + ", " + center.z + "],\n");
                     Indent();
-                    jsonWriter.Write("\"radius\": " + ((SphereCollider)collider).radius + "\n");
+                    jsonWriter.Write("\"radius\": " + ((SphereCollider)collider).radius + ",\n");
                 } else if (collider is BoxCollider) {
                     Indent();
                     jsonWriter.Write("\"name\": \"box" + i + "\",\n");
@@ -57,7 +55,7 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                     var center = ((BoxCollider)collider).center;
                     jsonWriter.Write("\"offset\": [" + center.x + ", " + center.y + ", " + center.z + "],\n");
                     Indent();
-                    jsonWriter.Write("\"size\": " + ((BoxCollider)collider).size.ToString().Replace('(', '[').Replace(')', ']') + "\n");
+                    jsonWriter.Write("\"size\": " + ((BoxCollider)collider).size.ToString().Replace('(', '[').Replace(')', ']') + ",\n");
                 } else {
                     Debug.LogWarning("In current time, Sein only supports shpere and box collider !");
                 }
@@ -67,6 +65,9 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
 
                 //}
                 // todo: capsule collider
+                Indent();
+                jsonWriter.Write("\"isTrigger\": " + (collider.isTrigger ? "true" : "false") + "\n");
+
                 IndentOut();
                 Indent();
                 if (i == length - 1) {

@@ -13,6 +13,7 @@ public class GlTF_SeinRenderer : GlTF_Writer
     public Vector2 uvOffset;
     public bool castShadows;
     public bool receiveShadows;
+    public bool gammaCorrection;
 
     public override void Write()
     {
@@ -39,6 +40,7 @@ public class GlTF_SeinRenderer : GlTF_Writer
         }
         Indent(); jsonWriter.Write("\"castShadows\": " + (castShadows ? "true" : "false") + ",\n");
         Indent(); jsonWriter.Write("\"receiveShadows\": " + (receiveShadows ? "true" : "false") + "\n");
+        //Indent(); jsonWriter.Write("\"gammaCorrection\": " + (gammaCorrection ? "true" : "false") + "\n");
         IndentOut();
         Indent(); jsonWriter.Write("}\n");
     }

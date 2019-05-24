@@ -17,7 +17,10 @@ public class SeinAnimator : MonoBehaviour
     static void OnSelectionChange()
     {
         var activeGameObject = Selection.activeGameObject;
-        currentGoID = activeGameObject.GetHashCode();
+        if (activeGameObject == null)
+        {
+            return;
+        }
 
         var parent = activeGameObject.transform;
         while (parent != null)
@@ -86,6 +89,7 @@ public class SeinAnimator : MonoBehaviour
     public string[] modelAnimations;
     [StringInList()]
     public string defaultAnimation;
+    public string prefix = null;
 
     public void OnEnable()
     {

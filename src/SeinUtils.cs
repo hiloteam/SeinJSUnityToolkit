@@ -10,7 +10,7 @@ public class SeinUtils: Editor
 {
     public static bool inited = false;
 
-    static System.Version version = new System.Version("0.5");
+    static System.Version version = new System.Version("0.63");
     static System.Version newVersion = null;
 
     static string checlUrl = "https://api.github.com/repos/SeinJS/SeinUnityToolkit/git/refs/tags";
