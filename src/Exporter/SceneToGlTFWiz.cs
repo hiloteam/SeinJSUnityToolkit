@@ -615,6 +615,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                 }
             }
 
+            var lt = tr.GetComponent<Light>();
             // Parse transform
             if (tr.parent == null)
             {
@@ -622,7 +623,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 if (debugRightHandedScale)
                     mat.m22 = -1;
                 mat = mat * Matrix4x4.TRS(tr.localPosition, tr.localRotation, tr.localScale);
-                node.matrix = new GlTF_Matrix(mat, true, tr.GetComponent<Light>() != null);
+
+                node.matrix = new GlTF_Matrix(mat, true, lt != null && lt.type != LightType.Directional);
             }
             // Use good transform if parent object is not in selection
             else if (!trs.Contains(tr.parent))
@@ -632,7 +634,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                 if (debugRightHandedScale)
                     mat.m22 = -1;
                 mat = mat * tr.localToWorldMatrix;
-                node.matrix = new GlTF_Matrix(mat, true, tr.GetComponent<Light>() != null);
+                node.matrix = new GlTF_Matrix(mat, true, lt != null && lt.type != LightType.Directional);
             }
             else
             {
@@ -1738,7 +1740,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
         else
         {
-            newtex = texToRGBD(textureColors, inputTexture.width, inputTexture.height);
+            newtex = lmToRGBD(textureColors, inputTexture.width, inputTexture.height);
         }
 
         string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "").Replace("Assets/", ""));
@@ -1777,41 +1779,38 @@ public class SceneToGlTFWiz : MonoBehaviour
         return pathInGltfFile;
     }
 
-    private Texture2D texToRGBD(Color[] colors, int width, int height)
+    private Texture2D lmToRGBD(Color[] colors, int width, int height)
     {
         var tex = new Texture2D(width, height);
         Color[] newColors = new Color[width * height];
+        var isGammaSpace = PlayerSettings.colorSpace == ColorSpace.Gamma;
 
         for (int i = 0; i < height; ++i)
         {
             for (int j = 0; j < width; ++j)
             {
                 var origColor = colors[(height - i - 1) * width + j];
-                if (origColor.r > 1)
+                Color color = new Color(0, 0, 0, 1);
+
+                if (origColor.a != 0)
                 {
-                    var x = origColor;
+                    origColor = decodeRGBM(origColor, isGammaSpace);
+
+                    var d = 1f;
+                    var m = Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
+
+                    if (m > 1f)
+                    {
+                        d = 1f / m;
+                    }
+
+                    color = new Color(
+                        origColor.r * d,
+                        origColor.g * d,
+                        origColor.b * d,
+                        d
+                    );
                 }
-                origColor = decodeRGBM(origColor);
-                //if (PlayerSettings.colorSpace == ColorSpace.Gamma)
-                //{
-                //    origColor = gammaToLinear(origColor);
-                //}
-                origColor = gammaToLinear(origColor);
-                var color = new Color(0, 0, 0, 1);
-
-                var d = 1f / Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
-
-                if (d > 1f)
-                {
-                    d = 1f;
-                }
-
-                color = new Color(
-                    origColor.r / d,
-                    origColor.g / d,
-                    origColor.b / d,
-                    d
-                );
 
                 newColors[i * width + j] = color;
             }
@@ -1822,32 +1821,25 @@ public class SceneToGlTFWiz : MonoBehaviour
         return tex;
     }
 
-    private Color decodeRGBM(Color color, float multiplier = 5)
+    // http://dphgame.com/doku.php?id=shader%E5%9F%BA%E7%A1%80:unity%E5%86%85%E7%BD%AEshader:%E5%85%AC%E5%85%B1%E5%87%BD%E6%95%B0#decodelightmap
+    private Color decodeRGBM(Color color, bool isGammaSpace)
     {
-        float r = color.r * color.a * multiplier;
-        float g = color.g * color.a * multiplier;
-        float b = color.b * color.a * multiplier;
+        Color realColor = color;
+        if (isGammaSpace)
+        {
+            // we need linear space lightmap in Sein
+            // realColor = color.linear;
+            Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/bake' for details !");
+        }
 
-        return new Color(r, g, b, 1);
-    }
+        float dFactor = realColor.a;
 
-    private Color gammaToLinear(Color color)
-    {
-        //return new Color(gammaToLinear(color.r), gammaToLinear(color.g), gammaToLinear(color.b), gammaToLinear(color.a));
-        return color;
-    }
-
-    private float gammaToLinear(float value)
-    {
-        //if (value <= 0.0F)
-        //    return 0.0F;
-        //else if (value <= 0.0031308F)
-        //    return 12.92F * value;
-        //else if (value < 1.0F)
-        //    return 1.055F * (float)Math.Pow(value, 0.4166667F) - 0.055F;
-        //else
-        //return (float)Math.Pow(value, 0.45454545F);
-        return (float)Math.Pow(value, 2.2f);
+        return new Color(
+            dFactor * realColor.r,
+            dFactor * realColor.g,
+            dFactor * realColor.b,
+            1
+        );
     }
 }
 #endif
