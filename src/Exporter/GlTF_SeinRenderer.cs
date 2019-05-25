@@ -42,6 +42,6 @@ public class GlTF_SeinRenderer : GlTF_Writer
         Indent(); jsonWriter.Write("\"receiveShadows\": " + (receiveShadows ? "true" : "false") + ",\n");
         Indent(); jsonWriter.Write("\"gammaCorrection\": " + (gammaCorrection ? "true" : "false") + "\n");
         IndentOut();
-        Indent(); jsonWriter.Write("}\n");
+        Indent(); jsonWriter.Write("}");
     }
 }

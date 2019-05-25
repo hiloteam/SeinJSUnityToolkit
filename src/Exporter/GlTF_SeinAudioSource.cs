@@ -27,11 +27,11 @@ public class GlTF_SeinAudioSource : GlTF_Writer
             Indent(); jsonWriter.Write("},\n");
         }
         Indent(); jsonWriter.Write("\"needAutoPlay\": " + (source.needAutoPlay ? "true" : "false") + ",\n");
-        if (source.isSpaceAudio)
+        if (source.needAutoPlay)
         {
             Indent(); jsonWriter.Write("\"autoPlayOptions\": {\n");
             IndentIn();
-            Indent(); jsonWriter.Write("\"loop\": \"" + (source.autoPlayOptions.loop ? "true" : "false") + "\",\n");
+            Indent(); jsonWriter.Write("\"loop\": " + (source.autoPlayOptions.loop ? "true" : "false") + ",\n");
             Indent(); jsonWriter.Write("\"start\": \"" + source.autoPlayOptions.start + "\",\n");
             Indent(); jsonWriter.Write("\"end\": " + source.autoPlayOptions.end + "\n");
             IndentOut();

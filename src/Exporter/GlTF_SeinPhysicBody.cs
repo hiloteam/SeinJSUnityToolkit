@@ -27,11 +27,11 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
             jsonWriter.Write(",\n");
             Indent();
             jsonWriter.Write("\"colliders\": [\n");
+            IndentIn();
 
             var length = colliders.Count;
             for (var i = 0; i < length; i += 1) {
                 var collider = colliders[i];
-                IndentIn();
                 Indent();
                 jsonWriter.Write("{\n");
                 IndentIn();

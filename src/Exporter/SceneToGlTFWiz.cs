@@ -1829,7 +1829,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             // we need linear space lightmap in Sein
             // realColor = color.linear;
-            Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/bake' for details !");
+            Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
         }
 
         float dFactor = realColor.a;
