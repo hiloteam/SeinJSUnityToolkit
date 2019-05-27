@@ -130,6 +130,12 @@ public class SceneToGlTFWiz : MonoBehaviour
 
     public static GlTF_Light parseUnityLight(Transform tr)
     {
+        var light = tr.GetComponent<Light>();
+        if (Exporter.opt_exportLightMap && light.bakingOutput.isBaked)
+        {
+            return null;
+        }
+
         switch (tr.GetComponent<Light>().type)
         {
             case LightType.Point:
@@ -697,6 +703,11 @@ public class SceneToGlTFWiz : MonoBehaviour
 
         foreach (var tr in trs)
         {
+            if (!GlTF_Writer.nodeTransforms.ContainsKey(tr))
+            {
+                continue;
+            }
+
             var node = GlTF_Writer.nodeTransforms[tr];
             // Parse node's skin data
             GlTF_Accessor invBindMatrixAccessor = null;
