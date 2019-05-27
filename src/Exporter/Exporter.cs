@@ -69,9 +69,10 @@ public class Exporter : EditorWindow {
     public static bool opt_splitChunks = false;
     public static bool opt_exportLightMap = true;
     public static bool opt_exportEnvLight = false;
+    public static GameObject tempGoForSein = null;
 
     // UI dimensions (to be cleaned)
-	[SerializeField]
+    [SerializeField]
 	Vector2 fullSize = new Vector2(603, 540);
 
 
@@ -357,6 +358,7 @@ public class Exporter : EditorWindow {
                         subDirectory.Delete(true);
 
                     exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
+
                     OpenInFileBrowser.Open(Path.GetDirectoryName(exportPath));
                 }
 

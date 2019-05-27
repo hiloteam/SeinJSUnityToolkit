@@ -584,12 +584,17 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 GlTF_Writer.materialNames.Add(matName);
                                 GlTF_Writer.materials.Add(material);
 
-                                if (mat.shader.name.Contains("Standard") || mat.shader.name.Contains("Autodesk Interactive"))
+                                if (material.seinCustomMaterial)
+                                {
+                                    createSeinCustomMaterial(mat, ref material);
+                                }
+                                else if (mat.shader.name.Contains("Standard") || mat.shader.name.Contains("Autodesk Interactive"))
                                 {
                                     unityToPBRMaterial(mat, ref material);
                                 }
-                                else if (material.seinCustomMaterial)
+                                else if (mat.shader.name.Contains("Sein/"))
                                 {
+                                    unityToSeinMaterial(mat, ref material);
                                     createSeinCustomMaterial(mat, ref material);
                                 }
                                 else
@@ -1431,6 +1436,59 @@ public class SceneToGlTFWiz : MonoBehaviour
                 //uniform.texCoord = 0;
             }
         }
+    }
+
+    private void unityToSeinMaterial(Material mat, ref GlTF_Material material)
+    {
+        if (Exporter.tempGoForSein == null)
+        {
+            Exporter.tempGoForSein = new GameObject();
+        }
+
+        var customMaterial = Exporter.tempGoForSein.AddComponent<SeinCustomMaterial>();
+        customMaterial.className = mat.shader.name.Replace("Sein/", "");
+        customMaterial.renderOrder = mat.renderQueue;
+        var floatArray = new List<SeinMaterialUniformFloat>();
+        var vector4Array = new List<SeinMaterialUniformFloatVec4>();
+        var textureArray = new List<SeinMaterialUniformTexture>();
+
+        for (int i = 0; i < ShaderUtil.GetPropertyCount(mat.shader); i += 1)
+        {
+            var propType = ShaderUtil.GetPropertyType(mat.shader, i);
+            var propName = ShaderUtil.GetPropertyName(mat.shader, i);
+
+            if (propName == "cloneForInst")
+            {
+                customMaterial.cloneForInst = mat.GetInt("cloneForInst") != 0;
+                continue;
+            }
+
+            switch (propType)
+            {
+                case ShaderUtil.ShaderPropertyType.Float:
+                case ShaderUtil.ShaderPropertyType.Range:
+                    floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(propName) });
+                    break;
+                case ShaderUtil.ShaderPropertyType.Color:
+                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(propName) });
+                    break;
+                case ShaderUtil.ShaderPropertyType.Vector:
+                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(propName) });
+                    break;
+                case ShaderUtil.ShaderPropertyType.TexEnv:
+                    if (mat.GetTexture(propName) != null)
+                    {
+                        textureArray.Add(new SeinMaterialUniformTexture { name = propName, value = (Texture2D)mat.GetTexture(propName) });
+                    }
+                    break;
+            }
+
+            customMaterial.uniformsFloat = floatArray.ToArray();
+            customMaterial.uniformsFloatVec4 = vector4Array.ToArray();
+            customMaterial.uniformsTexture = textureArray.ToArray();
+        }
+
+        material.seinCustomMaterial = customMaterial;
     }
 
     // Convert material from Unity to glTF PBR

@@ -209,6 +209,7 @@ public class GlTF_Material : GlTF_Writer {
             IndentIn();
             Indent(); jsonWriter.Write("\"className\": \"" + seinCustomMaterial.className + "\",\n");
             Indent(); jsonWriter.Write("\"cloneForInst\": " + (seinCustomMaterial.cloneForInst ? "true" : "false") + ",\n");
+            Indent(); jsonWriter.Write("\"renderOrder\": " + seinCustomMaterial.renderOrder + ",\n");
             Indent(); jsonWriter.Write("\"uniforms\": {\n");
             IndentIn();
             WirteCustomUiforms(seinCustomMaterial.uniformsTexture);

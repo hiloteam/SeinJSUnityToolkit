@@ -164,7 +164,6 @@ public class GlTF_Writer {
 		vec4BufferView.target = (int)GlTF_BufferView.TARGET.ARRAY;
 		ushortBufferView.target = (int)GlTF_BufferView.TARGET.ELEMENT;
 
-
 		bufferViews = new List<GlTF_BufferView>();
 		cameras = new List<GlTF_Camera>();
 		lights = new List<GlTF_Light>();
@@ -864,6 +863,11 @@ public class GlTF_Writer {
 			binWriter.Write(0);	// format
 			binWriter.Flush();
 		}
-	}
+
+        if (Exporter.tempGoForSein != null)
+        {
+            Object.DestroyImmediate(Exporter.tempGoForSein);
+        }
+    }
 }
 #endif
