@@ -1854,6 +1854,13 @@ public class SceneToGlTFWiz : MonoBehaviour
         Color[] newColors = new Color[width * height];
         var isGammaSpace = PlayerSettings.colorSpace == ColorSpace.Gamma;
 
+        if (isGammaSpace)
+        {
+            // we need linear space lightmap in Sein
+            // realColor = color.linear;
+            Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
+        }
+
         for (int i = 0; i < height; ++i)
         {
             for (int j = 0; j < width; ++j)
@@ -1861,7 +1868,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                 var origColor = colors[(height - i - 1) * width + j];
                 Color color = new Color(0, 0, 0, 1);
 
-                if (origColor.a != 0)
+                if (Math.Abs(origColor.a) > 0.001)
                 {
                     origColor = decodeRGBM(origColor, isGammaSpace);
 
@@ -1894,13 +1901,6 @@ public class SceneToGlTFWiz : MonoBehaviour
     private Color decodeRGBM(Color color, bool isGammaSpace)
     {
         Color realColor = color;
-        if (isGammaSpace)
-        {
-            // we need linear space lightmap in Sein
-            // realColor = color.linear;
-            Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
-        }
-
         float dFactor = realColor.a;
 
         return new Color(

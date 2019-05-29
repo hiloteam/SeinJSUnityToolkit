@@ -13,12 +13,32 @@ using Newtonsoft.Json.Linq;
 
 namespace UnityGLTF
 {
-	/// <summary>
-	/// Editor windows to load a GLTF scene in editor
-	/// </summary>
-	///
-	public class GLTFEditorImporter
+    /// <summary>
+    /// Editor windows to load a GLTF scene in editor
+    /// </summary>
+    ///
+    public class GLTFEditorImporter
 	{
+        protected class MeshAttrsTemp
+        {
+            public List<Vector3> vertices = new List<Vector3>();
+            public List<Vector3> normals = new List<Vector3>();
+            public List<Vector2> uv = new List<Vector2>();
+            public List<Vector2> uv2 = new List<Vector2>();
+            public List<Vector2> uv3 = new List<Vector2>();
+            public List<Vector2> uv4 = new List<Vector2>();
+            public List<Color> colors = new List<Color>();
+            public List<Vector4> tangents = new List<Vector4>();
+            public List<UnityEngine.Material> materials = new List<UnityEngine.Material>();
+            public List<int[]> triangles = new List<int[]>();
+            public List<BoneWeight> boneWeights = new List<BoneWeight>();
+            public List<Matrix4x4> bindposes = new List<Matrix4x4>();
+            public List<string> morphNames = new List<string>();
+            public List<List<Vector3>> morphVertices = new List<List<Vector3>>();
+            public List<List<Vector3>> morphNormals = new List<List<Vector3>>();
+            public List<List<Vector3>> morphTangents = new List<List<Vector3>>();
+        }
+
         public static bool extensionsInited = false;
 		public bool _useGLTFMaterial = false;
 		bool _isDone = false;
@@ -46,7 +66,7 @@ namespace UnityGLTF
 		private List<string> _assetsToRemove;
 		Dictionary<int, GameObject> _importedObjects;
 		Dictionary<int, List<SkinnedMeshRenderer>>_skinIndexToGameObjects;
-        Dictionary<Node, List<GameObject>> _skinObjectsStore = new Dictionary<Node, List<GameObject>>();
+        Dictionary<Node, GameObject> _skinObjectsStore = new Dictionary<Node, GameObject>();
 
         // Import Progress
         public enum IMPORT_STEP
@@ -688,124 +708,215 @@ namespace UnityGLTF
 
 		protected virtual void CreateMeshObject(GLTF.Schema.Mesh mesh, int meshId)
 		{
-			for (int i = 0; i < mesh.Primitives.Count; ++i)
+            var mainMesh = new UnityEngine.Mesh();
+            var attrs = new MeshAttrsTemp();
+            mainMesh.subMeshCount = mesh.Primitives.Count;
+            for (int i = 0; i < mesh.Primitives.Count; ++i)
 			{
 				var primitive = mesh.Primitives[i];
-				CreateMeshPrimitive(mesh, primitive, mesh.Name, meshId, i); // Converted to mesh
+				CreateMeshPrimitive(mainMesh, ref attrs, mesh, primitive, mesh.Name, meshId, i); // Converted to mesh
 			}
+
+            if (mainMesh.uv2 == null && _generateLightMapUvs)
+            {
+                Unwrapping.GenerateSecondaryUVSet(mainMesh);
+            }
+
+            if (attrs.vertices.Count > 0)
+            {
+                mainMesh.vertices = attrs.vertices.ToArray();
+            }
+
+            if (attrs.normals.Count > 0)
+            {
+                mainMesh.normals = attrs.normals.ToArray();
+            }
+
+            if (attrs.uv.Count > 0)
+            {
+                mainMesh.uv = attrs.uv.ToArray();
+            }
+
+            if (attrs.uv2.Count > 0)
+            {
+                mainMesh.uv2 = attrs.uv2.ToArray();
+            }
+
+            if (attrs.uv3.Count > 0)
+            {
+                mainMesh.uv3 = attrs.uv3.ToArray();
+            }
+
+            if (attrs.uv4.Count > 0)
+            {
+                mainMesh.uv4 = attrs.uv4.ToArray();
+            }
+
+            if (attrs.colors.Count > 0)
+            {
+                mainMesh.colors = attrs.colors.ToArray();
+            }
+
+            if (attrs.tangents.Count > 0)
+            {
+                mainMesh.tangents = attrs.tangents.ToArray();
+            }
+
+            for (int i = 0; i < attrs.triangles.Count; i += 1)
+            {
+                mainMesh.SetTriangles(attrs.triangles[i], i);
+            }
+
+            if (attrs.boneWeights.Count > 0)
+            {
+                mainMesh.boneWeights = attrs.boneWeights.ToArray();
+            }
+
+            if (attrs.bindposes.Count > 0)
+            {
+                mainMesh.bindposes = attrs.bindposes.ToArray();
+            }
+
+            if (attrs.morphNames.Count > 0)
+            {
+                for (int i = 0; i < attrs.morphNames.Count; i += 1)
+                {
+                    mainMesh.AddBlendShapeFrame(attrs.morphNames[i], 1.0f, attrs.morphVertices[i].ToArray(), attrs.morphNormals[i].ToArray(), attrs.morphTangents[i].ToArray());
+                }
+            }
+
+            mainMesh.RecalculateBounds();
+            mainMesh.RecalculateTangents();
+            mainMesh = _assetManager.saveMesh(mainMesh, mesh.Name + "-" + meshId);
+
+            _assetManager.addPrimitiveMeshData(meshId, mainMesh, attrs.materials);
         }
 
-		protected virtual void CreateMeshPrimitive(GLTF.Schema.Mesh m, MeshPrimitive primitive, string meshName, int meshID, int primitiveIndex)
+		protected virtual void CreateMeshPrimitive(UnityEngine.Mesh mainMesh, ref MeshAttrsTemp attrs, GLTF.Schema.Mesh m, MeshPrimitive primitive, string meshName, int meshID, int primitiveIndex)
 		{
 			var meshAttributes = BuildMeshAttributes(primitive, meshID, primitiveIndex);
 			var vertexCount = primitive.Attributes[SemanticProperties.POSITION].Value.Count;
 
-			UnityEngine.Mesh mesh = new UnityEngine.Mesh
-			{
-				vertices = primitive.Attributes.ContainsKey(SemanticProperties.POSITION)
-					? meshAttributes[SemanticProperties.POSITION].AccessorContent.AsVertices.ToUnityVector3()
-					: null,
-				normals = primitive.Attributes.ContainsKey(SemanticProperties.NORMAL)
-					? meshAttributes[SemanticProperties.NORMAL].AccessorContent.AsNormals.ToUnityVector3()
-					: null,
-
-				uv = primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(0))
-					? meshAttributes[SemanticProperties.TexCoord(0)].AccessorContent.AsTexcoords.ToUnityVector2()
-					: null,
-
-				uv2 = primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(1))
-					? meshAttributes[SemanticProperties.TexCoord(1)].AccessorContent.AsTexcoords.ToUnityVector2()
-					: null,
-
-                uv3 = primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(2))
-					? meshAttributes[SemanticProperties.TexCoord(2)].AccessorContent.AsTexcoords.ToUnityVector2()
-					: null,
-
-				uv4 = primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(3))
-					? meshAttributes[SemanticProperties.TexCoord(3)].AccessorContent.AsTexcoords.ToUnityVector2()
-					: null,
-
-				colors = primitive.Attributes.ContainsKey(SemanticProperties.Color(0))
-					? meshAttributes[SemanticProperties.Color(0)].AccessorContent.AsColors.ToUnityColor()
-					: null,
-
-				triangles = primitive.Indices != null
-					? meshAttributes[SemanticProperties.INDICES].AccessorContent.AsTriangles
-					: MeshPrimitive.GenerateTriangles(vertexCount),
-
-				tangents = primitive.Attributes.ContainsKey(SemanticProperties.TANGENT)
-					? meshAttributes[SemanticProperties.TANGENT].AccessorContent.AsTangents.ToUnityVector4(true)
-					: null
-			};
-
-            if (mesh.uv2 == null && _generateLightMapUvs)
+            if (primitive.Attributes.ContainsKey(SemanticProperties.POSITION))
             {
-                Unwrapping.GenerateSecondaryUVSet(mesh);
+                attrs.vertices.AddRange(meshAttributes[SemanticProperties.POSITION].AccessorContent.AsVertices.ToUnityVector3());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.NORMAL))
+            {
+                attrs.normals.AddRange(meshAttributes[SemanticProperties.NORMAL].AccessorContent.AsNormals.ToUnityVector3());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(0)))
+            {
+                attrs.uv.AddRange(meshAttributes[SemanticProperties.TexCoord(0)].AccessorContent.AsTexcoords.ToUnityVector2());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(1)))
+            {
+                attrs.uv2.AddRange(meshAttributes[SemanticProperties.TexCoord(1)].AccessorContent.AsTexcoords.ToUnityVector2());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(2)))
+            {
+                attrs.uv3.AddRange(meshAttributes[SemanticProperties.TexCoord(2)].AccessorContent.AsTexcoords.ToUnityVector2());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.TexCoord(3)))
+            {
+                attrs.uv3.AddRange(meshAttributes[SemanticProperties.TexCoord(3)].AccessorContent.AsTexcoords.ToUnityVector2());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.Color(0)))
+            {
+                attrs.colors.AddRange(meshAttributes[SemanticProperties.Color(0)].AccessorContent.AsColors.ToUnityColor());
+            }
+
+            if (primitive.Attributes.ContainsKey(SemanticProperties.TANGENT))
+            {
+                attrs.tangents.AddRange(meshAttributes[SemanticProperties.TANGENT].AccessorContent.AsTangents.ToUnityVector4());
+            }
+
+            if (primitive.Indices != null)
+            {
+                attrs.triangles.Add(meshAttributes[SemanticProperties.INDICES].AccessorContent.AsTriangles);
+            }
+            else
+            {
+                attrs.triangles.Add(MeshPrimitive.GenerateTriangles(vertexCount));
             }
 
             if (primitive.Attributes.ContainsKey(SemanticProperties.JOINT) && primitive.Attributes.ContainsKey(SemanticProperties.WEIGHT))
-			{
-				Vector4[] bones = new Vector4[1];
-				Vector4[] weights = new Vector4[1];
+            {
+            	Vector4[] bones = new Vector4[1];
+            	Vector4[] weights = new Vector4[1];
 
-				LoadSkinnedMeshAttributes(meshID, primitiveIndex, ref bones, ref weights);
-				if(bones.Length != mesh.vertices.Length || weights.Length != mesh.vertices.Length)
-				{
-					Debug.LogError("Not enough skinning data (bones:" + bones.Length + " weights:" + weights.Length + "  verts:" + mesh.vertices.Length + ")");
-					return;
-				}
+            	LoadSkinnedMeshAttributes(meshID, primitiveIndex, ref bones, ref weights);
+            	if(bones.Length != vertexCount || weights.Length != vertexCount)
+            	{
+            		Debug.LogError("Not enough skinning data (bones:" + bones.Length + " weights:" + weights.Length + "  verts:" + vertexCount + ")");
+            		return;
+            	}
 
-				BoneWeight[] bws = new BoneWeight[mesh.vertices.Length];
-				int maxBonesIndex = 0;
-				for (int i = 0; i < bws.Length; ++i)
-				{
-					// Unity seems expects the the sum of weights to be 1.
-					float[] normalizedWeights =  GLTFUtils.normalizeBoneWeights(weights[i]);
+            	BoneWeight[] bws = new BoneWeight[vertexCount];
+            	int maxBonesIndex = 0;
+            	for (int i = 0; i < bws.Length; ++i)
+            	{
+            		// Unity seems expects the the sum of weights to be 1.
+            		float[] normalizedWeights =  GLTFUtils.normalizeBoneWeights(weights[i]);
 
-					bws[i].boneIndex0 = (int)bones[i].x;
-					bws[i].weight0 = normalizedWeights[0];
+            		bws[i].boneIndex0 = (int)bones[i].x;
+            		bws[i].weight0 = normalizedWeights[0];
 
-					bws[i].boneIndex1 = (int)bones[i].y;
-					bws[i].weight1 = normalizedWeights[1];
+            		bws[i].boneIndex1 = (int)bones[i].y;
+            		bws[i].weight1 = normalizedWeights[1];
 
-					bws[i].boneIndex2 = (int)bones[i].z;
-					bws[i].weight2 = normalizedWeights[2];
+            		bws[i].boneIndex2 = (int)bones[i].z;
+            		bws[i].weight2 = normalizedWeights[2];
 
-					bws[i].boneIndex3 = (int)bones[i].w;
-					bws[i].weight3 = normalizedWeights[3];
+            		bws[i].boneIndex3 = (int)bones[i].w;
+            		bws[i].weight3 = normalizedWeights[3];
 
-					maxBonesIndex = (int)Mathf.Max(maxBonesIndex, bones[i].x, bones[i].y, bones[i].z, bones[i].w);
-				}
+            		maxBonesIndex = (int)Mathf.Max(maxBonesIndex, bones[i].x, bones[i].y, bones[i].z, bones[i].w);
+            	}
 
-				mesh.boneWeights = bws;
+                attrs.boneWeights.AddRange(bws);
 
                 // initialize inverseBindMatrix array with identity matrix in order to output a valid mesh object
                 Matrix4x4[] bindposes = new Matrix4x4[maxBonesIndex + 1];
-				for(int j=0; j <= maxBonesIndex; ++j)
-				{
-					bindposes[j] = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
-				}
-				mesh.bindposes = bindposes;
-			}
+            	for(int j=0; j <= maxBonesIndex; ++j)
+            	{
+            		bindposes[j] = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
+            	}
+                attrs.bindposes.AddRange(bindposes);
+            }
 
-			if(primitive.Targets != null && primitive.Targets.Count > 0)
-			{
-				for (int b = 0; b < primitive.Targets.Count; ++b)
-				{
-					Vector3[] deltaVertices = new Vector3[primitive.Targets[b]["POSITION"].Value.Count];
-					Vector3[] deltaNormals = new Vector3[primitive.Targets[b]["POSITION"].Value.Count];
-					Vector3[] deltaTangents = new Vector3[primitive.Targets[b]["POSITION"].Value.Count];
+            if(primitive.Targets != null && primitive.Targets.Count > 0)
+            {
+            	for (int b = 0; b < primitive.Targets.Count; ++b)
+            	{
+                    if (primitiveIndex == 0)
+                    {
+                        attrs.morphVertices.Add(new List<Vector3>());
+                        attrs.morphNormals.Add(new List<Vector3>());
+                        attrs.morphTangents.Add(new List<Vector3>());
+                    }
 
-					if(primitive.Targets[b].ContainsKey("POSITION"))
-					{
-						NumericArray num = new NumericArray();
-						deltaVertices = primitive.Targets[b]["POSITION"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], false).ToUnityVector3(true);
-					}
-					if (primitive.Targets[b].ContainsKey("NORMAL"))
-					{
-						NumericArray num = new NumericArray();
-						deltaNormals = primitive.Targets[b]["NORMAL"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], true).ToUnityVector3(true);
-					}
+                    Vector3[] deltaVertices = new Vector3[primitive.Targets[b]["POSITION"].Value.Count];
+            		Vector3[] deltaNormals = new Vector3[primitive.Targets[b]["POSITION"].Value.Count];
+            		Vector3[] deltaTangents = new Vector3[primitive.Targets[b]["POSITION"].Value.Count];
+
+            		if(primitive.Targets[b].ContainsKey("POSITION"))
+            		{
+            			NumericArray num = new NumericArray();
+            			deltaVertices = primitive.Targets[b]["POSITION"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], false).ToUnityVector3(true);
+                    }
+            		if (primitive.Targets[b].ContainsKey("NORMAL"))
+            		{
+            			NumericArray num = new NumericArray();
+            			deltaNormals = primitive.Targets[b]["NORMAL"].Value.AsVector3Array(ref num, _assetCache.BufferCache[0], true).ToUnityVector3(true);
+                    }
+
                     //if (primitive.Targets[b].ContainsKey("TANGENT"))
                     //{
                     //    NumericArray num = new NumericArray();
@@ -814,26 +925,28 @@ namespace UnityGLTF
 
                     string blendShapeName;
 
-                    if (m.Extras != null && m.Extras.Value<JArray>("targetNames") != null)
-                    {
-                        blendShapeName = (string)m.Extras.Value<JArray>("targetNames")[b];
+                     if (m.Extras != null && m.Extras.Value<JArray>("targetNames") != null)
+                     {
+                         blendShapeName = (string)m.Extras.Value<JArray>("targetNames")[b];
+                     }
+                     else
+                     {
+                         blendShapeName = GLTFUtils.buildBlendShapeName(meshID, b);
+                     }
+
+                     if (primitiveIndex == 0) {
+                        attrs.morphNames.Add(blendShapeName);
                     }
-                    else
-                    {
-                        blendShapeName = GLTFUtils.buildBlendShapeName(meshID, b);
-                    }
 
-                    mesh.AddBlendShapeFrame(blendShapeName, 1.0f, deltaVertices, deltaNormals, deltaTangents);
-				}
-			}
+                    attrs.morphVertices[b].AddRange(deltaVertices);
+                    attrs.morphNormals[b].AddRange(deltaNormals);
+                    attrs.morphTangents[b].AddRange(deltaTangents);
+                }
+            }
 
-			mesh.RecalculateBounds();
-			mesh.RecalculateTangents();
-			mesh = _assetManager.saveMesh(mesh, meshName + "_" + meshID + "_" + primitiveIndex);
-			UnityEngine.Material material = primitive.Material != null && primitive.Material.Id >= 0 ? getMaterial(primitive.Material.Id) : defaultMaterial;
-
-			_assetManager.addPrimitiveMeshData(meshID, primitiveIndex, mesh, material);
-		}
+            UnityEngine.Material material = primitive.Material != null && primitive.Material.Id >= 0 ? getMaterial(primitive.Material.Id) : defaultMaterial;
+            attrs.materials.Add(material);
+        }
 
 		protected virtual Dictionary<string, AttributeAccessor> BuildMeshAttributes(MeshPrimitive primitive, int meshID, int primitiveIndex)
 		{
@@ -911,13 +1024,10 @@ namespace UnityGLTF
                 setProgress(IMPORT_STEP.SKINNEDMESH, i, _skinObjectsStore.Count);
 
                 var node = pair.Key;
-                int j = 0;
-                foreach (var go in pair.Value)
-                {
-                    BuildSkinnedMesh(go, node.Skin.Value, node.Mesh.Id, j);
-                    _skinIndexToGameObjects[node.Skin.Id].Add(go.GetComponent<SkinnedMeshRenderer>());
-                    j += 1;
-                }
+                var go = pair.Value;
+
+                BuildSkinnedMesh(go, node.Skin.Value, node.Mesh.Id);
+                _skinIndexToGameObjects[node.Skin.Id].Add(go.GetComponent<SkinnedMeshRenderer>());
 
                 i += 1;
             }
@@ -1061,14 +1171,14 @@ namespace UnityGLTF
 			}
 		}
 
-		private void BuildSkinnedMesh(GameObject nodeObj, GLTF.Schema.Skin skin, int meshIndex, int primitiveIndex)
+		private void BuildSkinnedMesh(GameObject nodeObj, GLTF.Schema.Skin skin, int meshIndex)
 		{
 			if(skin.InverseBindMatrices.Value.Count == 0)
 				return;
 
 			SkinnedMeshRenderer skinMesh = nodeObj.AddComponent<SkinnedMeshRenderer>();
-			skinMesh.sharedMesh = _assetManager.getMesh(meshIndex, primitiveIndex);
-			skinMesh.sharedMaterial = _assetManager.getMaterial(meshIndex, primitiveIndex);
+			skinMesh.sharedMesh = _assetManager.getMesh(meshIndex);
+			skinMesh.sharedMaterials = _assetManager.getMaterials(meshIndex);
 
 			byte[] bufferData = _assetCache.BufferCache[skin.InverseBindMatrices.Value.BufferView.Value.Buffer.Id];
 			NumericArray content = new NumericArray();
@@ -1113,7 +1223,7 @@ namespace UnityGLTF
 
 		protected virtual GameObject CreateNode(Node node, int index)
 		{
-			var nodeObj = createGameObject(node.Name != null && node.Name.Length > 0 ? node.Name : "GLTFNode_" + index);
+			var nodeObj = createGameObject(node.Name != null ? node.Name : "SeinNode");
 
 			_nbParsedNodes++;
 			setProgress(IMPORT_STEP.NODE, _nbParsedNodes, _root.Nodes.Count);
@@ -1134,48 +1244,24 @@ namespace UnityGLTF
 					if (!_skinIndexToGameObjects.ContainsKey(node.Skin.Id))
 						_skinIndexToGameObjects[node.Skin.Id] = new List<SkinnedMeshRenderer>();
                     
-                    _skinObjectsStore.Add(node, new List<GameObject> { nodeObj });
+                    _skinObjectsStore.Add(node, nodeObj);
 				}
 				else if (hasMorphOnly)
 				{
 					SkinnedMeshRenderer smr = nodeObj.AddComponent<SkinnedMeshRenderer>();
-					smr.sharedMesh = _assetManager.getMesh(node.Mesh.Id, 0);
-					smr.sharedMaterial = _assetManager.getMaterial(node.Mesh.Id, 0);
-				}
+					smr.sharedMesh = _assetManager.getMesh(node.Mesh.Id);
+                    smr.materials = _assetManager.getMaterials(node.Mesh.Id);
+                }
 				else
 				{
 					// If several primitive, create several nodes and add them as child of this current Node
 					MeshFilter meshFilter = nodeObj.AddComponent<MeshFilter>();
-					meshFilter.sharedMesh = _assetManager.getMesh(node.Mesh.Id, 0);
+					meshFilter.sharedMesh = _assetManager.getMesh(node.Mesh.Id);
 
 					MeshRenderer meshRenderer = nodeObj.AddComponent<MeshRenderer>();
-					meshRenderer.material = _assetManager.getMaterial(node.Mesh.Id, 0);
-				}
-
-				for(int i = 1; i < _assetManager._parsedMeshData[node.Mesh.Id].Count; ++i)
-				{
-					GameObject go = createGameObject(node.Name != null ? node.Name + "-" + i : "GLTFNode_" + i);
-					if (isSkinned)
-					{
-                        _skinObjectsStore[node].Add(go);
-					}
-					else if (hasMorphOnly)
-					{
-						SkinnedMeshRenderer smr = go.AddComponent<SkinnedMeshRenderer>();
-						smr.sharedMesh = _assetManager.getMesh(node.Mesh.Id, i);
-						smr.sharedMaterial = _assetManager.getMaterial(node.Mesh.Id, i);
-					}
-					else
-					{
-						MeshFilter mf = go.AddComponent<MeshFilter>();
-						mf.sharedMesh = _assetManager.getMesh(node.Mesh.Id, i);
-						MeshRenderer mr = go.AddComponent<MeshRenderer>();
-						mr.material = _assetManager.getMaterial(node.Mesh.Id, i);
-					}
-
-					go.transform.SetParent(nodeObj.transform, false);
-				}
-			}
+                    meshRenderer.materials = _assetManager.getMaterials(node.Mesh.Id);
+                }
+            }
 
             processSeinComponents(nodeObj, node);
 

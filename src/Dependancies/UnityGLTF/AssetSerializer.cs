@@ -19,7 +19,7 @@ public class AssetManager
 
     // Import data
     public List<GameObject> _createdGameObjects;
-    public List<List<KeyValuePair<Mesh, Material>>> _parsedMeshData;
+    public List<KeyValuePair<Mesh, List<Material>>> _parsedMeshData;
     public List<Material> _parsedMaterials;
     public List<Texture2D> _parsedImages;
     public List<Texture2D> _parsedTextures;
@@ -43,7 +43,7 @@ public class AssetManager
         Directory.CreateDirectory(_importMaterialsDirectory);
 
         _createdGameObjects = new List<GameObject>();
-        _parsedMeshData = new List<List<KeyValuePair<Mesh, Material>>>();
+        _parsedMeshData = new List<KeyValuePair<Mesh, List<Material>>>();
         _parsedMaterials = new List<Material>();
         _parsedImages = new List<Texture2D>();
         _parsedTextures = new List<Texture2D>();
@@ -112,29 +112,27 @@ public class AssetManager
         return go;
     }
 
-    public void addPrimitiveMeshData(int meshIndex, int primitiveIndex, UnityEngine.Mesh mesh, UnityEngine.Material material)
+    public void addPrimitiveMeshData(int meshIndex, UnityEngine.Mesh mesh, List<UnityEngine.Material> materiasl)
     {
         if (meshIndex >= _parsedMeshData.Count)
         {
-            _parsedMeshData.Add(new List<KeyValuePair<Mesh, Material>>());
+            _parsedMeshData.Add(new KeyValuePair<Mesh, List<Material>>(mesh, materiasl));
         }
-
-        if (primitiveIndex != _parsedMeshData[meshIndex].Count)
-        {
-            Debug.LogError("Array offset in mesh data");
-        }
-
-        _parsedMeshData[meshIndex].Add(new KeyValuePair<Mesh, Material>(mesh, material));
     }
 
-    public Mesh getMesh(int nodeIndex, int primitiveIndex)
+    public Mesh getMesh(int nodeIndex)
     {
-        return _parsedMeshData[nodeIndex][primitiveIndex].Key;
+        return _parsedMeshData[nodeIndex].Key;
+    }
+
+    public Material[] getMaterials(int meshIndex)
+    {
+        return _parsedMeshData[meshIndex].Value.ToArray();
     }
 
     public Material getMaterial(int meshIndex, int primitiveIndex)
     {
-        return _parsedMeshData[meshIndex][primitiveIndex].Value;
+        return _parsedMeshData[meshIndex].Value[primitiveIndex];
     }
 
     public UnityEngine.Material getMaterial(int index)
