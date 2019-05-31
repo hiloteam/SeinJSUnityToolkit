@@ -9,8 +9,7 @@ using Newtonsoft.Json.Linq;
 public class SeinUtils: Editor
 {
     public static bool inited = false;
-
-    static System.Version version = new System.Version("0.63");
+    static System.Version version = new System.Version("0.7");
     static System.Version newVersion = null;
 
     static string checlUrl = "https://api.github.com/repos/SeinJS/SeinUnityToolkit/git/refs/tags";
@@ -56,7 +55,7 @@ public class SeinUtils: Editor
                 yield break;
             }
 
-            var tags = ((string)json[0]["ref"]).Split('/');
+            var tags = ((string)json[json.Count - 1]["ref"]).Split('/');
             string tag = tags[tags.Length - 1].Replace("v", "");
             newVersion = new System.Version(tag);
 
@@ -72,7 +71,7 @@ public class SeinUtils: Editor
             }
 
             if (EditorUtility.DisplayDialog(
-                    "A new version is available",
+                    "A new version 'v" + newVersion + "' is available",
                     "Download the last version to esure the best experience",
                     "Download",
                     "Cancel"
