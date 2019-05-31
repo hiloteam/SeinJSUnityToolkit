@@ -221,7 +221,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         if (debugRightHandedScale)
             GlTF_Writer.convertRightHanded = false;
 
-        writer.extraString.Add("exporterVersion", GlTF_Writer.exporterVersion);
+        writer.extraString.Add("exporterVersion", SeinUtils.version.ToString());
 
        
         //path = toGlTFname(path);

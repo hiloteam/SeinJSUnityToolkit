@@ -393,11 +393,11 @@ public class GlTF_Writer {
 		CommaNL();
 		Indent();	jsonWriter.Write ("\"asset\": {\n");
 		IndentIn();
-		Indent();	jsonWriter.Write ("\"generator\": \"Sein.js Unity Toolkit\",\n");
+		Indent();	jsonWriter.Write ("\"generator\": \"Sein.js Toolkit\",\n");
 
 		writeExtras();
 
-		Indent();	jsonWriter.Write ("\"version\": \"2.0\"\n");
+		Indent();	jsonWriter.Write ("\"version\": \"1.0\"\n");
 
 		IndentOut();
 		Indent();	jsonWriter.Write ("}");
