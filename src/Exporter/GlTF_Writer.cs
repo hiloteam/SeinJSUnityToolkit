@@ -397,7 +397,7 @@ public class GlTF_Writer {
 
 		writeExtras();
 
-		Indent();	jsonWriter.Write ("\"version\": \"1.0\"\n");
+		Indent();	jsonWriter.Write ("\"version\": \"2.0\"\n");
 
 		IndentOut();
 		Indent();	jsonWriter.Write ("}");
