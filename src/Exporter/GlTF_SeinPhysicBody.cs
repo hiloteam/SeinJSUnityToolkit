@@ -55,7 +55,8 @@ public class GlTF_SeinPhysicBody : GlTF_Writer
                     var center = ((BoxCollider)collider).center;
                     jsonWriter.Write("\"offset\": [" + center.x + ", " + center.y + ", " + center.z + "],\n");
                     Indent();
-                    jsonWriter.Write("\"size\": " + ((BoxCollider)collider).size.ToString().Replace('(', '[').Replace(')', ']') + ",\n");
+                    var size = ((BoxCollider)collider).size;
+                    jsonWriter.Write("\"size\": [" + size.x + ", " + size.y + ", " + size.z + "],\n");
                 } else {
                     Debug.LogWarning("In current time, Sein only supports shpere and box collider !");
                 }
