@@ -1044,14 +1044,14 @@ public class SceneToGlTFWiz : MonoBehaviour
             Color[] outputColors = new Color[width * height];
             for (int i = 0; i < outputColors.Length; ++i)
             {
-                outputColors[i] = new Color(1.0f, 1.0f, 1.0f);
+                outputColors[i] = new Color(0.0f, 0.0f, 0.0f);
             }
 
             addTexturePixels(ref textureM, ref outputColors, IMAGETYPE.B);
 
             if (textureR != null)
             {
-                addTexturePixels(ref textureR, ref outputColors, IMAGETYPE.G, roughnessChannel);
+                addTexturePixels(ref textureR, ref outputColors, IMAGETYPE.G_INVERT, roughnessChannel);
             }
 
             if (textureAO != null)
@@ -1595,7 +1595,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                 }
                 else
                 {
-                    roughnessFactor.value = mat.GetFloat("_Glossiness");
+                    roughnessFactor.value = mat.GetFloat("_GlossMapScale");
                 }
                 material.pbrValues.Add(roughnessFactor);
             }
