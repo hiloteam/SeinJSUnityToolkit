@@ -148,17 +148,17 @@ public class GlTF_Node : GlTF_Writer
         }
         else
         {
-            if (translation != null && (translation.items[0] != 0f || translation.items[1] != 0f || translation.items[2] != 0f))
+            if (translation != null && (!CloseToZero(translation.items[0]) || !CloseToZero(translation.items[1]) || !CloseToZero(translation.items[2])))
             {
                 CommaNL();
                 translation.Write();
             }
-            if (scale != null && (scale.items[0] != 1f || scale.items[1] != 1f || scale.items[2] != 1f))
+            if (scale != null && (!CloseToZero(scale.items[0] - 1f) || !CloseToZero(scale.items[1] -1f) || !CloseToZero(scale.items[2] -1f)))
             {
                 CommaNL();
                 scale.Write();
             }
-            if (rotation != null && (rotation.items[0] != 0f || rotation.items[1] != 0f || rotation.items[2] != 0f || rotation.items[3] != 0f))
+            if (rotation != null && (!CloseToZero(rotation.items[0]) || !CloseToZero(rotation.items[1]) || !CloseToZero(rotation.items[2]) || !CloseToZero(rotation.items[3])))
             {
                 CommaNL();
                 rotation.Write();

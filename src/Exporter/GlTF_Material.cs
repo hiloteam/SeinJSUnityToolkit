@@ -4,8 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GlTF_Material : GlTF_Writer {
-    public SeinCustomMaterial seinCustomMaterial = null;
-
     public class Value : GlTF_Writer {
     }
 
@@ -110,6 +108,8 @@ public class GlTF_Material : GlTF_Writer {
     public bool useKHRTechnique = false;
     public int instanceTechniqueIndex;
     public bool isMetal = false;
+    public SeinCustomMaterial seinCustomMaterial = null;
+    public bool isUnlit = false;
     public float shininess;
     public List<Value> values = new List<Value>();
     public List<Value> pbrValues = new List<Value>();
@@ -253,7 +253,7 @@ public class GlTF_Material : GlTF_Writer {
 
             IndentOut();
             Indent(); jsonWriter.Write("},\n");
-        } else if (Exporter.opt_noLighting)
+        } else if (isUnlit || Exporter.opt_noLighting)
         {
             Indent(); jsonWriter.Write("\"pbrMetallicRoughness\": {\n");
             IndentIn();

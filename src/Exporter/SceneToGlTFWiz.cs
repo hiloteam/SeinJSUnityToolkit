@@ -588,9 +588,17 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 {
                                     createSeinCustomMaterial(mat, ref material);
                                 }
-                                else if (mat.shader.name.Contains("Standard") || mat.shader.name.Contains("Autodesk Interactive"))
+                                else if (
+                                    mat.shader.name.Contains("Standard")
+                                    || mat.shader.name.Contains("Autodesk Interactive")
+                                    || mat.shader.name == "Sein/Unlit"
+                                )
                                 {
                                     unityToPBRMaterial(mat, ref material);
+                                }
+                                else if (mat.shader.name == "Sein/PBR")
+                                {
+                                    createSeinPBRMaterial(mat, ref material);
                                 }
                                 else if (mat.shader.name.Contains("Sein/"))
                                 {
@@ -787,7 +795,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
         }
 
-        if (GlTF_Writer.meshes.Count == 0)
+        if (GlTF_Writer.nodes.Count == 0)
         {
             Debug.Log("No visible objects have been exported. Aboring export");
             yield return false;
@@ -916,24 +924,38 @@ public class SceneToGlTFWiz : MonoBehaviour
 
     private bool handleTransparency(ref Material mat, ref GlTF_Material material)
     {
-        if (mat.HasProperty("_Mode") && mat.GetFloat("_Mode") != 0)
+        if (!mat.HasProperty("_Mode"))
         {
-            string mode = mat.GetFloat("_Mode") == 1 ? "MASK" : "BLEND";
-            GlTF_Material.StringValue alphaMode = new GlTF_Material.StringValue();
-            alphaMode.name = "alphaMode";
-            alphaMode.value = mode;
-
-            GlTF_Material.FloatValue alphaCutoff = new GlTF_Material.FloatValue();
-            alphaCutoff.name = "alphaCutoff";
-            alphaCutoff.value = mat.GetFloat("_Cutoff");
-
-            material.values.Add(alphaMode);
-            material.values.Add(alphaCutoff);
-
-            return true;
+            return false;
         }
 
-        return false;
+        GlTF_Material.StringValue alphaMode = new GlTF_Material.StringValue();
+        GlTF_Material.FloatValue alphaCutoff = new GlTF_Material.FloatValue();
+
+        switch ((int)mat.GetFloat("_Mode"))
+        {
+            // Opaque
+            case 0:
+                return false;
+            // Cutout
+            case 1:
+                alphaMode.name = "alphaMode";
+                alphaMode.value = "MASK";
+                alphaCutoff.name = "alphaCutoff";
+                alphaCutoff.value = mat.GetFloat("_Cutoff");
+                material.values.Add(alphaMode);
+                material.values.Add(alphaCutoff);
+                break;
+            // Transparent
+            case 2:
+            case 3:
+                alphaMode.name = "alphaMode";
+                alphaMode.value = "BLEND";
+                material.values.Add(alphaMode);
+                break;
+        }
+
+        return true;
     }
 
     private void addTexturePixels(ref Texture2D texture, ref Color[] colors, IMAGETYPE outputChannel, IMAGETYPE inputChannel = IMAGETYPE.R)
@@ -950,11 +972,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             return;
         }
 
-        if (inputChannel != IMAGETYPE.R && inputChannel != IMAGETYPE.A)
-        {
-            Debug.Log("Incorrect input channel (only 'R' and 'A' supported)");
-        }
-
         for (int i = 0; i < height; ++i)
         {
             for (int j = 0; j < width; ++j)
@@ -962,7 +979,23 @@ public class SceneToGlTFWiz : MonoBehaviour
                 int index = i * width + j;
                 int newIndex = (height - i - 1) * width + j;
                 Color c = outputChannel == IMAGETYPE.RGB ? inputColors[newIndex] : colors[index];
-                float inputValue = inputChannel == IMAGETYPE.R ? inputColors[newIndex].r : inputColors[newIndex].a;
+                float inputValue;
+                if (outputChannel == IMAGETYPE.R)
+                {
+                    inputValue = inputColors[newIndex].r;
+                }
+                else if (outputChannel == IMAGETYPE.G)
+                {
+                    inputValue = inputColors[newIndex].g;
+                }
+                else if (outputChannel == IMAGETYPE.B)
+                {
+                    inputValue = inputColors[newIndex].b;
+                }
+                else
+                {
+                    inputValue = inputColors[newIndex].a;
+                }
 
                 if (outputChannel == IMAGETYPE.R)
                 {
@@ -991,7 +1024,10 @@ public class SceneToGlTFWiz : MonoBehaviour
         ref Texture2D metallic,
         ref Texture2D roughness,
         ref Texture2D occlusion,
-        IMAGETYPE roughnessChannel = IMAGETYPE.R
+        IMAGETYPE metallicChannel = IMAGETYPE.R,
+        IMAGETYPE roughnessChannel = IMAGETYPE.R,
+        IMAGETYPE occlusionChannel = IMAGETYPE.R,
+        IMAGETYPE roughnessDist = IMAGETYPE.G_INVERT
     )
     {
         string texName = GlTF_Texture.GetNameFromObject(metallic) + "_m_r_ao";
@@ -1047,16 +1083,16 @@ public class SceneToGlTFWiz : MonoBehaviour
                 outputColors[i] = new Color(0.0f, 0.0f, 0.0f);
             }
 
-            addTexturePixels(ref textureM, ref outputColors, IMAGETYPE.B);
+            addTexturePixels(ref textureM, ref outputColors, IMAGETYPE.B, metallicChannel);
 
             if (textureR != null)
             {
-                addTexturePixels(ref textureR, ref outputColors, IMAGETYPE.G_INVERT, roughnessChannel);
+                addTexturePixels(ref textureR, ref outputColors, roughnessDist, roughnessChannel);
             }
 
             if (textureAO != null)
             {
-                addTexturePixels(ref textureAO, ref outputColors, IMAGETYPE.R);
+                addTexturePixels(ref textureAO, ref outputColors, IMAGETYPE.R, occlusionChannel);
             }
 
             Texture2D newtex = new Texture2D(width, height);
@@ -1446,7 +1482,11 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
 
         var customMaterial = Exporter.tempGoForSein.AddComponent<SeinCustomMaterial>();
-        customMaterial.className = mat.shader.name.Replace("Sein/", "");
+        var className = mat.shader.name.Replace("Sein/", "");
+        if (!className.Contains("Material")) {
+            className += "Material";
+        }
+        customMaterial.className = className;
         customMaterial.renderOrder = mat.renderQueue;
         var floatArray = new List<SeinMaterialUniformFloat>();
         var vector4Array = new List<SeinMaterialUniformFloatVec4>();
@@ -1456,6 +1496,11 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             var propType = ShaderUtil.GetPropertyType(mat.shader, i);
             var propName = ShaderUtil.GetPropertyName(mat.shader, i);
+
+            if (propName == "_Mode" || propName == "_Cutoff")
+            {
+                continue;
+            }
 
             if (propName == "cloneForInst")
             {
@@ -1491,6 +1536,158 @@ public class SceneToGlTFWiz : MonoBehaviour
         material.seinCustomMaterial = customMaterial;
     }
 
+    // convert Sein/PBR to Gltf
+    private void createSeinPBRMaterial(Material mat, ref GlTF_Material material)
+    {
+        bool isMetal = mat.GetInt("workflow") == 0;
+        GlTF_Writer.hasSpecularMaterials = GlTF_Writer.hasSpecularMaterials || !isMetal;
+        material.isMetal = isMetal;
+        material.isUnlit = mat.GetInt("unlit") == 1;
+        GlTF_Writer.hasUnlitMaterial = GlTF_Writer.hasUnlitMaterial || material.isUnlit;
+        bool hasTransparency = handleTransparency(ref mat, ref material);
+
+        if (mat.GetTexture("_baseColorMap") != null)
+        {
+            var value = new GlTF_Material.DictValue();
+            value.name = isMetal ? "baseColorTexture" : "diffuseTexture";
+
+            int diffuseTextureIndex = processTexture((Texture2D)mat.GetTexture("_baseColorMap"), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+            value.intValue.Add("index", diffuseTextureIndex);
+            value.intValue.Add("texCoord", 0);
+            material.pbrValues.Add(value);
+        }
+
+        if (mat.GetColor("_baseColor") != null)
+        {
+            var value = new GlTF_Material.ColorValue();
+            value.name = isMetal ? "baseColorFactor" : "diffuseFactor";
+            Color c = mat.GetColor("_baseColor");
+            clampColor(ref c);
+            value.color = c;
+            material.pbrValues.Add(value);
+        }
+
+        if (material.isUnlit)
+        {
+            return;
+        }
+
+        bool hasPBRMap = (!isMetal && mat.GetTexture("_specularGlossinessMap") != null) || (isMetal && mat.GetTexture("_metallicMap") != null);
+
+        if (isMetal)
+        {
+            if (hasPBRMap)
+            {
+                var textureValue = new GlTF_Material.DictValue();
+                textureValue.name = "metallicRoughnessTexture";
+                Texture2D metallicTexture = (Texture2D)mat.GetTexture("_metallicMap");
+                Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_roughnessMap");
+                Texture2D occlusion = (Texture2D)mat.GetTexture("_OcclusionMap");
+
+                int metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
+                    ref metallicTexture, ref roughnessTexture, ref occlusion,
+                    IMAGETYPE.B, IMAGETYPE.G, IMAGETYPE.R, IMAGETYPE.G
+                );
+
+                textureValue.intValue.Add("index", metalRoughTextureAoIndex);
+                textureValue.intValue.Add("texCoord", 0);
+                material.pbrValues.Add(textureValue);
+
+                if (occlusion != null)
+                {
+                    var aoValue = new GlTF_Material.DictValue();
+                    aoValue.name = "occlusionTexture";
+
+                    aoValue.intValue.Add("index", metalRoughTextureAoIndex);
+                    aoValue.intValue.Add("texCoord", 0);
+                    aoValue.floatValue.Add("strength", mat.GetFloat("_occlusionStrength"));
+                    material.values.Add(aoValue);
+                }
+            }
+
+            var metallicFactor = new GlTF_Material.FloatValue();
+            metallicFactor.name = "metallicFactor";
+            metallicFactor.value = hasPBRMap ? 1.0f : mat.GetFloat("_metallic");
+            material.pbrValues.Add(metallicFactor);
+
+            //Roughness factor
+            // gloss scale is not supported for now(property _GlossMapScale)
+            var roughnessFactor = new GlTF_Material.FloatValue();
+            roughnessFactor.name = "roughnessFactor";
+            roughnessFactor.value = mat.GetFloat("_roughness");
+            material.pbrValues.Add(roughnessFactor);
+        } else
+        {
+            if (hasPBRMap) // No metallic factor if texture
+            {
+                var textureValue = new GlTF_Material.DictValue();
+                textureValue.name = "specularGlossinessTexture";
+                int specGlossTextureIndex = processTexture((Texture2D)mat.GetTexture("_specularGlossinessMap"), IMAGETYPE.RGBA);
+                textureValue.intValue.Add("index", specGlossTextureIndex);
+                textureValue.intValue.Add("texCoord", 0);
+                material.pbrValues.Add(textureValue);
+            }
+
+            var specularFactor = new GlTF_Material.ColorValue();
+            specularFactor.name = "specularFactor";
+            specularFactor.color = hasPBRMap ? Color.white : mat.GetColor("_specular"); // gloss scale is not supported for now(property _GlossMapScale)
+            specularFactor.isRGB = true;
+            material.pbrValues.Add(specularFactor);
+
+            var glossinessFactor = new GlTF_Material.FloatValue();
+            glossinessFactor.name = "glossinessFactor";
+            glossinessFactor.value = hasPBRMap ? 1.0f : mat.GetFloat("_glossiness"); // gloss scale is not supported for now(property _GlossMapScale)
+            material.pbrValues.Add(glossinessFactor);
+        }
+
+        if (mat.GetTexture("_normalMap") != null)
+        {
+            var textureValue = new GlTF_Material.DictValue();
+            textureValue.name = "normalTexture";
+
+            int bumpTextureIndex = processTexture((Texture2D)mat.GetTexture("_normalMap"), IMAGETYPE.NORMAL_MAP);
+            textureValue.intValue.Add("index", bumpTextureIndex);
+            textureValue.intValue.Add("texCoord", 0);
+            material.values.Add(textureValue);
+        }
+
+        if (mat.GetTexture("_emissionMap") != null)
+        {
+            Texture2D emissiveTexture = mat.GetTexture("_emissionMap") as Texture2D;
+            var textureValue = new GlTF_Material.DictValue();
+            textureValue.name = "emissiveTexture";
+
+            int emissiveTextureIndex = processTexture(emissiveTexture, IMAGETYPE.RGB);
+            textureValue.intValue.Add("index", emissiveTextureIndex);
+            textureValue.intValue.Add("texCoord", 0);
+            material.values.Add(textureValue);
+        }
+
+        var emissive = mat.GetColor("_emission");
+        if (!emissive.Equals(new Color(0, 0, 0)))
+        {
+            var emissiveFactor = new GlTF_Material.ColorValue();
+            emissiveFactor.name = "emissiveFactor";
+            emissiveFactor.isRGB = true;
+            emissiveFactor.color = mat.GetColor("_emission");
+            material.values.Add(emissiveFactor);
+        }
+
+        //Occlusion (kept as separated channel for specular workflow, but merged in R channel for metallic workflow)
+        if ((!isMetal || (isMetal && !hasPBRMap)) && mat.HasProperty("_occlusionMap") && mat.GetTexture("_occlusionMap") != null)
+        {
+            Texture2D occlusionTexture = mat.GetTexture("_occlusionMap") as Texture2D;
+            var textureValue = new GlTF_Material.DictValue();
+            textureValue.name = "occlusionTexture";
+
+            int occlusionTextureIndex = processTexture(occlusionTexture, IMAGETYPE.RGB);
+            textureValue.intValue.Add("index", occlusionTextureIndex);
+            textureValue.intValue.Add("texCoord", 0);
+            textureValue.floatValue.Add("strength", mat.GetFloat("_occlusionStrength"));
+            material.values.Add(textureValue);
+        }
+    }
+
     // Convert material from Unity to glTF PBR
     private void unityToPBRMaterial(Material mat, ref GlTF_Material material)
     {
@@ -1498,9 +1695,11 @@ public class SceneToGlTFWiz : MonoBehaviour
         bool isMetal = true;
         bool hasPBRMap = false;
         // Is metal workflow used
-        isMetal = mat.shader.name == "Standard" || mat.shader.name == "Autodesk Interactive";
+        isMetal = mat.shader.name == "Standard" || mat.shader.name == "Autodesk Interactive" || mat.shader.name == "Sein/Unlit";
         GlTF_Writer.hasSpecularMaterials = GlTF_Writer.hasSpecularMaterials || !isMetal;
         material.isMetal = isMetal;
+        material.isUnlit = mat.shader.name == "Sein/Unlit";
+        GlTF_Writer.hasUnlitMaterial = GlTF_Writer.hasUnlitMaterial || material.isUnlit;
 
         // Is smoothness defined by diffuse texture or PBR texture' alpha?
         if (mat.HasProperty("_SmoothnessTextureChannel") && Math.Abs(mat.GetFloat("_SmoothnessTextureChannel")) > 0.01)
@@ -1548,19 +1747,28 @@ public class SceneToGlTFWiz : MonoBehaviour
                     int metalRoughTextureAoIndex;
                     if (mat.shader.name == "Autodesk Interactive") {
                         Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_SpecGlossMap");
-                        metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(ref metallicTexture, ref roughnessTexture, ref occlusion);
+                        metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
+                            ref metallicTexture, ref roughnessTexture, ref occlusion,
+                            IMAGETYPE.R, IMAGETYPE.R, IMAGETYPE.R, IMAGETYPE.G
+                        );
                     }
                     else
                     {
                         var channel = mat.GetInt("_SmoothnessTextureChannel");
                         if (channel == 0)
                         {
-                            metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(ref metallicTexture, ref metallicTexture, ref occlusion, IMAGETYPE.A);
+                            metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
+                                ref metallicTexture, ref metallicTexture, ref occlusion,
+                                IMAGETYPE.R, IMAGETYPE.A
+                            );
                         }
                         else
                         {
                             var baseColor = (Texture2D)mat.GetTexture("_MainTex");
-                            metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(ref metallicTexture, ref baseColor, ref occlusion, IMAGETYPE.A);
+                            metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
+                                ref metallicTexture, ref baseColor, ref occlusion,
+                                IMAGETYPE.R, IMAGETYPE.A
+                            );
                         }
                     }
 

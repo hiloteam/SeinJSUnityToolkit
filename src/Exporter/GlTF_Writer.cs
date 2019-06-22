@@ -69,7 +69,8 @@ public class GlTF_Writer {
 	public static bool exportPBRMaterials;
 	public static bool hasSpecularMaterials = false;
 	public static bool convertRightHanded = true;
-	public static string exporterVersion = "0.8.0";
+    public static bool hasUnlitMaterial = false;
+    public static string exporterVersion = "0.8.0";
 	public static Regex rgx = new Regex("[^a-zA-Z0-9-_.]");
     public static Regex rgxPath = new Regex("[^a-zA-Z0-9-_./]");
 
@@ -94,8 +95,13 @@ public class GlTF_Writer {
 		}
 		return ret;
 	}
+    static public bool CloseToZero(float number)
+    {
+        var EPSILON = 1e-15;
+        return System.Math.Abs(number) < EPSILON;
+    }
 
-	public void convertVector3LeftToRightHandedness(ref Vector3 vect)
+    public void convertVector3LeftToRightHandedness(ref Vector3 vect)
 	{
 		vect.z = -vect.z;
 	}
@@ -505,7 +511,7 @@ public class GlTF_Writer {
             extensionsUsed.Add("KHR_techniques_webgl");
         }
 
-        if (Exporter.opt_noLighting)
+        if (Exporter.opt_noLighting || hasUnlitMaterial)
         {
             extensionsRequired.Add("KHR_materials_unlit");
             extensionsUsed.Add("KHR_materials_unlit");

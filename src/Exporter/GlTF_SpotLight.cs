@@ -18,10 +18,6 @@ public class GlTF_SpotLight : GlTF_Light {
         Indent();
         double ins = intensity;
         double rg = range;
-        if (quadraticAttenuation) {
-            ins *= 3;
-            rg *= 3;
-        }
         jsonWriter.Write("\"intensity\": " + ins + ",\n");
 		Indent();
         jsonWriter.Write ("\"range\": " + rg + ",\n");
@@ -33,7 +29,7 @@ public class GlTF_SpotLight : GlTF_Light {
         if (halfSpotAngle) {
             spotAngleRad = spotAngleRad / 2;
         }
-        jsonWriter.Write ("\"innerConeAngle\": " + (spotAngleRad / 3 * 2) + ",\n");
+        jsonWriter.Write ("\"innerConeAngle\": " + (spotAngleRad - System.Math.PI / 180 * 5) + ",\n");
 		Indent();
         jsonWriter.Write("\"outerConeAngle\": " + spotAngleRad + "\n");
         IndentOut();
