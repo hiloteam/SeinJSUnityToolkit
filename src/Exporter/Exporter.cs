@@ -22,7 +22,7 @@ public enum ExporterState
 
 public class Exporter : EditorWindow {
 
-    [MenuItem("SeinJS/Export to GlTF")]
+    [MenuItem("SeinJS/Export to GlTF", priority = 0)]
 	static void Init()
 	{
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX // edit: added Platform Dependent Compilation - win or osx standalone

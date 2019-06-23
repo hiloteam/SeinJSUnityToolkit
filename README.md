@@ -1,6 +1,6 @@
-# UnityGLTFManager
+# SeinJSUnityToolkit
 
-Export unity scene to gltf for "sein.js", or import gltf to unity, fork from sketchfab/UnityGLTF.
+Export unity scene to gltf for "sein.js", or import gltf to unity.
 
 ## Usage
 
@@ -19,3 +19,4 @@ Double click bin/UnityGlTFManager.unitypackage and import all to your project, t
 9. Support import gltf file with Sein.js extensions.
 10. Support import and export morph.
 11. Support import multi primitives mesh and its hierarchy in unity(by using sub meshes).
+12. Add Sein/PBR material to replace Unity Standard material.

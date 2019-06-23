@@ -44,6 +44,11 @@ Shader "Sein/PBR" {
         [HideInInspector] _SrcBlend ("__src", float) = 1.
         [HideInInspector] _DstBlend ("__dst", float) = 0.
         [HideInInspector] _ZWrite ("__zw", float) = 1.
+
+        [HideInInspector] _ZWrite ("__zw", float) = 1.
+        [HideInInspector] _normalScale ("_normalScale", float) = 1.
+        [HideInInspector] _emissionUV ("_emissionUV", int) = 0
+        [HideInInspector] _glossMapScale ("_glossMapScale", float) = 0.
     }
     
     CGINCLUDE

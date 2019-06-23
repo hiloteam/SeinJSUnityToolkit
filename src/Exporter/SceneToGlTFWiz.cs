@@ -1030,7 +1030,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         IMAGETYPE roughnessDist = IMAGETYPE.G_INVERT
     )
     {
-        string texName = GlTF_Texture.GetNameFromObject(metallic) + "_m_r_ao";
+        string texName = GlTF_Texture.GetNameFromObject(metallic) + "_orm";
         var textureM = metallic;
         var textureR = roughness;
         var textureAO = occlusion;
@@ -1110,7 +1110,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             if (!Directory.Exists(exportDir))
                 Directory.CreateDirectory(exportDir);
 
-            string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_m_r_ao" + (Exporter.opt_forcePNG ? ".png" : ".jpg");
+            string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_orm" + (Exporter.opt_forcePNG ? ".png" : ".jpg");
             outputFilename = GlTF_Writer.cleanPath(outputFilename);
             string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
             if (Exporter.opt_forcePNG)

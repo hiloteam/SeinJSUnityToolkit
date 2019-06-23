@@ -14,7 +14,7 @@ namespace GlTF
 {
 	class GlTFImporterWindow : EditorWindow
 	{
-        [MenuItem("SeinJS/Import GlTF")]
+        [MenuItem("SeinJS/Import GlTF", priority = 1)]
 		static void Init()
 		{
 			GlTFImporterWindow window = (GlTFImporterWindow)EditorWindow.GetWindow(typeof(GlTFImporterWindow));
