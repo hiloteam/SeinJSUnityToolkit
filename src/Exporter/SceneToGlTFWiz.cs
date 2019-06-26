@@ -1497,33 +1497,39 @@ public class SceneToGlTFWiz : MonoBehaviour
             var propType = ShaderUtil.GetPropertyType(mat.shader, i);
             var propName = ShaderUtil.GetPropertyName(mat.shader, i);
 
-            if (propName == "_Mode" || propName == "_Cutoff")
-            {
-                continue;
-            }
-
             if (propName == "cloneForInst")
             {
                 customMaterial.cloneForInst = mat.GetInt("cloneForInst") != 0;
                 continue;
             }
 
+            if (ShaderUtil.IsShaderPropertyHidden(mat.shader, i))
+            {
+                continue;
+            }
+
+            var n = propName;
+            if (propName.Substring(0, 1) == "_")
+            {
+                propName = propName.Substring(1);
+            }
+
             switch (propType)
             {
                 case ShaderUtil.ShaderPropertyType.Float:
                 case ShaderUtil.ShaderPropertyType.Range:
-                    floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(propName) });
+                    floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.Color:
-                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(propName) });
+                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.Vector:
-                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(propName) });
+                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.TexEnv:
-                    if (mat.GetTexture(propName) != null)
+                    if (mat.GetTexture(n) != null)
                     {
-                        textureArray.Add(new SeinMaterialUniformTexture { name = propName, value = (Texture2D)mat.GetTexture(propName) });
+                        textureArray.Add(new SeinMaterialUniformTexture { name = propName, value = (Texture2D)mat.GetTexture(n) });
                     }
                     break;
             }

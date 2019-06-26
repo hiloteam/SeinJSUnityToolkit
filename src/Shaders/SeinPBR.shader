@@ -1,10 +1,4 @@
-﻿// Upgrade NOTE: replaced tex2D unity_Lightmap with UNITY_SAMPLE_TEX2D
-
-// Upgrade NOTE: commented out 'float4 unity_LightmapST', a built-in variable
-// Upgrade NOTE: commented out 'sampler2D unity_Lightmap', a built-in variable
-// Upgrade NOTE: replaced tex2D unity_Lightmap with UNITY_SAMPLE_TEX2D
-
-/**
+﻿/**
  * @File   : SeinPBR.shader
  * @Author : dtysky (dtysky@outlook.com)
  * @Date   : 20/6/2019, 3:41:53 PM
@@ -12,10 +6,10 @@
  */
 Shader "Sein/PBR" {
     Properties {
-        _Mode("Rendering Mode", float) = 0.
-        _Cutoff ("Alpha cutoff", Range(0., 1.)) = .5
-        [MaterialToggle] unlit ("Is unlit", int) = 0
-        [MaterialToggle] workflow ("Workflow", int) = 0
+        [HideInInspector] _Mode("Rendering Mode", float) = 0.
+        [HideInInspector] _Cutoff ("Alpha cutoff", Range(0., 1.)) = .5
+        [HideInInspector] [MaterialToggle] unlit ("Is unlit", int) = 0
+        [HideInInspector] [MaterialToggle] workflow ("Workflow", int) = 0
     
         _baseColor ("Base Color", Color) = (1,1,1,1)
         _baseColorMap ("Base Color Map (RGB)", 2D) = "white" {}
@@ -44,8 +38,7 @@ Shader "Sein/PBR" {
         [HideInInspector] _SrcBlend ("__src", float) = 1.
         [HideInInspector] _DstBlend ("__dst", float) = 0.
         [HideInInspector] _ZWrite ("__zw", float) = 1.
-
-        [HideInInspector] _ZWrite ("__zw", float) = 1.
+        [HideInInspector] _Cull ("__cull", float) = 2.
         [HideInInspector] _normalScale ("_normalScale", float) = 1.
         [HideInInspector] _emissionUV ("_emissionUV", int) = 0
         [HideInInspector] _glossMapScale ("_glossMapScale", float) = 0.
@@ -85,6 +78,8 @@ Shader "Sein/PBR" {
         
         float4 _emission;
         sampler2D _emissionMap;
+        
+        float _Cull;
 
         float _Cutoff;
         float _Mode;
@@ -230,6 +225,11 @@ Shader "Sein/PBR" {
             #endif
             pbr.V = normalize(viewPos - i.viewPos.xyz);
             
+            // render backface
+            if (_Cull == 1.) {
+                pbr.N = -pbr.N;
+            }
+            
             
             float3 specularColor;
             float roughness;
@@ -326,6 +326,7 @@ Shader "Sein/PBR" {
         Blend [_SrcBlend] [_DstBlend]
         ZWrite [_ZWrite]
         ZTest [unity_GUIZTestMode]
+        Cull [_Cull]
             
         Pass
         {
@@ -385,6 +386,7 @@ Shader "Sein/PBR" {
         {
             Tags { "LightMode"="ForwardAdd" }
             Blend One One
+            Cull [_Cull]
         
             CGPROGRAM
             #pragma multi_compile_fwdadd
