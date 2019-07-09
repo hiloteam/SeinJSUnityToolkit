@@ -738,16 +738,46 @@ namespace UnityGLTF
 			}
 		}
 
-		protected virtual void CreateMeshObject(GLTF.Schema.Mesh mesh, int meshId)
-		{
+        protected virtual void CreateMeshObject(GLTF.Schema.Mesh mesh, int meshId)
+        {
             var mainMesh = new UnityEngine.Mesh();
             var attrs = new MeshAttrsTemp();
             mainMesh.subMeshCount = mesh.Primitives.Count;
+            var meshTable = new Dictionary<int, List<MeshPrimitive>>();
             for (int i = 0; i < mesh.Primitives.Count; ++i)
-			{
-				var primitive = mesh.Primitives[i];
-				CreateMeshPrimitive(mainMesh, ref attrs, mesh, primitive, mesh.Name, meshId, i); // Converted to mesh
-			}
+            {
+                var primitive = mesh.Primitives[i];
+                var posBufferId = primitive.Attributes[SemanticProperties.POSITION].Value.BufferView.Id;
+
+                if (!meshTable.ContainsKey(posBufferId))
+                {
+                    meshTable.Add(posBufferId, new List<MeshPrimitive>());
+                }
+
+                meshTable[posBufferId].Add(primitive);
+            }
+
+            var meshBaseIndexTable = new Dictionary<MeshPrimitive, int>();
+            int baseIndex = 0;
+            foreach (var pair in meshTable)
+            {
+                var i = 0;
+                foreach (var primitive in pair.Value)
+                {
+                    meshBaseIndexTable.Add(primitive, baseIndex);
+                    i += primitive.Attributes[SemanticProperties.POSITION].Value.Count;
+                }
+                baseIndex += i;
+            }
+
+            int index = 0;
+            foreach (var pair in meshBaseIndexTable)
+            {
+                var primitive = pair.Key;
+                var meshBaseIndex = pair.Value;
+                CreateMeshPrimitive(mainMesh, ref attrs, mesh, primitive, mesh.Name, meshId, index, meshBaseIndex); // Converted to mesh
+                index += 1;
+            }
 
             if (mainMesh.uv2 == null && _generateLightMapUvs)
             {
@@ -824,7 +854,7 @@ namespace UnityGLTF
             _assetManager.addPrimitiveMeshData(meshId, mainMesh, attrs.materials);
         }
 
-		protected virtual void CreateMeshPrimitive(UnityEngine.Mesh mainMesh, ref MeshAttrsTemp attrs, GLTF.Schema.Mesh m, MeshPrimitive primitive, string meshName, int meshID, int primitiveIndex)
+		protected virtual void CreateMeshPrimitive(UnityEngine.Mesh mainMesh, ref MeshAttrsTemp attrs, GLTF.Schema.Mesh m, MeshPrimitive primitive, string meshName, int meshID, int primitiveIndex, int baseIndex)
 		{
 			var meshAttributes = BuildMeshAttributes(primitive, meshID, primitiveIndex);
 			var vertexCount = primitive.Attributes[SemanticProperties.POSITION].Value.Count;
@@ -869,14 +899,25 @@ namespace UnityGLTF
                 attrs.tangents.AddRange(meshAttributes[SemanticProperties.TANGENT].AccessorContent.AsTangents.ToUnityVector4());
             }
 
+            int[] indices = null;
             if (primitive.Indices != null)
             {
-                attrs.triangles.Add(meshAttributes[SemanticProperties.INDICES].AccessorContent.AsTriangles);
+                indices = meshAttributes[SemanticProperties.INDICES].AccessorContent.AsTriangles;
             }
             else
             {
-                attrs.triangles.Add(MeshPrimitive.GenerateTriangles(vertexCount));
+                indices = MeshPrimitive.GenerateTriangles(vertexCount);
             }
+
+            if (baseIndex > 0)
+            {
+                for (int i = 0; i < indices.Length; i += 1)
+                {
+                    indices[i] += baseIndex;
+                }
+            }
+
+            attrs.triangles.Add(indices);
 
             if (primitive.Attributes.ContainsKey(SemanticProperties.JOINT) && primitive.Attributes.ContainsKey(SemanticProperties.WEIGHT))
             {
