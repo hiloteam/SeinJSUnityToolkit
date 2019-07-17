@@ -10,6 +10,8 @@ Shader "Sein/PBR" {
         [HideInInspector] _Cutoff ("Alpha cutoff", Range(0., 1.)) = .5
         [HideInInspector] [MaterialToggle] unlit ("Is unlit", int) = 0
         [HideInInspector] [MaterialToggle] workflow ("Workflow", int) = 0
+        // 0: off, 1: spec only, 2: diffuse only, 3: all
+        [HideInInspector] envReflection("Env Reflection", int) = 0
     
         _baseColor ("Base Color", Color) = (1,1,1,1)
         _baseColorMap ("Base Color Map (RGB)", 2D) = "white" {}
@@ -41,7 +43,8 @@ Shader "Sein/PBR" {
         [HideInInspector] _Cull ("__cull", float) = 2.
         [HideInInspector] _normalScale ("_normalScale", float) = 1.
         [HideInInspector] _emissionUV ("_emissionUV", int) = 0
-        [HideInInspector] _glossMapScale ("_glossMapScale", float) = 0.
+        [HideInInspector] _glossMapScale ("_glossMapScale", float) = 0.      
+        [HideInInspector] _brdfLUT ("_brdfLUT", 2D) = "black" { }
     }
     
     CGINCLUDE
@@ -54,6 +57,7 @@ Shader "Sein/PBR" {
         #include "Lighting.cginc"
         #include "AutoLight.cginc"
         const float PI = 3.141592653589793;
+        const float INVERSE_PI = 0.3183098861837907;
         
         int unlit;
         int workflow;
@@ -84,6 +88,9 @@ Shader "Sein/PBR" {
         float _Cutoff;
         float _Mode;
         
+        int envReflection;
+        sampler2D _brdfLUT;
+        
         struct pbrdata
         {
             float3 N;
@@ -93,6 +100,9 @@ Shader "Sein/PBR" {
             float3 reflectance90;
             float alphaRoughness;
             float3 diffuseColor;
+            float3 specularColor;
+            float3 ao;
+            float roughness;
             float NdotV;
         };
         
@@ -144,6 +154,34 @@ Shader "Sein/PBR" {
         float4 sampleTexture(sampler2D tex, float2 uv) {
             float4 color = tex2D(tex, uv);
 
+            #if UNITY_COLORSPACE_GAMMA
+                if (!unlit) {
+                    return sRGBToLinear(color);
+                } else {
+                    return color;
+                }
+            #endif
+
+            return color;
+        }
+        
+        float4 sampleEnvMap(sampler2D tex, float3 dir){
+            float4 color = tex2D(tex, float2(atan2(dir.x, dir.z) * INVERSE_PI * 0.5 + 0.5, acos(dir.y) * INVERSE_PI));
+            
+            #if UNITY_COLORSPACE_GAMMA
+                if (!unlit) {
+                    return sRGBToLinear(color);
+                } else {
+                    return color;
+                }
+            #endif
+
+            return color;
+        }
+
+        float4 sampleEnvMap(samplerCUBE tex, float3 dir){
+            float4 color = texCUBE(tex, dir);
+            
             #if UNITY_COLORSPACE_GAMMA
                 if (!unlit) {
                     return sRGBToLinear(color);
@@ -263,6 +301,9 @@ Shader "Sein/PBR" {
                 specularColor = specular;
             }
             
+            pbr.roughness = roughness;
+            pbr.specularColor = specularColor;
+            
             float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);
             float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);
             pbr.reflectance0 = specularColor.rgb;
@@ -336,12 +377,35 @@ Shader "Sein/PBR" {
             
             #pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
             #pragma multi_compile_fwdbase
+            #pragma shader_feature DIFFUSE_ENV_MAP
+            #pragma shader_feature SPECULAR_ENV_MAP
+            
+            fixed3 getIBLContribution(pbrdata pbr) {
+                fixed3 color = fixed3(.0, .0, .0);
+                float3 worldNormal = mul(UNITY_MATRIX_I_V, pbr.N);
+                #if DIFFUSE_ENV_MAP 
+                    float3 diffuseLight = ShadeSH9(float4(worldNormal, 1));
+                    color.rgb += diffuseLight * pbr.diffuseColor * pbr.ao;                    
+                #endif
+                
+                #if SPECULAR_ENV_MAP
+                    float3 worldView = mul(UNITY_MATRIX_I_V, pbr.V);
+                    float3 R = -normalize(reflect(worldView, worldNormal));
+                    float3 brdf = tex2D(_brdfLUT, float2(pbr.NdotV, 1.0 - pbr.roughness)).rgb;                    
+                    float lod = pbr.roughness * UNITY_SPECCUBE_LOD_STEPS;
+                    float3 specularLight = DecodeHDR(UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, R, 0), unity_SpecCube0_HDR);
+                    color.rgb += specularLight * (pbr.specularColor * brdf.x + brdf.y);
+                #endif
+                
+                return color;
+            }
             
             float4 processLight(fixed4 baseColor, v2f i) {
                 pbrdata pbr = processPBR(baseColor, i);
                                     
                 float ao = tex2D(_occlusionMap, i.uv).r;
                 ao = lerp(1.0, ao, _occlusionStrength);
+                pbr.ao = ao;
 
                 pbr.L = normalize(mul(UNITY_MATRIX_V, _WorldSpaceLightPos0.xyz));
                 float3 radiance = convertLightColor(_LightColor0.rgb);
@@ -353,6 +417,8 @@ Shader "Sein/PBR" {
                 #ifdef LIGHTMAP_ON
                     color.rgb += baseColor.rgb * DecodeLightmap(UNITY_SAMPLE_TEX2D(unity_Lightmap, i.uv1));
                 #endif
+                
+                color.rgb += getIBLContribution(pbr);
 
                 color.rgb += (_emission * sampleTexture(_emissionMap, i.uv)).rgb;
 

@@ -5,6 +5,7 @@
  * @Description:
  */
 using System;
+using System.IO;
 using UnityEngine;
 
 namespace UnityEditor
@@ -25,6 +26,14 @@ namespace UnityEditor
             Specular = 1
         }
 
+        public enum EnvReflection
+        {
+            Off = 0,
+            Diffuse = 1,
+            Specular = 2,
+            All = 3
+        }
+
         private static class Styles
         {
             public static GUIContent baseText = EditorGUIUtility.TrTextContent("Base(RGBA)", "Base Texture and Color");
@@ -38,16 +47,19 @@ namespace UnityEditor
             public static GUIContent alphaCutoffText = EditorGUIUtility.TrTextContent("Alpha Cutoff", "Threshold for alpha cutoff");
             public static GUIContent cloneForInstText = EditorGUIUtility.TrTextContent("Clone For Inst", "Clone when instantiation");
             public static GUIContent unlitText = EditorGUIUtility.TrTextContent("Unlit mode", "If Unlit mode");
+            public static GUIContent envText = EditorGUIUtility.TrTextContent("Env reflection", "Select env reflection mode");
 
             public static string renderingMode = "Rendering Mode";
             public static string workflow = "Workflow";
             public static string advancedText = "Advanced Options";
             public static readonly string[] blendNames = Enum.GetNames(typeof(BlendMode));
             public static readonly string[] workflowNames = Enum.GetNames(typeof(Workflow));
+            public static readonly string[] envReflectionNames = Enum.GetNames(typeof(EnvReflection));
         }
 
         MaterialProperty unlit;
         MaterialProperty workflow;
+        MaterialProperty envReflection;
         MaterialProperty cloneForInst;
         MaterialProperty blendMode;
         MaterialProperty alphaCutoff;
@@ -81,6 +93,7 @@ namespace UnityEditor
             alphaCutoff = FindProperty("_Cutoff", props);
             workflow = FindProperty("workflow", props);
             unlit = FindProperty("unlit", props);
+            envReflection = FindProperty("envReflection", props);
             cloneForInst = FindProperty("cloneForInst", props);
 
             baseColor = FindProperty("_baseColor", props);
@@ -120,6 +133,7 @@ namespace UnityEditor
             {
                 BlendModePopup();
                 WorkflowPopup();
+                ReflectionPopup();
                 m_MaterialEditor.ShaderProperty(unlit, Styles.unlitText);
                 m_MaterialEditor.ShaderProperty(cloneForInst, Styles.cloneForInstText);
 
@@ -209,6 +223,22 @@ namespace UnityEditor
             EditorGUI.showMixedValue = false;
         }
 
+        void ReflectionPopup()
+        {
+            EditorGUI.showMixedValue = envReflection.hasMixedValue;
+            var mode = (EnvReflection)envReflection.floatValue;
+
+            EditorGUI.BeginChangeCheck();
+            mode = (EnvReflection)EditorGUILayout.Popup(Styles.envText, (int)mode, Styles.envReflectionNames);
+            if (EditorGUI.EndChangeCheck())
+            {
+                m_MaterialEditor.RegisterPropertyChangeUndo("Env Reflection");
+                envReflection.floatValue = (float)mode;
+            }
+
+            EditorGUI.showMixedValue = false;
+        }
+
         public static void SetupMaterialWithBlendMode(Material material, BlendMode blendMode)
         {
             switch (blendMode)
@@ -247,9 +277,41 @@ namespace UnityEditor
             }
         }
 
+        public static void SetupMaterialWithEnvMode(Material material, EnvReflection mode)
+        {
+            switch (mode)
+            {
+                case EnvReflection.Diffuse:
+                    material.EnableKeyword("DIFFUSE_ENV_MAP");
+                    material.DisableKeyword("SPECULAR_ENV_MAP");
+                    break;
+                case EnvReflection.Specular:
+                    material.EnableKeyword("SPECULAR_ENV_MAP");
+                    material.DisableKeyword("DIFFUSE_ENV_MAP");
+                    break;
+                case EnvReflection.All:
+                    material.EnableKeyword("DIFFUSE_ENV_MAP");
+                    material.EnableKeyword("SPECULAR_ENV_MAP");
+                    break;
+                case EnvReflection.Off:
+                    material.DisableKeyword("DIFFUSE_ENV_MAP");
+                    material.DisableKeyword("SPECULAR_ENV_MAP");
+                    break;
+            }
+
+            if (SeinUtils.brdfLUT == null)
+            {
+                var brdfPath = "Assets/SeinJSUnityToolkit/Shaders/brdfLUT.jpg";
+                var e = File.Exists(brdfPath);
+                SeinUtils.brdfLUT = AssetDatabase.LoadAssetAtPath<Texture2D>(brdfPath);
+            }
+            material.SetTexture("_brdfLUT", SeinUtils.brdfLUT);
+        }
+
         static void MaterialChanged(Material material)
         {
             SetupMaterialWithBlendMode(material, (BlendMode)material.GetFloat("_Mode"));
+            SetupMaterialWithEnvMode(material, (EnvReflection)material.GetFloat("envReflection"));
         }
     }
 }
