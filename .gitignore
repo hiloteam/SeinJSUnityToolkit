@@ -2,4 +2,9 @@
 .DS_Store
 .vscode
 *.log
-*.meta
+project/Packages
+project/Temp
+project/Logs
+project/Library
+project/Output
+project/Assets/main

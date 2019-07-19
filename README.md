@@ -1,6 +1,6 @@
 # SeinJSUnityToolkit
 
-Export unity scene to gltf for "sein.js", or import gltf to unity.
+Export unity scene to gltf for "Sein.js", or import gltf to unity.
 
 ## Usage
 
