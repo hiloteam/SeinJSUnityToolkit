@@ -114,6 +114,8 @@ public class GlTF_Material : GlTF_Writer {
     public List<Value> values = new List<Value>();
     public List<Value> pbrValues = new List<Value>();
     public List<Value> khrValues = new List<Value>();
+    public int iblType = 0;
+    public int iblIndex = 0;
 
     public static string GetNameFromObject(Object o)
     {
@@ -229,7 +231,17 @@ public class GlTF_Material : GlTF_Writer {
             IndentOut();
             Indent(); jsonWriter.Write("}\n");
             IndentOut();
-            Indent(); jsonWriter.Write("}\n");
+            if (iblType != 0)
+            {
+                Indent(); jsonWriter.Write("},\n");
+                IndentIn();
+                WriteReflection();
+                IndentOut();
+            }
+            else
+            {
+                Indent(); jsonWriter.Write("}\n");
+            }
             IndentOut();
             Indent(); jsonWriter.Write("},\n");
         } else if (useKHRTechnique) {
@@ -297,8 +309,25 @@ public class GlTF_Material : GlTF_Writer {
             }
             if (!isMetal)
             {
-                IndentOut();
                 Indent(); jsonWriter.Write("}\n");
+                if (iblType != 0)
+                {
+                    jsonWriter.Write(",\n");
+                    IndentOut();
+                    WriteReflection();
+                }
+            }
+            else
+            {
+                if (iblType != 0)
+                {
+                    jsonWriter.Write("\n");
+                    Indent(); jsonWriter.Write("},\n");
+                    Indent(); jsonWriter.Write("\"extensions\": {\n");
+                    IndentIn();
+                    WriteReflection();
+                    IndentOut();
+                }
             }
 
             jsonWriter.Write("\n");
@@ -319,5 +348,14 @@ public class GlTF_Material : GlTF_Writer {
         Indent(); jsonWriter.Write("}");
     }
 
+    public void WriteReflection()
+    {
+        Indent(); jsonWriter.Write("\"Sein_imageBasedLighting\": {\n");
+        IndentIn();
+        Indent(); jsonWriter.Write("\"type\": \"" + (iblType == 1 ? "SPECULAR" : "ALL") + "\",\n");
+        Indent(); jsonWriter.Write("\"light\": " + iblIndex + "\n");
+        IndentOut();
+        Indent(); jsonWriter.Write("}\n");
+    }
 }
 #endif

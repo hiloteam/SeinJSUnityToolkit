@@ -62,6 +62,9 @@ public class GlTF_Writer {
     public static List<SeinAudioClip> audioClips = new List<SeinAudioClip>();
     public static Dictionary<SeinAudioClip, string> audioClipURIs = new Dictionary<SeinAudioClip, string>();
 
+    public static List<GlTF_SeinImageBaseLighting> iblSources = new List<GlTF_SeinImageBaseLighting>();
+    public static Dictionary<Cubemap, int> iblSourceIndex = new Dictionary<Cubemap, int>();
+
     // Keys are original file path, values correspond to the directory in the output zip file
     public static Dictionary<string, string> exportedFiles = new Dictionary<string, string>();
 	// Exporter specifics
@@ -207,6 +210,9 @@ public class GlTF_Writer {
 
         audioClips = new List<SeinAudioClip>();
         audioClipURIs = new Dictionary<SeinAudioClip, string>();
+
+        iblSources = new List<GlTF_SeinImageBaseLighting>();
+        iblSourceIndex = new Dictionary<Cubemap, int>();
 
         bakeAnimation = true;
         hasSpecularMaterials = false;
@@ -390,6 +396,12 @@ public class GlTF_Writer {
         {
             extensionsRequired.Add("Sein_ambientLight");
             extensionsUsed.Add("Sein_ambientLight");
+        }
+
+        if (iblSources.Count > 0)
+        {
+            extensionsRequired.Add("Sein_imageBasedLighting");
+            extensionsUsed.Add("Sein_imageBasedLighting");
         }
 
         jsonWriter.Write ("{\n");
@@ -600,6 +612,10 @@ public class GlTF_Writer {
         {
             extensions.Add("lights");
         }
+        if (iblSources.Count > 0)
+        {
+            extensions.Add("ibl");
+        }
 
         if (extensions.Count > 0)
         {
@@ -682,6 +698,22 @@ public class GlTF_Writer {
                     jsonWriter.Write("\"lights\": [\n");
                     IndentIn();
                     foreach (GlTF_Light l in lights)
+                    {
+                        CommaNL();
+                        l.Write();
+                    }
+                    jsonWriter.WriteLine();
+                    IndentOut();
+                    Indent();
+                    jsonWriter.Write("]");
+                } else if (ex == "ibl")
+                {
+                    jsonWriter.Write("\"Sein_imageBasedLighting\": {\n");
+                    IndentIn();
+                    Indent();
+                    jsonWriter.Write("\"lights\": [\n");
+                    IndentIn();
+                    foreach (var l in iblSources)
                     {
                         CommaNL();
                         l.Write();
