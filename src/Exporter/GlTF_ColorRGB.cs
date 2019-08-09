@@ -14,6 +14,7 @@ public class GlTF_ColorRGB : GlTF_Writer {
 			jsonWriter.Write ("\"" + name + "\": ");
 		else
 			jsonWriter.Write ("\"color\": [");
+
 		jsonWriter.Write (color.r.ToString() + ", " + color.g.ToString() + ", " +color.b.ToString()+"]");
 	}
 }

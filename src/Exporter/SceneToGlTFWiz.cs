@@ -1490,6 +1490,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         customMaterial.renderOrder = mat.renderQueue;
         var floatArray = new List<SeinMaterialUniformFloat>();
         var vector4Array = new List<SeinMaterialUniformFloatVec4>();
+        var colorArray = new List<SeinMaterialUniformColor>();
         var textureArray = new List<SeinMaterialUniformTexture>();
 
         for (int i = 0; i < ShaderUtil.GetPropertyCount(mat.shader); i += 1)
@@ -1521,7 +1522,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                     floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.Color:
-                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(n) });
+                    colorArray.Add(new SeinMaterialUniformColor { name = propName, value = mat.GetColor(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.Vector:
                     vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(n) });
@@ -1537,6 +1538,7 @@ public class SceneToGlTFWiz : MonoBehaviour
             customMaterial.uniformsFloat = floatArray.ToArray();
             customMaterial.uniformsFloatVec4 = vector4Array.ToArray();
             customMaterial.uniformsTexture = textureArray.ToArray();
+            customMaterial.uniformsColor = colorArray.ToArray();
         }
 
         material.seinCustomMaterial = customMaterial;

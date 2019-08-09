@@ -45,6 +45,7 @@ public class SeinMaterialUniform<TValue>
 [System.Serializable] public class SeinMaterialUniformFloatVec2 : SeinMaterialUniform<Vector2> { public SeinMaterialUniformFloatVec2() { type = ESeinMaterialUniformType.FLOAT_VEC2; } }
 [System.Serializable] public class SeinMaterialUniformFloatVec3 : SeinMaterialUniform<Vector3> { public SeinMaterialUniformFloatVec3() { type = ESeinMaterialUniformType.FLOAT_VEC3; } }
 [System.Serializable] public class SeinMaterialUniformFloatVec4 : SeinMaterialUniform<Vector4> { public SeinMaterialUniformFloatVec4() { type = ESeinMaterialUniformType.FLOAT_VEC4; } }
+[System.Serializable] public class SeinMaterialUniformColor : SeinMaterialUniform<Color> { public SeinMaterialUniformColor() { type = ESeinMaterialUniformType.FLOAT_VEC4; } }
 [System.Serializable] public class SeinMaterialUniformFloatMat2 : SeinMaterialUniform<Matrix4x4> { public SeinMaterialUniformFloatMat2() { type = ESeinMaterialUniformType.FLOAT_MAT2; } }
 [System.Serializable] public class SeinMaterialUniformFloatMat3 : SeinMaterialUniform<Matrix4x4> { public SeinMaterialUniformFloatMat3() { type = ESeinMaterialUniformType.FLOAT_MAT3; } }
 [System.Serializable] public class SeinMaterialUniformFloatMat4 : SeinMaterialUniform<Matrix4x4> { public SeinMaterialUniformFloatMat4() { type = ESeinMaterialUniformType.FLOAT_MAT4; } }
@@ -64,6 +65,7 @@ public class SeinCustomMaterialInspector : Editor
             "uniformsFloatVec2",
             "uniformsFloatVec3",
             "uniformsFloatVec4",
+            "uniformsColor",
             "uniformsFloatMat2",
             "uniformsFloatMat3",
             "uniformsFloatMat4",
@@ -112,6 +114,7 @@ public class SeinCustomMaterial : MonoBehaviour
     public SeinMaterialUniformFloatVec2[] uniformsFloatVec2 = { };
     public SeinMaterialUniformFloatVec3[] uniformsFloatVec3 = { };
     public SeinMaterialUniformFloatVec4[] uniformsFloatVec4 = { };
+    public SeinMaterialUniformColor[] uniformsColor = { };
     public SeinMaterialUniformFloatMat2[] uniformsFloatMat2 = { };
     public SeinMaterialUniformFloatMat3[] uniformsFloatMat3 = { };
     public SeinMaterialUniformFloatMat4[] uniformsFloatMat4 = { };

@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 public class GlTF_Material : GlTF_Writer {
     public class Value : GlTF_Writer {
@@ -14,6 +15,10 @@ public class GlTF_Material : GlTF_Writer {
         public override void Write()
         {
             jsonWriter.Write("\"" + name + "\": [");
+            if (PlayerSettings.colorSpace == ColorSpace.Linear)
+            {
+                color = color.linear;
+            }
             jsonWriter.Write(color.r.ToString() + ", " + color.g.ToString() + ", " + color.b.ToString() + (isRGB ? "" : ", " + color.a.ToString()));
             jsonWriter.Write("]");
         }
@@ -157,7 +162,15 @@ public class GlTF_Material : GlTF_Writer {
                     Indent(); jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformFloatVec3).value.ToString("G4").Replace("(", "[").Replace(")", "]") + "\n");
                     break;
                 case (ESeinMaterialUniformType.FLOAT_VEC4):
-                    Indent(); jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformFloatVec4).value.ToString("G4").Replace("(", "[").Replace(")", "]") + "\n");
+                    Indent();
+                    if (uniform.GetType() == typeof(SeinMaterialUniformColor) && PlayerSettings.colorSpace == ColorSpace.Linear)
+                    {
+                        jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformColor).value.linear.ToString("G4").Replace("(", "[").Replace(")", "]").Replace("RGBA", "").Replace("RGB", "") + "\n");
+                    }
+                    else
+                    {
+                        jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformFloatVec4).value.ToString("G4").Replace("(", "[").Replace(")", "]") + "\n");
+                    }
                     break;
                 case (ESeinMaterialUniformType.FLOAT_MAT2):
                     Indent(); jsonWriter.Write("\"value\": [" + UniformToString(uniform as SeinMaterialUniformFloatMat2) + "]\n");
@@ -220,6 +233,7 @@ public class GlTF_Material : GlTF_Writer {
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatVec2);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatVec3);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatVec4);
+            WirteCustomUiforms(seinCustomMaterial.uniformsColor);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatMat2);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatMat3);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatMat4);
@@ -315,6 +329,10 @@ public class GlTF_Material : GlTF_Writer {
                     jsonWriter.Write(",\n");
                     IndentOut();
                     WriteReflection();
+                }
+                else
+                {
+                    IndentOut();
                 }
             }
             else
