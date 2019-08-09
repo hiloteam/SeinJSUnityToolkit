@@ -603,6 +603,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 else if (mat.shader.name.Contains("Sein/"))
                                 {
                                     unityToSeinMaterial(mat, ref material);
+                                    createSeinCustomMaterial(mat, ref material);
                                 }
                                 else
                                 {
@@ -1489,6 +1490,7 @@ public class SceneToGlTFWiz : MonoBehaviour
         customMaterial.renderOrder = mat.renderQueue;
         var floatArray = new List<SeinMaterialUniformFloat>();
         var vector4Array = new List<SeinMaterialUniformFloatVec4>();
+        var colorArray = new List<SeinMaterialUniformColor>();
         var textureArray = new List<SeinMaterialUniformTexture>();
 
         for (int i = 0; i < ShaderUtil.GetPropertyCount(mat.shader); i += 1)
@@ -1520,7 +1522,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                     floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.Color:
-                    vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(n) });
+                    colorArray.Add(new SeinMaterialUniformColor { name = propName, value = mat.GetColor(n) });
                     break;
                 case ShaderUtil.ShaderPropertyType.Vector:
                     vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(n) });
@@ -1536,9 +1538,14 @@ public class SceneToGlTFWiz : MonoBehaviour
             customMaterial.uniformsFloat = floatArray.ToArray();
             customMaterial.uniformsFloatVec4 = vector4Array.ToArray();
             customMaterial.uniformsTexture = textureArray.ToArray();
+            customMaterial.uniformsColor = colorArray.ToArray();
         }
 
         material.seinCustomMaterial = customMaterial;
+        if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off)
+        {
+            createReflection(mat, ref material);
+        }
     }
 
     // convert Sein/PBR to Gltf
@@ -1587,7 +1594,7 @@ public class SceneToGlTFWiz : MonoBehaviour
                 textureValue.name = "metallicRoughnessTexture";
                 Texture2D metallicTexture = (Texture2D)mat.GetTexture("_metallicMap");
                 Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_roughnessMap");
-                Texture2D occlusion = (Texture2D)mat.GetTexture("_OcclusionMap");
+                Texture2D occlusion = (Texture2D)mat.GetTexture("_occlusionMap");
 
                 int metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
                     ref metallicTexture, ref roughnessTexture, ref occlusion,
@@ -1690,6 +1697,11 @@ public class SceneToGlTFWiz : MonoBehaviour
             textureValue.intValue.Add("texCoord", 0);
             textureValue.floatValue.Add("strength", mat.GetFloat("_occlusionStrength"));
             material.values.Add(textureValue);
+        }
+
+        if (mat.GetInt("envReflection") != (int)UnityEditor.SeinPBRShaderGUI.EnvReflection.Off)
+        {
+            createReflection(mat, ref material);
         }
     }
 
@@ -1894,6 +1906,120 @@ public class SceneToGlTFWiz : MonoBehaviour
             textureValue.floatValue.Add("strength", mat.GetFloat("_OcclusionStrength"));
             material.values.Add(textureValue);
         }
+
+        if (mat.GetInt("_GlossyReflections") == 1)
+        {
+            createReflection(mat, ref material);
+        }
+    }
+
+    private void createReflection(Material mat, ref GlTF_Material material)
+    {
+        if (RenderSettings.ambientMode != UnityEngine.Rendering.AmbientMode.Skybox)
+        {
+            return;
+        }
+
+        if (mat.HasProperty("envReflection"))
+        {
+            material.iblType = mat.GetInt("envReflection");
+        }
+        else
+        {
+            material.iblType = 2;
+        }
+
+        Cubemap specMap = null;
+        //ReflectionProbe
+        float specIntensity = RenderSettings.reflectionIntensity;
+        if (RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom)
+        {
+            specMap = RenderSettings.customReflection;
+        }
+        else
+        {
+            //todo: support skybox cubemap
+        }
+
+        if (GlTF_Writer.iblSourceIndex.ContainsKey(specMap)) {
+            material.iblIndex = GlTF_Writer.iblSourceIndex[specMap];
+            return;
+        }
+
+        var seinIBL = new GlTF_SeinImageBaseLighting();
+
+        float[][] coefficients = new float[9][];
+        UnityEngine.Rendering.SphericalHarmonicsL2 shs;
+        LightProbes.GetInterpolatedProbe(new Vector3(), null, out shs);
+        float diffuseIntensity = RenderSettings.ambientIntensity;
+
+        if (shs != null)
+        {
+            for (var c = 0; c < 9; c += 1)
+            {
+                coefficients[c] = new float[3];
+                for (var b = 0; b < 3; b += 1)
+                {
+                    coefficients[c][b] = shs[b, c];
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning("There is no baked light probe.");
+        }
+
+        seinIBL.shCoefficients = coefficients;
+        seinIBL.diffuseIntensity = diffuseIntensity;
+        SeinUtils.InitGlobals();
+        seinIBL.brdfLUT = processTexture(SeinUtils.brdfLUT, IMAGETYPE.RGB);
+        seinIBL.specIntensity = specIntensity;
+        seinIBL.specMapFaces = new int[6];
+
+
+        string origAssetPath = AssetDatabase.GetAssetPath(specMap);
+        string ext = Path.GetExtension(origAssetPath);
+        var blurredSpecMap  = SeinUtils.GetSpecularCubeMap(specMap);
+        var tex2d = new Texture2D(blurredSpecMap.width, blurredSpecMap.height, TextureFormat.RGBAHalf, false);
+        for (var i = 0; i < 6; i += 1)
+        {
+            string assetPath = origAssetPath.Replace(ext, "") + i + ext;
+            GlTF_Image img = new GlTF_Image();
+            Color[] colors = null;
+            switch (i)
+            {
+                case 0:
+                    colors = blurredSpecMap.GetPixels(CubemapFace.PositiveX);
+                    break;
+                case 1:
+                    colors = blurredSpecMap.GetPixels(CubemapFace.NegativeX);
+                    break;
+                case 2:
+                    colors = blurredSpecMap.GetPixels(CubemapFace.PositiveY);
+                    break;
+                case 3:
+                    colors = blurredSpecMap.GetPixels(CubemapFace.NegativeY);
+                    break;
+                case 4:
+                    colors = blurredSpecMap.GetPixels(CubemapFace.PositiveZ);
+                    break;
+                case 5:
+                    colors = blurredSpecMap.GetPixels(CubemapFace.NegativeZ);
+                    break;
+            }
+            tex2d.SetPixels(colors);
+            img.uri = convertTexture(ref tex2d, assetPath, savedPath, IMAGETYPE.HDR);
+            img.name = GlTF_Image.GetNameFromObject(specMap);
+            seinIBL.specMapFaces[i] = GlTF_Writer.imageNames.Count;
+            GlTF_Writer.imageNames.Add(img.name);
+            GlTF_Writer.images.Add(img);
+        }
+        SeinUtils.DeleteTempMap(blurredSpecMap);
+        
+
+        material.iblIndex = GlTF_Writer.iblSources.Count;
+        GlTF_Writer.iblSources.Add(seinIBL);
+        GlTF_Writer.iblSourceIndex.Add(specMap, material.iblIndex);
     }
 
     private void createLightMap(Renderer mr, ref GlTF_Node node)

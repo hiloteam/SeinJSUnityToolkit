@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 public class GlTF_Material : GlTF_Writer {
     public class Value : GlTF_Writer {
@@ -14,6 +15,10 @@ public class GlTF_Material : GlTF_Writer {
         public override void Write()
         {
             jsonWriter.Write("\"" + name + "\": [");
+            if (PlayerSettings.colorSpace == ColorSpace.Linear)
+            {
+                color = color.linear;
+            }
             jsonWriter.Write(color.r.ToString() + ", " + color.g.ToString() + ", " + color.b.ToString() + (isRGB ? "" : ", " + color.a.ToString()));
             jsonWriter.Write("]");
         }
@@ -114,6 +119,8 @@ public class GlTF_Material : GlTF_Writer {
     public List<Value> values = new List<Value>();
     public List<Value> pbrValues = new List<Value>();
     public List<Value> khrValues = new List<Value>();
+    public int iblType = 0;
+    public int iblIndex = 0;
 
     public static string GetNameFromObject(Object o)
     {
@@ -155,7 +162,15 @@ public class GlTF_Material : GlTF_Writer {
                     Indent(); jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformFloatVec3).value.ToString("G4").Replace("(", "[").Replace(")", "]") + "\n");
                     break;
                 case (ESeinMaterialUniformType.FLOAT_VEC4):
-                    Indent(); jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformFloatVec4).value.ToString("G4").Replace("(", "[").Replace(")", "]") + "\n");
+                    Indent();
+                    if (uniform.GetType() == typeof(SeinMaterialUniformColor) && PlayerSettings.colorSpace == ColorSpace.Linear)
+                    {
+                        jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformColor).value.linear.ToString("G4").Replace("(", "[").Replace(")", "]").Replace("RGBA", "").Replace("RGB", "") + "\n");
+                    }
+                    else
+                    {
+                        jsonWriter.Write("\"value\": " + (uniform as SeinMaterialUniformFloatVec4).value.ToString("G4").Replace("(", "[").Replace(")", "]") + "\n");
+                    }
                     break;
                 case (ESeinMaterialUniformType.FLOAT_MAT2):
                     Indent(); jsonWriter.Write("\"value\": [" + UniformToString(uniform as SeinMaterialUniformFloatMat2) + "]\n");
@@ -218,6 +233,7 @@ public class GlTF_Material : GlTF_Writer {
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatVec2);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatVec3);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatVec4);
+            WirteCustomUiforms(seinCustomMaterial.uniformsColor);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatMat2);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatMat3);
             WirteCustomUiforms(seinCustomMaterial.uniformsFloatMat4);
@@ -229,7 +245,17 @@ public class GlTF_Material : GlTF_Writer {
             IndentOut();
             Indent(); jsonWriter.Write("}\n");
             IndentOut();
-            Indent(); jsonWriter.Write("}\n");
+            if (iblType != 0)
+            {
+                Indent(); jsonWriter.Write("},\n");
+                IndentIn();
+                WriteReflection();
+                IndentOut();
+            }
+            else
+            {
+                Indent(); jsonWriter.Write("}\n");
+            }
             IndentOut();
             Indent(); jsonWriter.Write("},\n");
         } else if (useKHRTechnique) {
@@ -297,8 +323,29 @@ public class GlTF_Material : GlTF_Writer {
             }
             if (!isMetal)
             {
-                IndentOut();
                 Indent(); jsonWriter.Write("}\n");
+                if (iblType != 0)
+                {
+                    jsonWriter.Write(",\n");
+                    IndentOut();
+                    WriteReflection();
+                }
+                else
+                {
+                    IndentOut();
+                }
+            }
+            else
+            {
+                if (iblType != 0)
+                {
+                    jsonWriter.Write("\n");
+                    Indent(); jsonWriter.Write("},\n");
+                    Indent(); jsonWriter.Write("\"extensions\": {\n");
+                    IndentIn();
+                    WriteReflection();
+                    IndentOut();
+                }
             }
 
             jsonWriter.Write("\n");
@@ -319,5 +366,14 @@ public class GlTF_Material : GlTF_Writer {
         Indent(); jsonWriter.Write("}");
     }
 
+    public void WriteReflection()
+    {
+        Indent(); jsonWriter.Write("\"Sein_imageBasedLighting\": {\n");
+        IndentIn();
+        Indent(); jsonWriter.Write("\"type\": \"" + (iblType == 1 ? "SPECULAR" : "ALL") + "\",\n");
+        Indent(); jsonWriter.Write("\"light\": " + iblIndex + "\n");
+        IndentOut();
+        Indent(); jsonWriter.Write("}\n");
+    }
 }
 #endif

@@ -564,11 +564,13 @@ namespace SeinJS
                 material.SetInt("_emissionUV", def.EmissiveTexture.TexCoord);
 			}
 
-			// PBR channels
-			if (specularGlossinessExtension != null)
+            bool isLinear = PlayerSettings.colorSpace == ColorSpace.Linear;
+
+            // PBR channels
+            if (specularGlossinessExtension != null)
 			{
 				KHR_materials_pbrSpecularGlossinessExtension pbr = (KHR_materials_pbrSpecularGlossinessExtension)specularGlossinessExtension;
-				material.SetColor("_baseColor", pbr.DiffuseFactor.ToUnityColor());
+				material.SetColor("_baseColor", isLinear ? pbr.DiffuseFactor.ToUnityColor().gamma : pbr.DiffuseFactor.ToUnityColor());
 				if (pbr.DiffuseTexture != null)
 				{
 					var texture = pbr.DiffuseTexture.Index.Id;
@@ -590,7 +592,8 @@ namespace SeinJS
 				}
 
 				Vector3 specularVec3 = pbr.SpecularFactor.ToUnityVector3();
-				material.SetColor("_specular", new Color(specularVec3.x, specularVec3.y, specularVec3.z, 1.0f));
+                var spec = new Color(specularVec3.x, specularVec3.y, specularVec3.z, 1.0f);
+                material.SetColor("_specular", isLinear ? spec.gamma : spec);
 
 				if (def.OcclusionTexture != null)
 				{
@@ -605,7 +608,7 @@ namespace SeinJS
 			{
 				var pbr = def.PbrMetallicRoughness;
 
-				material.SetColor("_baseColor", pbr.BaseColorFactor.ToUnityColor());
+				material.SetColor("_baseColor", isLinear ? pbr.BaseColorFactor.ToUnityColor().gamma : pbr.BaseColorFactor.ToUnityColor());
 				if (pbr.BaseColorTexture != null)
 				{
 					var textureID = pbr.BaseColorTexture.Index.Id;
@@ -646,7 +649,7 @@ namespace SeinJS
 				}
 			}
 
-			material.SetColor("_emission", def.EmissiveFactor.ToUnityColor());
+			material.SetColor("_emission", isLinear ? def.EmissiveFactor.ToUnityColor().gamma : def.EmissiveFactor.ToUnityColor());
 			material = _assetManager.saveMaterial(material, materialIndex);
 			_assetManager._parsedMaterials.Add(material);
 			material.hideFlags = HideFlags.None;
