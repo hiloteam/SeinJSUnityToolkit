@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using UnityEngine;
 
 namespace SeinJS
 {
@@ -24,19 +26,19 @@ namespace SeinJS
 			public static string name = "";
 			public static bool splitChunks = false;
 
-            public static void U
-            internal static void UpdateFolder(string defaultExportFolder)
-            {
-                throw new NotImplementedException();
-            }
-            ateFolder(string folder)
+            public static void UpdateFolder(string folder)
 			{
 				Config.SetExportPath(Utils.MakeRelativePath(Application.dataPath, folder));
 				ExporterSettings.Export.folder = Path.GetFullPath(Path.Combine(Application.dataPath, Config.GetExportPath()));
 			}
 
-            public static string GetExportPath()
+            public static string GetExportPath(string n = null)
 			{
+                if (n == null)
+                {
+                    n = name;
+                }
+
 				return Path.Combine(folder, name + ".gltf");
 			}
 		}

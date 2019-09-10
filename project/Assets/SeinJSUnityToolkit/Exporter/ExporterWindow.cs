@@ -13,7 +13,7 @@ namespace SeinJS {
 	    static void Init()
 	    {
 #if UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
-		    Exporter window = (Exporter)GetWindow(typeof(Exporter));
+            ExporterWindow window = (ExporterWindow)GetWindow(typeof(ExporterWindow));
 		    window.titleContent.text = "Export to GlTF";
 		    window.Show();
 #else // and error dialog if not standalone
@@ -39,12 +39,13 @@ namespace SeinJS {
         int SPACE_SIZE = 10;
 
         Rect windowRect;
-        Texture2D header;
+        private Exporter _exporter;
 
 	    //private List<String> tagList;
 	    void Awake()
 	    {
-            ExporterSettings.Export.UpdateFolder(Config.SetExportPath());
+            _exporter = new Exporter();
+            ExporterSettings.Export.UpdateFolder(Config.GetExportPath());
 
             if (!Directory.Exists(ExporterSettings.Export.folder))
             {
@@ -86,7 +87,7 @@ namespace SeinJS {
 	    {
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label(header);
+            GUILayout.Label(Config.header);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
@@ -207,8 +208,8 @@ namespace SeinJS {
             foreach (System.IO.DirectoryInfo subDirectory in subDirectories)
                 subDirectory.Delete(true);
 
-            exporter.ExportCoroutine(exportPath, null, false, true, opt_exportAnimation, true);
-            OpenInFileBrowser.Open(Path.GetDirectoryName(exportPath));
+            _exporter.Export();
+            OpenInFileBrowser.Open(Path.GetDirectoryName(ExporterSettings.Export.GetExportPath()));
         }
 
 	    void OnDestroy()
