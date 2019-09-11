@@ -26,7 +26,7 @@ namespace SeinJS
 
             foreach (var entry in entries)
             {
-                ExportOne(entry, root);
+                ExportOne(entry);
             }
         }
 
@@ -93,16 +93,37 @@ namespace SeinJS
                 return;
             }
 
-            var id = entry.SaveMesh(mesh);
+            var result = entry.SaveMesh(mesh, renderer);
+            var id = result.key;
+            var needProcessMatrials = result.value;
             var node = entry.tr2node[tr];
             node.Mesh = id;
 
-            string materialsID = "";
-            var sm = renderer.sharedMaterials;
-            foreach (var mat in sm)
+            if (needProcessMatrials)
             {
-                materialsID += GlTF_Material.GetNameFromObject(mat);
+                ExportMaterial();
             }
+        }
+
+
+        private void ExportMaterial()
+        {
+
+        }
+
+        private void ExportTexture()
+        {
+
+        }
+
+        private void ExportCamera()
+        {
+
+        }
+
+        private void ExportLight()
+        {
+
         }
 
         private Renderer GetRenderer(Transform tr)
@@ -139,26 +160,6 @@ namespace SeinJS
                 }
             }
             return m;
-        }
-
-        private void ExportMaterial()
-        {
-
-        }
-
-        private void ExportTexture()
-        {
-
-        }
-
-        private void ExportCamera()
-        {
-
-        }
-
-        private void ExportLight()
-        {
-
         }
 
         public void Update()
