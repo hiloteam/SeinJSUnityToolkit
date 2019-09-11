@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace SeinJS
 {

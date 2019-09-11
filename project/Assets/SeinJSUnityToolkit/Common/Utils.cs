@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using GLTF;
+using GLTF.Schema;
 
 namespace SeinJS {
     public class Utils: Editor
@@ -130,6 +132,21 @@ namespace SeinJS {
             }
 
             return relativePath;
+        }
+
+        public static GLTF.Math.Vector3 convertVector3LeftToRightHandedness(Vector3 v)
+        {
+            return new GLTF.Math.Vector3(v.x, v.y, -v.z);
+        }
+
+        public static GLTF.Math.Vector4 convertVector4LeftToRightHandedness(Vector4 v)
+        {
+            return new GLTF.Math.Vector4(v.x, v.y, -v.z, -v.w);
+        }
+
+        public static GLTF.Math.Quaternion convertQuatLeftToRightHandedness(Quaternion q)
+        {
+            return new GLTF.Math.Quaternion(q.x, q.y, -q.z, -q.w);
         }
     }
 }
