@@ -31,26 +31,23 @@ namespace SeinJS
             return weights;
         }
 
-        public static void PackToBuffer(MemoryStream buffer, Vector2[] data, int count)
+        public static Accessor PackToBuffer<BufferType, DataType>(BufferType buffer, DataType[] data, GLTFComponentType componentType, int offset, int stride)
         {
+            var accessor = new Accessor();
+            accessor.ByteOffset = offset;
+            accessor.ComponentType = componentType;
 
+            int count = 0;
+
+            foreach (var item in data)
+            {
+                
+            }
+
+            return accessor;
         }
 
-        public static void PackToBuffer(MemoryStream buffer, Vector3[] data, int count)
-        {
-
-        }
-
-        public static void PackToBuffer(MemoryStream buffer, Vector4[] data, int count)
-        {
-
-        }
-        public static void PackToBuffer(MemoryStream buffer, Color[] data, int count)
-        {
-
-        }
-
-        public static void PackToBufferShort(MemoryStream buffer, Vector4[] data, int count)
+        private static void SetDataToBuffer(Vector2 value, int index, int offset, int stride, ref Vector2 max, ref Vector2 min)
         {
 
         }

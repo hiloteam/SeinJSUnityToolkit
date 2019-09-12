@@ -19,7 +19,14 @@ namespace SeinJS
                 this.key = key;
                 this.value = value;
             }
+        }
 
+        public class EntryBufferView
+        {
+            public BufferViewId id;
+            public BufferView view = new BufferView();
+            public byte[] byteBuffer;
+            public MemoryStream streamBuffer;
         }
 
         public string path;
@@ -29,10 +36,11 @@ namespace SeinJS
         public List<Transform> bones = new List<Transform>();
         public Dictionary<Transform, Node> tr2node = new Dictionary<Transform, Node>();
 
-        private MemoryStream _buffer = new MemoryStream();
-        // for byteStride
-        //private Dictionary<number, MemoryStream> _bufferViews = new MemoryStream();
-        private Dictionary<UnityEngine.Mesh, Dictionary<string, MeshId>> _mesh2Id = new Dictionary<UnityEngine.Mesh, Dictionary<string, MeshId>>();
+        //private MemoryStream _buffer = new MemoryStream();
+        private List<EntryBufferView> _bufferViews = new List<EntryBufferView>();
+		// for each mesh
+		private Dictionary<UnityEngine.Mesh, Dictionary<string, AccessorId>> _mesh2attrs= new Dictionary<UnityEngine.Mesh, Dictionary<string, AccessorId>>();
+		private Dictionary<UnityEngine.Mesh, Dictionary<string, MeshId>> _mesh2Id = new Dictionary<UnityEngine.Mesh, Dictionary<string, MeshId>>();
 
         public NodeId SaveNode(Transform tr)
         {
@@ -69,7 +77,6 @@ namespace SeinJS
             m.Name = mesh.name;
             m.Primitives = new List<MeshPrimitive>();
             
-
             for (int i = 0; i < mesh.subMeshCount; i += 1)
             {
                 m.Primitives[i].Attributes = attributes;
@@ -84,70 +91,124 @@ namespace SeinJS
 
         private Dictionary<string, AccessorId> GenerateAttributes(UnityEngine.Mesh mesh)
         {
-            var attrs= new Dictionary<string, AccessorId>();
+            if (_mesh2attrs[mesh] != null)
+            {
+                return _mesh2attrs[mesh];
+            }
 
-            attrs.Add("POSITION", PackToBuffer(mesh.vertices, mesh.vertexCount));
+            var attrs= new Dictionary<string, AccessorId>();
+            var bufferView = new EntryBufferView();
+            bufferView.view.Name = mesh.name;
+
+            int stride = GetBufferLength(mesh);
+            bufferView.view.ByteStride = stride;
+            bufferView.view.ByteLength = stride * mesh.vertexCount;
+            bufferView.byteBuffer = new byte[bufferView.view.ByteLength];
+            root.BufferViews.Add(bufferView.view);
+            bufferView.id = new BufferViewId { Id = root.BufferViews.Count };
+
+            stride = 3 * 4;
+            attrs.Add("POSITION", PackAttrToBuffer(bufferView, mesh.vertices, 0));
 
             if (mesh.normals.Length > 0)
             {
-                attrs.Add("NORMAL", PackToBuffer(mesh.normals, mesh.normals.Length));
+                attrs.Add("NORMAL", PackAttrToBuffer(bufferView, mesh.normals, stride));
+                stride += 3 * 4;
             }
 
             if (mesh.colors.Length > 0)
             {
-                attrs.Add("COLOR", PackToBuffer(mesh.colors, mesh.colors.Length));
+                attrs.Add("COLOR", PackAttrToBuffer(bufferView, mesh.colors, stride));
+                stride += 4 * 4;
             }
 
             if (mesh.uv.Length > 0)
             {
-                attrs.Add("TEXCOORD_0", PackToBuffer(mesh.uv, mesh.uv.Length));
+                attrs.Add("TEXCOORD_0", PackAttrToBuffer(bufferView, mesh.uv, stride));
+                stride += 2 * 4;
             }
 
             if (mesh.uv2.Length > 0)
             {
-                attrs.Add("TEXCOORD_1", PackToBuffer(mesh.uv2, mesh.uv2.Length));
+                attrs.Add("TEXCOORD_1", PackAttrToBuffer(bufferView, mesh.uv2, stride));
+                stride += 2 * 4;
             }
 
             if (mesh.tangents.Length > 0)
             {
-                attrs.Add("TANGENT", PackToBuffer(mesh.tangents, mesh.tangents.Length));
+                attrs.Add("TANGENT", PackAttrToBuffer(bufferView, mesh.tangents, stride));
+                stride += 4 * 4;
             }
 
             if (mesh.boneWeights.Length > 0)
             {
-                attrs.Add("JOINT", PackToBufferShort(ExporterUtils.BoneWeightToBoneVec4(mesh.boneWeights), mesh.boneWeights.Length));
-            }
-
-            if (mesh.boneWeights.Length > 0)
-            {
-                attrs.Add("WEIGHT", PackToBuffer(ExporterUtils.BoneWeightToWeightVec4(mesh.boneWeights), mesh.boneWeights.Length));                
+                attrs.Add("JOINT", PackAttrToBufferShort(bufferView, ExporterUtils.BoneWeightToBoneVec4(mesh.boneWeights), stride));
+                stride += 1 * 4;
+                attrs.Add("WEIGHT", PackAttrToBuffer(bufferView, ExporterUtils.BoneWeightToWeightVec4(mesh.boneWeights), stride));
+                stride += 4 * 4;
             }
 
             return attrs;
         }
 
-        private AccessorId PackToBuffer(Vector2[] data, int count)
+        private int GetBufferLength(UnityEngine.Mesh mesh)
         {
-            ExporterUtils.PackToBuffer(_buffer, data, count);
+            int stride = 3 * 4; 
+
+            if (mesh.normals.Length > 0)
+            {
+                stride += 3 * 4;
+            }
+
+            if (mesh.colors.Length > 0)
+            {
+                stride += 4 * 4;
+            }
+
+            if (mesh.uv.Length > 0)
+            {
+                stride += 2 * 4;
+            }
+
+            if (mesh.uv2.Length > 0)
+            {
+                stride += 2 * 4;
+            }
+
+            if (mesh.tangents.Length > 0)
+            {
+                stride += 4 * 4;
+            }
+
+            if (mesh.boneWeights.Length > 0)
+            {
+                stride += 1 * 4;
+                stride += 4 * 4;
+            }
+
+            return stride;
         }
 
-        private AccessorId PackToBuffer(Vector3[] data, int count)
+        private AccessorId PackAttrToBuffer<DataType>(EntryBufferView bufferView, DataType[] data, int offset)
         {
-            ExporterUtils.PackToBuffer(_buffer, data, count);
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.Float, offset, bufferView.view.ByteStride);
+
+            return AccessorToId(accessor, bufferView);
         }
 
-        private AccessorId PackToBuffer(Vector4[] data, int count)
+        private AccessorId PackAttrToBufferShort<DataType>(EntryBufferView bufferView, DataType[] data, int offset)
         {
-            ExporterUtils.PackToBuffer(_buffer, data, count);
-        }
-        private AccessorId PackToBuffer(Color[] data, int count)
-        {
-            ExporterUtils.PackToBuffer(_buffer, data, count);
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.Short, offset, bufferView.view.ByteStride);
+
+            return AccessorToId(accessor, bufferView);
         }
 
-        private AccessorId PackToBufferShort(Vector4[] data, int count)
+        private AccessorId AccessorToId(Accessor accessor, EntryBufferView bufferView)
         {
-            ExporterUtils.PackToBufferShort(_buffer, data, count);
+            accessor.BufferView = bufferView.id;
+            root.Accessors.Add(accessor);
+
+            return new AccessorId { Id = root.Accessors.Count };
         }
 
         private void SavePrimitive(UnityEngine.Mesh mesh, GLTF.Schema.Mesh m, int i)
