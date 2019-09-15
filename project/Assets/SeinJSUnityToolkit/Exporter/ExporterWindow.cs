@@ -1,4 +1,10 @@
-﻿#if UNITY_EDITOR
+﻿/**
+ * @File   : ExportorWindow.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/09/09 0:00:00PM
+ */
+#if UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;

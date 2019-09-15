@@ -1,4 +1,10 @@
-﻿using UnityEngine;
+﻿/**
+ * @File   : EditorExportor.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/09/09 0:00:00PM
+ */
+using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using GLTF;
@@ -19,7 +25,7 @@ namespace SeinJS
             _taskManager = new TaskManager();
         }
 
-        public void Export(List<ExportEntry> entries)
+        public void Export(List<ExportorEntry> entries)
         {
             _isDone = false;
             _userStopped = false;
@@ -30,7 +36,7 @@ namespace SeinJS
             }
         }
 
-        private void ExportOne(ExportEntry entry)
+        private void ExportOne(ExportorEntry entry)
         {
             var root = entry.root;
             root.Asset = new Asset();
@@ -68,7 +74,7 @@ namespace SeinJS
             }
         }
 
-        private void ExportNode(Transform tr, ExportEntry entry)
+        private void ExportNode(Transform tr, ExportorEntry entry)
         {
             var id = entry.SaveNode(tr);
             if (!tr.parent)
@@ -83,7 +89,7 @@ namespace SeinJS
             ExportMesh(tr, entry);
         }
 
-        private void ExportMesh(Transform tr, ExportEntry entry)
+        private void ExportMesh(Transform tr, ExportorEntry entry)
         {
             var renderer = GetRenderer(tr);
             var mesh = GetMesh(tr);
@@ -101,14 +107,26 @@ namespace SeinJS
 
             if (needProcessMatrials)
             {
-                ExportMaterial();
+                int i = 0;
+                var materials = renderer.sharedMaterials;
+                foreach (var primitive in id.Value.Primitives)
+                {
+                    if (i >= materials.Length)
+                    {
+                        break;
+                    }
+
+                    ExportMaterial(materials[i], primitive, entry);
+                    i += 1;
+                }
             }
         }
 
 
-        private void ExportMaterial()
+        private void ExportMaterial(UnityEngine.Material material, MeshPrimitive primitive, ExportorEntry entry)
         {
-
+            var id = entry.SaveMaterial(material);
+            primitive.Material = id;
         }
 
         private void ExportTexture()

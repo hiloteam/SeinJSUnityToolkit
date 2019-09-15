@@ -71,6 +71,7 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Common\Exceptions.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Common\GLTFTextureUtils.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Common\GLTFUtils.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Common\TaskManager.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Common\Utils.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Converter\StandardToSeinPBR.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Exporter\EditorExporter.cs" />

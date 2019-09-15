@@ -1,4 +1,10 @@
-﻿using System;
+﻿/**
+ * @File   : ExportorSettings.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/09/09 0:00:00PM
+ */
+using System;
 using System.IO;
 using UnityEngine;
 

@@ -1,4 +1,10 @@
-﻿using UnityEngine;
+﻿/**
+ * @File   : Exportor.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/09/09 0:00:00PM
+ */
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +22,7 @@ namespace SeinJS
 
         public void Export()
         {
-            List<ExportEntry> entries = new List<ExportEntry>();
+            List<ExportorEntry> entries = new List<ExportorEntry>();
             Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel);
 
             foreach (Transform tr in transforms)
@@ -30,7 +36,7 @@ namespace SeinJS
 
             if (!ExporterSettings.Export.splitChunks)
             {
-                entries.Add(new ExportEntry
+                entries.Add(new ExportorEntry
                 {
                         path = ExporterSettings.Export.GetExportPath(),
                         name = ExporterSettings.Export.name,
@@ -41,7 +47,7 @@ namespace SeinJS
             {
                 foreach (Transform tr in transforms)
                 {
-                    entries.Add(new ExportEntry
+                    entries.Add(new ExportorEntry
                     {
                             path = ExporterSettings.Export.GetExportPath(tr.name),
                             name = ExporterSettings.Export.name,

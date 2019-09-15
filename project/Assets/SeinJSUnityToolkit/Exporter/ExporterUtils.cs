@@ -1,10 +1,17 @@
-﻿using UnityEngine;
+﻿/**
+ * @File   : ExportorUtils.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/09/09 0:00:00PM
+ */
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using GLTF.Schema;
 using System.IO;
 using System;
+using System.Linq;
 
 namespace SeinJS
 {
@@ -56,6 +63,36 @@ namespace SeinJS
             }
 
             accessor.Count = count;
+            accessor.Max = max.ToList().ConvertAll(x => (double)x);
+            accessor.Min = min.ToList().ConvertAll(x => (double)x);
+
+            return accessor;
+        }
+
+        public static Accessor PackToBuffer<DataType>(
+            MemoryStream stream, DataType[] data,
+            GLTFComponentType componentType
+        )
+        {
+            var accessor = new Accessor();
+            accessor.ByteOffset = (int)stream.Length;
+            accessor.ComponentType = componentType;
+
+            int count = 0;
+            float[] max = null;
+            float[] min = null;
+
+            foreach (var item in data)
+            {
+                var bytes = GetDataToBuffer(item, componentType, ref max, ref min, ref accessor.Type);
+
+                stream.Write(bytes, 0, bytes.Length);
+                count += bytes.Length;
+            }
+
+            accessor.Count = count;
+            accessor.Max = max.ToList().ConvertAll(x => (double)x);
+            accessor.Min = min.ToList().ConvertAll(x => (double)x);
 
             return accessor;
         }
