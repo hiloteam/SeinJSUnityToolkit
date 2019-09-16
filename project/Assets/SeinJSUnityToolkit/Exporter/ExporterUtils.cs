@@ -12,6 +12,7 @@ using GLTF.Schema;
 using System.IO;
 using System;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace SeinJS
 {
@@ -195,6 +196,115 @@ namespace SeinJS
             System.Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
 
             return bytes;
+        }
+
+        public static GLTF.Schema.Material ConvertMaterial(UnityEngine.Material material, ExportorEntry entry)
+        {
+            if (material.shader.name.Contains("Standard") || material.shader.name.Contains("Autodesk Interactive"))
+            {
+                throw new Exception("Toolkit doesn't support Unity Standard Material anymore, please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/material-sein");
+            }
+
+            if (material.shader.name == "Sein/PBR")
+            {
+                return ConvertSeinPBRMaterial(material);
+            }
+
+            if (material.shader.name.Contains("Sein/"))
+            {
+                return ConvertSeinCustomMaterial(material);
+            }
+
+            return ConvertKHRWebGLMaterial(material);
+        }
+
+        private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExportorEntry entry)
+        {
+            var material = new GLTF.Schema.Material();
+
+            bool isMetal = mat.GetInt("workflow") == 0;
+            bool isUnlit = mat.GetInt("unlit") == 1;
+            if (!isMetal)
+            {
+                entry.AddExtension("KHR_materials_pbrSpecularGlossiness");
+            }
+            if (isUnlit)
+            {
+                entry.AddExtension("KHR_materials_unlit");
+            }
+            bool hasTransparency = ProcessTransparency(mat, material);
+
+            if (mat.GetTexture("_baseColorMap") != null)
+            {
+
+                var value = new GlTF_Material.DictValue();
+                value.name = isMetal ? "baseColorTexture" : "diffuseTexture";
+
+                int diffuseTextureIndex = processTexture((Texture2D)mat.GetTexture("_baseColorMap"), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                value.intValue.Add("index", diffuseTextureIndex);
+                value.intValue.Add("texCoord", 0);
+                material.pbrValues.Add(value);
+            }
+
+            if (mat.GetColor("_baseColor") != null)
+            {
+                var value = new GlTF_Material.ColorValue();
+                value.name = isMetal ? "baseColorFactor" : "diffuseFactor";
+                Color c = mat.GetColor("_baseColor");
+                clampColor(ref c);
+                value.color = c;
+                material.pbrValues.Add(value);
+            }
+
+            if (isUnlit)
+            {
+                material.Extensions.Add("KHR_materials_unlit", new JObject());
+                return material;
+            }
+
+        }
+
+        private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material material, ExportorEntry entry)
+        {
+
+        }
+
+        private static GLTF.Schema.Material ConvertKHRWebGLMaterial(UnityEngine.Material material, ExportorEntry entry)
+        {
+
+        }
+
+        public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial material, ExportorEntry entry)
+        {
+
+        }
+
+        private static bool ProcessTransparency(UnityEngine.Material mat, GLTF.Schema.Material material)
+        {
+            if (!mat.HasProperty("_Mode"))
+            {
+                return false;
+            }
+
+            switch ((int)mat.GetFloat("_Mode"))
+            {
+                // Opaque
+                case 0:
+                    material.AlphaMode = AlphaMode.OPAQUE;
+                    return false;
+                // Cutout
+                case 1:
+                    material.AlphaMode = AlphaMode.MASK;
+                    material.AlphaCutoff = mat.GetFloat("_Cutoff");
+                    break;
+                // Transparent
+                case 2:
+                case 3:
+                    material.AlphaMode = AlphaMode.BLEND;
+                    break;
+            }
+
+            return true;
         }
     }
 }

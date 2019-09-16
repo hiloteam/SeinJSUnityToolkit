@@ -43,7 +43,6 @@ namespace SeinJS
         public List<Transform> bones = new List<Transform>();
         public Dictionary<Transform, Node> tr2node = new Dictionary<Transform, Node>();
 
-        //private MemoryStream _buffer = new MemoryStream();
         private List<EntryBufferView> _bufferViews = new List<EntryBufferView>();
 		// for each mesh
 		private Dictionary<UnityEngine.Mesh, Dictionary<string, AccessorId>> _mesh2attrs= new Dictionary<UnityEngine.Mesh, Dictionary<string, AccessorId>>();
@@ -76,6 +75,15 @@ namespace SeinJS
             bufferView.id = new BufferViewId { Id = root.BufferViews.Count };
 
             return bufferView;
+        }
+
+        public void AddExtension(string extension)
+        {
+            if (!root.ExtensionsUsed.Contains(extension))
+            {
+                root.ExtensionsUsed.Add(extension);
+                root.ExtensionsRequired.Add(extension);
+            }
         }
 
         public NodeId SaveNode(Transform tr)
@@ -339,35 +347,16 @@ namespace SeinJS
             );
         }
 
-        public MaterialId SaveMaterial(UnityEngine.Material material)
+        public MaterialId SaveNormalMaterial(UnityEngine.Material material)
         {
-            var id = new MaterialId();
+			var mat = ExporterUtils.ConvertMaterial(material, this);
+			root.Materials.Add(mat);
 
-            return id;
-        }
+			var id = new MaterialId { Id = root.Materials.Count };
+			return id;
+		}
 
-        public MaterialId SavePBRMaterial(UnityEngine.Material material)
-        {
-            var id = new MaterialId();
-
-            return id;
-        }
-
-        public MaterialId SaveSeinMaterial(UnityEngine.Material material)
-        {
-            var id = new MaterialId();
-
-            return id;
-        }
-
-        public MaterialId SaveComponentMaterial(UnityEngine.Material material)
-        {
-            var id = new MaterialId();
-
-            return id;
-        }
-
-        public MaterialId SaveOtherMaterial(UnityEngine.Material material)
+		public MaterialId SaveComponentMaterial(SeinCustomMaterial material)
         {
             var id = new MaterialId();
 

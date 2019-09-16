@@ -107,26 +107,47 @@ namespace SeinJS
 
             if (needProcessMatrials)
             {
+                var materialComponents = tr.GetComponents<SeinCustomMaterial>();
                 int i = 0;
                 var materials = renderer.sharedMaterials;
                 foreach (var primitive in id.Value.Primitives)
                 {
                     if (i >= materials.Length)
                     {
+                        Debug.LogError("No material in primitive" + " " + i + " in mesh " + mesh.name + " !");
                         break;
                     }
 
-                    ExportMaterial(materials[i], primitive, entry);
+                    bool hasComponent = false;
+                    foreach (var materialComponent in materialComponents)
+                    {
+                        if (materialComponent.unityMaterialName == materials[i].name)
+                        {
+                            ExportComponentMaterial(materialComponent, primitive, entry);
+                            hasComponent = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasComponent)
+                    {
+                        ExportNormalMaterial(materials[i], primitive, entry);
+                    }
+
                     i += 1;
                 }
             }
         }
 
 
-        private void ExportMaterial(UnityEngine.Material material, MeshPrimitive primitive, ExportorEntry entry)
+        private void ExportNormalMaterial(UnityEngine.Material material, MeshPrimitive primitive, ExportorEntry entry)
         {
-            var id = entry.SaveMaterial(material);
-            primitive.Material = id;
+            primitive.Material = entry.SaveNormalMaterial(material);
+        }
+
+        private void ExportComponentMaterial(SeinCustomMaterial material, MeshPrimitive primitive, ExportorEntry entry)
+        {
+            primitive.Material = entry.SaveComponentMaterial(material);
         }
 
         private void ExportTexture()
