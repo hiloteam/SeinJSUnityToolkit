@@ -10,7 +10,7 @@ using UnityEditor;
 using Ionic.Zip;
 using SimpleJSON;
 
-namespace GlTF
+namespace SeinJS
 {
 	class GlTFImporterWindow : EditorWindow
 	{
@@ -21,10 +21,12 @@ namespace GlTF
 			window.titleContent.text = "Importer";
 			window.Show(true);
 
-            if (!SeinUtils.inited)
+            if (!Utils.inited)
             {
-                SeinUtils.Init();
+                Utils.Init();
             }
+
+            ExtensionManager.Init();
         }
 
 		// GlTF elements

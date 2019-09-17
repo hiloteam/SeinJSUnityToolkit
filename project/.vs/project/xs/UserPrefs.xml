@@ -1,15 +1,15 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/Extensions/KHR_materials_unlit.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/Extensions/SeinExtensionFactory.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Importer/GLTFEditorImporter.cs" Line="127" Column="29" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/SceneToGlTFWiz.cs" Line="1575" Column="72" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/GlTF_Writer.cs" Line="517" Column="52" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="225" Column="56" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="45" Column="1" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Extensions/KHR_materials_unlit.cs" Line="16" Column="1" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Importer/GLTFEditorImporter.cs" Line="102" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/SceneToGlTFWiz.cs" Line="1470" Column="87" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Extensions/ExtensionsManager.cs" Line="46" Column="52" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="395" Column="1" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="55" Column="27" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="30" Column="25" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Extensions/SeinExtensionFactory.cs" Line="37" Column="25" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/SeinCustomMaterial.cs" Line="38" Column="25" NotebookId="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,10 +17,11 @@
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="SeinJSUnityToolkit" expanded="True">
+                <Node name="Common" expanded="True" />
                 <Node name="Exporter" expanded="True" />
                 <Node name="Extensions" expanded="True">
                   <Node name="Extensions" expanded="True">
-                    <Node name="KHR_materials_unlit.cs" selected="True" />
+                    <Node name="SeinExtensionFactory.cs" selected="True" />
                   </Node>
                 </Node>
                 <Node name="Importer" expanded="True" />
@@ -38,7 +39,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="37dacc57-e40b-4683-81f8-c760455ee316" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="298f3087-c9bb-434e-a773-61dd12d4f181" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

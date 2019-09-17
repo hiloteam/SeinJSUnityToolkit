@@ -207,15 +207,15 @@ namespace SeinJS
 
             if (material.shader.name == "Sein/PBR")
             {
-                return ConvertSeinPBRMaterial(material);
+                return ConvertSeinPBRMaterial(material, entry);
             }
 
             if (material.shader.name.Contains("Sein/"))
             {
-                return ConvertSeinCustomMaterial(material);
+                return ConvertSeinCustomMaterial(material, entry);
             }
 
-            return ConvertKHRWebGLMaterial(material);
+            return ConvertKHRWebGLMaterial(material, entry);
         }
 
         private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExportorEntry entry)
@@ -226,45 +226,140 @@ namespace SeinJS
             bool isUnlit = mat.GetInt("unlit") == 1;
             if (!isMetal)
             {
+                // special
                 entry.AddExtension("KHR_materials_pbrSpecularGlossiness");
-            }
-            if (isUnlit)
-            {
-                entry.AddExtension("KHR_materials_unlit");
             }
             bool hasTransparency = ProcessTransparency(mat, material);
 
-            if (mat.GetTexture("_baseColorMap") != null)
+            if (isUnlit || isMetal)
             {
+                if (mat.GetTexture("_baseColorMap") != null)
+                {
+                    var id = entry.SaveTexture((Texture2D)mat.GetTexture("_baseColorMap"), hasTransparency);
+                    material.PbrMetallicRoughness.BaseColorTexture = new TextureInfo { Index = id };
+                }
 
-                var value = new GlTF_Material.DictValue();
-                value.name = isMetal ? "baseColorTexture" : "diffuseTexture";
-
-                int diffuseTextureIndex = processTexture((Texture2D)mat.GetTexture("_baseColorMap"), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
-                value.intValue.Add("index", diffuseTextureIndex);
-                value.intValue.Add("texCoord", 0);
-                material.pbrValues.Add(value);
-            }
-
-            if (mat.GetColor("_baseColor") != null)
-            {
-                var value = new GlTF_Material.ColorValue();
-                value.name = isMetal ? "baseColorFactor" : "diffuseFactor";
-                Color c = mat.GetColor("_baseColor");
-                clampColor(ref c);
-                value.color = c;
-                material.pbrValues.Add(value);
+                if (mat.GetTexture("_baseColor") != null)
+                {
+                    Color c = mat.GetColor("_baseColor");
+                    material.PbrMetallicRoughness.BaseColorFactor = new GLTF.Math.Color(c.r, c.g, c.b, c.a);
+                }
             }
 
             if (isUnlit)
             {
-                material.Extensions.Add("KHR_materials_unlit", new JObject());
-                return material;
+                ExtensionManager.Serialize(typeof(KHR_materials_unlit), entry, material.Extensions);
+            }
+            else if (isMetal)
+            {
+                bool hasPBRMap = mat.GetTexture("_metallicMap") != null;
+                if (hasPBRMap)
+                {
+                    Texture2D metallicTexture = (Texture2D)mat.GetTexture("_metallicMap");
+                    Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_roughnessMap");
+                    Texture2D occlusion = (Texture2D)mat.GetTexture("_occlusionMap");
+
+                    var metalRoughTextureAo = CreateOcclusionMetallicRoughnessTexture(
+                        ref metallicTexture, ref roughnessTexture, ref occlusion,
+                        EImageChannel.B, EImageChannel.G, EImageChannel.R, EImageChannel.G
+                    );
+                    var id = entry.SaveTexture(metalRoughTextureAo, hasTransparency);
+                    material.PbrMetallicRoughness.MetallicRoughnessTexture = new TextureInfo { Index = id };
+
+                    if (occlusion != null)
+                    {
+                        material.OcclusionTexture = new OcclusionTextureInfo {
+                            Index = id,
+                            Strength = mat.GetFloat("_occlusionStrength")
+                        };
+                    }
+                }
+
+                material.PbrMetallicRoughness.MetallicFactor = hasPBRMap ? 1.0f : mat.GetFloat("_metallic");
+                material.PbrMetallicRoughness.RoughnessFactor = mat.GetFloat("_roughness");
+            }
+            else
+            {
+                TextureInfo specGlossMap = null;
+                TextureInfo diffuseMap = null;
+                GLTF.Math.Color diffuseColor = new GLTF.Math.Color();
+
+                if (mat.GetTexture("_baseColorMap") != null)
+                {
+                    var id = entry.SaveTexture((Texture2D)mat.GetTexture("_baseColorMap"), hasTransparency);
+                    diffuseMap = new TextureInfo { Index = id };
+                }
+
+                if (mat.GetTexture("_baseColor") != null)
+                {
+                    Color c = mat.GetColor("_baseColor");
+                    diffuseColor = new GLTF.Math.Color(c.r, c.g, c.b, c.a);
+                }
+
+                bool hasPBRMap = mat.GetTexture("_specularGlossinessMap") != null;
+
+                if (hasPBRMap)
+                {
+                    specGlossMap = new TextureInfo { Index = entry.SaveTexture((Texture2D)mat.GetTexture("_specularGlossinessMap"), true) };
+                }
+
+                var specularFactor = hasPBRMap ? Color.white : mat.GetColor("_specular");
+                var glossinessFactor = hasPBRMap ? 1.0f : mat.GetFloat("_glossiness");
+
+                material.Extensions.Add(
+                    "KHR_materials_pbrSpecularGlossiness",
+                    new KHR_materials_pbrSpecularGlossinessExtension(
+                        diffuseColor, diffuseMap,
+                        new GLTF.Math.Vector3(specularFactor.r, specularFactor.g, specularFactor.b),
+                        glossinessFactor, specGlossMap
+                    )
+                );
+
+                Texture2D occlusion = (Texture2D)mat.GetTexture("_occlusionMap");
+                if (occlusion != null)
+                {
+                    material.OcclusionTexture = new OcclusionTextureInfo
+                    {
+                        Index = entry.SaveTexture((Texture2D)mat.GetTexture("_occlusionMap"), false),
+                        Strength = mat.GetFloat("_occlusionStrength")
+                    };
+                }
             }
 
+            if (mat.GetTexture("_normalMap") != null)
+            {
+                material.NormalTexture = new NormalTextureInfo
+                {
+                    Index = entry.SaveTexture((Texture2D)mat.GetTexture("_normalMap"), false),
+                };
+            }
+
+            if (mat.GetTexture("_emissionMap") != null)
+            {
+                material.EmissiveTexture = new TextureInfo
+                {
+                    Index = entry.SaveTexture((Texture2D)mat.GetTexture("_emissionMap"), false),
+                };
+            }
+
+            var emissive = mat.GetColor("_emission");
+            if (!emissive.Equals(new Color(0, 0, 0)))
+            {
+                material.EmissiveFactor = new GLTF.Math.Color(emissive.r, emissive.g, emissive.b, emissive.a);
+            }
+
+            /*
+             * @todo: reflection
+             */
+            if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off)
+            {
+                //createReflection(mat, ref material);
+            }
+
+            return material;
         }
 
-        private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material material, ExportorEntry entry)
+        private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material mat, ExportorEntry entry)
         {
 
         }
@@ -274,9 +369,32 @@ namespace SeinJS
 
         }
 
-        public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial material, ExportorEntry entry)
+        public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial mat, ExportorEntry entry)
         {
+            var material = new GLTF.Schema.Material();
 
+            if (mat.uniformsTexture.Length != 0)
+            {
+                foreach (var uniform in mat.uniformsTexture)
+                {
+                    uniform.id = entry.SaveTexture(uniform.value, mat.transparent);
+                }
+            }
+
+            if (mat.uniformsCubeTexture.Length != 0)
+            {
+                foreach (var uniform in mat.uniformsCubeTexture)
+                {
+                    // todo: support cubemap
+                    //int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
+                    //uniform.index = diffuseTextureIndex;
+                    //uniform.texCoord = 0;
+                }
+            }
+
+
+
+            //return material;
         }
 
         private static bool ProcessTransparency(UnityEngine.Material mat, GLTF.Schema.Material material)
@@ -305,6 +423,222 @@ namespace SeinJS
             }
 
             return true;
+        }
+
+        private static Texture2D CreateOcclusionMetallicRoughnessTexture(
+            ref Texture2D metallic,
+            ref Texture2D roughness,
+            ref Texture2D occlusion,
+            EImageChannel metallicChannel = EImageChannel.R,
+            EImageChannel roughnessChannel = EImageChannel.R,
+            EImageChannel occlusionChannel = EImageChannel.R,
+            EImageChannel roughnessDist = EImageChannel.G_INVERT
+        )
+        {
+            string texName = metallic.name + "_orm";
+            var textureM = metallic;
+            var textureR = roughness;
+            var textureAO = occlusion;
+
+            string id = "";
+            if (metallic)
+            {
+                id += metallic.GetInstanceID();
+            }
+            if (roughness)
+            {
+                id += roughness.GetInstanceID();
+            }
+            if (occlusion)
+            {
+                id += occlusion.GetInstanceID();
+            }
+
+            if (ExportorEntry.composedTextures[id])
+            {
+                return ExportorEntry.composedTextures[id];
+            }
+
+            int width = textureM.width;
+            int height = textureM.height;
+            string assetPath = AssetDatabase.GetAssetPath(textureM);
+
+            if (textureR != null)
+            {
+                width = textureR.width > width ? textureR.width : width;
+                height = textureR.height > height ? textureR.height : height;
+            }
+
+            if (textureAO != null)
+            {
+                width = textureAO.width > width ? textureAO.width : width;
+                height = textureAO.height > height ? textureAO.height : height;
+            }
+
+            if (textureM.width != width || textureM.height != height)
+            {
+                cloneAndResize(ref metallic, out textureM, width, height);
+            }
+
+            if (textureR != null && (textureR.width != width || textureR.height != height))
+            {
+                cloneAndResize(ref roughness, out textureR, width, height);
+            }
+
+            if (textureAO != null && (textureAO.width != width || textureAO.height != height))
+            {
+                cloneAndResize(ref occlusion, out textureAO, width, height);
+            }
+
+            // Create texture
+            GlTF_Texture texture = new GlTF_Texture();
+            texture.name = texName;
+
+            // Export image
+            GlTF_Image img = new GlTF_Image();
+            img.name = texName;
+
+            // Let's consider that the three textures have the same resolution
+            Color[] outputColors = new Color[width * height];
+            for (int i = 0; i < outputColors.Length; ++i)
+            {
+                outputColors[i] = new Color(0.0f, 0.0f, 0.0f);
+            }
+
+            SetTextureChannel(ref textureM, ref outputColors, EImageChannel.B, metallicChannel);
+
+            if (textureR != null)
+            {
+                SetTextureChannel(ref textureR, ref outputColors, roughnessDist, roughnessChannel);
+            }
+
+            if (textureAO != null)
+            {
+                SetTextureChannel(ref textureAO, ref outputColors, EImageChannel.R, occlusionChannel);
+            }
+
+            Texture2D newtex = new Texture2D(width, height);
+            newtex.name = texName;
+            newtex.SetPixels(outputColors);
+            newtex.Apply();
+
+            return newtex;
+        }
+
+        private static void cloneAndResize(ref Texture2D tex, out Texture2D newtex, int width, int height)
+        {
+            Texture2D newTex = null;
+            DoActionForTexture(ref tex, t =>
+                {
+                    newTex = new Texture2D(t.width, t.height);
+                    newTex.name = t.name;
+                    newTex.SetPixels(t.GetPixels());
+                    newTex.Apply();
+                    TextureScale.Bilinear(newTex, width, height);
+                }
+            );
+
+            newtex = newTex;
+        }
+
+        private static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
+        {
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+
+            if (!im)
+            {
+                return;
+            }
+
+            bool readable = im.isReadable;
+            TextureImporterCompression format = im.textureCompression;
+            TextureImporterType type = im.textureType;
+            bool isConvertedBump = im.convertToNormalmap;
+
+            if (!readable)
+                im.isReadable = true;
+            if (type != TextureImporterType.Default)
+                im.textureType = TextureImporterType.Default;
+
+            im.textureCompression = TextureImporterCompression.Uncompressed;
+            im.SaveAndReimport();
+
+            action(tex);
+
+            if (!readable)
+                im.isReadable = false;
+            if (type != TextureImporterType.Default)
+                im.textureType = type;
+            if (isConvertedBump)
+                im.convertToNormalmap = true;
+
+            im.textureCompression = format;
+            im.SaveAndReimport();
+        }
+
+        private static void SetTextureChannel(ref Texture2D texture, ref Color[] colors, EImageChannel outputChannel, EImageChannel inputChannel = EImageChannel.R)
+        {
+            int height = texture.height;
+            int width = texture.width;
+            Color[] inputColors = new Color[texture.width * texture.height];
+            DoActionForTexture(ref texture, tex => { inputColors = tex.GetPixels(); });
+
+            if (!texture || inputColors.Length <= 0)
+            {
+                return;
+            }
+
+            if (height * width != colors.Length)
+            {
+                Debug.LogError("Issue with texture dimensions");
+                return;
+            }
+
+            for (int i = 0; i < height; ++i)
+            {
+                for (int j = 0; j < width; ++j)
+                {
+                    int index = i * width + j;
+                    Color c = colors[index];
+                    float inputValue;
+                    if (outputChannel == EImageChannel.R)
+                    {
+                        inputValue = inputColors[index].r;
+                    }
+                    else if (outputChannel == EImageChannel.G)
+                    {
+                        inputValue = inputColors[index].g;
+                    }
+                    else if (outputChannel == EImageChannel.B)
+                    {
+                        inputValue = inputColors[index].b;
+                    }
+                    else
+                    {
+                        inputValue = inputColors[index].a;
+                    }
+
+                    if (outputChannel == EImageChannel.R)
+                    {
+                        c.r = inputValue;
+                    }
+                    else if (outputChannel == EImageChannel.G)
+                    {
+                        c.g = inputValue;
+                    }
+                    else if (outputChannel == EImageChannel.B)
+                    {
+                        c.b = inputValue;
+                    }
+                    else if (outputChannel == EImageChannel.G_INVERT)
+                    {
+                        c.g = 1.0f - inputValue;
+                    }
+
+                    colors[index] = c;
+                }
+            }
+
         }
     }
 }

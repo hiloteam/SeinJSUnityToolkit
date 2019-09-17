@@ -29,7 +29,9 @@ namespace SeinJS {
             {
                 Utils.Init();
             }
-	    }
+
+            ExtensionManager.Init();
+        }
 
         public static GameObject tempGoForSein = null;
 

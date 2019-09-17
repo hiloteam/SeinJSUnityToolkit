@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using GLTF.Schema;
 
 public enum ESeinMaterialUniformType
 {
@@ -29,16 +30,12 @@ public class SeinMaterialUniform<TValue>
 
 [System.Serializable] public class SeinMaterialUniformTexture : SeinMaterialUniform<Texture2D> {
     [System.NonSerialized]
-    public int index;
-    [System.NonSerialized]
-    public int texCoord;
+    public TextureId id;
     public SeinMaterialUniformTexture() { type = ESeinMaterialUniformType.SAMPLER_2D; }
 }
 [System.Serializable] public class SeinMaterialUniformCubeTexture : SeinMaterialUniform<Cubemap> {
     [System.NonSerialized]
-    public int index;
-    [System.NonSerialized]
-    public int texCoord;
+    public TextureId id;
     public SeinMaterialUniformCubeTexture() { type = ESeinMaterialUniformType.SAMPLER_CUBE; }
 }
 [System.Serializable] public class SeinMaterialUniformFloat : SeinMaterialUniform<float> { public SeinMaterialUniformFloat() { type = ESeinMaterialUniformType.FLOAT; } }
@@ -106,6 +103,7 @@ public class SeinCustomMaterial : MonoBehaviour
     [Header("Options")]
     public int renderOrder = 0;
     public bool cloneForInst = false;
+    public bool transparent = false;
 
     [Header("Uniforms")]
     public SeinMaterialUniformTexture[] uniformsTexture = { };

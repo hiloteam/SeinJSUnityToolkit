@@ -12,6 +12,15 @@ using System.IO;
 
 namespace SeinJS
 {
+    public enum EImageChannel
+    {
+        R,
+        G,
+        B,
+        A,
+        G_INVERT
+    };
+
     public class Config
 	{
 		static bool inited = false;

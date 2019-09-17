@@ -27,6 +27,7 @@ namespace SeinJS
 
         public void Export(List<ExportorEntry> entries)
         {
+			ExportorEntry.Init();
             _isDone = false;
             _userStopped = false;
 

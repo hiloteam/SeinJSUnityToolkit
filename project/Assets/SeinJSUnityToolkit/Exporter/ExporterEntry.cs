@@ -52,6 +52,16 @@ namespace SeinJS
         // key: SeinCustomMaterial componenet or UnityMateiral InistanceID
         private Dictionary<int, MaterialId> material2ID = new Dictionary<int, MaterialId>();
 
+        // key: instanceId
+        public static Dictionary<string, Texture2D> composedTextures = new Dictionary<string, Texture2D>();
+        public static Dictionary<Texture2D, GLTF.Schema.Texture> texture2d2tex =  new Dictionary<Texture2D, GLTF.Schema.Texture>();
+
+        public static void Init()
+		{
+            composedTextures.Clear();
+            texture2d2tex.Clear();
+		}
+
         public EntryBufferView CreateByteBufferView(string name, int size, int stride)
         {
             var bufferView = new EntryBufferView();
@@ -363,7 +373,14 @@ namespace SeinJS
             return id;
         }
 
-        public TextureId SaveTexture()
+        public TextureId SaveTexture(Texture2D texture, bool hasTransparency)
+        {
+            var id = new TextureId();
+
+            return id;
+        }
+
+        public TextureId SaveTextureHDR(Texture2D texture)
         {
             var id = new TextureId();
 
