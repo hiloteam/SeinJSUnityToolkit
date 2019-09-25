@@ -13,11 +13,20 @@ using System.IO;
 using System;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System.Text.RegularExpressions;
 
 namespace SeinJS
 {
     public class ExporterUtils
     {
+        private static GameObject _tempGO = null;
+
+        public static Regex rgxPath = new Regex("[^a-zA-Z0-9-_./]");
+        public static string cleanPath(string s)
+        {
+            return rgxPath.Replace(s, "").ToLower();
+        }
+
         public static Vector4[] BoneWeightToBoneVec4(BoneWeight[] bw)
         {
             Vector4[] bones = new Vector4[bw.Length];
@@ -215,7 +224,8 @@ namespace SeinJS
                 return ConvertSeinCustomMaterial(material, entry);
             }
 
-            return ConvertKHRWebGLMaterial(material, entry);
+            //return ConvertKHRWebGLMaterial(material, entry);
+            throw new Exception("Only support Sein/PBR or Sein/XXX(CustomMaterial) now !");
         }
 
         private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExportorEntry entry)
@@ -361,13 +371,76 @@ namespace SeinJS
 
         private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material mat, ExportorEntry entry)
         {
+            if (_tempGO == null)
+            {
+                _tempGO = new GameObject();
+            }
 
+            var customMaterial = _tempGO.AddComponent<SeinCustomMaterial>();
+            var className = mat.shader.name.Replace("Sein/", "");
+            if (!className.Contains("Material"))
+            {
+                className += "Material";
+            }
+            customMaterial.className = className;
+            customMaterial.renderOrder = mat.renderQueue;
+            var floatArray = new List<SeinMaterialUniformFloat>();
+            var vector4Array = new List<SeinMaterialUniformFloatVec4>();
+            var textureArray = new List<SeinMaterialUniformTexture>();
+
+            for (int i = 0; i < ShaderUtil.GetPropertyCount(mat.shader); i += 1)
+            {
+                var propType = ShaderUtil.GetPropertyType(mat.shader, i);
+                var propName = ShaderUtil.GetPropertyName(mat.shader, i);
+
+                if (propName == "cloneForInst")
+                {
+                    customMaterial.cloneForInst = mat.GetInt("cloneForInst") != 0;
+                    continue;
+                }
+
+                if (ShaderUtil.IsShaderPropertyHidden(mat.shader, i))
+                {
+                    continue;
+                }
+
+                if (propName.Substring(0, 1) == "_")
+                {
+                    propName = propName.Substring(1);
+                }
+
+                switch (propType)
+                {
+                    case ShaderUtil.ShaderPropertyType.Float:
+                    case ShaderUtil.ShaderPropertyType.Range:
+                        floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(propName) });
+                        break;
+                    case ShaderUtil.ShaderPropertyType.Color:
+                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(propName) });
+                        break;
+                    case ShaderUtil.ShaderPropertyType.Vector:
+                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(propName) });
+                        break;
+                    case ShaderUtil.ShaderPropertyType.TexEnv:
+                        if (mat.GetTexture(propName) != null)
+                        {
+                            textureArray.Add(new SeinMaterialUniformTexture { name = propName, value = (Texture2D)mat.GetTexture(propName) });
+                        }
+                        break;
+                }
+
+                customMaterial.uniformsFloat = floatArray.ToArray();
+                customMaterial.uniformsFloatVec4 = vector4Array.ToArray();
+                customMaterial.uniformsTexture = textureArray.ToArray();
+            }
+
+            return ConvertMaterial(customMaterial, entry);
         }
 
-        private static GLTF.Schema.Material ConvertKHRWebGLMaterial(UnityEngine.Material material, ExportorEntry entry)
-        {
+        //private static GLTF.Schema.Material ConvertKHRWebGLMaterial(UnityEngine.Material material, ExportorEntry entry)
+        //{
 
-        }
+        //}
 
         public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial mat, ExportorEntry entry)
         {
@@ -461,7 +534,6 @@ namespace SeinJS
 
             int width = textureM.width;
             int height = textureM.height;
-            string assetPath = AssetDatabase.GetAssetPath(textureM);
 
             if (textureR != null)
             {
@@ -477,26 +549,18 @@ namespace SeinJS
 
             if (textureM.width != width || textureM.height != height)
             {
-                cloneAndResize(ref metallic, out textureM, width, height);
+                CloneAndResize(ref metallic, out textureM, width, height);
             }
 
             if (textureR != null && (textureR.width != width || textureR.height != height))
             {
-                cloneAndResize(ref roughness, out textureR, width, height);
+                CloneAndResize(ref roughness, out textureR, width, height);
             }
 
             if (textureAO != null && (textureAO.width != width || textureAO.height != height))
             {
-                cloneAndResize(ref occlusion, out textureAO, width, height);
+                CloneAndResize(ref occlusion, out textureAO, width, height);
             }
-
-            // Create texture
-            GlTF_Texture texture = new GlTF_Texture();
-            texture.name = texName;
-
-            // Export image
-            GlTF_Image img = new GlTF_Image();
-            img.name = texName;
 
             // Let's consider that the three textures have the same resolution
             Color[] outputColors = new Color[width * height];
@@ -522,10 +586,13 @@ namespace SeinJS
             newtex.SetPixels(outputColors);
             newtex.Apply();
 
+            newtex.filterMode = textureM.filterMode;
+            newtex.wrapMode = textureM.wrapMode;
+
             return newtex;
         }
 
-        private static void cloneAndResize(ref Texture2D tex, out Texture2D newtex, int width, int height)
+        private static void CloneAndResize(ref Texture2D tex, out Texture2D newtex, int width, int height)
         {
             Texture2D newTex = null;
             DoActionForTexture(ref tex, t =>
@@ -541,7 +608,7 @@ namespace SeinJS
             newtex = newTex;
         }
 
-        private static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
+        public static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
         {
             TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
 

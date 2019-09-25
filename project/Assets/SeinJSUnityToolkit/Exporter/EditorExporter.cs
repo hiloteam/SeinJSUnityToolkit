@@ -73,6 +73,12 @@ namespace SeinJS
 
                 ExportNode(tr, entry);
             }
+
+            // process children
+
+            // process skinning and bones
+
+            // process animations
         }
 
         private void ExportNode(Transform tr, ExportorEntry entry)

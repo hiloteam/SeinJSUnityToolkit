@@ -1,8 +1,6 @@
 /***************************************************************************
 GlamExport
- - Unity3D Scriptable Wizard to export Hierarchy or Project objects as glTF
-
-
+- Unity3D Scriptable Wizard to export Hierarchy or Project objects as glTF
 ****************************************************************************/
 #if UNITY_EDITOR
 using UnityEngine;
@@ -15,7 +13,6 @@ using System.Text;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Ionic.Zip;
-
 public enum IMAGETYPE
 {
     GRAYSCALE,
@@ -31,23 +28,18 @@ public enum IMAGETYPE
     IGNORE,
     HDR
 }
-
 public static class KTXHeader
 {
     public static byte[] IDENTIFIER = { 0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A };
     public static byte[] ENDIANESS_LE = { 1, 2, 3, 4 };
-
     // constants for glInternalFormat
     public static int GL_ETC1_RGB8_OES = 0x8D64;
-
     public static int GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG = 0x8C00;
     public static int GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG = 0x8C01;
     public static int GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG = 0x8C02;
     public static int GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 0x8C03;
-
     public static int GL_ATC_RGB_AMD = 0x8C92;
     public static int GL_ATC_RGBA_INTERPOLATED_ALPHA_AMD = 0x87EE;
-
     public static int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
     public static int GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9276;
     public static int GL_COMPRESSED_RGBA8_ETC2_EAC = 0x9278;
@@ -55,34 +47,28 @@ public static class KTXHeader
     public static int GL_COMPRESSED_SIGNED_R11_EAC = 0x9271;
     public static int GL_COMPRESSED_RG11_EAC = 0x9272;
     public static int GL_COMPRESSED_SIGNED_RG11_EAC = 0x9273;
-
     public static int GL_COMPRESSED_RED_RGTC1 = 0x8DBB;
     public static int GL_COMPRESSED_RG_RGTC2 = 0x8DBD;
     public static int GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT = 0x8E8F;
     public static int GL_COMPRESSED_RGBA_BPTC_UNORM = 0x8E8C;
-
     public static int GL_R16F = 0x822D;
     public static int GL_RG16F = 0x822F;
     public static int GL_RGBA16F = 0x881A;
     public static int GL_R32F = 0x822E;
     public static int GL_RG32F = 0x8230;
     public static int GL_RGBA32F = 0x8814;
-
     // constants for glBaseInternalFormat
     public static int GL_RED = 0x1903;
     public static int GL_RGB = 0x1907;
     public static int GL_RGBA = 0x1908;
     public static int GL_RG = 0x8227;
 }
-
 public class SceneToGlTFWiz : MonoBehaviour
 {
     public GlTF_Writer writer;
     string savedPath = "";
     int nbSelectedObjects = 0;
-
     static bool done = true;
-
     public static GlTF_Camera parseUnityCamera(Transform tr)
     {
         if (tr.GetComponent<Camera>().orthographic)
@@ -98,7 +84,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             cam.xmag = 1 / matrix[0, 0];
             cam.ymag = 1 / matrix[1, 1];
             GlTF_Writer.cameras.Add(cam);
-
             return cam;
         }
         else
@@ -113,21 +98,17 @@ public class SceneToGlTFWiz : MonoBehaviour
             cam.yfov = camera.fieldOfView;
             cam.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
             GlTF_Writer.cameras.Add(cam);
-
             return cam;
         }
     }
-
     public bool isDone()
     {
         return done;
     }
-
     public void resetParser()
     {
         done = false;
     }
-
     public static GlTF_Light parseUnityLight(Transform tr)
     {
         var light = tr.GetComponent<Light>();
@@ -135,7 +116,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             return null;
         }
-
         switch (tr.GetComponent<Light>().type)
         {
             case LightType.Point:
@@ -148,7 +128,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 pl.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(pl);
                 return pl;
-
             case LightType.Spot:
                 GlTF_SpotLight sl = new GlTF_SpotLight();
                 sl.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
@@ -160,7 +139,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 sl.quadraticAttenuation = Exporter.opt_quadraticAttenuation;
                 GlTF_Writer.lights.Add(sl);
                 return sl;
-
             case LightType.Directional:
                 GlTF_DirectionalLight dl = new GlTF_DirectionalLight();
                 dl.color = new GlTF_ColorRGB(tr.GetComponent<Light>().color);
@@ -171,14 +149,11 @@ public class SceneToGlTFWiz : MonoBehaviour
                 GlTF_Writer.lights.Add(dl);
                 return dl;
         }
-
         return null;
     }
-
     public void ExportCoroutine(string path, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = true)
     {
         var dirPath = Path.GetDirectoryName(path);
-
         Transform[] transforms;
         transforms = Selection.GetTransforms(SelectionMode.TopLevel);
         foreach (Transform tr in transforms)
@@ -189,7 +164,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 go.AddComponent<SeinNode>();
             }
         }
-
         if (!Exporter.opt_splitChunks)
         {
             // collect all objects in the selection deeply, add to lists
@@ -197,7 +171,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             StartCoroutine(Export(path, transforms, presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
             return;
         }
-
         // collect all objects in the selection, add to lists
         transforms = Selection.GetTransforms(SelectionMode.TopLevel);
         foreach (Transform tr in transforms)
@@ -205,12 +178,10 @@ public class SceneToGlTFWiz : MonoBehaviour
             StartCoroutine(Export(Path.Combine(dirPath, tr.name + ".gltf"), tr.GetComponentsInChildren<Transform>(), presetAsset, buildZip, exportPBRMaterials, exportAnimation, doConvertImages));
         }
     }
-
     public int getNbSelectedObjects()
     {
         return nbSelectedObjects;
     }
-
     public IEnumerator Export(string path, Transform[] transforms, Preset presetAsset, bool buildZip, bool exportPBRMaterials, bool exportAnimation = true, bool doConvertImages = false)
     {
         writer = new GlTF_Writer();
@@ -220,17 +191,12 @@ public class SceneToGlTFWiz : MonoBehaviour
         GlTF_Writer.exportedFiles.Clear();
         if (debugRightHandedScale)
             GlTF_Writer.convertRightHanded = false;
-
         writer.extraString.Add("exporterVersion", SeinUtils.version.ToString());
-
-       
         //path = toGlTFname(path);
         savedPath = Path.GetDirectoryName(path);
-
         // Temp list to keep track of skeletons
         Dictionary<string, GlTF_Skin> parsedSkins = new Dictionary<string, GlTF_Skin>();
         parsedSkins.Clear();
-
         List<Transform> trs = new List<Transform>(transforms);
         // Prefilter selected nodes and look for skinning in order to list "bones" nodes
         //FIXME: improve this
@@ -239,7 +205,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             if (!tr.gameObject.activeSelf)
                 continue;
-
             SkinnedMeshRenderer skin = tr.GetComponent<SkinnedMeshRenderer>();
             if (skin)
             {
@@ -249,7 +214,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 }
             }
         }
-
         if (Exporter.opt_exportEnvLight)
         {
             if (RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Flat)
@@ -262,14 +226,12 @@ public class SceneToGlTFWiz : MonoBehaviour
                 l.color = new GlTF_ColorRGB(RenderSettings.ambientLight);
                 l.intensity = RenderSettings.ambientIntensity;
                 node.seinAmibentLight = l;
-
                 GlTF_Writer.rootNodes.Add(node);
                 GlTF_Writer.nodes.Add(node);
                 GlTF_Writer.nodeIDs.Add(node.uuid);
                 GlTF_Writer.nodeNames.Add(node.uuid, node.name);
             }
         }
-
         nbSelectedObjects = trs.Count;
         int nbDisabledObjects = 0;
         foreach (Transform tr in trs)
@@ -279,20 +241,17 @@ public class SceneToGlTFWiz : MonoBehaviour
                 nbDisabledObjects++;
                 continue;
             }
-
             // Initialize the node
             GlTF_Node node = new GlTF_Node();
             node.id = GlTF_Node.GetNameFromObject(tr);
             node.uuid = GlTF_Node.GetIDFromObject(tr);
             node.name = GlTF_Writer.cleanNonAlphanumeric(tr.name);
             GlTF_Writer.nodeTransforms.Add(tr, node);
-
             if (tr.GetComponent<Camera>() != null)
             {
                 GlTF_Camera cam = parseUnityCamera(tr);
                 node.cameraIndex = GlTF_Writer.cameras.IndexOf(cam);
             }
-
             if (tr.GetComponent<Light>() != null)
             {
                 GlTF_Light l = parseUnityLight(tr);
@@ -302,32 +261,27 @@ public class SceneToGlTFWiz : MonoBehaviour
                     node.lightIndex = GlTF_Writer.lights.IndexOf(l);
                 }
             }
-
             if (tr.GetComponent<SeinNode>() != null)
             {
                 node.seinNode = new GlTF_SeinNode();
                 node.seinNode.node = tr.GetComponent<SeinNode>();
             }
-
             if (tr.GetComponent<SeinRigidBody>() != null)
             {
-                if (node.physicBody == null) {
+                if (node.physicBody == null)
+                {
                     node.physicBody = new GlTF_SeinPhysicBody();
                 }
-
                 node.physicBody.rigidbody = tr.GetComponent<SeinRigidBody>();
             }
-
             if (tr.GetComponent<SeinAnimator>() != null)
             {
                 if (node.animator == null)
                 {
                     node.animator = new GlTF_SeinAnimator();
                 }
-
                 node.animator.animator = tr.GetComponent<SeinAnimator>();
             }
-
             if (tr.GetComponents<Collider>().Length != 0)
             {
                 if (node.physicBody == null)
@@ -335,27 +289,22 @@ public class SceneToGlTFWiz : MonoBehaviour
                     node.physicBody = new GlTF_SeinPhysicBody();
                     node.physicBody.rigidbody = SeinRigidBody.CreateBodyForPickOnly();
                 }
-
                 node.physicBody.colliders = new List<Collider>(tr.GetComponents<Collider>());
             }
-
             if (tr.GetComponent<SeinAudioListener>() != null)
             {
                 if (node.seinAudioListener == null)
                 {
                     node.seinAudioListener = new GlTF_SeinAudioListener();
                 }
-
                 node.seinAudioListener.listener = tr.GetComponent<SeinAudioListener>();
             }
-
             if (tr.GetComponent<SeinAudioSource>() != null)
             {
                 if (node.seinAudioSource == null)
                 {
                     node.seinAudioSource = new GlTF_SeinAudioSource();
                 }
-
                 node.seinAudioSource.source = tr.GetComponent<SeinAudioSource>();
                 foreach (var clip in node.seinAudioSource.source.clips)
                 {
@@ -366,7 +315,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                     }
                 }
             }
-
             Renderer mr = GetRenderer(tr);
             Mesh m = GetMesh(tr);
             if (m != null)
@@ -377,7 +325,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 {
                     materialsID += GlTF_Material.GetNameFromObject(mat);
                 }
-
                 if (GlTF_Writer.exportMeshes.ContainsKey(m) && GlTF_Writer.exportMeshes[m].ContainsKey(materialsID))
                 {
                     node.meshIndex = GlTF_Writer.meshes.IndexOf(GlTF_Writer.exportMeshes[m][materialsID]);
@@ -388,11 +335,9 @@ public class SceneToGlTFWiz : MonoBehaviour
                     GlTF_Mesh mesh = new GlTF_Mesh();
                     mesh.name = GlTF_Writer.cleanNonAlphanumeric(m.name);
                     mesh.materialsID = materialsID;
-
                     GlTF_Accessor positionAccessor = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "position"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
                     positionAccessor.bufferView = GlTF_Writer.vec3BufferView;
                     GlTF_Writer.accessors.Add(positionAccessor);
-
                     GlTF_Accessor normalAccessor = null;
                     if (m.normals.Length > 0)
                     {
@@ -400,7 +345,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         normalAccessor.bufferView = GlTF_Writer.vec3BufferView;
                         GlTF_Writer.accessors.Add(normalAccessor);
                     }
-
                     GlTF_Accessor colorAccessor = null;
                     if (m.colors.Length > 0)
                     {
@@ -408,7 +352,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         colorAccessor.bufferView = GlTF_Writer.vec4BufferView;
                         GlTF_Writer.accessors.Add(colorAccessor);
                     }
-
                     GlTF_Accessor uv0Accessor = null;
                     if (m.uv.Length > 0)
                     {
@@ -416,7 +359,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         uv0Accessor.bufferView = GlTF_Writer.vec2BufferView;
                         GlTF_Writer.accessors.Add(uv0Accessor);
                     }
-
                     GlTF_Accessor uv1Accessor = null;
                     if (m.uv2.Length > 0)
                     {
@@ -425,7 +367,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         uv1Accessor.bufferView = GlTF_Writer.vec2BufferView;
                         GlTF_Writer.accessors.Add(uv1Accessor);
                     }
-
                     GlTF_Accessor uv2Accessor = null;
                     if (m.uv3.Length > 0)
                     {
@@ -433,7 +374,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         uv2Accessor.bufferView = GlTF_Writer.vec2BufferView;
                         GlTF_Writer.accessors.Add(uv2Accessor);
                     }
-
                     GlTF_Accessor uv3Accessor = null;
                     if (m.uv4.Length > 0)
                     {
@@ -441,7 +381,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         uv3Accessor.bufferView = GlTF_Writer.vec2BufferView;
                         GlTF_Writer.accessors.Add(uv3Accessor);
                     }
-
                     GlTF_Accessor jointAccessor = null;
                     if (exportAnimation && m.boneWeights.Length > 0)
                     {
@@ -449,7 +388,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         jointAccessor.bufferView = GlTF_Writer.vec4UshortBufferView;
                         GlTF_Writer.accessors.Add(jointAccessor);
                     }
-
                     GlTF_Accessor weightAccessor = null;
                     if (exportAnimation && m.boneWeights.Length > 0)
                     {
@@ -457,7 +395,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         weightAccessor.bufferView = GlTF_Writer.vec4BufferView;
                         GlTF_Writer.accessors.Add(weightAccessor);
                     }
-
                     GlTF_Accessor tangentAccessor = null;
                     if (m.tangents.Length > 0)
                     {
@@ -465,7 +402,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         tangentAccessor.bufferView = GlTF_Writer.vec4BufferView;
                         GlTF_Writer.accessors.Add(tangentAccessor);
                     }
-
                     GlTF_Mesh m2 = null;
                     if (GlTF_Writer.exportMeshes.ContainsKey(m))
                     {
@@ -475,7 +411,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                             break;
                         }
                     }
-
                     var morphTargets = new List<GlTF_Attributes>();
                     if (m2 == null && m.blendShapeCount > 0)
                     {
@@ -498,16 +433,14 @@ public class SceneToGlTFWiz : MonoBehaviour
                             }
                             //if (m.tangents.Length > 0)
                             //{
-                            //    var ats = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "target_tangents"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
-                            //    ats.bufferView = GlTF_Writer.vec3BufferView;
-                            //    GlTF_Writer.accessors.Add(ats);
-                            //    attrs.tangentAccessor = ats;
+                            // var ats = new GlTF_Accessor(GlTF_Accessor.GetNameFromObject(m, "target_tangents"), GlTF_Accessor.Type.VEC3, GlTF_Accessor.ComponentType.FLOAT);
+                            // ats.bufferView = GlTF_Writer.vec3BufferView;
+                            // GlTF_Writer.accessors.Add(ats);
+                            // attrs.tangentAccessor = ats;
                             //}
-
                             morphTargets.Add(attrs);
                         }
                     }
-
                     var smCount = m.subMeshCount;
                     var customMaterials = tr.GetComponents<SeinCustomMaterial>();
                     for (var i = 0; i < smCount; ++i)
@@ -516,7 +449,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         primitive.name = GlTF_Primitive.GetNameFromObject(m, i);
                         primitive.index = i;
                         GlTF_Attributes attributes = new GlTF_Attributes();
-
                         if (m2 != null)
                         {
                             attributes = primitive.attributes = m2.primitives[i].attributes;
@@ -542,12 +474,10 @@ public class SceneToGlTFWiz : MonoBehaviour
                             GlTF_Writer.accessors.Add(indexAccessor);
                             primitive.indices = indexAccessor;
                         }
-
                         if (i < sm.Length)
                         {
                             var mat = sm[i];
                             var matName = GlTF_Material.GetNameFromObject(mat);
-
                             if (GlTF_Writer.materialNames.Contains(matName))
                             {
                                 primitive.materialIndex = GlTF_Writer.materialNames.IndexOf(matName); // THIS INDIRECTION CAN BE REMOVED!
@@ -557,7 +487,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 GlTF_Material material = new GlTF_Material();
                                 material.name = GlTF_Writer.cleanNonAlphanumeric(mat.name);
                                 primitive.materialIndex = GlTF_Writer.materials.Count;
-
                                 if (customMaterials.Length == 1)
                                 {
                                     material.seinCustomMaterial = customMaterials[0];
@@ -572,26 +501,22 @@ public class SceneToGlTFWiz : MonoBehaviour
                                             cm = tcm;
                                         }
                                     }
-
                                     if (cm == null && customMaterials.Length > i)
                                     {
                                         cm = customMaterials[i];
                                     }
-
                                     material.seinCustomMaterial = cm;
                                 }
-
                                 GlTF_Writer.materialNames.Add(matName);
                                 GlTF_Writer.materials.Add(material);
-
                                 if (material.seinCustomMaterial)
                                 {
                                     createSeinCustomMaterial(mat, ref material);
                                 }
                                 else if (
-                                    mat.shader.name.Contains("Standard")
-                                    || mat.shader.name.Contains("Autodesk Interactive")
-                                    || mat.shader.name == "Sein/Unlit"
+                                mat.shader.name.Contains("Standard")
+                                || mat.shader.name.Contains("Autodesk Interactive")
+                                || mat.shader.name == "Sein/Unlit"
                                 )
                                 {
                                     unityToPBRMaterial(mat, ref material);
@@ -609,7 +534,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                                 {
                                     createKHRWebGLMaterial(mat, attributes, ref material);
                                 }
-
                                 // Unity materials are single sided by default
                                 GlTF_Material.BoolValue doubleSided = new GlTF_Material.BoolValue();
                                 doubleSided.name = "doubleSided";
@@ -619,7 +543,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         }
                         mesh.primitives.Add(primitive);
                     }
-
                     createLightMap(GetRenderer(tr), ref node);
                     // If gameobject having SkinnedMeshRenderer component has been transformed,
                     // the mesh would need to be baked here.
@@ -633,7 +556,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                     node.meshIndex = GlTF_Writer.meshes.IndexOf(mesh);
                 }
             }
-
             var lt = tr.GetComponent<Light>();
             // Parse transform
             if (tr.parent == null)
@@ -642,7 +564,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 if (debugRightHandedScale)
                     mat.m22 = -1;
                 mat = mat * Matrix4x4.TRS(tr.localPosition, tr.localRotation, tr.localScale);
-
                 node.matrix = new GlTF_Matrix(mat, true, lt != null && lt.type != LightType.Directional);
             }
             // Use good transform if parent object is not in selection
@@ -665,31 +586,27 @@ public class SceneToGlTFWiz : MonoBehaviour
                 if (tr.localRotation != Quaternion.identity)
                     node.rotation = new GlTF_Rotation(tr.localRotation);
             }
-
-            if (!node.hasParent) {
+            if (!node.hasParent)
+            {
                 GlTF_Writer.rootNodes.Add(node);
             }
-
             if (tr.GetComponent<Camera>() != null)
             {
                 node.cameraName = GlTF_Writer.cleanNonAlphanumeric(tr.name);
             }
-
             Dictionary<string, int> names = new Dictionary<string, int>();
             int index = 0;
             SeinNode seinNode = tr.GetComponent<SeinNode>();
             bool needCheckConfilct = seinNode == null || (!seinNode.skipThisNode && seinNode.selfType != ESeinNodeType.Actor);
             foreach (Transform t in tr.transform)
-            { 
+            {
                 if (t.gameObject.activeInHierarchy)
                 {
                     int cID = GlTF_Node.GetIDFromObject(t);
                     node.childrenIDs.Add(cID);
-
                     int i;
                     i = names.TryGetValue(t.name, out i) ? i : -1;
                     i += 1;
-
                     string nodeName = t.name;
                     if (i == 0)
                     {
@@ -704,23 +621,19 @@ public class SceneToGlTFWiz : MonoBehaviour
                         names[t.name] = i;
                         nodeName += "_" + i;
                     }
-
                     GlTF_Writer.nodeNames[cID] = nodeName;
                     index += 1;
                 }
             }
-
             GlTF_Writer.nodeIDs.Add(node.uuid);
             GlTF_Writer.nodes.Add(node);
         }
-
         foreach (var tr in trs)
         {
             if (!GlTF_Writer.nodeTransforms.ContainsKey(tr))
             {
                 continue;
             }
-
             var node = GlTF_Writer.nodeTransforms[tr];
             // Parse node's skin data
             GlTF_Accessor invBindMatrixAccessor = null;
@@ -728,21 +641,17 @@ public class SceneToGlTFWiz : MonoBehaviour
             if (exportAnimation && skinMesh != null && skinMesh.enabled && checkSkinValidity(skinMesh, trs) && skinMesh.rootBone != null)
             {
                 GlTF_Skin skin = new GlTF_Skin();
-
                 skin.name = GlTF_Writer.cleanNonAlphanumeric(skinMesh.rootBone.name) + "_skeleton_" + GlTF_Writer.cleanNonAlphanumeric(node.name);
                 skin.skeleton = GlTF_Writer.nodes.IndexOf(GlTF_Writer.nodeTransforms[skinMesh.rootBone]);
-
                 // Create invBindMatrices accessor
                 invBindMatrixAccessor = new GlTF_Accessor(skin.name + "invBindMatrices", GlTF_Accessor.Type.MAT4, GlTF_Accessor.ComponentType.FLOAT);
                 invBindMatrixAccessor.bufferView = GlTF_Writer.mat4BufferView;
                 GlTF_Writer.accessors.Add(invBindMatrixAccessor);
-
                 // Generate skin data
                 skin.Populate(tr, ref invBindMatrixAccessor, GlTF_Writer.accessors.Count - 1);
                 GlTF_Writer.skins.Add(skin);
                 node.skinIndex = GlTF_Writer.skins.IndexOf(skin);
             }
-
             // Parse animations
             if (exportAnimation)
             {
@@ -768,7 +677,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         }
                     }
                 }
-
                 Animation animation = tr.GetComponent<Animation>();
                 if (animation != null)
                 {
@@ -787,27 +695,22 @@ public class SceneToGlTFWiz : MonoBehaviour
                         GlTF_Writer.animationNames.Add(anim.name);
                     }
                 }
-
                 if (nameConfilct && node.animator != null)
                 {
                     node.animator.animator.prefix = node.name;
                 }
             }
         }
-
         if (GlTF_Writer.nodes.Count == 0)
         {
             Debug.Log("No visible objects have been exported. Aboring export");
             yield return false;
         }
-
         writer.OpenFiles(path);
         writer.Write();
         writer.CloseFiles();
-
         if (nbDisabledObjects > 0)
             Debug.Log(nbDisabledObjects + " disabled object ignored during export");
-
         Debug.Log("Scene has been exported to " + path);
         if (buildZip)
         {
@@ -818,23 +721,18 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 zip.AddFile(originFilePath, GlTF_Writer.exportedFiles[originFilePath]);
             }
-
             zip.Save(savedPath + "/" + zipName);
-
             // Remove all files
             foreach (string pa in GlTF_Writer.exportedFiles.Keys)
             {
                 if (System.IO.File.Exists(pa))
                     System.IO.File.Delete(pa);
             }
-
             Debug.Log("Files have been cleaned");
         }
         done = true;
-
         yield return true;
     }
-
     // Check if all the bones referenced by the skin are in the selection
     public bool checkSkinValidity(SkinnedMeshRenderer skin, List<Transform> selection)
     {
@@ -846,16 +744,13 @@ public class SceneToGlTFWiz : MonoBehaviour
                 unselected = unselected + "\n" + t.name;
             }
         }
-
         if (unselected.Length > 0)
         {
             Debug.LogError("Error while exportin skin for " + skin.name + " (skipping skinning export).\nClick for more details:\n \nThe following bones are used but are not selected" + unselected + "\n");
             return false;
         }
-
         return true;
     }
-
     private string toGlTFname(string name)
     {
         // remove spaces and illegal chars, replace with underscores
@@ -863,7 +758,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         // make sure it doesn't start with a number
         return correctString;
     }
-
     private bool isInheritedFrom(Type t, Type baseT)
     {
         if (t == baseT)
@@ -877,7 +771,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
         return false;
     }
-
     private Renderer GetRenderer(Transform tr)
     {
         Renderer mr = tr.GetComponent<MeshRenderer>();
@@ -887,7 +780,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
         return mr;
     }
-
     private void clampColor(ref Color c)
     {
         c.r = c.r > 1.0f ? 1.0f : c.r;
@@ -895,7 +787,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         c.b = c.b > 1.0f ? 1.0f : c.b;
         //c.a = c.a > 1.0f ? 1.0f : c.a;
     }
-
     private Mesh GetMesh(Transform tr)
     {
         var mr = GetRenderer(tr);
@@ -921,17 +812,14 @@ public class SceneToGlTFWiz : MonoBehaviour
         }
         return m;
     }
-
     private bool handleTransparency(ref Material mat, ref GlTF_Material material)
     {
         if (!mat.HasProperty("_Mode"))
         {
             return false;
         }
-
         GlTF_Material.StringValue alphaMode = new GlTF_Material.StringValue();
         GlTF_Material.FloatValue alphaCutoff = new GlTF_Material.FloatValue();
-
         switch ((int)mat.GetFloat("_Mode"))
         {
             // Opaque
@@ -954,10 +842,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 material.values.Add(alphaMode);
                 break;
         }
-
         return true;
     }
-
     private void addTexturePixels(ref Texture2D texture, ref Color[] colors, IMAGETYPE outputChannel, IMAGETYPE inputChannel = IMAGETYPE.R)
     {
         int height = texture.height;
@@ -965,13 +851,11 @@ public class SceneToGlTFWiz : MonoBehaviour
         Color[] inputColors = new Color[texture.width * texture.height];
         if (!texture || !getPixelsFromTexture(ref texture, out inputColors))
             return;
-
         if (height * width != colors.Length)
         {
             Debug.Log("Issue with texture dimensions");
             return;
         }
-
         for (int i = 0; i < height; ++i)
         {
             for (int j = 0; j < width; ++j)
@@ -996,7 +880,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 {
                     inputValue = inputColors[newIndex].a;
                 }
-
                 if (outputChannel == IMAGETYPE.R)
                 {
                     c.r = inputValue;
@@ -1013,88 +896,72 @@ public class SceneToGlTFWiz : MonoBehaviour
                 {
                     c.g = 1.0f - inputValue;
                 }
-
                 colors[index] = c;
             }
         }
-
     }
-
     private int createOcclusionMetallicRoughnessTexture(
-        ref Texture2D metallic,
-        ref Texture2D roughness,
-        ref Texture2D occlusion,
-        IMAGETYPE metallicChannel = IMAGETYPE.R,
-        IMAGETYPE roughnessChannel = IMAGETYPE.R,
-        IMAGETYPE occlusionChannel = IMAGETYPE.R,
-        IMAGETYPE roughnessDist = IMAGETYPE.G_INVERT
+    ref Texture2D metallic,
+    ref Texture2D roughness,
+    ref Texture2D occlusion,
+    IMAGETYPE metallicChannel = IMAGETYPE.R,
+    IMAGETYPE roughnessChannel = IMAGETYPE.R,
+    IMAGETYPE occlusionChannel = IMAGETYPE.R,
+    IMAGETYPE roughnessDist = IMAGETYPE.G_INVERT
     )
     {
         string texName = GlTF_Texture.GetNameFromObject(metallic) + "_orm";
         var textureM = metallic;
         var textureR = roughness;
         var textureAO = occlusion;
-
         if (!GlTF_Writer.textureNames.Contains(texName))
         {
             int width = textureM.width;
             int height = textureM.height;
             string assetPath = AssetDatabase.GetAssetPath(textureM);
-
             if (textureR != null)
             {
                 width = textureR.width > width ? textureR.width : width;
                 height = textureR.height > height ? textureR.height : height;
             }
-
             if (textureAO != null)
             {
                 width = textureAO.width > width ? textureAO.width : width;
                 height = textureAO.height > height ? textureAO.height : height;
             }
-
             if (textureM.width != width || textureM.height != height)
             {
                 cloneAndResize(ref metallic, out textureM, width, height);
             }
-
             if (textureR != null && (textureR.width != width || textureR.height != height))
             {
                 cloneAndResize(ref roughness, out textureR, width, height);
             }
-
             if (textureAO != null && (textureAO.width != width || textureAO.height != height))
             {
                 cloneAndResize(ref occlusion, out textureAO, width, height);
             }
-
             // Create texture
             GlTF_Texture texture = new GlTF_Texture();
             texture.name = texName;
-
             // Export image
             GlTF_Image img = new GlTF_Image();
             img.name = texName;
-
             // Let's consider that the three textures have the same resolution
             Color[] outputColors = new Color[width * height];
             for (int i = 0; i < outputColors.Length; ++i)
             {
                 outputColors[i] = new Color(0.0f, 0.0f, 0.0f);
             }
-
             addTexturePixels(ref textureM, ref outputColors, IMAGETYPE.B, metallicChannel);
-
             if (textureR != null)
             {
                 addTexturePixels(ref textureR, ref outputColors, roughnessDist, roughnessChannel);
             }
-
             if (textureAO != null)
             {
                 addTexturePixels(ref textureAO, ref outputColors, IMAGETYPE.R, occlusionChannel);
             }
-
             Texture2D newtex = new Texture2D(width, height);
             newtex.name = texName;
             newtex.SetPixels(outputColors);
@@ -1103,16 +970,13 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 TextureScale.Bilinear(newtex, Exporter.opt_maxSize, Exporter.opt_maxSize);
             }
-
             string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
             string exportDir = Path.Combine(savedPath, pathInArchive);
-
             if (!Directory.Exists(exportDir))
                 Directory.CreateDirectory(exportDir);
-
             string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + "_orm" + (Exporter.opt_forcePNG ? ".png" : ".jpg");
             outputFilename = GlTF_Writer.cleanPath(outputFilename);
-            string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
+            string exportPath = exportDir + "/" + outputFilename; // relative path inside the .zip
             if (Exporter.opt_forcePNG)
             {
                 File.WriteAllBytes(exportPath, newtex.EncodeToPNG());
@@ -1121,18 +985,14 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 File.WriteAllBytes(exportPath, newtex.EncodeToJPG(Exporter.opt_jpgQuality));
             }
-
             if (!GlTF_Writer.exportedFiles.ContainsKey(exportPath))
                 GlTF_Writer.exportedFiles.Add(exportPath, pathInArchive);
             else
                 Debug.LogError("Texture '" + newtex.name + "' already exists");
-
             img.uri = pathInArchive + "/" + outputFilename;
-
             texture.source = GlTF_Writer.imageNames.Count;
             GlTF_Writer.imageNames.Add(img.name);
             GlTF_Writer.images.Add(img);
-
             // Add sampler
             GlTF_Sampler sampler;
             var samplerName = GlTF_Sampler.GetNameFromObject(newtex);
@@ -1145,94 +1005,76 @@ public class SceneToGlTFWiz : MonoBehaviour
                 GlTF_Writer.samplers.Add(sampler);
                 GlTF_Writer.samplerNames.Add(samplerName);
             }
-
             GlTF_Writer.textures.Add(texture);
             GlTF_Writer.textureNames.Add(texName);
         }
-
         return GlTF_Writer.textureNames.IndexOf(texName);
-
     }
-
     private void cloneAndResize(ref Texture2D tex, out Texture2D newtex, int width, int height)
     {
         TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
-
         if (!im)
         {
             newtex = null;
             return;
         }
-
         bool readable = im.isReadable;
 #if UNITY_5_4
-        TextureImporterFormat format = im.textureFormat;
+TextureImporterFormat format = im.textureFormat;
 #else
         TextureImporterCompression format = im.textureCompression;
 #endif
         TextureImporterType type = im.textureType;
         bool isConvertedBump = im.convertToNormalmap;
-
         if (!readable)
             im.isReadable = true;
 #if UNITY_5_4
-        if (type != TextureImporterType.Image)
-            im.textureType = TextureImporterType.Image;
-        im.textureFormat = TextureImporterFormat.ARGB32;
+if (type != TextureImporterType.Image)
+im.textureType = TextureImporterType.Image;
+im.textureFormat = TextureImporterFormat.ARGB32;
 #else
         if (type != TextureImporterType.Default)
             im.textureType = TextureImporterType.Default;
-
         im.textureCompression = TextureImporterCompression.Uncompressed;
 #endif
         im.SaveAndReimport();
-
         newtex = new Texture2D(tex.width, tex.height);
         newtex.name = tex.name;
         newtex.SetPixels(tex.GetPixels());
         newtex.Apply();
         TextureScale.Bilinear(newtex, width, height);
-
         if (!readable)
             im.isReadable = false;
 #if UNITY_5_4
-        if (type != TextureImporterType.Image)
-            im.textureType = type;
+if (type != TextureImporterType.Image)
+im.textureType = type;
 #else
         if (type != TextureImporterType.Default)
             im.textureType = type;
 #endif
         if (isConvertedBump)
             im.convertToNormalmap = true;
-
 #if UNITY_5_4
-        im.textureFormat = format;
+im.textureFormat = format;
 #else
         im.textureCompression = format;
 #endif
-
         im.SaveAndReimport();
     }
-
     private void processAudioClip(SeinAudioClip audioClip)
     {
         var clip = audioClip.clip;
-
         string assetPath = AssetDatabase.GetAssetPath(clip);
         string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
         string exportDir = Path.Combine(savedPath, pathInArchive);
-
         if (!Directory.Exists(exportDir))
             Directory.CreateDirectory(exportDir);
-
         string outputFilename = Path.GetFileName(assetPath);
         outputFilename = GlTF_Writer.cleanPath(outputFilename);
-        string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
+        string exportPath = exportDir + "/" + outputFilename; // relative path inside the .zip
         FileUtil.CopyFileOrDirectory(assetPath, exportPath);
-
         GlTF_Writer.audioClipURIs.Add(audioClip, pathInArchive + "/" + outputFilename);
     }
-
     // Get or create texture object, image and sampler
     private int processTexture(Texture2D t, IMAGETYPE format)
     {
@@ -1242,24 +1084,19 @@ public class SceneToGlTFWiz : MonoBehaviour
             Debug.LogWarning("Texture " + t.name + " cannot be found in assets");
             return -1;
         }
-
         if (!GlTF_Writer.textureNames.Contains(texName))
         {
             string assetPath = AssetDatabase.GetAssetPath(t);
-
             // Create texture
             GlTF_Texture texture = new GlTF_Texture();
             texture.name = texName;
-
             // Export image
             GlTF_Image img = new GlTF_Image();
             img.name = GlTF_Image.GetNameFromObject(t);
             img.uri = convertTexture(ref t, assetPath, savedPath, format);
-
             texture.source = GlTF_Writer.imageNames.Count;
             GlTF_Writer.imageNames.Add(img.name);
             GlTF_Writer.images.Add(img);
-
             // Add sampler
             GlTF_Sampler sampler;
             var samplerName = GlTF_Sampler.GetNameFromObject(t);
@@ -1270,14 +1107,11 @@ public class SceneToGlTFWiz : MonoBehaviour
                 GlTF_Writer.samplers.Add(sampler);
                 GlTF_Writer.samplerNames.Add(samplerName);
             }
-
             GlTF_Writer.textures.Add(texture);
             GlTF_Writer.textureNames.Add(texName);
         }
-
         return GlTF_Writer.textureNames.IndexOf(texName);
     }
-
     private void createKHRWebGLMaterial(Material mat, GlTF_Attributes attributes, ref GlTF_Material material)
     {
         //technique
@@ -1297,7 +1131,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             tAttr.type = GlTF_Technique.Type.FLOAT_VEC3;
             tAttr.semantic = GlTF_Technique.Semantic.POSITION;
             tech.attributes.Add(tAttr);
-
             if (attributes.normalAccessor != null)
             {
                 tAttr = new GlTF_Technique.Attribute();
@@ -1306,7 +1139,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 tAttr.semantic = GlTF_Technique.Semantic.NORMAL;
                 tech.attributes.Add(tAttr);
             }
-
             if (attributes.texCoord0Accessor != null)
             {
                 tAttr = new GlTF_Technique.Attribute();
@@ -1315,7 +1147,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_0;
                 tech.attributes.Add(tAttr);
             }
-
             if (attributes.texCoord1Accessor != null)
             {
                 tAttr = new GlTF_Technique.Attribute();
@@ -1324,7 +1155,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_1;
                 tech.attributes.Add(tAttr);
             }
-
             if (attributes.texCoord2Accessor != null)
             {
                 tAttr = new GlTF_Technique.Attribute();
@@ -1333,7 +1163,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_2;
                 tech.attributes.Add(tAttr);
             }
-
             if (attributes.texCoord3Accessor != null)
             {
                 tAttr = new GlTF_Technique.Attribute();
@@ -1342,17 +1171,13 @@ public class SceneToGlTFWiz : MonoBehaviour
                 tAttr.semantic = GlTF_Technique.Semantic.TEXCOORD_3;
                 tech.attributes.Add(tAttr);
             }
-
             tech.AddDefaultUniforms();
-
             // Populate technique with shader data
             GlTF_Writer.techniqueNames.Add(techName);
             GlTF_Writer.techniques.Add(tech);
-
             int vsIndex = -1;
             int fsIndex = -1;
             string shaderPath = AssetDatabase.GetAssetPath(s);
-
             if (GlTF_Writer.shaderPathes.Contains(shaderPath))
             {
                 vsIndex = GlTF_Writer.shaderPathes.IndexOf(shaderPath);
@@ -1362,10 +1187,8 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 string shaderSavePath = shaderPath.Replace("Assets/Resources/", "").Replace("Assets/", "").Replace(".shader", "");
                 string exportDir = Path.Combine(savedPath, shaderSavePath);
-
                 if (!Directory.Exists(exportDir))
                     Directory.CreateDirectory(exportDir);
-
                 string shaderContent = File.ReadAllText(shaderPath);
                 Match m = Regex.Match(shaderContent, @"[\s\S]+#ifdef VERTEX([\s\S]+)#endif[\s\S]+#ifdef FRAGMENT([\s\S]+)#endif[\s\S]+");
                 File.WriteAllText(exportDir + "/vertex.glsl", GlTF_Shader.convertShader(m.Groups[1].Value, tech.generateShaderHeader(true)));
@@ -1379,11 +1202,9 @@ public class SceneToGlTFWiz : MonoBehaviour
                 fs.uri = shaderSavePath + "/fragment.glsl";
                 GlTF_Writer.shaders.Add(fs);
                 GlTF_Writer.shaderPathes.Add(shaderPath);
-
                 vsIndex = GlTF_Writer.shaders.Count - 2;
                 fsIndex = GlTF_Writer.shaders.Count - 1;
             }
-
             // create program
             GlTF_Program program = new GlTF_Program();
             program.name = GlTF_Program.GetNameFromObject(s);
@@ -1391,7 +1212,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             program.fragmentShader = fsIndex;
             GlTF_Writer.programs.Add(program);
             tech.program = GlTF_Writer.programs.Count - 1;
-
             bool hasTransparency = handleTransparency(ref mat, ref material);
             var count = ShaderUtil.GetPropertyCount(s);
             for (var i = 0; i < count; i++)
@@ -1400,7 +1220,8 @@ public class SceneToGlTFWiz : MonoBehaviour
                 var type = ShaderUtil.GetPropertyType(s, i);
                 var uni = new GlTF_Technique.Uniform();
                 uni.name = pName;
-                switch (type) {
+                switch (type)
+                {
                     case ShaderUtil.ShaderPropertyType.Color:
                         var colorValue = new GlTF_Material.ColorValue();
                         colorValue.name = pName;
@@ -1434,7 +1255,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         {
                             var textureValue = new GlTF_Material.DictValue();
                             textureValue.name = pName;
-
                             int index = processTexture((Texture2D)mat.GetTexture(pName), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
                             textureValue.intValue.Add("index", index);
                             textureValue.intValue.Add("texCoord", 0);
@@ -1447,11 +1267,9 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
         }
     }
-
     private void createSeinCustomMaterial(Material mat, ref GlTF_Material material)
     {
         bool hasTransparency = handleTransparency(ref mat, ref material);
-
         if (material.seinCustomMaterial.uniformsTexture.Length != 0)
         {
             foreach (var uniform in material.seinCustomMaterial.uniformsTexture)
@@ -1461,7 +1279,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                 uniform.texCoord = 0;
             }
         }
-
         if (material.seinCustomMaterial.uniformsCubeTexture.Length != 0)
         {
             foreach (var uniform in material.seinCustomMaterial.uniformsCubeTexture)
@@ -1473,17 +1290,16 @@ public class SceneToGlTFWiz : MonoBehaviour
             }
         }
     }
-
     private void unityToSeinMaterial(Material mat, ref GlTF_Material material)
     {
         if (Exporter.tempGoForSein == null)
         {
             Exporter.tempGoForSein = new GameObject();
         }
-
         var customMaterial = Exporter.tempGoForSein.AddComponent<SeinCustomMaterial>();
         var className = mat.shader.name.Replace("Sein/", "");
-        if (!className.Contains("Material")) {
+        if (!className.Contains("Material"))
+        {
             className += "Material";
         }
         customMaterial.className = className;
@@ -1492,29 +1308,24 @@ public class SceneToGlTFWiz : MonoBehaviour
         var vector4Array = new List<SeinMaterialUniformFloatVec4>();
         var colorArray = new List<SeinMaterialUniformColor>();
         var textureArray = new List<SeinMaterialUniformTexture>();
-
         for (int i = 0; i < ShaderUtil.GetPropertyCount(mat.shader); i += 1)
         {
             var propType = ShaderUtil.GetPropertyType(mat.shader, i);
             var propName = ShaderUtil.GetPropertyName(mat.shader, i);
-
             if (propName == "cloneForInst")
             {
                 customMaterial.cloneForInst = mat.GetInt("cloneForInst") != 0;
                 continue;
             }
-
             if (ShaderUtil.IsShaderPropertyHidden(mat.shader, i))
             {
                 continue;
             }
-
             var n = propName;
             if (propName.Substring(0, 1) == "_")
             {
                 propName = propName.Substring(1);
             }
-
             switch (propType)
             {
                 case ShaderUtil.ShaderPropertyType.Float:
@@ -1534,20 +1345,17 @@ public class SceneToGlTFWiz : MonoBehaviour
                     }
                     break;
             }
-
             customMaterial.uniformsFloat = floatArray.ToArray();
             customMaterial.uniformsFloatVec4 = vector4Array.ToArray();
             customMaterial.uniformsTexture = textureArray.ToArray();
             customMaterial.uniformsColor = colorArray.ToArray();
         }
-
         material.seinCustomMaterial = customMaterial;
         if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off)
         {
             createReflection(mat, ref material);
         }
     }
-
     // convert Sein/PBR to Gltf
     private void createSeinPBRMaterial(Material mat, ref GlTF_Material material)
     {
@@ -1557,18 +1365,15 @@ public class SceneToGlTFWiz : MonoBehaviour
         material.isUnlit = mat.GetInt("unlit") == 1;
         GlTF_Writer.hasUnlitMaterial = GlTF_Writer.hasUnlitMaterial || material.isUnlit;
         bool hasTransparency = handleTransparency(ref mat, ref material);
-
         if (mat.GetTexture("_baseColorMap") != null)
         {
             var value = new GlTF_Material.DictValue();
             value.name = isMetal ? "baseColorTexture" : "diffuseTexture";
-
             int diffuseTextureIndex = processTexture((Texture2D)mat.GetTexture("_baseColorMap"), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
             value.intValue.Add("index", diffuseTextureIndex);
             value.intValue.Add("texCoord", 0);
             material.pbrValues.Add(value);
         }
-
         if (mat.GetColor("_baseColor") != null)
         {
             var value = new GlTF_Material.ColorValue();
@@ -1578,14 +1383,11 @@ public class SceneToGlTFWiz : MonoBehaviour
             value.color = c;
             material.pbrValues.Add(value);
         }
-
         if (material.isUnlit)
         {
             return;
         }
-
         bool hasPBRMap = (!isMetal && mat.GetTexture("_specularGlossinessMap") != null) || (isMetal && mat.GetTexture("_metallicMap") != null);
-
         if (isMetal)
         {
             if (hasPBRMap)
@@ -1595,40 +1397,35 @@ public class SceneToGlTFWiz : MonoBehaviour
                 Texture2D metallicTexture = (Texture2D)mat.GetTexture("_metallicMap");
                 Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_roughnessMap");
                 Texture2D occlusion = (Texture2D)mat.GetTexture("_occlusionMap");
-
                 int metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
-                    ref metallicTexture, ref roughnessTexture, ref occlusion,
-                    IMAGETYPE.B, IMAGETYPE.G, IMAGETYPE.R, IMAGETYPE.G
+                ref metallicTexture, ref roughnessTexture, ref occlusion,
+                IMAGETYPE.B, IMAGETYPE.G, IMAGETYPE.R, IMAGETYPE.G
                 );
-
                 textureValue.intValue.Add("index", metalRoughTextureAoIndex);
                 textureValue.intValue.Add("texCoord", 0);
                 material.pbrValues.Add(textureValue);
-
                 if (occlusion != null)
                 {
                     var aoValue = new GlTF_Material.DictValue();
                     aoValue.name = "occlusionTexture";
-
                     aoValue.intValue.Add("index", metalRoughTextureAoIndex);
                     aoValue.intValue.Add("texCoord", 0);
                     aoValue.floatValue.Add("strength", mat.GetFloat("_occlusionStrength"));
                     material.values.Add(aoValue);
                 }
             }
-
             var metallicFactor = new GlTF_Material.FloatValue();
             metallicFactor.name = "metallicFactor";
             metallicFactor.value = hasPBRMap ? 1.0f : mat.GetFloat("_metallic");
             material.pbrValues.Add(metallicFactor);
-
             //Roughness factor
             // gloss scale is not supported for now(property _GlossMapScale)
             var roughnessFactor = new GlTF_Material.FloatValue();
             roughnessFactor.name = "roughnessFactor";
             roughnessFactor.value = mat.GetFloat("_roughness");
             material.pbrValues.Add(roughnessFactor);
-        } else
+        }
+        else
         {
             if (hasPBRMap) // No metallic factor if texture
             {
@@ -1639,42 +1436,35 @@ public class SceneToGlTFWiz : MonoBehaviour
                 textureValue.intValue.Add("texCoord", 0);
                 material.pbrValues.Add(textureValue);
             }
-
             var specularFactor = new GlTF_Material.ColorValue();
             specularFactor.name = "specularFactor";
             specularFactor.color = hasPBRMap ? Color.white : mat.GetColor("_specular"); // gloss scale is not supported for now(property _GlossMapScale)
             specularFactor.isRGB = true;
             material.pbrValues.Add(specularFactor);
-
             var glossinessFactor = new GlTF_Material.FloatValue();
             glossinessFactor.name = "glossinessFactor";
             glossinessFactor.value = hasPBRMap ? 1.0f : mat.GetFloat("_glossiness"); // gloss scale is not supported for now(property _GlossMapScale)
             material.pbrValues.Add(glossinessFactor);
         }
-
         if (mat.GetTexture("_normalMap") != null)
         {
             var textureValue = new GlTF_Material.DictValue();
             textureValue.name = "normalTexture";
-
             int bumpTextureIndex = processTexture((Texture2D)mat.GetTexture("_normalMap"), IMAGETYPE.NORMAL_MAP);
             textureValue.intValue.Add("index", bumpTextureIndex);
             textureValue.intValue.Add("texCoord", 0);
             material.values.Add(textureValue);
         }
-
         if (mat.GetTexture("_emissionMap") != null)
         {
             Texture2D emissiveTexture = mat.GetTexture("_emissionMap") as Texture2D;
             var textureValue = new GlTF_Material.DictValue();
             textureValue.name = "emissiveTexture";
-
             int emissiveTextureIndex = processTexture(emissiveTexture, IMAGETYPE.RGB);
             textureValue.intValue.Add("index", emissiveTextureIndex);
             textureValue.intValue.Add("texCoord", 0);
             material.values.Add(textureValue);
         }
-
         var emissive = mat.GetColor("_emission");
         if (!emissive.Equals(new Color(0, 0, 0)))
         {
@@ -1684,27 +1474,23 @@ public class SceneToGlTFWiz : MonoBehaviour
             emissiveFactor.color = mat.GetColor("_emission");
             material.values.Add(emissiveFactor);
         }
-
         //Occlusion (kept as separated channel for specular workflow, but merged in R channel for metallic workflow)
         if ((!isMetal || (isMetal && !hasPBRMap)) && mat.HasProperty("_occlusionMap") && mat.GetTexture("_occlusionMap") != null)
         {
             Texture2D occlusionTexture = mat.GetTexture("_occlusionMap") as Texture2D;
             var textureValue = new GlTF_Material.DictValue();
             textureValue.name = "occlusionTexture";
-
             int occlusionTextureIndex = processTexture(occlusionTexture, IMAGETYPE.RGB);
             textureValue.intValue.Add("index", occlusionTextureIndex);
             textureValue.intValue.Add("texCoord", 0);
             textureValue.floatValue.Add("strength", mat.GetFloat("_occlusionStrength"));
             material.values.Add(textureValue);
         }
-
         if (mat.GetInt("envReflection") != (int)UnityEditor.SeinPBRShaderGUI.EnvReflection.Off)
         {
             createReflection(mat, ref material);
         }
     }
-
     // Convert material from Unity to glTF PBR
     private void unityToPBRMaterial(Material mat, ref GlTF_Material material)
     {
@@ -1717,28 +1503,22 @@ public class SceneToGlTFWiz : MonoBehaviour
         material.isMetal = isMetal;
         material.isUnlit = mat.shader.name == "Sein/Unlit";
         GlTF_Writer.hasUnlitMaterial = GlTF_Writer.hasUnlitMaterial || material.isUnlit;
-
         // Is smoothness defined by diffuse texture or PBR texture' alpha?
         if (mat.HasProperty("_SmoothnessTextureChannel") && Math.Abs(mat.GetFloat("_SmoothnessTextureChannel")) > 0.01)
             Debug.Log("Smoothness uses diffuse's alpha channel. Unsupported for now");
-
         hasPBRMap = (!isMetal && mat.GetTexture("_SpecGlossMap") != null) || (isMetal && mat.GetTexture("_MetallicGlossMap") != null);
-
         //Check transparency
         bool hasTransparency = handleTransparency(ref mat, ref material);
-
         //Parse diffuse channel texture and color
         if (mat.HasProperty("_MainTex") && mat.GetTexture("_MainTex") != null)
         {
             var textureValue = new GlTF_Material.DictValue();
             textureValue.name = isMetal ? "baseColorTexture" : "diffuseTexture";
-
             int diffuseTextureIndex = processTexture((Texture2D)mat.GetTexture("_MainTex"), hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
             textureValue.intValue.Add("index", diffuseTextureIndex);
             textureValue.intValue.Add("texCoord", 0);
             material.pbrValues.Add(textureValue);
         }
-
         if (mat.HasProperty("_Color"))
         {
             var colorValue = new GlTF_Material.ColorValue();
@@ -1748,7 +1528,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             colorValue.color = c;
             material.pbrValues.Add(colorValue);
         }
-
         //Parse PBR textures
         if (isMaterialPBR)
         {
@@ -1760,13 +1539,13 @@ public class SceneToGlTFWiz : MonoBehaviour
                     textureValue.name = "metallicRoughnessTexture";
                     Texture2D metallicTexture = (Texture2D)mat.GetTexture("_MetallicGlossMap");
                     Texture2D occlusion = (Texture2D)mat.GetTexture("_OcclusionMap");
-
                     int metalRoughTextureAoIndex;
-                    if (mat.shader.name == "Autodesk Interactive") {
+                    if (mat.shader.name == "Autodesk Interactive")
+                    {
                         Texture2D roughnessTexture = (Texture2D)mat.GetTexture("_SpecGlossMap");
                         metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
-                            ref metallicTexture, ref roughnessTexture, ref occlusion,
-                            IMAGETYPE.R, IMAGETYPE.R, IMAGETYPE.R, IMAGETYPE.G
+                        ref metallicTexture, ref roughnessTexture, ref occlusion,
+                        IMAGETYPE.R, IMAGETYPE.R, IMAGETYPE.R, IMAGETYPE.G
                         );
                     }
                     else
@@ -1775,41 +1554,36 @@ public class SceneToGlTFWiz : MonoBehaviour
                         if (channel == 0)
                         {
                             metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
-                                ref metallicTexture, ref metallicTexture, ref occlusion,
-                                IMAGETYPE.R, IMAGETYPE.A
+                            ref metallicTexture, ref metallicTexture, ref occlusion,
+                            IMAGETYPE.R, IMAGETYPE.A
                             );
                         }
                         else
                         {
                             var baseColor = (Texture2D)mat.GetTexture("_MainTex");
                             metalRoughTextureAoIndex = createOcclusionMetallicRoughnessTexture(
-                                ref metallicTexture, ref baseColor, ref occlusion,
-                                IMAGETYPE.R, IMAGETYPE.A
+                            ref metallicTexture, ref baseColor, ref occlusion,
+                            IMAGETYPE.R, IMAGETYPE.A
                             );
                         }
                     }
-
                     textureValue.intValue.Add("index", metalRoughTextureAoIndex);
                     textureValue.intValue.Add("texCoord", 0);
                     material.pbrValues.Add(textureValue);
-
                     if (occlusion != null)
                     {
                         var aoValue = new GlTF_Material.DictValue();
                         aoValue.name = "occlusionTexture";
-
                         aoValue.intValue.Add("index", metalRoughTextureAoIndex);
                         aoValue.intValue.Add("texCoord", 0);
                         aoValue.floatValue.Add("strength", mat.GetFloat("_OcclusionStrength"));
                         material.values.Add(aoValue);
                     }
                 }
-
                 var metallicFactor = new GlTF_Material.FloatValue();
                 metallicFactor.name = "metallicFactor";
                 metallicFactor.value = hasPBRMap ? 1.0f : mat.GetFloat("_Metallic");
                 material.pbrValues.Add(metallicFactor);
-
                 //Roughness factor
                 // gloss scale is not supported for now(property _GlossMapScale)
                 var roughnessFactor = new GlTF_Material.FloatValue();
@@ -1835,20 +1609,17 @@ public class SceneToGlTFWiz : MonoBehaviour
                     textureValue.intValue.Add("texCoord", 0);
                     material.pbrValues.Add(textureValue);
                 }
-
                 var specularFactor = new GlTF_Material.ColorValue();
                 specularFactor.name = "specularFactor";
                 specularFactor.color = hasPBRMap ? Color.white : mat.GetColor("_SpecColor"); // gloss scale is not supported for now(property _GlossMapScale)
                 specularFactor.isRGB = true;
                 material.pbrValues.Add(specularFactor);
-
                 var glossinessFactor = new GlTF_Material.FloatValue();
                 glossinessFactor.name = "glossinessFactor";
                 glossinessFactor.value = hasPBRMap ? 1.0f : mat.GetFloat("_Glossiness"); // gloss scale is not supported for now(property _GlossMapScale)
                 material.pbrValues.Add(glossinessFactor);
             }
         }
-
         //BumpMap
         if (mat.HasProperty("_BumpMap") && mat.GetTexture("_BumpMap") != null)
         {
@@ -1856,7 +1627,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             // Check if it's a normal or a bump map
             TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(bumpTexture)) as TextureImporter;
             bool isBumpMap = im.convertToNormalmap;
-
             if (isBumpMap)
             {
                 Debug.LogWarning("Unsupported texture " + bumpTexture + " (normal maps generated from grayscale are not supported)");
@@ -1865,7 +1635,6 @@ public class SceneToGlTFWiz : MonoBehaviour
             {
                 var textureValue = new GlTF_Material.DictValue();
                 textureValue.name = "normalTexture";
-
                 int bumpTextureIndex = processTexture(bumpTexture, IMAGETYPE.NORMAL_MAP);
                 textureValue.intValue.Add("index", bumpTextureIndex);
                 textureValue.intValue.Add("texCoord", 0);
@@ -1873,53 +1642,45 @@ public class SceneToGlTFWiz : MonoBehaviour
                 material.values.Add(textureValue);
             }
         }
-
         //Emissive
         if (mat.HasProperty("_EmissionMap") && mat.GetTexture("_EmissionMap") != null)
         {
             Texture2D emissiveTexture = mat.GetTexture("_EmissionMap") as Texture2D;
             var textureValue = new GlTF_Material.DictValue();
             textureValue.name = "emissiveTexture";
-
             int emissiveTextureIndex = processTexture(emissiveTexture, IMAGETYPE.RGB);
             textureValue.intValue.Add("index", emissiveTextureIndex);
             textureValue.intValue.Add("texCoord", 0);
             material.values.Add(textureValue);
         }
-
         var emissiveFactor = new GlTF_Material.ColorValue();
         emissiveFactor.name = "emissiveFactor";
         emissiveFactor.isRGB = true;
         emissiveFactor.color = mat.GetColor("_EmissionColor");
         material.values.Add(emissiveFactor);
-
         //Occlusion (kept as separated channel for specular workflow, but merged in R channel for metallic workflow)
         if ((!isMetal || (isMetal && !hasPBRMap)) && mat.HasProperty("_OcclusionMap") && mat.GetTexture("_OcclusionMap") != null)
         {
             Texture2D occlusionTexture = mat.GetTexture("_OcclusionMap") as Texture2D;
             var textureValue = new GlTF_Material.DictValue();
             textureValue.name = "occlusionTexture";
-
             int occlusionTextureIndex = processTexture(occlusionTexture, IMAGETYPE.RGB);
             textureValue.intValue.Add("index", occlusionTextureIndex);
             textureValue.intValue.Add("texCoord", 0);
             textureValue.floatValue.Add("strength", mat.GetFloat("_OcclusionStrength"));
             material.values.Add(textureValue);
         }
-
         if (mat.GetInt("_GlossyReflections") == 1)
         {
             createReflection(mat, ref material);
         }
     }
-
     private void createReflection(Material mat, ref GlTF_Material material)
     {
         if (RenderSettings.ambientMode != UnityEngine.Rendering.AmbientMode.Skybox)
         {
             return;
         }
-
         if (mat.HasProperty("envReflection"))
         {
             material.iblType = mat.GetInt("envReflection");
@@ -1928,7 +1689,6 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             material.iblType = 2;
         }
-
         Cubemap specMap = null;
         //ReflectionProbe
         float specIntensity = RenderSettings.reflectionIntensity;
@@ -1940,19 +1700,16 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             //todo: support skybox cubemap
         }
-
-        if (GlTF_Writer.iblSourceIndex.ContainsKey(specMap)) {
+        if (GlTF_Writer.iblSourceIndex.ContainsKey(specMap))
+        {
             material.iblIndex = GlTF_Writer.iblSourceIndex[specMap];
             return;
         }
-
         var seinIBL = new GlTF_SeinImageBaseLighting();
-
         float[][] coefficients = new float[9][];
         UnityEngine.Rendering.SphericalHarmonicsL2 shs;
         LightProbes.GetInterpolatedProbe(new Vector3(), null, out shs);
         float diffuseIntensity = RenderSettings.ambientIntensity;
-
         if (shs != null)
         {
             for (var c = 0; c < 9; c += 1)
@@ -1968,18 +1725,15 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             Debug.LogWarning("There is no baked light probe.");
         }
-
         seinIBL.shCoefficients = coefficients;
         seinIBL.diffuseIntensity = diffuseIntensity;
         SeinUtils.InitGlobals();
         seinIBL.brdfLUT = processTexture(SeinUtils.brdfLUT, IMAGETYPE.RGB);
         seinIBL.specIntensity = specIntensity;
         seinIBL.specMapFaces = new int[6];
-
-
         string origAssetPath = AssetDatabase.GetAssetPath(specMap);
         string ext = Path.GetExtension(origAssetPath);
-        var blurredSpecMap  = SeinUtils.GetSpecularCubeMap(specMap);
+        var blurredSpecMap = SeinUtils.GetSpecularCubeMap(specMap);
         var tex2d = new Texture2D(blurredSpecMap.width, blurredSpecMap.height, TextureFormat.RGBAHalf, false);
         for (var i = 0; i < 6; i += 1)
         {
@@ -2015,22 +1769,17 @@ public class SceneToGlTFWiz : MonoBehaviour
             GlTF_Writer.images.Add(img);
         }
         SeinUtils.DeleteTempMap(blurredSpecMap);
-        
-
         material.iblIndex = GlTF_Writer.iblSources.Count;
         GlTF_Writer.iblSources.Add(seinIBL);
         GlTF_Writer.iblSourceIndex.Add(specMap, material.iblIndex);
     }
-
     private void createLightMap(Renderer mr, ref GlTF_Node node)
     {
         var seinRenderer = new GlTF_SeinRenderer();
         int lightmapIndex = mr.lightmapIndex;
-
         if (Exporter.opt_exportLightMap && lightmapIndex > -1)
         {
             Vector4 lightmapScaleOffset = mr.lightmapScaleOffset;
-
             var lightData = LightmapSettings.lightmaps[lightmapIndex];
             var lightTexture = lightData.lightmapColor;
             var lightTextureIndex = processTexture(lightTexture, IMAGETYPE.HDR);
@@ -2038,14 +1787,11 @@ public class SceneToGlTFWiz : MonoBehaviour
             seinRenderer.uvOffset = new Vector2(lightmapScaleOffset.z, lightmapScaleOffset.w);
             seinRenderer.lightMapIndex = lightTextureIndex;
         }
-
         seinRenderer.castShadows = mr.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On;
         seinRenderer.receiveShadows = mr.receiveShadows;
         seinRenderer.gammaCorrection = PlayerSettings.colorSpace == ColorSpace.Linear;
-
         node.seinRenderer = seinRenderer;
     }
-
     private bool getPixelsFromTexture(ref Texture2D texture, out Color[] pixels)
     {
         //Make texture readable
@@ -2057,58 +1803,49 @@ public class SceneToGlTFWiz : MonoBehaviour
                 pixels = texture.GetPixels();
                 return true;
             }
-
             pixels = new Color[1];
             return false;
         }
         bool readable = im.isReadable;
 #if UNITY_5_4
-        TextureImporterFormat format = im.textureFormat;
+TextureImporterFormat format = im.textureFormat;
 #else
         TextureImporterCompression format = im.textureCompression;
 #endif
         TextureImporterType type = im.textureType;
         bool isConvertedBump = im.convertToNormalmap;
-
         if (!readable)
             im.isReadable = true;
 #if UNITY_5_4
-        if (type != TextureImporterType.Image)
-            im.textureType = TextureImporterType.Image;
-        im.textureFormat = TextureImporterFormat.ARGB32;
+if (type != TextureImporterType.Image)
+im.textureType = TextureImporterType.Image;
+im.textureFormat = TextureImporterFormat.ARGB32;
 #else
         if (type != TextureImporterType.Default)
             im.textureType = TextureImporterType.Default;
-
         im.textureCompression = TextureImporterCompression.Uncompressed;
 #endif
         im.SaveAndReimport();
-
         pixels = texture.GetPixels();
-
         if (!readable)
             im.isReadable = false;
 #if UNITY_5_4
-        if (type != TextureImporterType.Image)
-            im.textureType = type;
+if (type != TextureImporterType.Image)
+im.textureType = type;
 #else
         if (type != TextureImporterType.Default)
             im.textureType = type;
 #endif
         if (isConvertedBump)
             im.convertToNormalmap = true;
-
 #if UNITY_5_4
-        im.textureFormat = format;
+im.textureFormat = format;
 #else
         im.textureCompression = format;
 #endif
-
         im.SaveAndReimport();
-
         return true;
     }
-
     // Flip all images on Y and
     public string convertTexture(ref Texture2D inputTexture, string pathInProject, string exportDirectory, IMAGETYPE format)
     {
@@ -2120,14 +1857,11 @@ public class SceneToGlTFWiz : MonoBehaviour
             Debug.Log("Failed to convert texture " + inputTexture.name + " (unsupported type or format)");
             return "";
         }
-
         //Texture2D newtex = new Texture2D(inputTexture.width, inputTexture.height, inputTexture.format, false);
         Texture2D newtex = null;
-
         if (format != IMAGETYPE.HDR)
         {
             Color[] newTextureColors = new Color[inputTexture.height * inputTexture.width];
-
             for (int i = 0; i < height; ++i)
             {
                 for (int j = 0; j < width; ++j)
@@ -2137,7 +1871,6 @@ public class SceneToGlTFWiz : MonoBehaviour
                         newTextureColors[i * width + j].a = 1.0f;
                 }
             }
-
             newtex = new Texture2D(inputTexture.width, inputTexture.height);
             newtex.SetPixels(newTextureColors);
             newtex.Apply();
@@ -2150,18 +1883,14 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             newtex = lmToRGBD(textureColors, inputTexture.width, inputTexture.height);
         }
-
         string pathInArchive = GlTF_Writer.cleanPath(Path.GetDirectoryName(pathInProject).Replace("Assets/Resources/", "").Replace("Assets/", ""));
         string exportDir = Path.Combine(exportDirectory, pathInArchive);
-
         if (!Directory.Exists(exportDir))
             Directory.CreateDirectory(exportDir);
-
         string outputFilename = Path.GetFileNameWithoutExtension(pathInProject) + (format == IMAGETYPE.RGBA || Exporter.opt_forcePNG ? ".png" : format == IMAGETYPE.HDR ? ".png" : ".jpg");
         outputFilename = GlTF_Writer.cleanPath(outputFilename);
-        string exportPath = exportDir + "/" + outputFilename;  // relative path inside the .zip
+        string exportPath = exportDir + "/" + outputFilename; // relative path inside the .zip
         string pathInGltfFile = pathInArchive + "/" + outputFilename;
-
         byte[] content = { };
         if (format == IMAGETYPE.RGBA || Exporter.opt_forcePNG)
         {
@@ -2176,77 +1905,63 @@ public class SceneToGlTFWiz : MonoBehaviour
         {
             content = newtex.EncodeToJPG(format == IMAGETYPE.NORMAL_MAP ? 95 : Exporter.opt_jpgQuality);
         }
-
         File.WriteAllBytes(exportPath, content);
-
         if (!GlTF_Writer.exportedFiles.ContainsKey(exportPath))
             GlTF_Writer.exportedFiles.Add(exportPath, pathInArchive);
         else
             Debug.LogError("Texture '" + inputTexture + "' already exists");
-
         return pathInGltfFile;
     }
-
     private Texture2D lmToRGBD(Color[] colors, int width, int height)
     {
         var tex = new Texture2D(width, height);
         Color[] newColors = new Color[width * height];
         var isGammaSpace = PlayerSettings.colorSpace == ColorSpace.Gamma;
-
         if (isGammaSpace)
         {
             // we need linear space lightmap in Sein
             // realColor = color.linear;
             Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
         }
-
         for (int i = 0; i < height; ++i)
         {
             for (int j = 0; j < width; ++j)
             {
                 var origColor = colors[(height - i - 1) * width + j];
                 Color color = new Color(0, 0, 0, 1);
-
                 if (Math.Abs(origColor.a) > 0.001)
                 {
                     origColor = decodeRGBM(origColor, isGammaSpace);
-
                     var d = 1f;
                     var m = Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
-
                     if (m > 1f)
                     {
                         d = 1f / m;
                     }
-
                     color = new Color(
-                        origColor.r * d,
-                        origColor.g * d,
-                        origColor.b * d,
-                        d
+                    origColor.r * d,
+                    origColor.g * d,
+                    origColor.b * d,
+                    d
                     );
                 }
-
                 newColors[i * width + j] = color;
             }
         }
-
         tex.SetPixels(newColors);
         tex.Apply();
         return tex;
     }
-
     // http://dphgame.com/doku.php?id=shader%E5%9F%BA%E7%A1%80:unity%E5%86%85%E7%BD%AEshader:%E5%85%AC%E5%85%B1%E5%87%BD%E6%95%B0#decodelightmap
     private Color decodeRGBM(Color color, bool isGammaSpace)
     {
         Color realColor = color;
         float dFactor = realColor.a;
-
         return new Color(
-            dFactor * realColor.r,
-            dFactor * realColor.g,
-            dFactor * realColor.b,
-            1
+        dFactor * realColor.r,
+        dFactor * realColor.g,
+        dFactor * realColor.b,
+        1
         );
     }
 }
