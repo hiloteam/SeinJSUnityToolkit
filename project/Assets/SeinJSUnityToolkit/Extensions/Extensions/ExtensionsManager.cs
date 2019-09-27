@@ -56,7 +56,7 @@ namespace SeinJS
             }
         }
 
-        public static Extension Serialize(Type FactoryClass, ExportorEntry entry, Dictionary<string, Extension> extensions)
+        public static Extension Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions)
         {
             var factory = Name2Extensions[Class2Extensions[FactoryClass]];
             factory.Awake(entry);
@@ -64,7 +64,7 @@ namespace SeinJS
             return factory.Serialize(entry, extensions);
         }
 
-        public static Extension Serialize(string extensionName, ExportorEntry entry, Dictionary<string, Extension> extensions)
+        public static Extension Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions)
         {
             var factory = Name2Extensions[extensionName];
             factory.Awake(entry);
@@ -72,7 +72,7 @@ namespace SeinJS
             return factory.Serialize(entry, extensions);
         }
 
-        public static void Serialize(Component component, ExportorEntry entry, Dictionary<string, Extension> extensions)
+        public static void Serialize(Component component, ExporterEntry entry, Dictionary<string, Extension> extensions)
         {
             foreach (var name in Component2Extensions[component.GetType()])
             {

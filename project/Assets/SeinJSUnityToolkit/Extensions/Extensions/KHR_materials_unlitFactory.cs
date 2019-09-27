@@ -21,7 +21,7 @@ namespace SeinJS
             get { return new List<Type>(); }
         }
 
-        public override Extension Serialize(ExportorEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override Extension Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
             var extension = new KHR_materials_unlit();
 

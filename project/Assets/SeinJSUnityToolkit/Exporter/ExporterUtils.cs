@@ -22,7 +22,7 @@ namespace SeinJS
         private static GameObject _tempGO = null;
 
         public static Regex rgxPath = new Regex("[^a-zA-Z0-9-_./]");
-        public static string cleanPath(string s)
+        public static string CleanPath(string s)
         {
             return rgxPath.Replace(s, "").ToLower();
         }
@@ -111,7 +111,7 @@ namespace SeinJS
             DataType value, GLTFComponentType componentType,
             ref float[] max, ref float[] min, ref GLTFAccessorAttributeType type
         )
-        {   
+        {
             /**
              @todo: support int uint short byte ushort...
              */
@@ -147,7 +147,8 @@ namespace SeinJS
                 type = GLTFAccessorAttributeType.VEC4;
                 var v = (Vector4)Convert.ChangeType(value, typeof(Vector4));
                 array = new float[] { v.x, v.y, v.z, v.w };
-            } else
+            }
+            else
             {
                 throw new Exception("Only support packing float, Vector2, Vector3, Vector4 now !");
             }
@@ -207,7 +208,7 @@ namespace SeinJS
             return bytes;
         }
 
-        public static GLTF.Schema.Material ConvertMaterial(UnityEngine.Material material, ExportorEntry entry)
+        public static GLTF.Schema.Material ConvertMaterial(UnityEngine.Material material, ExporterEntry entry)
         {
             if (material.shader.name.Contains("Standard") || material.shader.name.Contains("Autodesk Interactive"))
             {
@@ -228,7 +229,7 @@ namespace SeinJS
             throw new Exception("Only support Sein/PBR or Sein/XXX(CustomMaterial) now !");
         }
 
-        private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExportorEntry entry)
+        private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExporterEntry entry)
         {
             var material = new GLTF.Schema.Material();
 
@@ -278,7 +279,8 @@ namespace SeinJS
 
                     if (occlusion != null)
                     {
-                        material.OcclusionTexture = new OcclusionTextureInfo {
+                        material.OcclusionTexture = new OcclusionTextureInfo
+                        {
                             Index = id,
                             Strength = mat.GetFloat("_occlusionStrength")
                         };
@@ -369,7 +371,7 @@ namespace SeinJS
             return material;
         }
 
-        private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material mat, ExportorEntry entry)
+        private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material mat, ExporterEntry entry)
         {
             if (_tempGO == null)
             {
@@ -442,7 +444,7 @@ namespace SeinJS
 
         //}
 
-        public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial mat, ExportorEntry entry)
+        public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial mat, ExporterEntry entry)
         {
             var material = new GLTF.Schema.Material();
 
@@ -527,9 +529,9 @@ namespace SeinJS
                 id += occlusion.GetInstanceID();
             }
 
-            if (ExportorEntry.composedTextures[id])
+            if (ExporterEntry.composedTextures[id])
             {
-                return ExportorEntry.composedTextures[id];
+                return ExporterEntry.composedTextures[id];
             }
 
             int width = textureM.width;

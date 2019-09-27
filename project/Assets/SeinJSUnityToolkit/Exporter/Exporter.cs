@@ -22,7 +22,7 @@ namespace SeinJS
 
         public void Export()
         {
-            List<ExportorEntry> entries = new List<ExportorEntry>();
+            List<ExporterEntry> entries = new List<ExporterEntry>();
             Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel);
 
             foreach (Transform tr in transforms)
@@ -36,23 +36,23 @@ namespace SeinJS
 
             if (!ExporterSettings.Export.splitChunks)
             {
-                entries.Add(new ExportorEntry
+                entries.Add(new ExporterEntry
                 {
                         path = ExporterSettings.Export.GetExportPath(),
                         name = ExporterSettings.Export.name,
                         transforms = Selection.GetTransforms(SelectionMode.Deep)
-                });
+				});
             }
             else
             {
                 foreach (Transform tr in transforms)
                 {
-                    entries.Add(new ExportorEntry
+                    entries.Add(new ExporterEntry
                     {
                             path = ExporterSettings.Export.GetExportPath(tr.name),
                             name = ExporterSettings.Export.name,
                             transforms = tr.GetComponentsInChildren<Transform>()
-                    });
+					});
                 }
             }
 

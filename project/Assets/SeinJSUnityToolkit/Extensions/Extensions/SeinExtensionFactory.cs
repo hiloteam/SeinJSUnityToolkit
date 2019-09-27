@@ -21,7 +21,7 @@ namespace SeinJS
             ExtensionName = EXTENSION_NAME;
         }
 
-        public void Awake(ExportorEntry entry)
+        public void Awake(ExporterEntry entry)
         {
             entry.AddExtension(ExtensionName);
         }
@@ -31,7 +31,7 @@ namespace SeinJS
             extensions.Add(ExtensionName, extension);
         }
 
-        public abstract Extension Serialize(ExportorEntry entry, Dictionary<string, Extension> extensions, Component component = null);
+        public abstract Extension Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null);
 
         /*
          * @todo: import entry

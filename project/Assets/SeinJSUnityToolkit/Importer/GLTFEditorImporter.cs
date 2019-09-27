@@ -1136,15 +1136,17 @@ namespace SeinJS
 
 		private void LoadAnimation(GLTF.Schema.Animation gltfAnimation, int index, AnimationClip clip)
 		{
+            Regex rgx = new Regex(@"\S+@");
+
             if (gltfAnimation.Name != null)
             {
                 gltfAnimation.Name = gltfAnimation.Name.Replace('|', '-').Replace('.', '-');
+                gltfAnimation.Name = rgx.Replace(gltfAnimation.Name, "");
             }
 
             clip.name = gltfAnimation.Name != null && gltfAnimation.Name.Length > 0 ? gltfAnimation.Name : "GLTFAnimation_" + index;
 			for(int i=0; i < gltfAnimation.Channels.Count; ++i)
 			{
-				AnimationChannel channel = gltfAnimation.Channels[i];
 				addGLTFChannelDataToClip(gltfAnimation.Channels[i], clip);
 			}
 

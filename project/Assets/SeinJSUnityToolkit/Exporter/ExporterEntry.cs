@@ -15,7 +15,7 @@ using System;
 
 namespace SeinJS
 {
-    public class ExportorEntry
+    public class ExporterEntry
     {
         public class Pair<Key, Value>
         {
@@ -41,8 +41,10 @@ namespace SeinJS
         public string name;
         public Transform[] transforms;
         public GLTFRoot root = new GLTFRoot();
+        public Dictionary<Transform, List<Transform>> transformsInSameActor = new Dictionary<Transform, List<Transform>>();
         public List<Transform> bones = new List<Transform>();
         public Dictionary<Transform, Node> tr2node = new Dictionary<Transform, Node>();
+        public Dictionary<Node, Transform> node2tr = new Dictionary<Node, Transform>();
 
         private List<EntryBufferView> _bufferViews = new List<EntryBufferView>();
 		// for each mesh
@@ -53,6 +55,7 @@ namespace SeinJS
         // key: SeinCustomMaterial componenet or UnityMateiral InistanceID
         private Dictionary<int, MaterialId> _material2ID = new Dictionary<int, MaterialId>();
         private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
+        private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
 
         // key: instanceId
         public static Dictionary<string, Texture2D> composedTextures = new Dictionary<string, Texture2D>();
@@ -110,6 +113,7 @@ namespace SeinJS
             };
             root.Nodes.Add(node);
             tr2node.Add(tr, node);
+            node2tr.Add(node, tr);
 
             return new NodeId { Id = root.Nodes.Count - 1 };
         }
@@ -553,7 +557,7 @@ namespace SeinJS
         private string[] GetTextureOutPath(Texture2D texture, string format)
         {
             string assetPath = AssetDatabase.GetAssetPath(texture);
-            string pathInArchive = ExporterUtils.cleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
+            string pathInArchive = ExporterUtils.CleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
             string exportDir = ExporterSettings.Export.GetExportPath(pathInArchive);
 
             if (!Directory.Exists(exportDir))
@@ -562,12 +566,82 @@ namespace SeinJS
             }
 
             string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + format;
-            outputFilename = ExporterUtils.cleanPath(outputFilename);
+            outputFilename = ExporterUtils.CleanPath(outputFilename);
 
             string exportPath = exportDir + "/" + outputFilename;
             string pathInGltfFile = pathInArchive + "/" + outputFilename;
 
             return new string[] { exportPath, pathInGltfFile };
+        }
+
+        public SkinId SaveSkin(Transform tr)
+        {
+            var skinMesh = tr.GetComponent<SkinnedMeshRenderer>();
+
+            if (_skin2ID.ContainsKey(skinMesh))
+            {
+                return _skin2ID[skinMesh];
+            }
+
+            var node = tr2node[tr];
+            var skin = new Skin();
+            skin.Name = "skeleton-" + skinMesh.rootBone.name;
+            skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(node) };
+            skin.Joints = new List<NodeId>();
+
+            foreach (var bone in skinMesh.bones)
+            {
+                skin.Joints.Add(new NodeId { Id = root.Nodes.IndexOf(tr2node[bone]) });
+            }
+
+            // Create invBindMatrices accessor
+            var bufferView = CreateStreamBufferView(skin.Name);
+            bufferView.view.ByteStride = 16 * 4;
+
+            Matrix4x4[] invBindMatrices = new Matrix4x4[skin.Joints.Count];
+            for (int i = 0; i < skinMesh.bones.Length; ++i)
+            {
+                // Generates inverseWorldMatrix in right-handed coordinate system
+                Matrix4x4 invBind = skinMesh.sharedMesh.bindposes[i];
+                Utils.ConvertMat4LeftToRightHandedness(invBind);
+                invBindMatrices[i] = invBind;
+            }
+
+            skin.InverseBindMatrices = AccessorToId(
+                ExporterUtils.PackToBuffer(bufferView.streamBuffer, invBindMatrices, GLTFComponentType.Float),
+                bufferView
+            );
+
+            root.Skins.Add(skin);
+
+            var id = new SkinId { Id = root.Skins.Count - 1 };
+            _skin2ID.Add(skinMesh, id);
+
+            return id;
+        }
+
+        public void SaveAnimation(Transform tr)
+        {
+            var node = tr2node[tr];
+            var clips = AnimationUtility.GetAnimationClips(tr.gameObject);
+            for (int i = 0; i < clips.Length; i++)
+            {
+                var clip = clips[i];
+                var anim = new GLTF.Schema.Animation { Name = node.Name + "@" + clip.name };
+
+
+                anim.Populate(clips[i], tr, GlTF_Writer.bakeAnimation);
+                
+                if (anim.channels.Count > 0)
+                {
+                    GlTF_Writer.animations.Add(anim);
+                    GlTF_Writer.animationNames.Add(anim.name);
+                }
+            }
+
+            var a = new GLTF.Schema.Animation();
+            // prefix = node.name;
+            // 
         }
 
         //public string SaveAudio()

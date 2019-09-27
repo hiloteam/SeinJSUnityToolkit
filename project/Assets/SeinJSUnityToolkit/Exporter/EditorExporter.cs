@@ -25,9 +25,9 @@ namespace SeinJS
             _taskManager = new TaskManager();
         }
 
-        public void Export(List<ExportorEntry> entries)
+        public void Export(List<ExporterEntry> entries)
         {
-			ExportorEntry.Init();
+			ExporterEntry.Init();
             _isDone = false;
             _userStopped = false;
 
@@ -37,7 +37,7 @@ namespace SeinJS
             }
         }
 
-        private void ExportOne(ExportorEntry entry)
+        private void ExportOne(ExporterEntry entry)
         {
             var root = entry.root;
             root.Asset = new Asset();
@@ -75,15 +75,25 @@ namespace SeinJS
             }
 
             // process children
+            ProcessChildren(entry);
 
             // process skinning and bones
+            foreach (Transform tr in entry.transforms)
+            {
+                ExportSkin(tr, entry);
+            }
 
             // process animations
+            foreach (Transform tr in entry.transforms)
+            {
+                ExportAnimation(tr, entry);
+            }
         }
 
-        private void ExportNode(Transform tr, ExportorEntry entry)
+        private void ExportNode(Transform tr, ExporterEntry entry)
         {
             var id = entry.SaveNode(tr);
+
             if (!tr.parent)
             {
                 entry.root.Scene.Value.Nodes.Add(id);
@@ -93,10 +103,34 @@ namespace SeinJS
                 entry.tr2node[tr.parent].Children.Add(id);
             }
 
+            var seinNode = tr.GetComponent<SeinNode>();
+            if (seinNode)
+            {
+                if (seinNode.selfType == ESeinNodeType.Actor)
+                {
+                    entry.transformsInSameActor.Add(tr, new List<Transform>());
+                }
+                else
+                {
+                    var parent = tr.parent;
+                    while (parent)
+                    {
+                        var parentSeinNode = parent.GetComponent<SeinNode>();
+                        if (parentSeinNode == null || parentSeinNode.selfType == ESeinNodeType.Component)
+                        {
+                            parent = parent.parent;
+                            continue;
+                        }
+
+                        entry.transformsInSameActor[parent].Add(tr);
+                    }
+                }
+            }
+
             ExportMesh(tr, entry);
         }
 
-        private void ExportMesh(Transform tr, ExportorEntry entry)
+        private void ExportMesh(Transform tr, ExporterEntry entry)
         {
             var renderer = GetRenderer(tr);
             var mesh = GetMesh(tr);
@@ -147,19 +181,14 @@ namespace SeinJS
         }
 
 
-        private void ExportNormalMaterial(UnityEngine.Material material, MeshPrimitive primitive, ExportorEntry entry)
+        private void ExportNormalMaterial(UnityEngine.Material material, MeshPrimitive primitive, ExporterEntry entry)
         {
             primitive.Material = entry.SaveNormalMaterial(material);
         }
 
-        private void ExportComponentMaterial(SeinCustomMaterial material, MeshPrimitive primitive, ExportorEntry entry)
+        private void ExportComponentMaterial(SeinCustomMaterial material, MeshPrimitive primitive, ExporterEntry entry)
         {
             primitive.Material = entry.SaveComponentMaterial(material);
-        }
-
-        private void ExportTexture()
-        {
-
         }
 
         private void ExportCamera()
@@ -170,6 +199,53 @@ namespace SeinJS
         private void ExportLight()
         {
 
+        }
+
+        private void ProcessChildren(ExporterEntry entry)
+        {
+            foreach (var trs in entry.transformsInSameActor.Values)
+			{
+                var names = new Dictionary<string, int>();
+
+                foreach (var tr in trs)
+                {
+                    var node = entry.tr2node[tr];
+                    if (names.ContainsKey(node.Name)) {
+                        names[node.Name] += 1;
+                        node.Name += names[node.Name];
+                    }
+                    else
+                    {
+                        names.Add(node.Name, 0);
+                    }
+                }
+			}
+        }
+
+        private void ExportSkin(Transform tr, ExporterEntry entry)
+        {
+            var skinMesh = tr.GetComponent<SkinnedMeshRenderer>();
+
+            if (skinMesh != null && skinMesh.enabled && CheckSkinValidity(skinMesh, entry) && skinMesh.rootBone != null)
+            {
+                var node = entry.tr2node[tr];
+                node.Skin = entry.SaveSkin(tr);
+            }
+        }
+
+        private void ExportAnimation(Transform tr, ExporterEntry entry)
+        {
+            if (tr.GetComponent<UnityEngine.Animation>())
+            {
+                Debug.LogError("Only support animator now !");
+                return;
+            }
+
+            var anim = tr.GetComponent<Animator>();
+            if (anim)
+            {
+                entry.SaveAnimation(tr);
+            }
         }
 
         private Renderer GetRenderer(Transform tr)
@@ -206,6 +282,20 @@ namespace SeinJS
                 }
             }
             return m;
+        }
+
+        private bool CheckSkinValidity(SkinnedMeshRenderer skin, ExporterEntry entry)
+        {
+            foreach (Transform tr in skin.bones)
+            {
+                if (!entry.bones.Contains(tr))
+                {
+                    Debug.LogError("Error while exporting skin for " + skin.name + " (skipping skinning export).\nClick for more details:\n \nThe following bones are used but are not selected" + tr.name + "\n");
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public void Update()
