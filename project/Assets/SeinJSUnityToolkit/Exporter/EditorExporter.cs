@@ -86,7 +86,7 @@ namespace SeinJS
             // process animations
             foreach (Transform tr in entry.transforms)
             {
-                ExportAnimation(tr, entry);
+                ExportAnimations(tr, entry);
             }
         }
 
@@ -233,7 +233,7 @@ namespace SeinJS
             }
         }
 
-        private void ExportAnimation(Transform tr, ExporterEntry entry)
+        private void ExportAnimations(Transform tr, ExporterEntry entry)
         {
             if (tr.GetComponent<UnityEngine.Animation>())
             {
@@ -244,7 +244,7 @@ namespace SeinJS
             var anim = tr.GetComponent<Animator>();
             if (anim)
             {
-                entry.SaveAnimation(tr);
+                entry.SaveAnimations(tr);
             }
         }
 

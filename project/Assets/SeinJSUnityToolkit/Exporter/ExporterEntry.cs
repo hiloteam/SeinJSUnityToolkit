@@ -56,6 +56,8 @@ namespace SeinJS
         private Dictionary<int, MaterialId> _material2ID = new Dictionary<int, MaterialId>();
         private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
+        private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
+        private Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>> _animClip2Accessors = new Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>>();
 
         // key: instanceId
         public static Dictionary<string, Texture2D> composedTextures = new Dictionary<string, Texture2D>();
@@ -620,28 +622,264 @@ namespace SeinJS
             return id;
         }
 
-        public void SaveAnimation(Transform tr)
+        public void SaveAnimations(Transform tr)
         {
             var node = tr2node[tr];
-            var clips = AnimationUtility.GetAnimationClips(tr.gameObject);
+            AnimationClip[] clips = null;
+
+            if (tr.GetComponent<Animator>())
+            {
+                clips = AnimationUtility.GetAnimationClips(tr.gameObject);
+            }
+            else if (tr.GetComponent<UnityEngine.Animation>())
+            {
+                clips = new AnimationClip[] { tr.GetComponent<UnityEngine.Animation>().clip };
+            }
+
+            if (clips == null)
+            {
+                return;
+            }
+
+            SeinAnimator animator = tr.GetComponent<SeinAnimator>();
+            if (animator == null)
+            {
+                //todo: if no animation defined, use all
+                animator = tr.gameObject.AddComponent<SeinAnimator>();
+            }
+
             for (int i = 0; i < clips.Length; i++)
             {
                 var clip = clips[i];
                 var anim = new GLTF.Schema.Animation { Name = node.Name + "@" + clip.name };
 
+                SaveAnimationClip(anim, tr, clip);
 
-                anim.Populate(clips[i], tr, GlTF_Writer.bakeAnimation);
-                
-                if (anim.channels.Count > 0)
+                root.Animations.Add(anim);
+            }
+
+            animator.prefix = node.Name;
+        }
+
+        private void SaveAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
+        {
+            var targets = BakeAnimationClip(tr, clip);
+            var accessors = _animClip2Accessors[clip];
+            var timeAccessorId = _animClip2TimeAccessor[clip];
+
+            int targetId = 0;
+            int accessorId = 0;
+            foreach (var target in targets)
+            {
+                var targetTr = tr.Find(targets[targetId]);
+                var targetNode = tr2node[targetTr];
+
+                foreach (var accessor in accessors[targetId])
                 {
-                    GlTF_Writer.animations.Add(anim);
-                    GlTF_Writer.animationNames.Add(anim.name);
+                    var path = accessor.Key;
+
+                    anim.Channels.Add(
+                        new AnimationChannel
+                        {
+                            Sampler = new AnimationSamplerId { Id = accessorId },
+                            Target = new AnimationChannelTarget { Path = path, Node = new NodeId { Id = root.Nodes.IndexOf(targetNode) } }
+                        }
+                    );
+
+                    anim.Samplers.Add(
+                        new AnimationSampler {
+                            Input = timeAccessorId,
+                            Output = accessor.Value,
+                            Interpolation = InterpolationType.LINEAR
+                        }
+                    );
+
+                    accessorId += 1;
+                }
+
+                targetId += 1;
+            }
+        }
+
+        private List<string> BakeAnimationClip(Transform tr, AnimationClip clip)
+        {
+            var needGenerate = !_animClip2Accessors.ContainsKey(clip);
+            Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>> curves = null;
+            Dictionary<string, bool> rotationIsEuler = null;
+
+            if (needGenerate)
+            {
+                curves = new Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>>();
+                rotationIsEuler = new Dictionary<string, bool>();
+            }
+
+            List<string> targets = new List<string>();
+
+            foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+            {
+                var path = binding.path;
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+
+                if (!curves.ContainsKey(path))
+                {
+                    targets.Add(path);
+                    if (needGenerate)
+                    {
+                        curves.Add(path, new Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>());
+                        rotationIsEuler.Add(path, false);
+                    }
+                }
+
+                if (!needGenerate)
+                {
+                    continue;
+                }
+
+                var current = curves[path];
+                if (binding.propertyName.Contains("m_LocalPosition"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.translation))
+                    {
+                        current.Add(GLTFAnimationChannelPath.translation, new AnimationCurve[3]);
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.translation][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.translation][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.translation][2] = curve;
+                }
+                else if (binding.propertyName.Contains("m_LocalScale"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.scale))
+                    {
+                        current.Add(GLTFAnimationChannelPath.scale, new AnimationCurve[3]);
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.scale][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.scale][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.scale][2] = curve;
+                }
+                else if (binding.propertyName.ToLower().Contains("localrotation"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.rotation))
+                    {
+                        current.Add(GLTFAnimationChannelPath.rotation, new AnimationCurve[4]);
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.rotation][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.rotation][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.rotation][2] = curve;
+                    else if (binding.propertyName.Contains(".w"))
+                        current[GLTFAnimationChannelPath.rotation][3] = curve;
+                }
+                // Takes into account 'localEuler', 'localEulerAnglesBaked' and 'localEulerAnglesRaw'
+                else if (binding.propertyName.ToLower().Contains("localeuler"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.rotation))
+                    {
+                        current.Add(GLTFAnimationChannelPath.rotation, new AnimationCurve[3]);
+                        rotationIsEuler[path] = true;
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.rotation][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.rotation][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.rotation][2] = curve;
+                }
+                //todo: weights
+            }
+
+            if (!needGenerate)
+            {
+                return targets;
+            }
+
+            
+            var bufferView = CreateStreamBufferView("animation-" + clip.name);
+            int nbSamples = (int)(clip.length * 30);
+            float deltaTime = clip.length / nbSamples;
+            var accessors = new List<Dictionary<GLTFAnimationChannelPath, AccessorId>>();
+            _animClip2Accessors.Add(clip, accessors);
+
+            foreach (var path in curves.Keys)
+            {
+                var accessor = new Dictionary<GLTFAnimationChannelPath, AccessorId>();
+                accessors.Add(accessor);
+                float[] times = new float[nbSamples];
+                Vector3[] translations = null;
+                Vector3[] scales = null;
+                Vector4[] rotations = null;
+                foreach (var curve in curves[path])
+                {
+                    if (curve.Key == GLTFAnimationChannelPath.translation)
+                    {
+                        translations = new Vector3[nbSamples];
+                    }
+                    else if (curve.Key == GLTFAnimationChannelPath.scale)
+                    {
+                        scales = new Vector3[nbSamples];
+                    }
+                    else if (curve.Key == GLTFAnimationChannelPath.rotation)
+                    {
+                        rotations = new Vector4[nbSamples];
+                    }
+                }
+
+                for (int i = 0; i < nbSamples; i += 1)
+                {
+                    var currentTime = i * deltaTime;
+                    times[i] = currentTime;
+
+                    if (translations != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.translation];
+                        translations[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                    }
+
+                    if (scales != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.scale];
+                        scales[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                    }
+
+                    if (rotations != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.rotation];
+                        if (rotationIsEuler[path])
+                        {
+                            var q = Quaternion.Euler(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                            rotations[i] = new Vector4(q.x, q.y, q.z, q.w);
+                        } else
+                        {
+                            rotations[i] = new Vector4(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime), curve[3].Evaluate(currentTime));
+                        }
+                    }
+                }
+
+                _animClip2TimeAccessor.Add(clip, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float), bufferView));
+                if (translations != null)
+                {
+                    accessor.Add(GLTFAnimationChannelPath.translation, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float), bufferView));
+                }
+
+                if (scales != null)
+                {
+                    accessor.Add(GLTFAnimationChannelPath.scale, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, scales, GLTFComponentType.Float), bufferView));
+                }
+
+                if (rotations != null)
+                {
+                    accessor.Add(GLTFAnimationChannelPath.rotation, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float), bufferView));
                 }
             }
 
-            var a = new GLTF.Schema.Animation();
-            // prefix = node.name;
-            // 
+            return targets;
         }
 
         //public string SaveAudio()
