@@ -38,7 +38,7 @@ namespace SeinJS
             factory.Init();
 
             var name = factory.ExtensionName;
-            var components = factory.BINDED_COMPONENTS;
+            var components = factory.BindedComponents;
 
             GLTFProperty.RegisterExtension(factory);
 
@@ -56,20 +56,20 @@ namespace SeinJS
             }
         }
 
-        public static Extension Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions)
+        public static Extension Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
             var factory = Name2Extensions[Class2Extensions[FactoryClass]];
             factory.Awake(entry);
 
-            return factory.Serialize(entry, extensions);
+            return factory.Serialize(entry, extensions, component);
         }
 
-        public static Extension Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions)
+        public static Extension Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
             var factory = Name2Extensions[extensionName];
             factory.Awake(entry);
 
-            return factory.Serialize(entry, extensions);
+            return factory.Serialize(entry, extensions, component);
         }
 
         public static void Serialize(Component component, ExporterEntry entry, Dictionary<string, Extension> extensions)

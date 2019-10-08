@@ -376,8 +376,10 @@ namespace SeinJS
 
 		public MaterialId SaveComponentMaterial(SeinCustomMaterial material)
         {
-            var id = new MaterialId();
+            var mat = ExporterUtils.ConvertMaterial(material, this);
+            root.Materials.Add(mat);
 
+            var id = new MaterialId { Id = root.Materials.Count - 1 };
             return id;
         }
 

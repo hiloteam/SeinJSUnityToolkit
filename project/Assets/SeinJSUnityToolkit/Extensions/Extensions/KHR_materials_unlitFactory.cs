@@ -14,18 +14,14 @@ namespace SeinJS
 {
 	public class KHR_materials_unlitFactory: SeinExtensionFactory
     {
-        public override string EXTENSION_NAME {
-            get { return "KHR_materials_unlit";}
-        }
-        public override List<Type> BINDED_COMPONENTS {
-            get { return new List<Type>(); }
-        }
+        public new static string EXTENSION_NAME = "KHR_materials_unlit";
+        public new static List<Type> BINDED_COMPONENTS = new List<Type>();
 
         public override Extension Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
             var extension = new KHR_materials_unlit();
 
-            AddExtension(extensions, new KHR_materials_unlit());
+            AddExtension(extensions, extension);
 
             return extension;
         }

@@ -10,7 +10,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{7CA597AC-799E-2D81-E8A0-0EA9A568434E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -135,6 +136,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_audioListenerExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_audioSourceExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_audioSourceExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_customMaterialFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_customMaterial.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_nodeExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_nodeExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Extensions\Sein_physicBodyExtension.cs" />

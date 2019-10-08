@@ -13,12 +13,15 @@ namespace SeinJS
 {
 	public abstract class SeinExtensionFactory: ExtensionFactory
 	{
-        public abstract string EXTENSION_NAME { get; }
-        public abstract List<Type> BINDED_COMPONENTS { get; }
+        public static string EXTENSION_NAME;
+        public static List<Type> BINDED_COMPONENTS;
+
+        public List<Type> BindedComponents;
 
         public void Init()
         {
             ExtensionName = EXTENSION_NAME;
+            BindedComponents = BINDED_COMPONENTS;
         }
 
         public void Awake(ExporterEntry entry)
@@ -36,9 +39,9 @@ namespace SeinJS
         /*
          * @todo: import entry
          */
-        public virtual void Import(Extension extension) { }
-        public virtual void Import(GameObject gameObject, Extension extension) { }
-        public virtual void Import(UnityEngine.Material material, Extension extension) { }
-        public virtual void Import(UnityEngine.Mesh material, Extension extension) { }
+        public virtual void Import(GLTFRoot root, Extension extension) { }
+        public virtual void Import(GLTFRoot root, GameObject gameObject, Extension extension) { }
+        public virtual void Import(GLTFRoot root, UnityEngine.Material material, Extension extension) { }
+        public virtual void Import(GLTFRoot root, UnityEngine.Mesh material, Extension extension) { }
     }
 }

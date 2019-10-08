@@ -259,7 +259,7 @@ namespace SeinJS
 
             if (isUnlit)
             {
-                ExtensionManager.Serialize(typeof(KHR_materials_unlit), entry, material.Extensions);
+                ExtensionManager.Serialize(KHR_materials_unlitFactory.EXTENSION_NAME, entry, material.Extensions);
             }
             else if (isMetal)
             {
@@ -467,9 +467,8 @@ namespace SeinJS
                 }
             }
 
-
-
-            //return material;
+            ExtensionManager.Serialize(Sein_customMaterialFactory.EXTENSION_NAME, entry, material.Extensions, mat);
+            return material;
         }
 
         private static bool ProcessTransparency(UnityEngine.Material mat, GLTF.Schema.Material material)
