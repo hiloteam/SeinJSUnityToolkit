@@ -56,20 +56,20 @@ namespace SeinJS
             }
         }
 
-        public static Extension Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public static void Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
             var factory = Name2Extensions[Class2Extensions[FactoryClass]];
             factory.Awake(entry);
 
-            return factory.Serialize(entry, extensions, component);
+            factory.Serialize(entry, extensions, component);
         }
 
-        public static Extension Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public static void Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
             var factory = Name2Extensions[extensionName];
             factory.Awake(entry);
 
-            return factory.Serialize(entry, extensions, component);
+            factory.Serialize(entry, extensions, component);
         }
 
         public static void Serialize(Component component, ExporterEntry entry, Dictionary<string, Extension> extensions)

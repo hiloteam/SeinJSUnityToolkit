@@ -518,8 +518,13 @@ namespace SeinJS
             return id;
         }
 
-        public TextureId SaveTextureHDR(Texture2D texture)
+        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type)
         {
+            if (type != EHDRTextureType.RGBD)
+            {
+                throw new Exception("HDR Texture can only be exported as 'RGBD' now !");
+            }
+
             var id = new TextureId();
 
             return id;

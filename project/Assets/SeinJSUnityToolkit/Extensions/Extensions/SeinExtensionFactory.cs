@@ -34,7 +34,7 @@ namespace SeinJS
             extensions.Add(ExtensionName, extension);
         }
 
-        public abstract Extension Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null);
+        public abstract void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null);
 
         /*
          * @todo: import entry

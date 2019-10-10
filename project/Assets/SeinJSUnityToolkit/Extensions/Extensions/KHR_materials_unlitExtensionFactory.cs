@@ -12,23 +12,21 @@ using UnityEngine;
 
 namespace SeinJS
 {
-	public class KHR_materials_unlitFactory: SeinExtensionFactory
+	public class KHR_materials_unlitExtensionFactory: SeinExtensionFactory
     {
         public new static string EXTENSION_NAME = "KHR_materials_unlit";
         public new static List<Type> BINDED_COMPONENTS = new List<Type>();
 
-        public override Extension Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
-            var extension = new KHR_materials_unlit();
+            var extension = new KHR_materials_unlitExtension();
 
             AddExtension(extensions, extension);
-
-            return extension;
         }
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
-            return new KHR_materials_unlit();
+            return new KHR_materials_unlitExtension();
         }
     }
 }

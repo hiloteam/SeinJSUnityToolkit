@@ -88,6 +88,12 @@ namespace SeinJS
             {
                 ExportAnimations(tr, entry);
             }
+
+            // process extensions
+            foreach (Transform tr in entry.transforms)
+            {
+                ExportExtensions(tr, entry);
+            }
         }
 
         private void ExportNode(Transform tr, ExporterEntry entry)
@@ -245,6 +251,15 @@ namespace SeinJS
             if (anim)
             {
                 entry.SaveAnimations(tr);
+            }
+        }
+
+        private void ExportExtensions(Transform tr, ExporterEntry entry)
+        {
+            var node = entry.tr2node[tr];
+            foreach (var component in tr.GetComponents<Component>())
+            {
+                ExtensionManager.Serialize(component, entry, node.Extensions);
             }
         }
 

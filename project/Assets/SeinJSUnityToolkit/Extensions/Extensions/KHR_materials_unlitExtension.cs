@@ -9,11 +9,11 @@ using Newtonsoft.Json.Linq;
 
 namespace SeinJS
 {
-	public class KHR_materials_unlit: Extension
+	public class KHR_materials_unlitExtension: Extension
 	{
         public JProperty Serialize()
 		{
-			return new JProperty(KHR_materials_unlitFactory.EXTENSION_NAME, new JObject());
+			return new JProperty(KHR_materials_unlitExtensionFactory.EXTENSION_NAME, new JObject());
 		}
 	}
 }

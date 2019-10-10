@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace SeinJS
 {
-    public class Sein_customMaterial : Extension
+    public class Sein_customMaterialExtension : Extension
     {
         public string className = "";
         public string unityMaterialName = "";
@@ -60,7 +60,7 @@ namespace SeinJS
             WriteUiforms(uniforms, uniformsIntVec3);
             WriteUiforms(uniforms, uniformsIntVec4);
 
-            return new JProperty(Sein_customMaterialFactory.EXTENSION_NAME, res);
+            return new JProperty(Sein_customMaterialExtensionFactory.EXTENSION_NAME, res);
         }
 
         private void WriteUiforms<TValue>(JObject container, SeinMaterialUniform<TValue>[] uniforms)

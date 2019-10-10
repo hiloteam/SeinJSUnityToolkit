@@ -259,7 +259,7 @@ namespace SeinJS
 
             if (isUnlit)
             {
-                ExtensionManager.Serialize(KHR_materials_unlitFactory.EXTENSION_NAME, entry, material.Extensions);
+                ExtensionManager.Serialize(KHR_materials_unlitExtensionFactory.EXTENSION_NAME, entry, material.Extensions);
             }
             else if (isMetal)
             {
@@ -467,7 +467,7 @@ namespace SeinJS
                 }
             }
 
-            ExtensionManager.Serialize(Sein_customMaterialFactory.EXTENSION_NAME, entry, material.Extensions, mat);
+            ExtensionManager.Serialize(Sein_customMaterialExtensionFactory.EXTENSION_NAME, entry, material.Extensions, mat);
             return material;
         }
 

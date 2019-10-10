@@ -12,21 +12,19 @@ using UnityEngine;
 
 namespace SeinJS
 {
-    public class Sein_customMaterialFactory : SeinExtensionFactory
+    public class Sein_customMaterialExtensionFactory : SeinExtensionFactory
     {
         public new static string EXTENSION_NAME = "Sein_customMaterial";
         public new static List<Type> BINDED_COMPONENTS = new List<Type>();
 
-        public override Extension Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component)
         {
             var material = component as SeinCustomMaterial;
-            var extension = new Sein_customMaterial();
+            var extension = new Sein_customMaterialExtension();
 
             
 
             AddExtension(extensions, extension);
-
-            return extension;
         }
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)

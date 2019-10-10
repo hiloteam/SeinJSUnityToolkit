@@ -21,7 +21,7 @@ namespace SeinJS {
         public static Texture2D brdfLUT;
 
         public static bool inited = false;
-        public static System.Version version = new System.Version("0.82");
+        public static System.Version version = new System.Version("1.00");
         static System.Version newVersion = null;
 
         static string checlUrl = "https://api.github.com/repos/SeinJS/SeinUnityToolkit/git/refs/tags";
