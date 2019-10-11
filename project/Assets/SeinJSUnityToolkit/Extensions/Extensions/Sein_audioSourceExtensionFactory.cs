@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 using GLTF.Extensions;
 using System.Collections.Generic;
 
-namespace GLTF.Schema
+namespace SeinJS
 {
-    public class Sein_audioSourceExtensionFactory : ExtensionFactory
+    public class Sein_audioSourceExtensionFactory : SeinExtensionFactory
     {
         public const string EXTENSION_NAME = "Sein_audioSource";
 

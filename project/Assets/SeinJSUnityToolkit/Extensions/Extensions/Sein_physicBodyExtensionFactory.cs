@@ -6,9 +6,9 @@ using GLTF.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GLTF.Schema
+namespace SeinJS
 {
-    public class Sein_physicBodyExtensionFactory : ExtensionFactory
+    public class Sein_physicBodyExtensionFactory : SeinExtensionFactory
     {
         public const string EXTENSION_NAME = "Sein_physicBody";
 

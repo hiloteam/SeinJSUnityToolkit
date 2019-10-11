@@ -4,25 +4,27 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-namespace GLTF.Schema
+namespace SeinJS
 {
-    public class Sein_animatorListenerExtension : Extension
+    public class Sein_animatorExtension : Extension
     {
         public string[] modelAnimations;
         public string defaultAnimation;
-
-        public Sein_animatorListenerExtension(
-            string[] modelAnimations,
-            string defaultAnimation
-        )
-        {
-            this.modelAnimations = modelAnimations;
-            this.defaultAnimation = defaultAnimation;
-        }
+        public string prefix = null;
 
         public JProperty Serialize()
         {
-            return null;
+            var value = new JObject(
+                new JProperty("defaultAnimation", defaultAnimation),
+                new JProperty("modelAnimations", new JArray(modelAnimations))
+            );
+
+            if (prefix != null && prefix != "")
+            {
+                value.Add("prefix", prefix);
+            }
+
+            return new JProperty(Sein_animatorExtensionFactory.EXTENSION_NAME, value);
         }
     }
 }

@@ -4,38 +4,40 @@ using GLTF.Math;
 using Newtonsoft.Json;
 using GLTF.Extensions;
 using System.Collections.Generic;
+using GLTF.Schema;
+using UnityEngine;
 
-namespace GLTF.Schema
+namespace SeinJS
 {
-    public class Sein_animatorListenerExtensionFactory : ExtensionFactory
+    public class Sein_animatorExtensionFactory : SeinExtensionFactory
     {
-        public const string EXTENSION_NAME = "Sein_animator";
+        public new static string EXTENSION_NAME = "Sein_animator";
+        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(SeinAnimator) };
 
-        public Sein_animatorListenerExtensionFactory()
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
         {
-            ExtensionName = EXTENSION_NAME;
+            var animator = component as SeinAnimator;
+            var extension = new Sein_animatorExtension();
+
+            extension.prefix = animator.prefix;
+            extension.defaultAnimation = animator.defaultAnimation;
+            extension.modelAnimations = animator.modelAnimations;
+
+            AddExtension(extensions, extension);
         }
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
-            List<string> modelAnimations = new List<string>();
-            string defaultAnimation = "";
+            var extension = new Sein_animatorExtension();
 
             if (extensionToken != null)
             {
-#if DEBUG
-                // Broken on il2cpp. Don't ship debug DLLs there.
-                System.Diagnostics.Debug.WriteLine(extensionToken.Value.ToString());
-                System.Diagnostics.Debug.WriteLine(extensionToken.Value.Type);
-#endif
-                defaultAnimation = (string)extensionToken.Value["defaultAnimation"];
-                foreach (string ani in extensionToken.Value["modelAnimations"])
-                {
-                    modelAnimations.Add(ani);
-                }
+                extension.defaultAnimation = (string)extensionToken.Value["defaultAnimation"];
+                extension.modelAnimations = extensionToken.Value["modelAnimations"].ToObject<string[]>();
+                extension.prefix = (string)extensionToken.Value["prefix"];
             }
 
-            return new Sein_animatorListenerExtension(modelAnimations.ToArray(), defaultAnimation);
+            return extension;
         }
     }
 }

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-namespace GLTF.Schema
+namespace SeinJS
 {
     public class Sein_audioListenerExtension : Extension
     {

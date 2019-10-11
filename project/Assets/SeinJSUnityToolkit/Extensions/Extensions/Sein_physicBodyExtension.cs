@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GLTF.Schema
+namespace SeinJS
 {
     public class Sein_physicBodyExtension : Extension
     {
