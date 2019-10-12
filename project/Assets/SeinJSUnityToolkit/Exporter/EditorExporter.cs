@@ -28,6 +28,7 @@ namespace SeinJS
         public void Export(List<ExporterEntry> entries)
         {
 			ExporterEntry.Init();
+            ExtensionManager.BeforeExport();
             _isDone = false;
             _userStopped = false;
 
