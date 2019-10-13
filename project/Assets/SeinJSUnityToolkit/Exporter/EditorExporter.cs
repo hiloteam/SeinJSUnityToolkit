@@ -93,6 +93,7 @@ namespace SeinJS
             // process extensions
             foreach (Transform tr in entry.transforms)
             {
+                ExportCamera(tr, entry);
                 ExportExtensions(tr, entry);
             }
         }
@@ -198,16 +199,6 @@ namespace SeinJS
             primitive.Material = entry.SaveComponentMaterial(material);
         }
 
-        private void ExportCamera()
-        {
-
-        }
-
-        private void ExportLight()
-        {
-
-        }
-
         private void ProcessChildren(ExporterEntry entry)
         {
             foreach (var trs in entry.transformsInSameActor.Values)
@@ -261,6 +252,17 @@ namespace SeinJS
             foreach (var component in tr.GetComponents<Component>())
             {
                 ExtensionManager.Serialize(component, entry, node.Extensions);
+            }
+        }
+
+        private void ExportCamera(Transform tr, ExporterEntry entry)
+        {
+            var node = entry.tr2node[tr];
+            var camera = tr.GetComponent<UnityEngine.Camera>();
+
+            if (camera != null)
+            {
+                node.Camera = entry.SaveCamera(camera);
             }
         }
 

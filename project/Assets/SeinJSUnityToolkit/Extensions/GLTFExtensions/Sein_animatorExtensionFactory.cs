@@ -1,4 +1,10 @@
-﻿using System;
+﻿/**
+ * @File   : Sein_animatorExtensionFactory.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/10/12 0:00:00PM
+ */
+using System;
 using Newtonsoft.Json.Linq;
 using GLTF.Math;
 using Newtonsoft.Json;

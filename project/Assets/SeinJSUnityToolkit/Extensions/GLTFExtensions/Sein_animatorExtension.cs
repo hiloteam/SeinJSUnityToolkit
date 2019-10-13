@@ -1,4 +1,10 @@
-﻿using GLTF.Math;
+﻿/**
+ * @File   : Sein_animatorExtension.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/10/12 0:00:00PM
+ */
+using GLTF.Math;
 using GLTF.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

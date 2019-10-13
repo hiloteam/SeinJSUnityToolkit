@@ -58,6 +58,7 @@ namespace SeinJS
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
         private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
         private Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>> _animClip2Accessors = new Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>>();
+        private Dictionary<UnityEngine.Camera, CameraId> _camera2ID = new Dictionary<UnityEngine.Camera, CameraId>();
 
         // key: instanceId
         public static Dictionary<string, Texture2D> composedTextures = new Dictionary<string, Texture2D>();
@@ -530,6 +531,48 @@ namespace SeinJS
             return id;
         }
 
+        public CameraId SaveCamera(UnityEngine.Camera camera)
+        {
+            if (_camera2ID.ContainsKey(camera))
+            {
+                return _camera2ID[camera];
+            }
+
+            var c = ProcessCamera(camera);
+            root.Cameras.Add(c);
+
+            var cameraId = new CameraId { Id = root.Cameras.Count - 1 };
+            _camera2ID.Add(camera, cameraId);
+
+            return cameraId;
+        }
+
+        private GLTF.Schema.Camera ProcessCamera(UnityEngine.Camera camera)
+        {
+            var cam = new GLTF.Schema.Camera();
+            cam.Name = camera.name;
+
+            if (camera.orthographic)
+            {
+                var matrix = camera.projectionMatrix;
+                cam.Type = GLTF.Schema.CameraType.orthographic;
+                cam.Orthographic.ZFar = (matrix[2, 3] / matrix[2, 2]) - (1 / matrix[2, 2]);
+                cam.Orthographic.ZNear = cam.Orthographic.ZFar + (2 / matrix[2, 2]);
+                cam.Orthographic.XMag = 1 / matrix[0, 0];
+                cam.Orthographic.YMag = 1 / matrix[1, 1];
+            }
+            else
+            {
+                cam.Type = GLTF.Schema.CameraType.perspective;
+                cam.Perspective.ZFar = camera.farClipPlane;
+                cam.Perspective.ZNear = camera.nearClipPlane;
+                cam.Perspective.AspectRatio = camera.aspect;
+                cam.Perspective.YFov = camera.fieldOfView;
+            }
+
+            return cam;
+        }
+
         private Texture2D TextureFlipY(Texture2D texture, Func<Color, Color> convertColor = null, Action<Texture2D> processTexture = null)
         {
             int height = texture.height;
@@ -565,22 +608,7 @@ namespace SeinJS
 
         private string[] GetTextureOutPath(Texture2D texture, string format)
         {
-            string assetPath = AssetDatabase.GetAssetPath(texture);
-            string pathInArchive = ExporterUtils.CleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
-            string exportDir = ExporterSettings.Export.GetExportPath(pathInArchive);
-
-            if (!Directory.Exists(exportDir))
-            {
-                Directory.CreateDirectory(exportDir);
-            }
-
-            string outputFilename = Path.GetFileNameWithoutExtension(assetPath) + format;
-            outputFilename = ExporterUtils.CleanPath(outputFilename);
-
-            string exportPath = exportDir + "/" + outputFilename;
-            string pathInGltfFile = pathInArchive + "/" + outputFilename;
-
-            return new string[] { exportPath, pathInGltfFile };
+            return ExporterUtils.GetAssetOutPath(texture, format);
         }
 
         public SkinId SaveSkin(Transform tr)
@@ -888,10 +916,5 @@ namespace SeinJS
 
             return targets;
         }
-
-        //public string SaveAudio()
-        //{
-
-        //}
     }
 }

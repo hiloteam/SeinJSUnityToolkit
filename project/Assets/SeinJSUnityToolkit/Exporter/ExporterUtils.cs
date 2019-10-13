@@ -471,6 +471,40 @@ namespace SeinJS
             return material;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>{ exportPath,  pathInGltfFile }</returns>
+        public static string[] GetAssetOutPath(UnityEngine.Object assetObject, string format = null)
+        {
+            string assetPath = AssetDatabase.GetAssetPath(assetObject);
+            string pathInArchive = ExporterUtils.CleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
+            string exportDir = ExporterSettings.Export.GetExportPath(pathInArchive);
+
+            if (!Directory.Exists(exportDir))
+            {
+                Directory.CreateDirectory(exportDir);
+            }
+
+            string outputFilename = "";
+            if (format == null)
+            {
+                outputFilename = Path.GetFileName(assetPath);
+            }
+            else
+            {
+                outputFilename = Path.GetFileNameWithoutExtension(assetPath) + format;
+            }
+
+            outputFilename = ExporterUtils.CleanPath(outputFilename);
+
+            string exportPath = exportDir + "/" + outputFilename;
+            string pathInGltfFile = pathInArchive + "/" + outputFilename;
+
+            return new string[] { exportPath, pathInGltfFile };
+        }
+
         private static bool ProcessTransparency(UnityEngine.Material mat, GLTF.Schema.Material material)
         {
             if (!mat.HasProperty("_Mode"))

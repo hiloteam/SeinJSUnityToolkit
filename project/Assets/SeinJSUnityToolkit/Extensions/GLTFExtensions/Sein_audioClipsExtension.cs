@@ -1,4 +1,10 @@
-﻿using GLTF.Math;
+﻿/**
+ * @File   : Sein_audioClipsExtension.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/10/12 0:00:00AM
+ */
+using GLTF.Math;
 using GLTF.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,7 +14,7 @@ namespace SeinJS
 {
     public class Sein_audioClipsExtension : Extension
     {
-        public struct SeinAudioClip
+        public struct AudioClip
         {
             public ESeinAudioClipMode mode;
             public bool isLazy;
@@ -16,16 +22,23 @@ namespace SeinJS
             public string name;
         }
 
-        public List<SeinAudioClip> clips;
-
-        public Sein_audioClipsExtension(List<SeinAudioClip> clips)
-        {
-            this.clips = clips;
-        }
+        public List<AudioClip> clips;
 
         public JProperty Serialize()
         {
-            return null;
+            var value = new JArray();
+
+            foreach(var clip in clips)
+            {
+                var c = new JObject();
+                c.Add("mode", clip.mode.ToString());
+                c.Add("isLazy", clip.isLazy);
+                c.Add("uri", clip.uri);
+            }
+
+            return new JProperty(Sein_audioClipsExtensionFactory.EXTENSION_NAME, new JObject(
+                new JProperty("clips", value)
+            ));
         }
     }
 }
