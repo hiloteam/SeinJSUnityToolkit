@@ -12,6 +12,7 @@ using GLTF;
 using System.Collections.Generic;
 using System.IO;
 using System;
+using Newtonsoft.Json;
 
 namespace SeinJS
 {
@@ -1058,11 +1059,46 @@ namespace SeinJS
 
         public void Finish()
         {
-            foreach(var bufferView in _bufferViews) {
-                
+            var uri = name + ".bin";
+            var fp = Path.Combine(ExporterSettings.Export.folder, uri);
+            var bufferId = new BufferId { Id = 0, Root = root };
+            var outputFile = new FileStream(fp, FileMode.Create);
+            int offset = 0;
+
+            using (var binWriter = new BinaryWriter(outputFile)) {
+                foreach (var bufferView in _bufferViews)
+                {
+                    int length = 0;
+
+                    if (bufferView.byteBuffer != null)
+                    {
+                        length = bufferView.byteBuffer.Length;
+                        binWriter.Write(bufferView.byteBuffer);
+                    } else if (bufferView.streamBuffer != null)
+                    {
+                        length = (int)bufferView.streamBuffer.Length;
+                        binWriter.Write(bufferView.streamBuffer.ToArray());
+                    }
+
+                    bufferView.view.ByteLength = length;
+                    bufferView.view.ByteOffset = offset;
+                    bufferView.view.Buffer = bufferId;
+
+                    offset += length;
+                }
+
+                binWriter.Flush();
             }
 
-            File.WriteAllText(path, root.ToString());
+            var buffer = new GLTF.Schema.Buffer();
+            buffer.ByteLength = offset;
+            buffer.Uri = uri;
+            root.Buffers = new List<GLTF.Schema.Buffer> { buffer };
+
+            using (var writer = File.CreateText(path))
+            {
+                root.Serialize(writer);
+            }
         }
     }
 }

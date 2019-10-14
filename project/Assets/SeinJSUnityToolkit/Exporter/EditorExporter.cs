@@ -97,6 +97,8 @@ namespace SeinJS
                 ExportCamera(tr, entry);
                 ExportExtensions(tr, entry);
             }
+
+            ExportDone(entry);
         }
 
         private void ExportNode(Transform tr, ExporterEntry entry)

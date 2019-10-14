@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEditor;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace SeinJS
 {
@@ -73,7 +74,14 @@ namespace SeinJS
 		static void Save()
 		{
 			JObject config = new JObject(new JProperty("exportPath", exportPath), new JProperty("importPath", importPath));
-			File.WriteAllText(configPath, config.ToString());
+
+            var serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            using (var sw = new StreamWriter(configPath))
+            using (var writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, config);
+            }
 		}
 	}
 }
