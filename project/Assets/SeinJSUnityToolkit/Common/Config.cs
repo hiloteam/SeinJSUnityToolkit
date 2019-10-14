@@ -66,7 +66,7 @@ namespace SeinJS
 			exportPath = (string)config["exportPath"];
 			importPath = (string)config["importPath"];
 			header = new Texture2D(1, 1);
-			header.LoadImage(File.ReadAllBytes(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/logo.png")));
+			header.LoadImage(File.ReadAllBytes(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/logo.jpg")));
 			header.Apply();
 		}
 

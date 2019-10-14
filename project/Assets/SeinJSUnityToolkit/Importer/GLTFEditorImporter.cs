@@ -39,7 +39,6 @@ namespace SeinJS
             public List<List<Vector3>> morphTangents = new List<List<Vector3>>();
         }
 
-        public static bool extensionsInited = false;
 		public bool _useGLTFMaterial = false;
 		bool _isDone = false;
 
@@ -122,17 +121,6 @@ namespace SeinJS
 			_taskManager = new TaskManager();
 			_assetsToRemove = new List<string>();
 			defaultMaterial = new UnityEngine.Material(Shader.Find("Sein/PBR"));
-            if (!extensionsInited)
-            {
-                GLTFProperty.RegisterExtension(new Sein_nodeExtensionFactory());
-                GLTFProperty.RegisterExtension(new Sein_audioClipsExtensionFactory());
-                GLTFProperty.RegisterExtension(new Sein_audioSourceExtensionFactory());
-                GLTFProperty.RegisterExtension(new Sein_audioListenerExtensionFactory());
-                GLTFProperty.RegisterExtension(new Sein_animatorListenerExtensionFactory());
-                GLTFProperty.RegisterExtension(new Sein_physicBodyExtensionFactory());
-
-                extensionsInited = true;
-            }
         }
 
 		/// <summary>
@@ -460,7 +448,7 @@ namespace SeinJS
             }
         }
 
-        private void LoadAudioClip(string rootPath, GLTF.Schema.SeinAudioClip clip, int clipID)
+        private void LoadAudioClip(string rootPath, Sein_audioClipsExtension.AudioClip clip, int clipID)
         {
             if (_assetCache.AudioClipCache[clipID] == null)
             {
@@ -1412,7 +1400,7 @@ namespace SeinJS
 
             if (node.Extensions.ContainsKey("Sein_animator"))
             {
-                var ani = (Sein_animatorListenerExtension)node.Extensions["Sein_animator"];
+                var ani = (Sein_animatorExtension)node.Extensions["Sein_animator"];
                 var animator = go.AddComponent<SeinAnimator>();
                 animator.modelAnimations = ani.modelAnimations;
                 animator.defaultAnimation = ani.defaultAnimation;

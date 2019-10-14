@@ -14,10 +14,10 @@ namespace SeinJS
 {
     public class Sein_customMaterialExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_customMaterial";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type>();
+        public override string GetExtensionName() { return "Sein_customMaterial"; }
+        public override List<Type> GetBindedComponents() { return new List<Type>(); }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var material = component as SeinCustomMaterial;
             var extension = new Sein_customMaterialExtension();
@@ -29,7 +29,7 @@ namespace SeinJS
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
-            //return new KHR_materials_unlit();
+            return new Sein_customMaterialExtension();
         }
     }
 }

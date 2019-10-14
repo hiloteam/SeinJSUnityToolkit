@@ -17,10 +17,10 @@ namespace SeinJS
 {
     public class Sein_physicBodyExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_physicBody";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(SeinRigidBody), typeof(Collider) };
+        public override string GetExtensionName() { return "Sein_physicBody"; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinRigidBody), typeof(Collider) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             Sein_physicBodyExtension extension = null;
 

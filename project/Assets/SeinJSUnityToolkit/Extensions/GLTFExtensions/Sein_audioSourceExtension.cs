@@ -59,7 +59,7 @@ namespace SeinJS
             }
             value.Add("clips", cps);
 
-            return new JProperty(Sein_audioSourceExtensionFactory.EXTENSION_NAME, value);
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_audioSourceExtensionFactory)), value);
         }
     }
 }

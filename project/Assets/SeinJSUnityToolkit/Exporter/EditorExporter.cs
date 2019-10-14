@@ -45,8 +45,17 @@ namespace SeinJS
             root.Asset.Generator = "Sein.js Unity Toolkit";
             root.Asset.Version = "2.0";
             root.Asset.Extras = new JProperty("exporterVersion", Utils.version.ToString());
+            root.Scenes = new List<Scene>();
             root.Scenes.Add(new Scene());
             root.Scene = new SceneId{ Id = 0 };
+
+            if (ExporterSettings.Lighting.ambient)
+            {
+                var tmpGo = new GameObject();
+                tmpGo.name = "sein-ambient-light";
+                ExportNode(tmpGo.transform, entry);
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_ambientLightExtensionFactory)), entry, entry.tr2node[tmpGo.transform].Extensions);
+            }
 
             foreach (Transform tr in entry.transforms)
             {
@@ -63,14 +72,6 @@ namespace SeinJS
                 {
                     continue;
                 }
-
-                //if (ExporterSettings.Lighting.ambient)
-                //{
-                //    var root = entry.root;
-                //    var node = new Node();
-                //    node.Name = "sein-ambient-light";
-                //    root.Nodes.Add(node);
-                //}
 
                 ExportNode(tr, entry);
             }
@@ -251,7 +252,14 @@ namespace SeinJS
             var node = entry.tr2node[tr];
             foreach (var component in tr.GetComponents<Component>())
             {
-                ExtensionManager.Serialize(component, entry, node.Extensions);
+                if (ExtensionManager.Component2Extensions.ContainsKey(component.GetType()))
+                {
+                    if (node.Extensions == null)
+                    {
+                        node.Extensions = new Dictionary<string, Extension>();
+                        ExtensionManager.Serialize(component, entry, node.Extensions);
+                    }
+                }
             }
         }
 

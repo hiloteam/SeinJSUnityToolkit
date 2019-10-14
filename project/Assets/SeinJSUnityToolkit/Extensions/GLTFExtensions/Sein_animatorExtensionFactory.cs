@@ -17,10 +17,10 @@ namespace SeinJS
 {
     public class Sein_animatorExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_animator";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(SeinAnimator) };
+        public override string GetExtensionName() { return "Sein_animator"; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinAnimator) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var animator = component as SeinAnimator;
             var extension = new Sein_animatorExtension();

@@ -79,7 +79,7 @@ namespace SeinJS
                 value.Add("light", lightIndex);
             }
 
-            return new JProperty(KHR_lights_punctualExtensionFactory.EXTENSION_NAME, value);
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(KHR_lights_punctualExtensionFactory)), value);
         }
     }
 }

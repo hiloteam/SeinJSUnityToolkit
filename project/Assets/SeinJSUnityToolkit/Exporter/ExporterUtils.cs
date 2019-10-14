@@ -259,7 +259,11 @@ namespace SeinJS
 
             if (isUnlit)
             {
-                ExtensionManager.Serialize(KHR_materials_unlitExtensionFactory.EXTENSION_NAME, entry, material.Extensions);
+                if (material.Extensions == null)
+                {
+                    material.Extensions = new Dictionary<string, Extension>();
+                }
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(KHR_materials_unlitExtensionFactory)), entry, material.Extensions);
             }
             else if (isMetal)
             {
@@ -318,6 +322,10 @@ namespace SeinJS
                 var specularFactor = hasPBRMap ? Color.white : mat.GetColor("_specular");
                 var glossinessFactor = hasPBRMap ? 1.0f : mat.GetFloat("_glossiness");
 
+                if (material.Extensions == null)
+                {
+                    material.Extensions = new Dictionary<string, Extension>();
+                }
                 material.Extensions.Add(
                     "KHR_materials_pbrSpecularGlossiness",
                     new KHR_materials_pbrSpecularGlossinessExtension(
@@ -365,7 +373,11 @@ namespace SeinJS
              */
             if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off)
             {
-                //createReflection(mat, ref material);
+                if (material.Extensions == null)
+                {
+                    material.Extensions = new Dictionary<string, Extension>();
+                }
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_imageBasedLightingExtensionFactory)), entry, material.Extensions, mat);
             }
 
             return material;
@@ -467,7 +479,11 @@ namespace SeinJS
                 }
             }
 
-            ExtensionManager.Serialize(Sein_customMaterialExtensionFactory.EXTENSION_NAME, entry, material.Extensions, mat);
+            if (material.Extensions == null)
+            {
+                material.Extensions = new Dictionary<string, Extension>();
+            }
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory)), entry, material.Extensions, mat);
             return material;
         }
 

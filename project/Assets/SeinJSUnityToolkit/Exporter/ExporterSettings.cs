@@ -34,9 +34,17 @@ namespace SeinJS
 
             public static void UpdateFolder(string folder)
 			{
-				Config.SetExportPath(Utils.MakeRelativePath(Application.dataPath, folder));
-				ExporterSettings.Export.folder = Path.GetFullPath(Path.Combine(Application.dataPath, Config.GetExportPath()));
-			}
+                if (folder.Substring(0, 1) == ".")
+                {
+                    Config.SetExportPath(folder);
+                }
+                else
+                {
+                    Config.SetExportPath(Utils.MakeRelativePath(Application.dataPath, folder));
+                }
+
+                ExporterSettings.Export.folder = Path.GetFullPath(Path.Combine(Application.dataPath, Config.GetExportPath()));
+            }
 
             public static string GetExportPath(string n = null)
 			{

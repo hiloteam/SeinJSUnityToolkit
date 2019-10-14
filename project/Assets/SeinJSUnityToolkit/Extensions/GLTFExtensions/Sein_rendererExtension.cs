@@ -44,7 +44,7 @@ namespace SeinJS
                 }
             }
 
-            return new JProperty(Sein_rendererExtensionFactory.EXTENSION_NAME, value);
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_rendererExtensionFactory)), value);
         }
     }
 }

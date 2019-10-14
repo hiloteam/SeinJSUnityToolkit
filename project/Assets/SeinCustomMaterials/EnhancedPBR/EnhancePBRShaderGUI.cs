@@ -12,6 +12,8 @@ namespace UnityEditor
 {
     internal class SeinEnhancedPBRShaderGUI : ShaderGUI
     {
+        private static Texture2D brdfLUT;
+
         public enum BlendMode
         {
             Opaque = 0,
@@ -348,13 +350,13 @@ namespace UnityEditor
                     break;
             }
 
-            if (SeinUtils.brdfLUT == null)
+            if (brdfLUT == null)
             {
                 var brdfPath = "Assets/SeinJSUnityToolkit/Shaders/brdfLUT.jpg";
                 var e = File.Exists(brdfPath);
-                SeinUtils.brdfLUT = AssetDatabase.LoadAssetAtPath<Texture2D>(brdfPath);
+                brdfLUT = AssetDatabase.LoadAssetAtPath<Texture2D>(brdfPath);
             }
-            material.SetTexture("_brdfLUT", SeinUtils.brdfLUT);
+            material.SetTexture("_brdfLUT", brdfLUT);
         }
 
         static void MaterialChanged(Material material)

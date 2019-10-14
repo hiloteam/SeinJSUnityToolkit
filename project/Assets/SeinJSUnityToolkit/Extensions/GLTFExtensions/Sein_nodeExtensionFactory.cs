@@ -17,10 +17,10 @@ namespace SeinJS
 {
     public class Sein_nodeExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_node";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(SeinNode) };
+        public override string GetExtensionName() { return "Sein_node"; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinNode) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var extension = new Sein_nodeExtension();
             var node = component as SeinNode;

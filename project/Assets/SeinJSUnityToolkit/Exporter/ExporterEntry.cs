@@ -62,13 +62,11 @@ namespace SeinJS
 
         // key: instanceId
         public static Dictionary<string, Texture2D> composedTextures = new Dictionary<string, Texture2D>();
-        public static Dictionary<Texture2D, GLTF.Schema.Texture> texture2d2tex =  new Dictionary<Texture2D, GLTF.Schema.Texture>();
 
         public static void Init()
 		{
             composedTextures.Clear();
-            texture2d2tex.Clear();
-		}
+        }
 
         public EntryBufferView CreateByteBufferView(string name, int size, int stride)
         {
@@ -97,6 +95,12 @@ namespace SeinJS
 
         public void AddExtension(string extension)
         {
+            if (root.ExtensionsRequired == null)
+            {
+                root.ExtensionsRequired = new List<string>();
+                root.ExtensionsUsed = new List<string>();
+            }
+
             if (!root.ExtensionsUsed.Contains(extension))
             {
                 root.ExtensionsUsed.Add(extension);
@@ -106,6 +110,11 @@ namespace SeinJS
 
         public NodeId SaveNode(Transform tr)
         {
+            if (root.Nodes == null)
+            {
+                root.Nodes = new List<Node>();
+            }
+
             var node = new Node
             {
                 Name = tr.name,
@@ -123,6 +132,11 @@ namespace SeinJS
 
         public Pair<MeshId, bool> SaveMesh(UnityEngine.Mesh mesh, Renderer renderer)
         {
+            if (root.Meshes == null)
+            {
+                root.Meshes = new List<GLTF.Schema.Mesh>();
+            }
+
             string materialsId = "";
             foreach (var mat in renderer.sharedMaterials)
             {
@@ -368,6 +382,11 @@ namespace SeinJS
 
         public MaterialId SaveNormalMaterial(UnityEngine.Material material)
         {
+            if (root.Materials == null)
+            {
+                root.Materials = new List<GLTF.Schema.Material>();
+            }
+
 			var mat = ExporterUtils.ConvertMaterial(material, this);
 			root.Materials.Add(mat);
 
@@ -377,6 +396,11 @@ namespace SeinJS
 
 		public MaterialId SaveComponentMaterial(SeinCustomMaterial material)
         {
+            if (root.Materials == null)
+            {
+                root.Materials = new List<GLTF.Schema.Material>();
+            }
+
             var mat = ExporterUtils.ConvertMaterial(material, this);
             root.Materials.Add(mat);
 
@@ -391,15 +415,18 @@ namespace SeinJS
                 return _texture2d2ID[texture];
             }
 
-            var id = new TextureId();
-
-            if (texture2d2tex[texture] != null)
+            string format = ".png";
+            if (!hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
             {
-                root.Textures.Add(texture2d2tex[texture]);
-                id.Id = root.Textures.Count - 1;
-                _texture2d2ID.Add(texture, id);
+                format = ".jpg";
+            }
 
-                return id;
+            var pathes = GetTextureOutPath(texture, format);
+            var exportPath = pathes[0];
+            var pathInGlTF = pathes[1];
+
+            if (File.Exists(exportPath)) {
+                return GenerateTexture(texture, pathInGlTF);
             }
 
             var tex = TextureFlipY(
@@ -421,16 +448,6 @@ namespace SeinJS
                 }
             );
 
-            string format = ".png";
-            if (!hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
-            {
-                format = ".jpg";
-            }
-
-            var pathes = GetTextureOutPath(texture, format);
-            var exportPath = pathes[0];
-            var pathInGlTF = pathes[1];
-
             byte[] content = { };
 
             if (format == ".png")
@@ -444,7 +461,95 @@ namespace SeinJS
 
             File.WriteAllBytes(exportPath, content);
 
-            root.Images.Add(new Image { Uri = pathInGlTF });
+            return GenerateTexture(texture, pathInGlTF);
+        }
+
+        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1)
+        {
+            if (type != EHDRTextureType.RGBD)
+            {
+                throw new Exception("HDR Texture can only be exported as 'RGBD' now !");
+            }
+
+            var isGammaSpace = PlayerSettings.colorSpace == ColorSpace.Gamma;
+            if (isGammaSpace)
+            {
+                // we need linear space lightmap in Sein
+                Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
+            }
+
+            if (_texture2d2ID[texture] != null)
+            {
+                return _texture2d2ID[texture];
+            }
+
+            string format = ".png";
+            var pathes = GetTextureOutPath(texture, format);
+            var exportPath = pathes[0];
+            var pathInGlTF = pathes[1];
+
+            if (File.Exists(exportPath)) {
+                return GenerateTexture(texture, pathInGlTF);
+            }
+
+            var tex = TextureFlipY(
+                texture,
+                origColor => {
+                    var color = new Color(0, 0, 0, 1);
+
+                    if (Math.Abs(origColor.a) > 0.001)
+                    {
+                        origColor = DecodeRGBM(origColor);
+                        var d = 1f;
+                        var m = Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
+                        if (m > 1f)
+                        {
+                            d = 1f / m;
+                        }
+
+                        color = new Color(
+                            origColor.r * d,
+                            origColor.g * d,
+                            origColor.b * d,
+                            d
+                        );
+                    }
+
+                    return color;
+                },
+                newtex => {
+                    if (maxSize > 0 && (newtex.width > maxSize || newtex.height > maxSize))
+                    {
+                        TextureScale.Bilinear(newtex, maxSize, maxSize);
+                    }
+                }
+            );
+
+            byte[] content = tex.EncodeToPNG();
+
+            File.WriteAllBytes(exportPath, content);
+
+            return GenerateTexture(texture, pathInGlTF);
+        }
+
+        private TextureId GenerateTexture(Texture2D texture, string pathInGltf)
+        {
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            if (root.Images == null)
+            {
+                root.Images = new List<GLTF.Schema.Image>();
+            }
+
+            if (root.Samplers == null)
+            {
+                root.Samplers = new List<GLTF.Schema.Sampler>();
+            }
+
+            root.Images.Add(new Image { Uri = pathInGltf });
             var imageId = new ImageId { Id = root.Images.Count - 1 };
 
             var hasMipMap = texture.mipmapCount > 0;
@@ -514,25 +619,33 @@ namespace SeinJS
             var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId };
             root.Textures.Add(gltfTexture);
 
-            id.Id = root.Textures.Count - 1;
+            var id = new TextureId { Id = root.Textures.Count - 1 };
+            _texture2d2ID[texture] = id;
 
             return id;
         }
 
-        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type)
+        // http://dphgame.com/doku.php?id=shader%E5%9F%BA%E7%A1%80:unity%E5%86%85%E7%BD%AEshader:%E5%85%AC%E5%85%B1%E5%87%BD%E6%95%B0#decodelightmap
+        private Color DecodeRGBM(Color color)
         {
-            if (type != EHDRTextureType.RGBD)
-            {
-                throw new Exception("HDR Texture can only be exported as 'RGBD' now !");
-            }
+            var realColor = color;
+            var dFactor = realColor.a;
 
-            var id = new TextureId();
-
-            return id;
+            return new Color(
+                dFactor * realColor.r,
+                dFactor * realColor.g,
+                dFactor * realColor.b,
+                1
+            );
         }
 
         public CameraId SaveCamera(UnityEngine.Camera camera)
         {
+            if (root.Cameras == null)
+            {
+                root.Cameras = new List<GLTF.Schema.Camera>();
+            }
+
             if (_camera2ID.ContainsKey(camera))
             {
                 return _camera2ID[camera];
@@ -613,6 +726,11 @@ namespace SeinJS
 
         public SkinId SaveSkin(Transform tr)
         {
+            if (root.Skins == null)
+            {
+                root.Skins = new List<GLTF.Schema.Skin>();
+            }
+
             var skinMesh = tr.GetComponent<SkinnedMeshRenderer>();
 
             if (_skin2ID.ContainsKey(skinMesh))
@@ -659,6 +777,11 @@ namespace SeinJS
 
         public void SaveAnimations(Transform tr)
         {
+            if (root.Animations == null)
+            {
+                root.Animations = new List<GLTF.Schema.Animation>();
+            }
+
             var node = tr2node[tr];
             AnimationClip[] clips = null;
 

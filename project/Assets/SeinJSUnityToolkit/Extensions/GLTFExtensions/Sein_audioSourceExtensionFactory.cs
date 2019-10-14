@@ -17,13 +17,13 @@ namespace SeinJS
 {
     public class Sein_audioSourceExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_audioSource";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(SeinAudioSource) };
+        public override string GetExtensionName() { return "Sein_audioSource"; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinAudioSource) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             // process clips at first
-            ExtensionManager.Serialize(Sein_audioClipsExtensionFactory.EXTENSION_NAME, entry, entry.root.Extensions, component);
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_audioClipsExtensionFactory)), entry, entry.root.Extensions, component);
 
             var extension = new Sein_audioSourceExtension();
             var source = component as SeinAudioSource;

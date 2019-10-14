@@ -18,8 +18,6 @@ using GLTF.Schema;
 namespace SeinJS {
     public class Utils: Editor
     {
-        public static Texture2D brdfLUT;
-
         public static bool inited = false;
         public static System.Version version = new System.Version("1.00");
         static System.Version newVersion = null;
@@ -72,12 +70,7 @@ namespace SeinJS {
                 newVersion = new System.Version(tag);
 
                 if (newVersion <= version)
-                {
-                    EditorUtility.DisplayDialog(
-                        "This verison is last !",
-                        "No need to update tools.",
-                        "OK"
-                    );
+                {   
                     coroutine = null;
                     yield break;
                 }

@@ -13,15 +13,15 @@ namespace SeinJS
 {
 	public abstract class SeinExtensionFactory: ExtensionFactory
 	{
-        public static string EXTENSION_NAME;
-        public static List<Type> BINDED_COMPONENTS;
-
         public List<Type> BindedComponents;
 
-        public virtual void Init()
+        public virtual string GetExtensionName()
         {
-            ExtensionName = EXTENSION_NAME;
-            BindedComponents = BINDED_COMPONENTS;
+            return "";
+        }
+
+        public virtual List<Type> GetBindedComponents() {
+            return new List<Type>();
         }
 
         public virtual void BeforeExport()
@@ -39,7 +39,7 @@ namespace SeinJS
             extensions.Add(ExtensionName, extension);
         }
 
-        public abstract void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null);
+        public virtual void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null) { }
 
         /*
          * @todo: import entry

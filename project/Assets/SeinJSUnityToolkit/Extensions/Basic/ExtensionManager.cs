@@ -35,10 +35,10 @@ namespace SeinJS
         private static void Register(Type FactoryClass)
 		{
             var factory = (SeinExtensionFactory)Activator.CreateInstance(FactoryClass);
-            factory.Init();
 
-            var name = factory.ExtensionName;
-            var components = factory.BindedComponents;
+            var name = factory.GetExtensionName();
+            var components = factory.GetBindedComponents();
+            factory.ExtensionName = name;
 
             GLTFProperty.RegisterExtension(factory);
 
@@ -64,7 +64,12 @@ namespace SeinJS
             }
         }
 
-        public static void Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public static string GetExtensionName(Type FactoryClass)
+        {
+            return Class2Extensions[FactoryClass];
+        }
+
+        public static void Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var factory = Name2Extensions[Class2Extensions[FactoryClass]];
             factory.Awake(entry);
@@ -72,7 +77,7 @@ namespace SeinJS
             factory.Serialize(entry, extensions, component);
         }
 
-        public static void Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public static void Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var factory = Name2Extensions[extensionName];
             factory.Awake(entry);

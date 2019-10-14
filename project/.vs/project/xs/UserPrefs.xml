@@ -1,28 +1,33 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtension.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/SceneToGlTFWiz.cs" Line="721" Column="14" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_audioClipsExtension.cs" Line="1" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_audioClipsExtensionFactory.cs" Line="1" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="54" Column="26" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="70" Column="4" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="16" Column="38" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Extensions/Sein_nodeExtension.cs" Line="19" Column="30" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Extensions/Sein_nodeExtensionFactory.cs" Line="15" Column="9" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="88" Column="41" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="73" Column="18" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="39" Column="50" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="219" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" Line="25" Column="10" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/KHR_lights_punctualExtensionFactory.cs" Line="11" Column="19" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Basic/ExtensionManager.cs" Line="43" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="57" Column="14" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="231" Column="48" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="368" Column="144" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
+              <Node name="SeinCustomMaterials" expanded="True">
+                <Node name="EnhancedPBR" expanded="True" />
+              </Node>
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
-                <Node name="Exporter" expanded="True" />
+                <Node name="Exporter" expanded="True">
+                  <Node name="ExporterUtils.cs" selected="True" />
+                </Node>
                 <Node name="Extensions" expanded="True">
-                  <Node name="GLTFExtensions" expanded="True">
-                    <Node name="Sein_nodeExtension.cs" selected="True" />
-                  </Node>
+                  <Node name="Basic" expanded="True" />
+                  <Node name="GLTFExtensions" expanded="True" />
                 </Node>
                 <Node name="Importer" expanded="True" />
                 <Node name="Shaders" expanded="True" />
@@ -37,7 +42,9 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4b823ea0-d473-47d6-a787-d322c36f2be5" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
 </Properties>

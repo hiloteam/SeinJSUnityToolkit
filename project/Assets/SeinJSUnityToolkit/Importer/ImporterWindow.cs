@@ -8,7 +8,6 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using Ionic.Zip;
-using SimpleJSON;
 
 namespace SeinJS
 {
@@ -43,7 +42,6 @@ namespace SeinJS
 		bool _addToCurrentScene = false;
         bool _generateLightMapUvs = false;
 
-        private JSONNode config;
         private List<string> _unzippedFiles;
 
 		// UI elements
@@ -51,7 +49,6 @@ namespace SeinJS
 		float minWidthButton = 150;
 		Vector2 _scrollView;
 		string _sourceFileHint = "Select or drag and drop a file";
-        Texture2D header;
 
         private void Initialize()
 		{
@@ -149,21 +146,10 @@ namespace SeinJS
 
         void Awake()
         {
-            config = JSON.Parse(File.ReadAllText(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json")));
-            _importDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, config["importPath"]));
+            _importDirectory = Config.GetImportPath();
             if (!Directory.Exists(_importDirectory))
             {
                 Directory.CreateDirectory(_importDirectory);
-            }
-        }
-
-        private void OnEnable()
-        {
-            if (!header)
-            {
-                header = new Texture2D(1, 1);
-                header.LoadImage(File.ReadAllBytes(Application.dataPath + "/SeinJSUnityToolkit/logo.png"));
-                header.Apply();
             }
         }
 
@@ -179,7 +165,7 @@ namespace SeinJS
 
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            GUILayout.Label(header);
+            GUILayout.Label(Config.header);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
@@ -234,11 +220,7 @@ namespace SeinJS
                 }
                 else if (GLTFUtils.isFolderInProjectDirectory(newImportDir))
 				{
-                    _importDirectory = config["importPath"] = Exporter.MakeRelativePath(Application.dataPath, newImportDir);
-                    File.WriteAllText(
-                        Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json"),
-                        config.ToString()
-                    );
+                    Config.SetImportPath(newImportDir);
                 }
 				else
 				{
@@ -297,7 +279,7 @@ namespace SeinJS
 			if (!isDirectoryInProject())
 			{
 				Debug.Log("Import directory is outside of project directory. Please select path in Assets/");
-				_importDirectory = Path.GetFullPath(Path.Combine(Application.dataPath, config["importPath"]));
+				_importDirectory = Config.GetImportPath();
 				return;
 			}
 		}
@@ -332,39 +314,39 @@ namespace SeinJS
 			_importer.loadFromFile(_importFilePath);
 		}
 
-		public void UpdateProgress(UnityGLTF.GLTFEditorImporter.IMPORT_STEP step, int current, int total)
+		public void UpdateProgress(GLTFEditorImporter.IMPORT_STEP step, int current, int total)
 		{
 			string element = "";
 			switch (step)
 			{
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.BUFFER:
+				case GLTFEditorImporter.IMPORT_STEP.BUFFER:
 					element = "Buffer";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.IMAGE:
+				case GLTFEditorImporter.IMPORT_STEP.IMAGE:
 					element = "Image";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.TEXTURE:
+				case GLTFEditorImporter.IMPORT_STEP.TEXTURE:
 					element = "Texture";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.MATERIAL:
+				case GLTFEditorImporter.IMPORT_STEP.MATERIAL:
 					element = "Material";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.MESH:
+				case GLTFEditorImporter.IMPORT_STEP.MESH:
 					element = "Mesh";
 					break;
-                case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.AUDIO:
+                case GLTFEditorImporter.IMPORT_STEP.AUDIO:
                     element = "AudioClips";
                     break;
-                case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.NODE:
+                case GLTFEditorImporter.IMPORT_STEP.NODE:
 					element = "Node";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.ANIMATION:
+				case GLTFEditorImporter.IMPORT_STEP.ANIMATION:
 					element = "Animation";
 					break;
-				case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.SKIN:
+				case GLTFEditorImporter.IMPORT_STEP.SKIN:
 					element = "Skin";
 					break;
-                case UnityGLTF.GLTFEditorImporter.IMPORT_STEP.SKINNEDMESH:
+                case GLTFEditorImporter.IMPORT_STEP.SKINNEDMESH:
                     element = "SkinnedMesh";
                     break;
             }

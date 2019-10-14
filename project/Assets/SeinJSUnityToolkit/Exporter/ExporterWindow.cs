@@ -37,7 +37,7 @@ namespace SeinJS {
 
         // UI dimensions (to be cleaned)
         [SerializeField]
-	    Vector2 fullSize = new Vector2(603, 540);
+	    Vector2 fullSize = new Vector2(620, 660);
 
 	    // Exporter UI: static elements
 	    [SerializeField]
@@ -150,7 +150,7 @@ namespace SeinJS {
 
             GUILayout.Label("Normal Texture Settings", EditorStyles.boldLabel);
 
-            ExporterSettings.NormalTexture.opaqueType = (ENormalTextureType)EditorGUILayout.EnumPopup("Opaque image yype", ExporterSettings.NormalTexture.opaqueType);
+            ExporterSettings.NormalTexture.opaqueType = (ENormalTextureType)EditorGUILayout.EnumPopup("Opaque image type", ExporterSettings.NormalTexture.opaqueType);
             ExporterSettings.NormalTexture.transparentType = (ENormalTextureType)EditorGUILayout.EnumPopup("Transparent image type", ExporterSettings.NormalTexture.transparentType);
             GUILayout.Label("Texture max size");
             ExporterSettings.NormalTexture.maxSize = EditorGUILayout.IntField(ExporterSettings.NormalTexture.maxSize);

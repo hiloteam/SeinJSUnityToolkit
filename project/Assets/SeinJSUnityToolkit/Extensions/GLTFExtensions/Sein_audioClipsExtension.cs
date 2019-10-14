@@ -36,7 +36,7 @@ namespace SeinJS
                 c.Add("uri", clip.uri);
             }
 
-            return new JProperty(Sein_audioClipsExtensionFactory.EXTENSION_NAME, new JObject(
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_audioClipsExtensionFactory)), new JObject(
                 new JProperty("clips", value)
             ));
         }

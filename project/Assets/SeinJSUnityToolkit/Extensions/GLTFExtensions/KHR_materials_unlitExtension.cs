@@ -13,7 +13,7 @@ namespace SeinJS
 	{
         public JProperty Serialize()
 		{
-			return new JProperty(KHR_materials_unlitExtensionFactory.EXTENSION_NAME, new JObject());
+			return new JProperty(ExtensionManager.GetExtensionName(typeof(KHR_materials_unlitExtensionFactory)), new JObject());
 		}
 	}
 }

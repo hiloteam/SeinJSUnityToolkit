@@ -30,7 +30,7 @@ namespace SeinJS
                 value.Add("prefix", prefix);
             }
 
-            return new JProperty(Sein_animatorExtensionFactory.EXTENSION_NAME, value);
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_animatorExtensionFactory)), value);
         }
     }
 }

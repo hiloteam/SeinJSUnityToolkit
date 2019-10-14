@@ -15,7 +15,7 @@ namespace SeinJS
     {
         private EditorExporter _export;
 
-        Exporter()
+        public Exporter()
         {
             _export = new EditorExporter();
         }

@@ -18,7 +18,7 @@ namespace SeinJS
 {
     public class Sein_audioClipsExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_audioClips";
+        public override string GetExtensionName() { return "Sein_audioClips"; }
         private static Dictionary<ExporterEntry, List<SeinAudioClip>> ENTRY_CLIPS = new Dictionary<ExporterEntry, List<SeinAudioClip>>();
         private static Dictionary<ExporterEntry, Dictionary<AudioClip, string>> ENTRY_URIS = new Dictionary<ExporterEntry, Dictionary<AudioClip, string>>();
 
@@ -35,7 +35,7 @@ namespace SeinJS
             ENTRY_URIS.Clear();
         }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             if (!ENTRY_CLIPS.ContainsKey(entry))
             {
@@ -116,7 +116,7 @@ namespace SeinJS
                         mode = clipToken.Value<string>("mode") == "Stream" ? ESeinAudioClipMode.Stream : ESeinAudioClipMode.Buffer,
                         isLazy = clipToken.Value<bool>("isLazy"),
                         uri = uri,
-                        name = GlTF_Writer.cleanNonAlphanumeric(name)
+                        name = name
                     });
                 }
             }

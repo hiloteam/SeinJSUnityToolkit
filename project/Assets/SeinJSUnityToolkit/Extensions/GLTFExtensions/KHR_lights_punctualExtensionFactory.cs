@@ -14,10 +14,10 @@ namespace SeinJS
 {
     public class KHR_lights_punctualExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "KHR_lights_punctual";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(Light) };
+        public override string GetExtensionName() { return "KHR_lights_punctual"; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(Light) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var light = component as Light;
             if (ExporterSettings.Lighting.lightMap && light.bakingOutput.isBaked)
@@ -74,7 +74,52 @@ namespace SeinJS
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
-            return new KHR_lights_punctualExtension();
+            var extension = new KHR_lights_punctualExtension();
+
+            if (extensionToken == null)
+            {
+                return null;
+            }
+
+            extension.isGlobal = extensionToken.Value["lights"] != null;
+
+            if (extension.isGlobal)
+            {
+                foreach(var light in extensionToken.Value["lights"])
+                {
+                    var l = new KHR_lights_punctualExtension.Light();
+
+                    var type = light.Value<string>("type");
+                    l.name = light.Value<string>("name");
+                    l.intensity = light.Value<float>("intensity");
+                    var c = light.Value<float[]>("color");
+                    l.color = new Color(c[0], c[1], c[2]);
+
+                    if (type == "directional")
+                    {
+                        l.type = LightType.Directional;
+                    }
+                    else if (type == "point")
+                    {
+                        l.type = LightType.Point;
+                        l.range = light.Value<float>("range");
+                    }
+                    else if (type == "spot")
+                    {
+                        l.type = LightType.Spot;
+                        l.range = light.Value<float>("range");
+                        l.innerConeAngle = light.Value<float>("innerConeAngle");
+                        l.outerConeAngle = light.Value<float>("outerConeAngle");
+                    }
+
+                }
+            }
+            else
+            {
+                extension.lightIndex = (int)extensionToken.Value["light"];
+            }
+
+            return extension;
         }
     }
 }

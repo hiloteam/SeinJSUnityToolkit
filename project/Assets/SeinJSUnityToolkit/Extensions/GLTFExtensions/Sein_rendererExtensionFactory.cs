@@ -15,10 +15,10 @@ namespace SeinJS
 {
     public class Sein_rendererExtensionFactory : SeinExtensionFactory
     {
-        public new static string EXTENSION_NAME = "Sein_renderer";
-        public new static List<Type> BINDED_COMPONENTS = new List<Type> { typeof(MeshRenderer) };
+        public override string GetExtensionName() { return "Sein_renderer"; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(MeshRenderer) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, Component component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var extension = new Sein_rendererExtension();
             var mr = component as MeshRenderer;
@@ -29,7 +29,7 @@ namespace SeinJS
                 Vector4 lightmapScaleOffset = mr.lightmapScaleOffset;
                 var lightData = LightmapSettings.lightmaps[lightmapIndex];
                 var lightTexture = lightData.lightmapColor;
-                var lightTextureIndex = entry.SaveTextureHDR(lightTexture, ExporterSettings.Lighting.lightMapType);
+                var lightTextureIndex = entry.SaveTextureHDR(lightTexture, ExporterSettings.Lighting.lightMapType, ExporterSettings.Lighting.lightMapSize);
                 extension.uvScale = new Vector2(lightmapScaleOffset.x, lightmapScaleOffset.y);
                 extension.uvOffset = new Vector2(lightmapScaleOffset.z, lightmapScaleOffset.w);
                 extension.lightMapIndex = lightTextureIndex.Id;
