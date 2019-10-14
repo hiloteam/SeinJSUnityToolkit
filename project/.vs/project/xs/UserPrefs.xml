@@ -1,16 +1,14 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="88" Column="41" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="73" Column="18" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="39" Column="50" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="219" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" Line="25" Column="10" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/KHR_lights_punctualExtensionFactory.cs" Line="11" Column="19" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Basic/ExtensionManager.cs" Line="43" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="57" Column="14" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="231" Column="48" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="368" Column="144" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="108" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="53" Column="29" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="220" Column="82" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="52" Column="60" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="285" Column="25" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="557" Column="56" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="1065" Column="28" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="76" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -23,7 +21,7 @@
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
                 <Node name="Exporter" expanded="True">
-                  <Node name="ExporterUtils.cs" selected="True" />
+                  <Node name="ExporterEntry.cs" selected="True" />
                 </Node>
                 <Node name="Extensions" expanded="True">
                   <Node name="Basic" expanded="True" />

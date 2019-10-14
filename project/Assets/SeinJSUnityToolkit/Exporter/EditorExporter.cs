@@ -47,7 +47,7 @@ namespace SeinJS
             root.Asset.Extras = new JProperty("exporterVersion", Utils.version.ToString());
             root.Scenes = new List<Scene>();
             root.Scenes.Add(new Scene());
-            root.Scene = new SceneId{ Id = 0 };
+            root.Scene = new SceneId{ Id = 0, Root = root };
 
             if (ExporterSettings.Lighting.ambient)
             {
@@ -105,7 +105,13 @@ namespace SeinJS
 
             if (!tr.parent)
             {
-                entry.root.Scene.Value.Nodes.Add(id);
+                var scene = entry.root.Scene.Value;
+                if (scene.Nodes == null)
+                {
+                    scene.Nodes = new List<NodeId>();
+                }
+
+                scene.Nodes.Add(id);
             }
             else
             {
@@ -272,6 +278,11 @@ namespace SeinJS
             {
                 node.Camera = entry.SaveCamera(camera);
             }
+        }
+
+        private void ExportDone(ExporterEntry entry)
+        {
+            entry.Finish();
         }
 
         private Renderer GetRenderer(Transform tr)

@@ -124,8 +124,25 @@ namespace SeinJS
                 type = GLTFAccessorAttributeType.SCALAR;
                 mx = mx > v ? mx : v;
                 mn = mn < v ? mn : v;
+                max = new float[] { mx };
+                min = new float[] { mn };
 
                 return BitConverter.GetBytes(v);
+            }
+
+            if (typeof(DataType) == typeof(int))
+            {
+                var v = (int)Convert.ChangeType(value, typeof(int));
+                var mx = (int)Convert.ChangeType(value, typeof(int));
+                var mn = (int)Convert.ChangeType(value, typeof(int));
+
+                type = GLTFAccessorAttributeType.SCALAR;
+                mx = mx > v ? mx : v;
+                mn = mn < v ? mn : v;
+                max = new float[] { mx };
+                min = new float[] { mn };
+
+                return GetBytes(new int[] { v }, componentType);
             }
 
             float[] array = null;
@@ -208,6 +225,42 @@ namespace SeinJS
             return bytes;
         }
 
+        private static byte[] GetBytes(int[] array, GLTFComponentType componentType)
+        {
+            int size = 0;
+            Array dArray = null;
+
+            switch (componentType)
+            {
+                case GLTFComponentType.Byte:
+                case GLTFComponentType.UnsignedByte:
+                    size = 1;
+                    dArray = Array.ConvertAll(array, item => (byte)item);
+                    break;
+                case GLTFComponentType.Short:
+                    size = 2;
+                    dArray = Array.ConvertAll(array, item => (short)item);
+                    break;
+                case GLTFComponentType.UnsignedShort:
+                    size = 2;
+                    dArray = Array.ConvertAll(array, item => (ushort)item);
+                    break;
+                case GLTFComponentType.Float:
+                    size = 4;
+                    dArray = array;
+                    break;
+                case GLTFComponentType.UnsignedInt:
+                    size = 4;
+                    dArray = Array.ConvertAll(array, item => (uint)item);
+                    break;
+            }
+
+            var bytes = new byte[size * array.Length];
+            System.Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
+
+            return bytes;
+        }
+
         public static GLTF.Schema.Material ConvertMaterial(UnityEngine.Material material, ExporterEntry entry)
         {
             if (material.shader.name.Contains("Standard") || material.shader.name.Contains("Autodesk Interactive"))
@@ -239,6 +292,11 @@ namespace SeinJS
             {
                 // special
                 entry.AddExtension("KHR_materials_pbrSpecularGlossiness");
+                material.Extensions = new Dictionary<string, Extension>();
+            }
+            else
+            {
+                material.PbrMetallicRoughness = new PbrMetallicRoughness();
             }
             bool hasTransparency = ProcessTransparency(mat, material);
 
@@ -250,7 +308,7 @@ namespace SeinJS
                     material.PbrMetallicRoughness.BaseColorTexture = new TextureInfo { Index = id };
                 }
 
-                if (mat.GetTexture("_baseColor") != null)
+                if (mat.GetColor("_baseColor") != null)
                 {
                     Color c = mat.GetColor("_baseColor");
                     material.PbrMetallicRoughness.BaseColorFactor = new GLTF.Math.Color(c.r, c.g, c.b, c.a);

@@ -53,7 +53,7 @@ namespace SeinJS
                     n = name;
                 }
 
-				return Path.Combine(folder, name + ".gltf");
+				return Path.Combine(folder, n + ".gltf");
 			}
 		}
 

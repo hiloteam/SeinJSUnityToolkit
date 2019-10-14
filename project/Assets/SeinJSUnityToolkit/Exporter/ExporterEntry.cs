@@ -70,25 +70,35 @@ namespace SeinJS
 
         public EntryBufferView CreateByteBufferView(string name, int size, int stride)
         {
+            if (root.BufferViews == null)
+            {
+                root.BufferViews = new List<BufferView>();
+            }
+
             var bufferView = new EntryBufferView();
             bufferView.byteBuffer = new byte[size];
             bufferView.view.Name = name;
             bufferView.view.ByteStride = stride;
             _bufferViews.Add(bufferView);
             root.BufferViews.Add(bufferView.view);
-            bufferView.id = new BufferViewId { Id = root.BufferViews.Count - 1 };
+            bufferView.id = new BufferViewId { Id = root.BufferViews.Count - 1, Root = root };
 
             return bufferView;
         }
 
         public EntryBufferView CreateStreamBufferView(string name)
         {
+            if (root.BufferViews == null)
+            {
+                root.BufferViews = new List<BufferView>();
+            }
+
             var bufferView = new EntryBufferView();
             bufferView.streamBuffer = new MemoryStream();
             bufferView.view.Name = name;
             _bufferViews.Add(bufferView);
             root.BufferViews.Add(bufferView.view);
-            bufferView.id = new BufferViewId { Id = root.BufferViews.Count - 1 };
+            bufferView.id = new BufferViewId { Id = root.BufferViews.Count - 1, Root = root };
 
             return bufferView;
         }
@@ -127,7 +137,7 @@ namespace SeinJS
             tr2node.Add(tr, node);
             node2tr.Add(node, tr);
 
-            return new NodeId { Id = root.Nodes.Count - 1 };
+            return new NodeId { Id = root.Nodes.Count - 1, Root = root };
         }
 
         public Pair<MeshId, bool> SaveMesh(UnityEngine.Mesh mesh, Renderer renderer)
@@ -143,10 +153,9 @@ namespace SeinJS
                 materialsId += mat.GetInstanceID();
             }
 
-            var id = _mesh2Id[mesh][materialsId];
-            if (id != null)
+            if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(materialsId))
             {
-                return new Pair<MeshId, bool>(id, false);
+                return new Pair<MeshId, bool>(_mesh2Id[mesh][materialsId], false);
             }
 
             var m = new GLTF.Schema.Mesh();
@@ -159,7 +168,8 @@ namespace SeinJS
 
             for (int i = 0; i < mesh.subMeshCount; i += 1)
             {
-                var primitive = m.Primitives[i];
+                var primitive = new MeshPrimitive();
+                m.Primitives.Add(primitive);
                 primitive.Attributes = attributes;
                 primitive.Mode = DrawMode.Triangles;
                 if (targets.Count > 0)
@@ -170,14 +180,14 @@ namespace SeinJS
             }
 
             root.Meshes.Add(m);
-            id = new MeshId { Id = root.Meshes.Count - 1 };
+            var id = new MeshId { Id = root.Meshes.Count - 1, Root = root };
 
             return new Pair<MeshId, bool>(id, true);
         }
 
         private Dictionary<string, AccessorId> GenerateAttributes(UnityEngine.Mesh mesh)
         {
-            if (_mesh2attrs[mesh] != null)
+            if (_mesh2attrs.ContainsKey(mesh))
             {
                 return _mesh2attrs[mesh];
             }
@@ -239,12 +249,13 @@ namespace SeinJS
                 return new List<Dictionary<string, AccessorId>>();
             }
 
-            if (_mesh2targets[mesh] != null)
+            if (_mesh2targets.ContainsKey(mesh))
             {
                 return _mesh2targets[mesh];
             }
 
             var targets = new List<Dictionary<string, AccessorId>>();
+            m.Extras = new JObject();
             var extras = m.Extras as JObject;
             extras.Add("targetNames", new JArray());
 
@@ -352,17 +363,22 @@ namespace SeinJS
 
         private AccessorId AccessorToId(Accessor accessor, EntryBufferView bufferView)
         {
+            if (root.Accessors == null)
+            {
+                root.Accessors = new List<Accessor>();
+            }
+
             accessor.BufferView = bufferView.id;
             root.Accessors.Add(accessor);
 
-            return new AccessorId { Id = root.Accessors.Count - 1 };
+            return new AccessorId { Id = root.Accessors.Count - 1, Root = root };
         }
 
         private void SavePrimitive(UnityEngine.Mesh mesh, MeshPrimitive primitive, int i, ref EntryBufferView bufferView)
         {
             primitive.Mode = DrawMode.Triangles;
 
-            if (_mesh2indices[mesh][i] != null)
+            if (_mesh2indices.ContainsKey(mesh) && _mesh2indices[mesh].ContainsKey(i))
             {
                 primitive.Indices = _mesh2indices[mesh][i];
                 return;
@@ -390,7 +406,7 @@ namespace SeinJS
 			var mat = ExporterUtils.ConvertMaterial(material, this);
 			root.Materials.Add(mat);
 
-			var id = new MaterialId { Id = root.Materials.Count - 1 };
+			var id = new MaterialId { Id = root.Materials.Count - 1, Root = root };
 			return id;
 		}
 
@@ -404,13 +420,13 @@ namespace SeinJS
             var mat = ExporterUtils.ConvertMaterial(material, this);
             root.Materials.Add(mat);
 
-            var id = new MaterialId { Id = root.Materials.Count - 1 };
+            var id = new MaterialId { Id = root.Materials.Count - 1, Root = root };
             return id;
         }
 
         public TextureId SaveTexture(Texture2D texture, bool hasTransparency)
         {
-            if (_texture2d2ID[texture] != null)
+            if (_texture2d2ID.ContainsKey(texture))
             {
                 return _texture2d2ID[texture];
             }
@@ -478,7 +494,7 @@ namespace SeinJS
                 Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
             }
 
-            if (_texture2d2ID[texture] != null)
+            if (_texture2d2ID.ContainsKey(texture))
             {
                 return _texture2d2ID[texture];
             }
@@ -550,7 +566,7 @@ namespace SeinJS
             }
 
             root.Images.Add(new Image { Uri = pathInGltf });
-            var imageId = new ImageId { Id = root.Images.Count - 1 };
+            var imageId = new ImageId { Id = root.Images.Count - 1, Root = root };
 
             var hasMipMap = texture.mipmapCount > 0;
             MagFilterMode magFilter = MagFilterMode.None;
@@ -614,12 +630,12 @@ namespace SeinJS
                 WrapT = wrap
             };
             root.Samplers.Add(sampler);
-            var samplerId = new SamplerId { Id = root.Samplers.Count - 1 };
+            var samplerId = new SamplerId { Id = root.Samplers.Count - 1, Root = root };
 
             var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId };
             root.Textures.Add(gltfTexture);
 
-            var id = new TextureId { Id = root.Textures.Count - 1 };
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
             _texture2d2ID[texture] = id;
 
             return id;
@@ -654,7 +670,7 @@ namespace SeinJS
             var c = ProcessCamera(camera);
             root.Cameras.Add(c);
 
-            var cameraId = new CameraId { Id = root.Cameras.Count - 1 };
+            var cameraId = new CameraId { Id = root.Cameras.Count - 1, Root = root };
             _camera2ID.Add(camera, cameraId);
 
             return cameraId;
@@ -741,7 +757,7 @@ namespace SeinJS
             var node = tr2node[tr];
             var skin = new Skin();
             skin.Name = "skeleton-" + skinMesh.rootBone.name;
-            skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(node) };
+            skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(node), Root = root };
             skin.Joints = new List<NodeId>();
 
             foreach (var bone in skinMesh.bones)
@@ -769,7 +785,7 @@ namespace SeinJS
 
             root.Skins.Add(skin);
 
-            var id = new SkinId { Id = root.Skins.Count - 1 };
+            var id = new SkinId { Id = root.Skins.Count - 1, Root = root };
             _skin2ID.Add(skinMesh, id);
 
             return id;
@@ -1038,6 +1054,15 @@ namespace SeinJS
             }
 
             return targets;
+        }
+
+        public void Finish()
+        {
+            foreach(var bufferView in _bufferViews) {
+                
+            }
+
+            File.WriteAllText(path, root.ToString());
         }
     }
 }
