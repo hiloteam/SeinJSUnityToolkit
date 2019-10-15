@@ -46,6 +46,7 @@ namespace SeinJS
         public Dictionary<Transform, List<Transform>> transformsInSameActor = new Dictionary<Transform, List<Transform>>();
         public List<Transform> bones = new List<Transform>();
         public Dictionary<Transform, Node> tr2node = new Dictionary<Transform, Node>();
+        public Dictionary<Transform, NodeId> tr2nodeId = new Dictionary<Transform, NodeId>();
         public Dictionary<Node, Transform> node2tr = new Dictionary<Node, Transform>();
 
         private List<EntryBufferView> _bufferViews = new List<EntryBufferView>();
@@ -139,7 +140,10 @@ namespace SeinJS
             tr2node.Add(tr, node);
             node2tr.Add(node, tr);
 
-            return new NodeId { Id = root.Nodes.Count - 1, Root = root };
+            var id = new NodeId { Id = root.Nodes.Count - 1, Root = root };
+            tr2nodeId.Add(tr, id);
+
+            return id;
         }
 
         public Pair<MeshId, bool> SaveMesh(UnityEngine.Mesh mesh, Renderer renderer)
@@ -209,11 +213,12 @@ namespace SeinJS
                 offset += 3 * 4;
             }
 
-            if (mesh.colors.Length > 0)
-            {
-                attrs.Add("COLOR", PackAttrToBuffer(bufferView, mesh.colors, offset));
-                offset += 4 * 4;
-            }
+            // Gltf does not support 'COLOR'
+            //if (mesh.colors.Length > 0)
+            //{
+            //    attrs.Add("COLOR", PackAttrToBuffer(bufferView, mesh.colors, offset));
+            //    offset += 4 * 4;
+            //}
 
             if (mesh.uv.Length > 0)
             {
@@ -235,9 +240,9 @@ namespace SeinJS
 
             if (mesh.boneWeights.Length > 0)
             {
-                attrs.Add("JOINT", PackAttrToBufferShort(bufferView, ExporterUtils.BoneWeightToBoneVec4(mesh.boneWeights), offset));
-                offset += 1 * 4;
-                attrs.Add("WEIGHT", PackAttrToBuffer(bufferView, ExporterUtils.BoneWeightToWeightVec4(mesh.boneWeights), offset));
+                attrs.Add("JOINTS_0", PackAttrToBufferShort(bufferView, ExporterUtils.BoneWeightToBoneVec4(mesh.boneWeights), offset));
+                offset += 2 * 4;
+                attrs.Add("WEIGHTS_0", PackAttrToBuffer(bufferView, ExporterUtils.BoneWeightToWeightVec4(mesh.boneWeights), offset));
                 offset += 4 * 4;
             }
 
@@ -363,7 +368,7 @@ namespace SeinJS
 
         private AccessorId PackAttrToBufferShort<DataType>(EntryBufferView bufferView, DataType[] data, int offset)
         {
-            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.Short, offset, bufferView.view.ByteStride);
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.UnsignedShort, offset, bufferView.view.ByteStride);
 
             return AccessorToId(accessor, bufferView);
         }
@@ -401,7 +406,6 @@ namespace SeinJS
                 ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort),
                 bufferView
             );
-            primitive.Indices.Value.Name += "-INDICE";
         }
 
         public MaterialId SaveNormalMaterial(UnityEngine.Material material)
@@ -770,6 +774,11 @@ namespace SeinJS
 
             foreach (var bone in skinMesh.bones)
             {
+                if (!tr2node.ContainsKey(bone))
+                {
+                    throw new Exception("You are expoting a skinned mesh '" + node.Name + "', but not select bones!");
+                }
+
                 skin.Joints.Add(new NodeId { Id = root.Nodes.IndexOf(tr2node[bone]) });
             }
 
@@ -845,7 +854,7 @@ namespace SeinJS
 
         private void SaveAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
         {
-            var targets = BakeAnimationClip(tr, clip);
+            var targets = BakeAnimationClip(anim, tr, clip);
             var accessors = _animClip2Accessors[clip];
             var timeAccessorId = _animClip2TimeAccessor[clip];
 
@@ -883,7 +892,7 @@ namespace SeinJS
             }
         }
 
-        private List<string> BakeAnimationClip(Transform tr, AnimationClip clip)
+        private List<string> BakeAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
         {
             var needGenerate = !_animClip2Accessors.ContainsKey(clip);
             Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>> curves = null;
@@ -983,7 +992,7 @@ namespace SeinJS
             }
 
             
-            var bufferView = CreateStreamBufferView("animation-" + clip.name);
+            var bufferView = CreateStreamBufferView("animation-" + anim.Name);
             int nbSamples = (int)(clip.length * 30);
             float deltaTime = clip.length / nbSamples;
             var accessors = new List<Dictionary<GLTFAnimationChannelPath, AccessorId>>();
@@ -1044,20 +1053,33 @@ namespace SeinJS
                     }
                 }
 
-                _animClip2TimeAccessor.Add(clip, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float), bufferView));
+                if (!_animClip2TimeAccessor.ContainsKey(clip))
+                {
+                    var timeView = ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float);
+                    _animClip2TimeAccessor.Add(clip, AccessorToId(timeView, bufferView));
+                    timeView.Name += "-times";
+                }
+
+                AccessorId id = null;
                 if (translations != null)
                 {
-                    accessor.Add(GLTFAnimationChannelPath.translation, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float), bufferView));
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.translation, id);
+                    id.Value.Name += "-" + path + "-" + "translation";
                 }
 
                 if (scales != null)
                 {
-                    accessor.Add(GLTFAnimationChannelPath.scale, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, scales, GLTFComponentType.Float), bufferView));
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, scales, GLTFComponentType.Float), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.scale, id);
+                    id.Value.Name += "-" + path + "-" + "scales";
                 }
 
                 if (rotations != null)
                 {
-                    accessor.Add(GLTFAnimationChannelPath.rotation, AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float), bufferView));
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.rotation, id);
+                    id.Value.Name += "-" + path + "-" + "rotations";
                 }
             }
 

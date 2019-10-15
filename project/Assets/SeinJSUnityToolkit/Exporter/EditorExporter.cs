@@ -105,21 +105,6 @@ namespace SeinJS
         {
             var id = entry.SaveNode(tr);
 
-            if (!tr.parent)
-            {
-                var scene = entry.root.Scene.Value;
-                if (scene.Nodes == null)
-                {
-                    scene.Nodes = new List<NodeId>();
-                }
-
-                scene.Nodes.Add(id);
-            }
-            else
-            {
-                entry.tr2node[tr.parent].Children.Add(id);
-            }
-
             var seinNode = tr.GetComponent<SeinNode>();
             if (seinNode)
             {
@@ -210,6 +195,31 @@ namespace SeinJS
 
         private void ProcessChildren(ExporterEntry entry)
         {
+            foreach (var tr in entry.transforms)
+            {
+                var id = entry.tr2nodeId[tr];
+                if (!tr.parent || !entry.tr2node.ContainsKey(tr.parent))
+                {
+                    var scene = entry.root.Scene.Value;
+                    if (scene.Nodes == null)
+                    {
+                        scene.Nodes = new List<NodeId>();
+                    }
+
+                    scene.Nodes.Add(id);
+                }
+                else
+                {
+                    var parent = entry.tr2node[tr.parent];
+                    if (parent.Children == null)
+                    {
+                        parent.Children = new List<NodeId>();
+                    }
+
+                    parent.Children.Add(id);
+                }
+            }
+
             foreach (var trs in entry.transformsInSameActor.Values)
 			{
                 var names = new Dictionary<string, int>();

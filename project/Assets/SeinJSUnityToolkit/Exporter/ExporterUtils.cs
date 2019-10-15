@@ -150,9 +150,28 @@ namespace SeinJS
                 var v = (Vector4)Convert.ChangeType(value, typeof(Vector4));
                 array = new float[] { v.x, v.y, v.z, v.w };
             }
+            else if (typeof(DataType) == typeof(Color))
+            {
+                size = 4;
+                type = GLTFAccessorAttributeType.VEC4;
+                var v = (Color)Convert.ChangeType(value, typeof(Color));
+                array = new float[] { v.r, v.g, v.b, v.a };
+            }
+            else if (typeof(DataType) == typeof(Matrix4x4))
+            {
+                size = 16;
+                type = GLTFAccessorAttributeType.MAT4;
+                var v = (Matrix4x4)Convert.ChangeType(value, typeof(Matrix4x4));
+                array = new float[] {
+                    v.m00, v.m01, v.m02, v.m03,
+                    v.m10, v.m11, v.m12, v.m13,
+                    v.m20, v.m21, v.m22, v.m23,
+                    v.m30, v.m31, v.m32, v.m33
+                };
+            }
             else
             {
-                throw new Exception("Only support packing float, Vector2, Vector3, Vector4 now !");
+                throw new Exception("Only support packing float, int, Vector2, Vector3, Vector4, Matrix4 and Color now !");
             }
 
             if (max == null)
@@ -211,8 +230,6 @@ namespace SeinJS
             }
 
             var bytes = new byte[size * array.Length];
-
-            //System.Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
             System.Buffer.BlockCopy(array, 0, bytes, 0, bytes.Length);
 
             return bytes;
