@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace SeinJS
 {
@@ -177,7 +178,7 @@ namespace SeinJS
                 {
                     primitive.Targets = targets;
                 }
-                SavePrimitive(mesh, primitive, i, ref indices);
+                SaveIndices(mesh, primitive, i, ref indices);
             }
 
             root.Meshes.Add(m);
@@ -196,7 +197,7 @@ namespace SeinJS
             var attrs= new Dictionary<string, AccessorId>();
 
             int stride = GetBufferLength(mesh);
-            var bufferView = CreateByteBufferView(mesh.name, stride * mesh.vertexCount, stride);
+            var bufferView = CreateByteBufferView(mesh.name + "-primitives", stride * mesh.vertexCount, stride);
 
             int offset = 0;
             attrs.Add("POSITION", PackAttrToBuffer(bufferView, mesh.vertices, offset));
@@ -240,12 +241,17 @@ namespace SeinJS
                 offset += 4 * 4;
             }
 
+            foreach(var attr in attrs)
+            {
+                attr.Value.Value.Name += "-" + attr.Key;
+            }
+
             return attrs;
         }
 
         private List<Dictionary<string, AccessorId>> GenerateMorphTargets(UnityEngine.Mesh mesh, GLTF.Schema.Mesh m)
         {
-            if (mesh.blendShapeCount > 0)
+            if (mesh.blendShapeCount <= 0)
             {
                 return new List<Dictionary<string, AccessorId>>();
             }
@@ -370,12 +376,13 @@ namespace SeinJS
             }
 
             accessor.BufferView = bufferView.id;
+            accessor.Name = bufferView.view.Name;
             root.Accessors.Add(accessor);
 
             return new AccessorId { Id = root.Accessors.Count - 1, Root = root };
         }
 
-        private void SavePrimitive(UnityEngine.Mesh mesh, MeshPrimitive primitive, int i, ref EntryBufferView bufferView)
+        private void SaveIndices(UnityEngine.Mesh mesh, MeshPrimitive primitive, int i, ref EntryBufferView bufferView)
         {
             primitive.Mode = DrawMode.Triangles;
 
@@ -387,14 +394,14 @@ namespace SeinJS
 
             if (bufferView == null)
             {
-                bufferView = CreateStreamBufferView(mesh.name + "-primitives");
+                bufferView = CreateStreamBufferView(mesh.name + "-indices");
             }
 
-            var buffer = bufferView.streamBuffer;
             primitive.Indices = AccessorToId(
                 ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort),
                 bufferView
             );
+            primitive.Indices.Value.Name += "-INDICE";
         }
 
         public MaterialId SaveNormalMaterial(UnityEngine.Material material)
@@ -707,11 +714,11 @@ namespace SeinJS
         {
             int height = texture.height;
             int width = texture.width;
-            Color[] textureColors = texture.GetPixels();
             Color[] newTextureColors = new Color[height * width];
 
             ExporterUtils.DoActionForTexture(ref texture, tex =>
                 {
+                    Color[] textureColors = tex.GetPixels();
                     for (int i = 0; i < height; ++i)
                     {
                         for (int j = 0; j < width; ++j)
@@ -1059,13 +1066,21 @@ namespace SeinJS
 
         public void Finish()
         {
+            var prefixStr = Config.GeneratorName;
+            for (var i = Config.GeneratorName.Length; i < 24; i += 1)
+            {
+                prefixStr += " ";
+            }
+            var prefix = Encoding.ASCII.GetBytes(prefixStr);
             var uri = name + ".bin";
             var fp = Path.Combine(ExporterSettings.Export.folder, uri);
             var bufferId = new BufferId { Id = 0, Root = root };
             var outputFile = new FileStream(fp, FileMode.Create);
-            int offset = 0;
+            int offset = prefix.Length;
 
             using (var binWriter = new BinaryWriter(outputFile)) {
+                binWriter.Write(prefix);
+
                 foreach (var bufferView in _bufferViews)
                 {
                     int length = 0;

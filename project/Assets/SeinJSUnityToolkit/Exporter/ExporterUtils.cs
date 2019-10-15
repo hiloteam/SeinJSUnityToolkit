@@ -58,7 +58,6 @@ namespace SeinJS
             accessor.ByteOffset = offset;
             accessor.ComponentType = componentType;
 
-            int count = 0;
             int index = 0;
             float[] max = null;
             float[] min = null;
@@ -67,12 +66,12 @@ namespace SeinJS
             {
                 var bytes = GetDataToBuffer(item, componentType, ref max, ref min, ref accessor.Type);
                 int byteOffset = offset + stride * index;
+                index += 1;
 
                 bytes.CopyTo(buffer, byteOffset);
-                count += bytes.Length;
             }
 
-            accessor.Count = count;
+            accessor.Count = data.Length;
             accessor.Max = max.ToList().ConvertAll(x => (double)x);
             accessor.Min = min.ToList().ConvertAll(x => (double)x);
 
@@ -88,7 +87,6 @@ namespace SeinJS
             accessor.ByteOffset = (int)stream.Length;
             accessor.ComponentType = componentType;
 
-            int count = 0;
             float[] max = null;
             float[] min = null;
 
@@ -97,10 +95,9 @@ namespace SeinJS
                 var bytes = GetDataToBuffer(item, componentType, ref max, ref min, ref accessor.Type);
 
                 stream.Write(bytes, 0, bytes.Length);
-                count += bytes.Length;
             }
 
-            accessor.Count = count;
+            accessor.Count = data.Length;
             accessor.Max = max.ToList().ConvertAll(x => (double)x);
             accessor.Min = min.ToList().ConvertAll(x => (double)x);
 
@@ -112,55 +109,43 @@ namespace SeinJS
             ref float[] max, ref float[] min, ref GLTFAccessorAttributeType type
         )
         {
+            float[] array = null;
+            int[] intArray = null;
+            int size = 0;
             /**
              @todo: support int uint short byte ushort...
              */
             if (typeof(DataType) == typeof(float))
             {
+                size = 1;
+                type = GLTFAccessorAttributeType.SCALAR;
                 var v = (float)Convert.ChangeType(value, typeof(float));
-                var mx = (float)Convert.ChangeType(value, typeof(float));
-                var mn = (float)Convert.ChangeType(value, typeof(float));
-
-                type = GLTFAccessorAttributeType.SCALAR;
-                mx = mx > v ? mx : v;
-                mn = mn < v ? mn : v;
-                max = new float[] { mx };
-                min = new float[] { mn };
-
-                return BitConverter.GetBytes(v);
+                array = new float[] { v };
             }
-
-            if (typeof(DataType) == typeof(int))
+            else if (typeof(DataType) == typeof(int))
             {
+                size = 1;
+                type = GLTFAccessorAttributeType.SCALAR;
                 var v = (int)Convert.ChangeType(value, typeof(int));
-                var mx = (int)Convert.ChangeType(value, typeof(int));
-                var mn = (int)Convert.ChangeType(value, typeof(int));
-
-                type = GLTFAccessorAttributeType.SCALAR;
-                mx = mx > v ? mx : v;
-                mn = mn < v ? mn : v;
-                max = new float[] { mx };
-                min = new float[] { mn };
-
-                return GetBytes(new int[] { v }, componentType);
+                intArray = new int[] { v };
             }
-
-            float[] array = null;
-
-            if (typeof(DataType) == typeof(Vector2))
+            else if (typeof(DataType) == typeof(Vector2))
             {
+                size = 2;
                 type = GLTFAccessorAttributeType.VEC2;
                 var v = (Vector2)Convert.ChangeType(value, typeof(Vector2));
                 array = new float[] { v.x, v.y };
             }
             else if (typeof(DataType) == typeof(Vector3))
             {
+                size = 3;
                 type = GLTFAccessorAttributeType.VEC3;
                 var v = (Vector3)Convert.ChangeType(value, typeof(Vector3));
                 array = new float[] { v.x, v.y, v.z };
             }
             else if (typeof(DataType) == typeof(Vector4))
             {
+                size = 4;
                 type = GLTFAccessorAttributeType.VEC4;
                 var v = (Vector4)Convert.ChangeType(value, typeof(Vector4));
                 array = new float[] { v.x, v.y, v.z, v.w };
@@ -172,18 +157,24 @@ namespace SeinJS
 
             if (max == null)
             {
-                max = (float[])array.Clone();
+                max = new float[size];
             }
 
             if (min == null)
             {
-                min = (float[])array.Clone();
+                min = new float[size];
             }
 
-            for (int i = 0; i < array.Length; i += 1)
+            for (int i = 0; i < size; i += 1)
             {
-                max[i] = max[i] > array[i] ? max[i] : array[i];
-                min[i] = min[i] < array[i] ? min[i] : array[i];
+                var v = intArray == null ? array[i] : intArray[i];
+                max[i] = max[i] > v ? max[i] : v;
+                min[i] = min[i] < v ? min[i] : v;
+            }
+
+            if (intArray != null)
+            {
+                return GetBytes(intArray, componentType);
             }
 
             return GetBytes(array, componentType);
@@ -220,7 +211,9 @@ namespace SeinJS
             }
 
             var bytes = new byte[size * array.Length];
-            System.Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
+
+            //System.Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
+            System.Buffer.BlockCopy(array, 0, bytes, 0, bytes.Length);
 
             return bytes;
         }
@@ -256,7 +249,7 @@ namespace SeinJS
             }
 
             var bytes = new byte[size * array.Length];
-            System.Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
+            System.Buffer.BlockCopy(dArray, 0, bytes, 0, bytes.Length);
 
             return bytes;
         }
@@ -554,7 +547,7 @@ namespace SeinJS
         {
             string assetPath = AssetDatabase.GetAssetPath(assetObject);
             string pathInArchive = ExporterUtils.CleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
-            string exportDir = ExporterSettings.Export.GetExportPath(pathInArchive);
+            string exportDir = Path.Combine(ExporterSettings.Export.folder, pathInArchive);
 
             if (!Directory.Exists(exportDir))
             {

@@ -42,7 +42,7 @@ namespace SeinJS
         {
             var root = entry.root;
             root.Asset = new Asset();
-            root.Asset.Generator = "Sein.js Unity Toolkit";
+            root.Asset.Generator = Config.GeneratorName;
             root.Asset.Version = "2.0";
             root.Asset.Extras = new JProperty("exporterVersion", Utils.version.ToString());
             root.Scenes = new List<Scene>();

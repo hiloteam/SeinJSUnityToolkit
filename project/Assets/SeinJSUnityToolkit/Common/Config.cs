@@ -24,7 +24,9 @@ namespace SeinJS
 
     public class Config
 	{
-		static bool inited = false;
+        public static string GeneratorName = "Sein.js Unity Toolkit";
+
+        static bool inited = false;
 		static string configPath = "";
 		static string exportPath = "";
 		static string importPath = "";
