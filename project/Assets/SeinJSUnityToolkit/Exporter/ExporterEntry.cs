@@ -1031,6 +1031,7 @@ namespace SeinJS
                     {
                         var curve = curves[path][GLTFAnimationChannelPath.translation];
                         translations[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                        //GLTF.Math
                     }
 
                     if (scales != null)

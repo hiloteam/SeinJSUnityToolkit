@@ -50,6 +50,16 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
     console.log(newModels);
   });
 
+  // game.event.add(EModelEvents.LoadEnd, (params: any) => {
+  //   const models = params.models as Sein.SceneActor[];
+
+  //   models.forEach(m => {
+  //     if (m.animator) {
+  //       m.animator.play();
+  //     }
+  //   })
+  // });
+
   // test
   game.event.trigger(EModelEvents.New, [{name: 'miku.gltf', url: require('assets/scene.gltf')}]);
 

@@ -59,8 +59,8 @@ namespace SeinJS
             accessor.ComponentType = componentType;
 
             int index = 0;
-            float[] max = null;
-            float[] min = null;
+            double[] max = null;
+            double[] min = null;
 
             foreach (var item in data)
             {
@@ -72,8 +72,8 @@ namespace SeinJS
             }
 
             accessor.Count = data.Length;
-            accessor.Max = max.ToList().ConvertAll(x => (double)x);
-            accessor.Min = min.ToList().ConvertAll(x => (double)x);
+            accessor.Max = max.ToList();
+            accessor.Min = min.ToList();
 
             return accessor;
         }
@@ -87,8 +87,8 @@ namespace SeinJS
             accessor.ByteOffset = (int)stream.Length;
             accessor.ComponentType = componentType;
 
-            float[] max = null;
-            float[] min = null;
+            double[] max = null;
+            double[] min = null;
 
             foreach (var item in data)
             {
@@ -98,15 +98,15 @@ namespace SeinJS
             }
 
             accessor.Count = data.Length;
-            accessor.Max = max.ToList().ConvertAll(x => (double)x);
-            accessor.Min = min.ToList().ConvertAll(x => (double)x);
+            accessor.Max = max.ToList();
+            accessor.Min = min.ToList();
 
             return accessor;
         }
 
         private static byte[] GetDataToBuffer<DataType>(
             DataType value, GLTFComponentType componentType,
-            ref float[] max, ref float[] min, ref GLTFAccessorAttributeType type
+            ref double[] max, ref double[] min, ref GLTFAccessorAttributeType type
         )
         {
             float[] array = null;
@@ -176,12 +176,12 @@ namespace SeinJS
 
             if (max == null)
             {
-                max = new float[size];
+                max = new double[size];
             }
 
             if (min == null)
             {
-                min = new float[size];
+                min = new double[size];
             }
 
             for (int i = 0; i < size; i += 1)
@@ -230,7 +230,7 @@ namespace SeinJS
             }
 
             var bytes = new byte[size * array.Length];
-            System.Buffer.BlockCopy(array, 0, bytes, 0, bytes.Length);
+            System.Buffer.BlockCopy(dArray, 0, bytes, 0, bytes.Length);
 
             return bytes;
         }

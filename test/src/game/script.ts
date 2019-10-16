@@ -53,16 +53,16 @@ export async function createCamera(game: Sein.Game) {
     near: .01,
     fov: 60,
     aspect: game.screenWidth / game.screenHeight,
-    position: new Sein.Vector3(0, 0, -2)
+    position: new Sein.Vector3(0, 0, -4)
   });
-  camera.lookAt(new Sein.Vector3(-1, 1, 4));
+  camera.lookAt(new Sein.Vector3(0, 0, 0));
 
   camera.addComponent('control', Sein.CameraControls.CameraOrbitControlComponent, {
     enableDamping: true,
     dampingFactor: .2,
     zoomMax: 100,
     zoomMin: .1,
-    target: new Sein.Vector3(-1, 1, 4)
+    target: new Sein.Vector3(0, 0, 0)
   });
 }
 

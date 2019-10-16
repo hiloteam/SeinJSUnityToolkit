@@ -1,14 +1,13 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Config.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs">
     <Files>
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="53" Column="29" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="135" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="52" Column="60" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="45" Column="36" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="251" Column="55" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="1075" Column="37" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="82" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="82" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="45" Column="57" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="71" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="245" Column="37" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" Line="37" Column="74" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -19,10 +18,10 @@
                 <Node name="EnhancedPBR" expanded="True" />
               </Node>
               <Node name="SeinJSUnityToolkit" expanded="True">
-                <Node name="Common" expanded="True">
-                  <Node name="Config.cs" selected="True" />
+                <Node name="Common" expanded="True" />
+                <Node name="Exporter" expanded="True">
+                  <Node name="ExporterEntry.cs" selected="True" />
                 </Node>
-                <Node name="Exporter" expanded="True" />
                 <Node name="Extensions" expanded="True">
                   <Node name="Basic" expanded="True" />
                   <Node name="GLTFExtensions" expanded="True" />
@@ -38,7 +37,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4b823ea0-d473-47d6-a787-d322c36f2be5" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="041ec67a-a29a-4a9a-89bc-b50957db6412" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

@@ -54,7 +54,9 @@ namespace SeinJS
                 var tmpGo = new GameObject();
                 tmpGo.name = "sein-ambient-light";
                 ExportNode(tmpGo.transform, entry);
-                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_ambientLightExtensionFactory)), entry, entry.tr2node[tmpGo.transform].Extensions);
+                var node = entry.tr2node[tmpGo.transform];
+                node.Extensions = new Dictionary<string, Extension>();
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_ambientLightExtensionFactory)), entry, node.Extensions);
             }
 
             foreach (Transform tr in entry.transforms)
