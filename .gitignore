@@ -10,3 +10,4 @@ project/Output
 project/Assets/main
 project/.vs
 project/obj
+project/Assets/temp*

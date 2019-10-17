@@ -99,7 +99,7 @@ namespace SeinJS {
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
-            string defaultExportFolder = "../Output";
+            string defaultExportFolder = Config.DefaultExportFolder;
 
             if (exporterLabel == null)
 		    {
@@ -132,10 +132,7 @@ namespace SeinJS {
             GUILayout.BeginHorizontal();
             GUILayout.TextField(ExporterSettings.Export.folder, GUILayout.MinWidth(350), GUILayout.Height(21));
             GUILayout.FlexibleSpace();
-            if (!Directory.Exists(ExporterSettings.Export.folder))
-            {
-                ExporterSettings.Export.UpdateFolder(defaultExportFolder);
-            }
+
             if (GUILayout.Button("Select Folder", GUILayout.Height(21), GUILayout.Width(150)))
             {
                 var tmp= EditorUtility.OpenFolderPanel("Choose a folder", ExporterSettings.Export.folder, "");

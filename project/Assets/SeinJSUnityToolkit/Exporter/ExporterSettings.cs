@@ -71,7 +71,7 @@ namespace SeinJS
 			public static bool lightMap = true;
 			public static int lightMapSize = 1024;
 			public static EHDRTextureType lightMapType = EHDRTextureType.RGBD;
-			public static bool reflection = true;
+			public static bool reflection = false;
 			public static int reflectionSize = 1024;
 			public static EHDRTextureType reflectionType = EHDRTextureType.RGBD;
 		}

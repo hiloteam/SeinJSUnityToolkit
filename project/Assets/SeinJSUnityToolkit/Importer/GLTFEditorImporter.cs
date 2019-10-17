@@ -1435,7 +1435,7 @@ namespace SeinJS
                     }
                 }
 
-                UnityEngine.Object.DestroyImmediate(physicBody.tmpGo);
+                UnityEngine.Object.DestroyImmediate(physicBody.go);
             }
         }
 

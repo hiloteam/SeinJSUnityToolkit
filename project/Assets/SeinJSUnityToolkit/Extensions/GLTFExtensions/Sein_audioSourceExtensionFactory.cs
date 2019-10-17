@@ -23,6 +23,10 @@ namespace SeinJS
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             // process clips at first
+            if (entry.root.Extensions == null)
+            {
+                entry.root.Extensions = new Dictionary<string, Extension>();
+            }
             ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_audioClipsExtensionFactory)), entry, entry.root.Extensions, component);
 
             var extension = new Sein_audioSourceExtension();

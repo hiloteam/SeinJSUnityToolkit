@@ -104,6 +104,12 @@ namespace SeinJS {
             inited = true;
         }
 
+        [MenuItem("SeinJS/Help", priority = 3)]
+        public static void Help()
+        {
+            Application.OpenURL("http://seinjs.com/cn/guide/unity");
+        }
+
         static void EditorUpdate()
         {
             if (coroutine != null)

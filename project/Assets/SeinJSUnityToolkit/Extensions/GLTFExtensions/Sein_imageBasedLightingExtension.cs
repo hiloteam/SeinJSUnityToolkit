@@ -18,8 +18,8 @@ namespace SeinJS
         {
             public float[][] shCoefficients;
             public float diffuseIntensity;
-            public TextureId brdfLUT;
-            public TextureId[] specMapFaces;
+            public int brdfLUT;
+            public int[] specMapFaces;
             public float specIntensity;
         }
 
@@ -72,7 +72,7 @@ namespace SeinJS
                 value.Add("type", iblType == 1 ? "SPECULAR" : "ALL");
             }
 
-            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_animatorExtensionFactory)), value);
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_imageBasedLightingExtensionFactory)), value);
         }
     }
 }

@@ -67,6 +67,7 @@
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBRCameraScript.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancePBRShaderGUI.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\FreeCameraControl.cs" />
+    <Compile Include="Assets\SeinCustomMaterials\Unlit\SeinUnlitShaderGUI.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Common\Async\AsyncAction.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Common\Config.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Common\Exceptions.cs" />
@@ -127,8 +128,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Resizer.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\UI.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBRShaderGUI.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Shaders\SeinUnlitShaderGUI.cs" />
     <None Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBR.shader" />
+    <None Include="Assets\SeinCustomMaterials\Unlit\SeinUnlit.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBR.shader" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

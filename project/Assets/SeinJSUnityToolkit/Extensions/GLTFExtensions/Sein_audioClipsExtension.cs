@@ -22,7 +22,7 @@ namespace SeinJS
             public string name;
         }
 
-        public List<AudioClip> clips;
+        public List<AudioClip> clips = new List<AudioClip>();
 
         public JProperty Serialize()
         {
@@ -34,6 +34,8 @@ namespace SeinJS
                 c.Add("mode", clip.mode.ToString());
                 c.Add("isLazy", clip.isLazy);
                 c.Add("uri", clip.uri);
+
+                value.Add(c);
             }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_audioClipsExtensionFactory)), new JObject(

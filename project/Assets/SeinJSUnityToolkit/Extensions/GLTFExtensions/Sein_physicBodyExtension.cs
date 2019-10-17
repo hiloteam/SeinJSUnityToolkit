@@ -16,11 +16,16 @@ namespace SeinJS
     public class Sein_physicBodyExtension : Extension
     {
         public SeinRigidBody rigidBody;
-        public List<Collider> colliders;
-        public GameObject tmpGo;
+        public List<Collider> colliders = new List<Collider>();
+        public GameObject go;
 
         public JProperty Serialize()
         {
+            if (go.GetComponent<SeinRigidBody>() == null)
+            {
+                rigidBody = go.AddComponent<SeinRigidBody>();
+            }
+
             var value = new JObject(
                 new JProperty("mass", rigidBody.mass),
                 new JProperty("friction", rigidBody.friction),
@@ -74,7 +79,7 @@ namespace SeinJS
                 i += 1;
             }
 
-            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_nodeExtensionFactory)), value);
+            return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_physicBodyExtensionFactory)), value);
         }
     }
 }

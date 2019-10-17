@@ -33,11 +33,21 @@ namespace SeinJS
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
+            if (!ExporterSettings.Lighting.reflection)
+            {
+                return;
+            }
+
             var mat = component as UnityEngine.Material;
 
             if (RenderSettings.ambientMode != UnityEngine.Rendering.AmbientMode.Skybox)
             {
                 return;
+            }
+
+            if (entry.root.Extensions == null)
+            {
+                entry.root.Extensions = new Dictionary<string, Extension>();
             }
 
             Sein_imageBasedLightingExtension globalExtension;
@@ -97,16 +107,16 @@ namespace SeinJS
 
             light.shCoefficients = coefficients;
             light.diffuseIntensity = diffuseIntensity;
-            light.brdfLUT = entry.SaveTexture(brdfLUT, false);
+            light.brdfLUT = entry.SaveTexture(brdfLUT, false).Id;
             light.specIntensity = specIntensity;
-            light.specMapFaces = new TextureId[6];
+            light.specMapFaces = new int[6];
 
             string origAssetPath = AssetDatabase.GetAssetPath(specMap);
             string ext = Path.GetExtension(origAssetPath);
             var blurredSpecMap = GetSpecularCubeMap(specMap);
-            var tex2d = new Texture2D(blurredSpecMap.width, blurredSpecMap.height, TextureFormat.RGBAHalf, false);
             for (var i = 0; i < 6; i += 1)
             {
+                var tex2d = new Texture2D(blurredSpecMap.width, blurredSpecMap.height, TextureFormat.RGBAHalf, false);
                 UnityEngine.Color[] colors = null;
                 switch (i)
                 {
@@ -130,7 +140,7 @@ namespace SeinJS
                         break;
                 }
                 tex2d.SetPixels(colors);
-                light.specMapFaces[i] = entry.SaveTextureHDR(tex2d, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize);
+                light.specMapFaces[i] = entry.SaveTextureHDR(tex2d, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, origAssetPath.Replace(ext, "-" + i + ext)).Id;
             }
             DeleteTempMap(blurredSpecMap);
 

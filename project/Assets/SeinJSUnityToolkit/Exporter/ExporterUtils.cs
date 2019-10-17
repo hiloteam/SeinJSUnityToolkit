@@ -346,7 +346,9 @@ namespace SeinJS
                         ref metallicTexture, ref roughnessTexture, ref occlusion,
                         EImageChannel.B, EImageChannel.G, EImageChannel.R, EImageChannel.G
                     );
-                    var id = entry.SaveTexture(metalRoughTextureAo, hasTransparency);
+                    var assetPath = AssetDatabase.GetAssetPath(metallicTexture);
+                    var ext = Path.GetExtension(assetPath);
+                    var id = entry.SaveTexture(metalRoughTextureAo, hasTransparency, assetPath.Replace(ext, "-orm") + ext);
                     material.PbrMetallicRoughness.MetallicRoughnessTexture = new TextureInfo { Index = id };
 
                     if (occlusion != null)
@@ -374,7 +376,7 @@ namespace SeinJS
                     diffuseMap = new TextureInfo { Index = id };
                 }
 
-                if (mat.GetTexture("_baseColor") != null)
+                if (mat.GetColor("_baseColor") != null)
                 {
                     Color c = mat.GetColor("_baseColor");
                     diffuseColor = new GLTF.Math.Color(c.r, c.g, c.b, c.a);
@@ -486,6 +488,7 @@ namespace SeinJS
                     continue;
                 }
 
+                var n = propName;
                 if (propName.Substring(0, 1) == "_")
                 {
                     propName = propName.Substring(1);
@@ -495,18 +498,18 @@ namespace SeinJS
                 {
                     case ShaderUtil.ShaderPropertyType.Float:
                     case ShaderUtil.ShaderPropertyType.Range:
-                        floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(propName) });
+                        floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(n) });
                         break;
                     case ShaderUtil.ShaderPropertyType.Color:
-                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(propName) });
+                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(n) });
                         break;
                     case ShaderUtil.ShaderPropertyType.Vector:
-                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(propName) });
+                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(n) });
                         break;
                     case ShaderUtil.ShaderPropertyType.TexEnv:
-                        if (mat.GetTexture(propName) != null)
+                        if (mat.GetTexture(n) != null)
                         {
-                            textureArray.Add(new SeinMaterialUniformTexture { name = propName, value = (Texture2D)mat.GetTexture(propName) });
+                            textureArray.Add(new SeinMaterialUniformTexture { name = propName, value = (Texture2D)mat.GetTexture(n) });
                         }
                         break;
                 }
@@ -563,6 +566,12 @@ namespace SeinJS
         public static string[] GetAssetOutPath(UnityEngine.Object assetObject, string format = null)
         {
             string assetPath = AssetDatabase.GetAssetPath(assetObject);
+
+            return GetAssetOutPath(assetPath, format);
+        }
+
+        public static string[] GetAssetOutPath(string assetPath, string format = null)
+        {
             string pathInArchive = ExporterUtils.CleanPath(Path.GetDirectoryName(assetPath).Replace("Assets/Resources/", "").Replace("Assets/", ""));
             string exportDir = Path.Combine(ExporterSettings.Export.folder, pathInArchive);
 
@@ -587,6 +596,14 @@ namespace SeinJS
             string pathInGltfFile = pathInArchive + "/" + outputFilename;
 
             return new string[] { exportPath, pathInGltfFile };
+        }
+
+        public static void FinishExport()
+        {
+            if (_tempGO != null)
+            {
+                UnityEngine.Object.DestroyImmediate(_tempGO);
+            }
         }
 
         private static bool ProcessTransparency(UnityEngine.Material mat, GLTF.Schema.Material material)
@@ -646,7 +663,7 @@ namespace SeinJS
                 id += occlusion.GetInstanceID();
             }
 
-            if (ExporterEntry.composedTextures[id])
+            if (ExporterEntry.composedTextures.ContainsKey(id))
             {
                 return ExporterEntry.composedTextures[id];
             }
@@ -707,6 +724,8 @@ namespace SeinJS
 
             newtex.filterMode = textureM.filterMode;
             newtex.wrapMode = textureM.wrapMode;
+
+            ExporterEntry.composedTextures.Add(id, newtex);
 
             return newtex;
         }
@@ -787,15 +806,15 @@ namespace SeinJS
                     int index = i * width + j;
                     Color c = colors[index];
                     float inputValue;
-                    if (outputChannel == EImageChannel.R)
+                    if (inputChannel == EImageChannel.R)
                     {
                         inputValue = inputColors[index].r;
                     }
-                    else if (outputChannel == EImageChannel.G)
+                    else if (inputChannel == EImageChannel.G)
                     {
                         inputValue = inputColors[index].g;
                     }
-                    else if (outputChannel == EImageChannel.B)
+                    else if (inputChannel == EImageChannel.B)
                     {
                         inputValue = inputColors[index].b;
                     }

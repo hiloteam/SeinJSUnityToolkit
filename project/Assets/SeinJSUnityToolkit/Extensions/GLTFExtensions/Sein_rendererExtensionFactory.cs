@@ -16,12 +16,12 @@ namespace SeinJS
     public class Sein_rendererExtensionFactory : SeinExtensionFactory
     {
         public override string GetExtensionName() { return "Sein_renderer"; }
-        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(MeshRenderer) }; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(MeshRenderer), typeof(SkinnedMeshRenderer) }; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var extension = new Sein_rendererExtension();
-            var mr = component as MeshRenderer;
+            var mr = component as Renderer;
 
             var lightmapIndex = mr.lightmapIndex;
             if (ExporterSettings.Lighting.lightMap && lightmapIndex > -1)

@@ -267,9 +267,8 @@ namespace SeinJS
             }
 
             var targets = new List<Dictionary<string, AccessorId>>();
-            m.Extras = new JObject();
-            var extras = m.Extras as JObject;
-            extras.Add("targetNames", new JArray());
+            var targetNames = new JArray();
+            m.Extras = new JProperty("extras", new JObject(new JProperty("targetNames", targetNames)));
 
             int stride = 0;
             for (int i = 0; i < mesh.blendShapeCount; i += 1)
@@ -291,29 +290,34 @@ namespace SeinJS
             Vector3[] tangents = new Vector3[mesh.tangents.Length];
             int offset = 0;
 
+            m.Weights = new List<double>();
+
             for (int i = 0; i < mesh.blendShapeCount; i += 1)
             {
                 var name = mesh.GetBlendShapeName(i);
                 var target = new Dictionary<string, AccessorId>();
                 targets.Add(target);
 
-                (extras["targetNames"] as JArray).Add(name);
+                targetNames.Add(name);
                 m.Weights.Add(mesh.GetBlendShapeFrameWeight(i, 0));
 
                 mesh.GetBlendShapeFrameVertices(i, 0, vertices, normals, tangents);
 
                 target.Add("POSITION", PackAttrToBuffer(bufferView, vertices, offset));
+                target["POSITION"].Value.Name += "-" + name + "-POSITION";
                 offset += 3 * 4;
 
                 if (mesh.normals.Length > 0)
                 {
                     target.Add("NORMAL", PackAttrToBuffer(bufferView, normals, offset));
+                    target["NORMAL"].Value.Name += "-" + name + "-NORMAL";
                     offset += 3 * 4;
                 }
 
                 if (mesh.tangents.Length > 0)
                 {
-                    target.Add("TANGENTS", PackAttrToBuffer(bufferView, tangents, offset));
+                    target.Add("TANGENT", PackAttrToBuffer(bufferView, tangents, offset));
+                    target["TANGENT"].Value.Name += "-" + name + "-TANGENT";
                     offset += 4 * 4;
                 }
             }
@@ -330,10 +334,10 @@ namespace SeinJS
                 stride += 3 * 4;
             }
 
-            if (mesh.colors.Length > 0)
-            {
-                stride += 4 * 4;
-            }
+            //if (mesh.colors.Length > 0)
+            //{
+            //    stride += 4 * 4;
+            //}
 
             if (mesh.uv.Length > 0)
             {
@@ -352,7 +356,7 @@ namespace SeinJS
 
             if (mesh.boneWeights.Length > 0)
             {
-                stride += 1 * 4;
+                stride += 2 * 4;
                 stride += 4 * 4;
             }
 
@@ -406,6 +410,7 @@ namespace SeinJS
                 ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort),
                 bufferView
             );
+            primitive.Indices.Value.Name += "-" + i;
         }
 
         public MaterialId SaveNormalMaterial(UnityEngine.Material material)
@@ -436,7 +441,7 @@ namespace SeinJS
             return id;
         }
 
-        public TextureId SaveTexture(Texture2D texture, bool hasTransparency)
+        public TextureId SaveTexture(Texture2D texture, bool hasTransparency, string path = null)
         {
             if (_texture2d2ID.ContainsKey(texture))
             {
@@ -449,7 +454,17 @@ namespace SeinJS
                 format = ".jpg";
             }
 
-            var pathes = GetTextureOutPath(texture, format);
+            string[] pathes;
+
+            if (path == null)
+            {
+                pathes = GetTextureOutPath(texture, format);
+            }
+            else
+            {
+                pathes = ExporterUtils.GetAssetOutPath(path, format);
+            }
+
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
 
@@ -492,7 +507,7 @@ namespace SeinJS
             return GenerateTexture(texture, pathInGlTF);
         }
 
-        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1)
+        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
         {
             if (type != EHDRTextureType.RGBD)
             {
@@ -512,7 +527,14 @@ namespace SeinJS
             }
 
             string format = ".png";
-            var pathes = GetTextureOutPath(texture, format);
+            string[] pathes;
+            if (path == null)
+            {
+                pathes = GetTextureOutPath(texture, format);
+            } else
+            {
+                pathes = ExporterUtils.GetAssetOutPath(path, format);
+            }
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
 
@@ -697,18 +719,24 @@ namespace SeinJS
             {
                 var matrix = camera.projectionMatrix;
                 cam.Type = GLTF.Schema.CameraType.orthographic;
-                cam.Orthographic.ZFar = (matrix[2, 3] / matrix[2, 2]) - (1 / matrix[2, 2]);
+                cam.Orthographic = new CameraOrthographic
+                {
+                    ZFar = (matrix[2, 3] / matrix[2, 2]) - (1 / matrix[2, 2]),
+                    XMag = 1 / matrix[0, 0],
+                    YMag = 1 / matrix[1, 1]
+                };
                 cam.Orthographic.ZNear = cam.Orthographic.ZFar + (2 / matrix[2, 2]);
-                cam.Orthographic.XMag = 1 / matrix[0, 0];
-                cam.Orthographic.YMag = 1 / matrix[1, 1];
             }
             else
             {
                 cam.Type = GLTF.Schema.CameraType.perspective;
-                cam.Perspective.ZFar = camera.farClipPlane;
-                cam.Perspective.ZNear = camera.nearClipPlane;
-                cam.Perspective.AspectRatio = camera.aspect;
-                cam.Perspective.YFov = camera.fieldOfView;
+                cam.Perspective = new CameraPerspective
+                {
+                    ZFar = camera.farClipPlane,
+                    ZNear = camera.nearClipPlane,
+                    AspectRatio = camera.aspect,
+                    YFov = camera.fieldOfView
+                };
             }
 
             return cam;

@@ -18,11 +18,11 @@ namespace SeinJS
     public class Sein_physicBodyExtensionFactory : SeinExtensionFactory
     {
         public override string GetExtensionName() { return "Sein_physicBody"; }
-        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinRigidBody), typeof(Collider) }; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinRigidBody), typeof(BoxCollider), typeof(SphereCollider) }; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
-            Sein_physicBodyExtension extension = null;
+            Sein_physicBodyExtension extension;
 
             if (extensions.ContainsKey(ExtensionName))
             {
@@ -36,15 +36,12 @@ namespace SeinJS
 
             if (component is SeinRigidBody)
             {
+                extension.go = ((SeinRigidBody)component).gameObject;
                 extension.rigidBody = component as SeinRigidBody;
             }
             else if (component is Collider)
             {
-                if (extension.colliders == null)
-                {
-                    extension.colliders = new List<Collider>();
-                }
-
+                extension.go = ((Collider)component).gameObject;
                 extension.colliders.Add(component as Collider);
             }
         }
@@ -52,7 +49,7 @@ namespace SeinJS
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
             var extension = new Sein_physicBodyExtension();
-            SeinRigidBody rigidBody = null;
+            SeinRigidBody rigidBody;
             List<Collider> colliders = new List<Collider>();
 
             var tmpGo = new GameObject();
@@ -106,7 +103,7 @@ namespace SeinJS
 
             extension.rigidBody = rigidBody;
             extension.colliders = colliders;
-            extension.tmpGo = tmpGo;
+            extension.go = tmpGo;
 
             return extension;
         }

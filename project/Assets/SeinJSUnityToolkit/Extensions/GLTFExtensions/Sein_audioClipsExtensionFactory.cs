@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using GLTF.Schema;
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace SeinJS
 {
@@ -43,7 +44,7 @@ namespace SeinJS
                 ENTRY_URIS.Add(entry, new Dictionary<AudioClip, string>());
             }
 
-            Sein_audioClipsExtension extension = null;
+            Sein_audioClipsExtension extension;
             var source = component as SeinAudioSource;
 
             if (!extensions.ContainsKey(ExtensionName))
@@ -62,6 +63,11 @@ namespace SeinJS
             foreach(var c in source.clips)
             {
                 var clip = c.clip;
+                if (c.clip == null)
+                {
+                    throw new Exception("Clip '" + c.name + "' has no audio source!");
+                }
+
                 if (list.Contains(clip))
                 {
                     continue;
@@ -81,6 +87,7 @@ namespace SeinJS
                     newClip.uri = SaveAudio(clip.clip);
                 }
 
+                list.Add(clip);
                 extension.clips.Add(newClip);
             }
         }
@@ -91,6 +98,11 @@ namespace SeinJS
             var pathes = ExporterUtils.GetAssetOutPath(clip);
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
+
+            if (File.Exists(exportPath))
+            {
+                return pathInGlTF;
+            }
 
             FileUtil.CopyFileOrDirectory(assetPath, exportPath);
 

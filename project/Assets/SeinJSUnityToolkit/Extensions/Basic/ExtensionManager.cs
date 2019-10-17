@@ -20,8 +20,9 @@ namespace SeinJS
 
         public static void Init()
 		{
-            Component2Extensions.Clear();
-            Name2Extensions.Clear();
+            //Class2Extensions.Clear();
+            //Component2Extensions.Clear();
+            //Name2Extensions.Clear();
 
             foreach (var clazz in Assembly.GetAssembly(typeof(SeinExtensionFactory)).GetTypes())
             {
@@ -40,8 +41,12 @@ namespace SeinJS
             var components = factory.GetBindedComponents();
             factory.ExtensionName = name;
 
-            GLTFProperty.RegisterExtension(factory);
+            if (Class2Extensions.ContainsKey(FactoryClass))
+            {
+                return;
+            }
 
+            GLTFProperty.RegisterExtension(factory);
             Name2Extensions.Add(name, factory);
             Class2Extensions.Add(FactoryClass, name);
 

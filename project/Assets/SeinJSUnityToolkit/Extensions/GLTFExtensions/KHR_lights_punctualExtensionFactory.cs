@@ -25,6 +25,11 @@ namespace SeinJS
                 return;
             }
 
+            if (entry.root.Extensions == null)
+            {
+                entry.root.Extensions = new Dictionary<string, Extension>();
+            }
+
             KHR_lights_punctualExtension globalExtension;
             if (!entry.root.Extensions.ContainsKey(ExtensionName))
             {
@@ -34,7 +39,7 @@ namespace SeinJS
             }
             else
             {
-                globalExtension = (KHR_lights_punctualExtension)extensions["KHR_lights_punctual"];
+                globalExtension = (KHR_lights_punctualExtension)entry.root.Extensions["KHR_lights_punctual"];
             }
 
             var l = new KHR_lights_punctualExtension.Light();

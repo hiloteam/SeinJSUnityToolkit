@@ -36,6 +36,7 @@ namespace SeinJS
             {
                 ExportOne(entry);
             }
+            ExporterUtils.FinishExport();
         }
 
         private void ExportOne(ExporterEntry entry)
@@ -163,6 +164,12 @@ namespace SeinJS
                         break;
                     }
 
+                    if (materialComponents.Length == 1 && materials.Length == 1)
+                    {
+                        ExportComponentMaterial(materialComponents[0], primitive, entry);
+                        continue;
+                    }
+
                     bool hasComponent = false;
                     foreach (var materialComponent in materialComponents)
                     {
@@ -267,6 +274,17 @@ namespace SeinJS
             }
         }
 
+        private void ExportCamera(Transform tr, ExporterEntry entry)
+        {
+            var node = entry.tr2node[tr];
+            var camera = tr.GetComponent<UnityEngine.Camera>();
+
+            if (camera != null)
+            {
+                node.Camera = entry.SaveCamera(camera);
+            }
+        }
+
         private void ExportExtensions(Transform tr, ExporterEntry entry)
         {
             var node = entry.tr2node[tr];
@@ -277,20 +295,10 @@ namespace SeinJS
                     if (node.Extensions == null)
                     {
                         node.Extensions = new Dictionary<string, Extension>();
-                        ExtensionManager.Serialize(component, entry, node.Extensions);
                     }
+
+                    ExtensionManager.Serialize(component, entry, node.Extensions);
                 }
-            }
-        }
-
-        private void ExportCamera(Transform tr, ExporterEntry entry)
-        {
-            var node = entry.tr2node[tr];
-            var camera = tr.GetComponent<UnityEngine.Camera>();
-
-            if (camera != null)
-            {
-                node.Camera = entry.SaveCamera(camera);
             }
         }
 

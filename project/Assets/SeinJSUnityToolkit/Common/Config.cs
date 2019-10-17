@@ -25,6 +25,8 @@ namespace SeinJS
     public class Config
 	{
         public static string GeneratorName = "Sein.js Unity Toolkit";
+        public static string DefaultExportFolder = "../Output";
+        public static string DefaultImportFolder = "./Resources";
 
         static bool inited = false;
 		static string configPath = "";
@@ -67,8 +69,16 @@ namespace SeinJS
 			configPath = Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json");
 			JObject config = JObject.Parse(File.ReadAllText(configPath));
 			exportPath = (string)config["exportPath"];
+            if (string.IsNullOrEmpty(exportPath))
+            {
+                exportPath = DefaultExportFolder;
+            }
 			importPath = (string)config["importPath"];
-			header = new Texture2D(1, 1);
+            if (string.IsNullOrEmpty(importPath))
+            {
+                importPath = DefaultImportFolder;
+            }
+            header = new Texture2D(1, 1);
 			header.LoadImage(File.ReadAllBytes(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/logo.jpg")));
 			header.Apply();
 		}

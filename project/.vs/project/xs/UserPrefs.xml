@@ -1,13 +1,12 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="53" Column="29" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="45" Column="57" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="71" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="245" Column="37" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" Line="37" Column="74" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="536" Column="70" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="539" Column="18" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="59" Column="25" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="39" Column="42" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="79" Column="26" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" Line="75" Column="114" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,10 +14,11 @@
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="SeinCustomMaterials" expanded="True">
-                <Node name="EnhancedPBR" expanded="True" />
+                <Node name="Unlit" expanded="True" />
               </Node>
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
+                <Node name="Converter" expanded="True" />
                 <Node name="Exporter" expanded="True">
                   <Node name="ExporterEntry.cs" selected="True" />
                 </Node>

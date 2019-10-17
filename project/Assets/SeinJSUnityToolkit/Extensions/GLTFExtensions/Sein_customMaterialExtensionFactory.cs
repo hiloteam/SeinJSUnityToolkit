@@ -22,7 +22,24 @@ namespace SeinJS
             var material = component as SeinCustomMaterial;
             var extension = new Sein_customMaterialExtension();
 
-            
+            extension.className = material.className;
+            extension.cloneForInst = material.cloneForInst;
+            extension.renderOrder = material.renderOrder;
+            extension.transparent = material.transparent;
+            extension.uniformsColor = material.uniformsColor;
+            extension.uniformsTexture = material.uniformsTexture;
+            extension.uniformsCubeTexture = material.uniformsCubeTexture;
+            extension.uniformsFloat = material.uniformsFloat;
+            extension.uniformsFloatVec2 = material.uniformsFloatVec2;
+            extension.uniformsFloatVec3 = material.uniformsFloatVec3;
+            extension.uniformsFloatVec4 = material.uniformsFloatVec4;
+            extension.uniformsFloatMat2 = material.uniformsFloatMat2;
+            extension.uniformsFloatMat3 = material.uniformsFloatMat3;
+            extension.uniformsFloatMat4 = material.uniformsFloatMat4;
+            extension.uniformsInt = material.uniformsInt;
+            extension.uniformsIntVec2 = material.uniformsIntVec2;
+            extension.uniformsIntVec3 = material.uniformsIntVec3;
+            extension.uniformsIntVec4 = material.uniformsIntVec4;
 
             AddExtension(extensions, extension);
         }

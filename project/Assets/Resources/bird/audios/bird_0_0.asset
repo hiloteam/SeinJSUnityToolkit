@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9aeed38c920364049b3c831e515ead4c, type: 3}
+  m_Script: {fileID: 11500000, guid: 696af64dd60b243af9e92733507d44e5, type: 3}
   m_Name: bird_0_0
   m_EditorClassIdentifier: 
-  mode: 1
+  mode: 0
   clip: {fileID: 8300000, guid: 20a006c718b814ababad620dc756c87a, type: 3}
-  isLazy: 0
+  isLazy: 1

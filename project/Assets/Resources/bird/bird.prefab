@@ -115,9 +115,9 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights: []
   m_RootBone: {fileID: 2657422245661948793}
   m_AABB:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
-  m_DirtyAABB: 1
+    m_Center: {x: -0.8438597, y: 0.38838768, z: 0.017207563}
+    m_Extent: {x: 1.4992294, y: 1.285618, z: 1.0074892}
+  m_DirtyAABB: 0
 --- !u!1 &6415876967451668072
 GameObject:
   m_ObjectHideFlags: 0
@@ -127,8 +127,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7930683880327682848}
-  - component: {fileID: 8067973598997099206}
-  - component: {fileID: 2053247401943011606}
   m_Layer: 0
   m_Name: bird
   m_TagString: Untagged
@@ -143,7 +141,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6415876967451668072}
-  m_LocalRotation: {x: 0, y: 0, z: -0, w: -1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -152,60 +150,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8067973598997099206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6415876967451668072}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc9e06ce6d1164ae3acb4cc703aeeb56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selfType: 2
-  childrenType: 1
-  className: 
-  tag: 
-  layer: 268435455
-  persistent: 0
-  emitComponentsDestroy: 1
-  updateOnEverTick: 1
-  isStatic: 0
-  skipThisNode: 0
---- !u!114 &2053247401943011606
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6415876967451668072}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b54f8a870e21f4012b9b7e61e683a7c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  clips:
-  - name: jiji
-    clip: {fileID: 11400000, guid: e7c38456b4a5e42e6b6c6b1dc0486e6d, type: 2}
-  defaultClip: jiji
-  needAutoPlay: 1
-  autoPlayOptions:
-    loop: 1
-    start: 0
-    end: 0
-  isSpaceAudio: 0
-  spaceOptions:
-    rotatable: 0
-    panningModel: 1
-    distanceModel: 0
-    refDistance: 1
-    maxDistance: 10000
-    rolloffFactor: 1
-    coneInnerAngle: 360
-    coneOuterAngle: 0
-    coneOuterGain: 0
 --- !u!1 &6851118213843187951
 GameObject:
   m_ObjectHideFlags: 0
