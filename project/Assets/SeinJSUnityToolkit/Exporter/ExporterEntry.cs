@@ -60,6 +60,7 @@ namespace SeinJS
         private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
         private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
+        private Dictionary<AnimationClip, GLTF.Schema.Animation> _animClip2anim = new Dictionary<AnimationClip, GLTF.Schema.Animation>();
         private Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>> _animClip2Accessors = new Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>>();
         private Dictionary<UnityEngine.Camera, CameraId> _camera2ID = new Dictionary<UnityEngine.Camera, CameraId>();
 
@@ -144,7 +145,7 @@ namespace SeinJS
             {
                 node.Translation = Utils.ConvertVector3LeftToRightHandedness(tr.localPosition);
                 node.Rotation = Utils.ConvertQuatLeftToRightHandedness(tr.localRotation);
-                node.Scale = Utils.ConvertVector3LeftToRightHandedness(tr.localScale);
+                node.Scale = new GLTF.Math.Vector3(tr.localScale.x, tr.localScale.y, tr.localScale.z);
             }
 
             root.Nodes.Add(node);
@@ -857,14 +858,17 @@ namespace SeinJS
 
             var node = tr2node[tr];
             AnimationClip[] clips = null;
+            string defaultClip = null;
 
             if (tr.GetComponent<Animator>())
             {
                 clips = AnimationUtility.GetAnimationClips(tr.gameObject);
+                defaultClip = tr.GetComponent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name;
             }
             else if (tr.GetComponent<UnityEngine.Animation>())
             {
                 clips = new AnimationClip[] { tr.GetComponent<UnityEngine.Animation>().clip };
+                defaultClip = clips[0].name;
             }
 
             if (clips == null)
@@ -875,25 +879,33 @@ namespace SeinJS
             SeinAnimator animator = tr.GetComponent<SeinAnimator>();
             if (animator == null)
             {
-                //todo: if no animation defined, use all
                 animator = tr.gameObject.AddComponent<SeinAnimator>();
             }
+            animator.modelAnimations = new string[clips.Length];
+            animator.prefixes = new string[clips.Length];
+
+            animator.defaultAnimation = defaultClip;
 
             for (int i = 0; i < clips.Length; i++)
             {
+                var prefix = clips.GetHashCode().ToString();
                 var clip = clips[i];
-                var anim = new GLTF.Schema.Animation { Name = node.Name + "@" + clip.name };
 
-                SaveAnimationClip(anim, tr, clip);
+                var anim = SaveAnimationClip(tr, clip, prefix);
 
-                root.Animations.Add(anim);
+                animator.modelAnimations[i] = clip.name;
+                animator.prefixes[i] = prefix;
             }
-
-            animator.prefix = node.Name;
         }
 
-        private void SaveAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
+        private GLTF.Schema.Animation SaveAnimationClip(Transform tr, AnimationClip clip, string prefix)
         {
+            if (_animClip2anim.ContainsKey(clip))
+            {
+                return _animClip2anim[clip];
+            }
+
+            var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clip.name };
             var targets = BakeAnimationClip(anim, tr, clip);
             var accessors = _animClip2Accessors[clip];
             var timeAccessorId = _animClip2TimeAccessor[clip];
@@ -930,6 +942,11 @@ namespace SeinJS
 
                 targetId += 1;
             }
+
+            root.Animations.Add(anim);
+            _animClip2anim.Add(clip, anim);
+
+            return anim;
         }
 
         private List<string> BakeAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
@@ -1071,7 +1088,6 @@ namespace SeinJS
                     {
                         var curve = curves[path][GLTFAnimationChannelPath.translation];
                         translations[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
-                        //GLTF.Math
                     }
 
                     if (scales != null)

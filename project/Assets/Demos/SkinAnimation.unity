@@ -570,5 +570,78 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1211759194327006884, guid: 48e8e11ea19fa442987b346546785c99,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0.00000668721
+      objectReference: {fileID: 0}
+    - target: {fileID: 1211759194327006884, guid: 48e8e11ea19fa442987b346546785c99,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 49.649162
+      objectReference: {fileID: 0}
+    - target: {fileID: 1211759194327006884, guid: 48e8e11ea19fa442987b346546785c99,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -61.733852
+      objectReference: {fileID: 0}
+    - target: {fileID: 7911911369264045051, guid: 48e8e11ea19fa442987b346546785c99,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0.000012510185
+      objectReference: {fileID: 0}
+    - target: {fileID: 7911911369264045051, guid: 48e8e11ea19fa442987b346546785c99,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -33.49882
+      objectReference: {fileID: 0}
+    - target: {fileID: 7911911369264045051, guid: 48e8e11ea19fa442987b346546785c99,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -61.733852
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48e8e11ea19fa442987b346546785c99, type: 3}
+--- !u!1 &1818893980 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8102511842350550583, guid: 48e8e11ea19fa442987b346546785c99,
+    type: 3}
+  m_PrefabInstance: {fileID: 1818893979}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1818893981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818893980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 579c29830ece94d37a6a5d94c47bfb8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  modelAnimations: []
+  defaultAnimation: ArmatureAction-001
+  prefix: bird
+--- !u!114 &1818893982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1818893980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c9c2a060d5234abf96a35acd112c9b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfType: 2
+  childrenType: 1
+  className: 
+  tag: 
+  layer: 268435455
+  persistent: 0
+  emitComponentsDestroy: 1
+  updateOnEverTick: 1
+  isStatic: 0
+  skipThisNode: 0

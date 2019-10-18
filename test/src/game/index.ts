@@ -76,9 +76,9 @@ function createFaker(actor: Sein.SceneActor, world: Sein.World) {
 
   const keys = Object.keys((actor.root.hiloNode.anim as any).nodeNameMap) as string[];
   keys.forEach(key => {
-    faker.addComponent(key, Sein.BSPSphereComponent, {
+    faker.addComponent(key, Sein.BSPBoxComponent, {
       material: new Sein.BasicMaterial({diffuse: new Sein.Color(1, 0, 0)}),
-      radius: .1
+      width: .1, height: .1, depth: .1
     })
   });
 

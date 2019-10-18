@@ -25,7 +25,7 @@ namespace SeinJS
             var animator = component as SeinAnimator;
             var extension = new Sein_animatorExtension();
 
-            extension.prefix = animator.prefix;
+            extension.prefixes = animator.prefixes;
             extension.defaultAnimation = animator.defaultAnimation;
             extension.modelAnimations = animator.modelAnimations;
 
@@ -41,6 +41,7 @@ namespace SeinJS
                 extension.defaultAnimation = (string)extensionToken.Value["defaultAnimation"];
                 extension.modelAnimations = extensionToken.Value["modelAnimations"].ToObject<string[]>();
                 extension.prefix = (string)extensionToken.Value["prefix"];
+                extension.prefixes = extensionToken.Value<string[]>("prefixes");
             }
 
             return extension;
