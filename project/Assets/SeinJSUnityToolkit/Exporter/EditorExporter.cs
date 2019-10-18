@@ -70,7 +70,10 @@ namespace SeinJS
                         entry.bones.Add(bone);
                     }
                 }
+            }
 
+            foreach (var tr in entry.transforms)
+            {
                 if (!tr.gameObject.activeInHierarchy)
                 {
                     continue;
@@ -83,20 +86,35 @@ namespace SeinJS
             ProcessChildren(entry);
 
             // process skinning and bones
-            foreach (Transform tr in entry.transforms)
+            foreach (var tr in entry.transforms)
             {
+                if (!tr.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
                 ExportSkin(tr, entry);
             }
 
             // process animations
-            foreach (Transform tr in entry.transforms)
+            foreach (var tr in entry.transforms)
             {
+                if (!tr.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
                 ExportAnimations(tr, entry);
             }
 
             // process extensions
-            foreach (Transform tr in entry.transforms)
+            foreach (var tr in entry.transforms)
             {
+                if (!tr.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
                 ExportCamera(tr, entry);
                 ExportExtensions(tr, entry);
             }

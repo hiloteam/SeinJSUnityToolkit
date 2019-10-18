@@ -27,17 +27,6 @@ namespace SeinJS
             return rgxPath.Replace(s, "").ToLower();
         }
 
-        public static Vector4[] BoneWeightToBoneVec4(BoneWeight[] bw)
-        {
-            Vector4[] bones = new Vector4[bw.Length];
-            for (int i = 0; i < bw.Length; ++i)
-            {
-                bones[i] = new Vector4(bw[i].boneIndex0, bw[i].boneIndex1, bw[i].boneIndex2, bw[i].boneIndex3);
-            }
-
-            return bones;
-        }
-
         public static Vector4[] BoneWeightToWeightVec4(BoneWeight[] bw)
         {
             Vector4[] weights = new Vector4[bw.Length];
@@ -51,22 +40,22 @@ namespace SeinJS
 
         public static Accessor PackToBuffer<DataType>(
             byte[] buffer, DataType[] data,
-            GLTFComponentType componentType, int offset, int stride
+            GLTFComponentType componentType,
+            int offset, int stride,
+            Func<DataType[], int, DataType> getValueByIndex = null
         )
         {
             var accessor = new Accessor();
             accessor.ByteOffset = offset;
             accessor.ComponentType = componentType;
 
-            int index = 0;
             double[] max = null;
             double[] min = null;
 
-            foreach (var item in data)
+            for (int i = 0; i < data.Length; i += 1)
             {
-                var bytes = GetDataToBuffer(item, componentType, ref max, ref min, ref accessor.Type);
-                int byteOffset = offset + stride * index;
-                index += 1;
+                var bytes = GetDataToBuffer(getValueByIndex == null ? data[i] : getValueByIndex(data, i), componentType, ref max, ref min, ref accessor.Type);
+                int byteOffset = offset + stride * i;
 
                 bytes.CopyTo(buffer, byteOffset);
             }
@@ -80,7 +69,8 @@ namespace SeinJS
 
         public static Accessor PackToBuffer<DataType>(
             MemoryStream stream, DataType[] data,
-            GLTFComponentType componentType
+            GLTFComponentType componentType,
+            Func<DataType[], int, DataType> getValueByIndex = null
         )
         {
             var accessor = new Accessor();
@@ -90,9 +80,9 @@ namespace SeinJS
             double[] max = null;
             double[] min = null;
 
-            foreach (var item in data)
+            for (int i = 0; i < data.Length; i += 1)
             {
-                var bytes = GetDataToBuffer(item, componentType, ref max, ref min, ref accessor.Type);
+                var bytes = GetDataToBuffer(getValueByIndex == null ? data[i] : getValueByIndex(data, i), componentType, ref max, ref min, ref accessor.Type);
 
                 stream.Write(bytes, 0, bytes.Length);
             }
@@ -111,7 +101,7 @@ namespace SeinJS
         {
             float[] array = null;
             int[] intArray = null;
-            int size = 0;
+            int size;
             /**
              @todo: support int uint short byte ushort...
              */
@@ -157,31 +147,41 @@ namespace SeinJS
                 var v = (Color)Convert.ChangeType(value, typeof(Color));
                 array = new float[] { v.r, v.g, v.b, v.a };
             }
+            else if (typeof(DataType) == typeof(BoneWeight))
+            {
+                size = 4;
+                type = GLTFAccessorAttributeType.VEC4;
+                var v = (BoneWeight)Convert.ChangeType(value, typeof(BoneWeight));
+                intArray = new int[] { v.boneIndex0, v.boneIndex1, v.boneIndex2, v.boneIndex3 };
+            }
             else if (typeof(DataType) == typeof(Matrix4x4))
             {
                 size = 16;
                 type = GLTFAccessorAttributeType.MAT4;
                 var v = (Matrix4x4)Convert.ChangeType(value, typeof(Matrix4x4));
                 array = new float[] {
-                    v.m00, v.m01, v.m02, v.m03,
-                    v.m10, v.m11, v.m12, v.m13,
-                    v.m20, v.m21, v.m22, v.m23,
-                    v.m30, v.m31, v.m32, v.m33
+                    v.m00, v.m10, v.m20, v.m30,
+                    v.m01, v.m11, v.m21, v.m31,
+                    v.m02, v.m12, v.m22, v.m32,
+                    v.m03, v.m13, v.m23, v.m33
                 };
             }
             else
             {
-                throw new Exception("Only support packing float, int, Vector2, Vector3, Vector4, Matrix4 and Color now !");
+                throw new Exception("Only support packing float, int, Vector2, Vector3, Vector4, BoneWeight, Matrix4 and Color now !");
             }
 
             if (max == null)
             {
                 max = new double[size];
-            }
-
-            if (min == null)
-            {
                 min = new double[size];
+
+                for (int i = 0; i < size;  i += 1)
+                {
+                    var v = intArray == null ? array[i] : intArray[i];
+                    max[i] = v;
+                    min[i] = v;
+                }
             }
 
             for (int i = 0; i < size; i += 1)
@@ -438,9 +438,6 @@ namespace SeinJS
                 material.EmissiveFactor = new GLTF.Math.Color(emissive.r, emissive.g, emissive.b, emissive.a);
             }
 
-            /*
-             * @todo: reflection
-             */
             if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off)
             {
                 if (material.Extensions == null)
@@ -752,6 +749,7 @@ namespace SeinJS
 
             if (!im)
             {
+                action(tex);
                 return;
             }
 

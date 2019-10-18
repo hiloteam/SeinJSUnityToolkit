@@ -128,14 +128,25 @@ namespace SeinJS
                 root.Nodes = new List<Node>();
             }
 
+            var isBone = bones.Contains(tr);
+
             var node = new Node
             {
                 Name = tr.name,
-                UseTRS = true,
-                Translation = Utils.convertVector3LeftToRightHandedness(tr.localPosition),
-                Rotation = Utils.convertQuatLeftToRightHandedness(tr.localRotation),
-                Scale = Utils.convertVector3LeftToRightHandedness(tr.localScale)
+                UseTRS = isBone
             };
+
+            if (!isBone)
+            {
+                node.Matrix = Utils.ConvertMat4LeftToRightHandedness(tr.localToWorldMatrix);
+            }
+            else
+            {
+                node.Translation = Utils.ConvertVector3LeftToRightHandedness(tr.localPosition);
+                node.Rotation = Utils.ConvertQuatLeftToRightHandedness(tr.localRotation);
+                node.Scale = Utils.ConvertVector3LeftToRightHandedness(tr.localScale);
+            }
+
             root.Nodes.Add(node);
             tr2node.Add(tr, node);
             node2tr.Add(node, tr);
@@ -204,21 +215,20 @@ namespace SeinJS
             var bufferView = CreateByteBufferView(mesh.name + "-primitives", stride * mesh.vertexCount, stride);
 
             int offset = 0;
-            attrs.Add("POSITION", PackAttrToBuffer(bufferView, mesh.vertices, offset));
+            attrs.Add("POSITION", PackAttrToBuffer(bufferView, mesh.vertices, offset, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }));
             offset += 3 * 4;
 
             if (mesh.normals.Length > 0)
             {
-                attrs.Add("NORMAL", PackAttrToBuffer(bufferView, mesh.normals, offset));
+                attrs.Add("NORMAL", PackAttrToBuffer(bufferView, mesh.normals, offset, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }));
                 offset += 3 * 4;
             }
 
-            // Gltf does not support 'COLOR'
-            //if (mesh.colors.Length > 0)
-            //{
-            //    attrs.Add("COLOR", PackAttrToBuffer(bufferView, mesh.colors, offset));
-            //    offset += 4 * 4;
-            //}
+            if (mesh.colors.Length > 0)
+            {
+                attrs.Add("COLOR_0", PackAttrToBuffer(bufferView, mesh.colors, offset));
+                offset += 4 * 4;
+            }
 
             if (mesh.uv.Length > 0)
             {
@@ -234,13 +244,13 @@ namespace SeinJS
 
             if (mesh.tangents.Length > 0)
             {
-                attrs.Add("TANGENT", PackAttrToBuffer(bufferView, mesh.tangents, offset));
+                attrs.Add("TANGENT", PackAttrToBuffer(bufferView, mesh.tangents, offset, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }));
                 offset += 4 * 4;
             }
 
             if (mesh.boneWeights.Length > 0)
             {
-                attrs.Add("JOINTS_0", PackAttrToBufferShort(bufferView, ExporterUtils.BoneWeightToBoneVec4(mesh.boneWeights), offset));
+                attrs.Add("JOINTS_0", PackAttrToBufferShort(bufferView, mesh.boneWeights, offset));
                 offset += 2 * 4;
                 attrs.Add("WEIGHTS_0", PackAttrToBuffer(bufferView, ExporterUtils.BoneWeightToWeightVec4(mesh.boneWeights), offset));
                 offset += 4 * 4;
@@ -303,26 +313,52 @@ namespace SeinJS
 
                 mesh.GetBlendShapeFrameVertices(i, 0, vertices, normals, tangents);
 
-                target.Add("POSITION", PackAttrToBuffer(bufferView, vertices, offset));
+                target.Add("POSITION", PackAttrToBuffer(bufferView, vertices, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
                 target["POSITION"].Value.Name += "-" + name + "-POSITION";
                 offset += 3 * 4;
 
                 if (mesh.normals.Length > 0)
                 {
-                    target.Add("NORMAL", PackAttrToBuffer(bufferView, normals, offset));
+                    target.Add("NORMAL", PackAttrToBuffer(bufferView, normals, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
                     target["NORMAL"].Value.Name += "-" + name + "-NORMAL";
                     offset += 3 * 4;
                 }
 
                 if (mesh.tangents.Length > 0)
                 {
-                    target.Add("TANGENT", PackAttrToBuffer(bufferView, tangents, offset));
+                    target.Add("TANGENT", PackAttrToBuffer(bufferView, tangents, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
                     target["TANGENT"].Value.Name += "-" + name + "-TANGENT";
-                    offset += 4 * 4;
+                    offset += 4 * 3;
                 }
             }
 
             return targets;
+        }
+
+        private void SaveIndices(UnityEngine.Mesh mesh, MeshPrimitive primitive, int i, ref EntryBufferView bufferView)
+        {
+            primitive.Mode = DrawMode.Triangles;
+
+            if (_mesh2indices.ContainsKey(mesh) && _mesh2indices[mesh].ContainsKey(i))
+            {
+                primitive.Indices = _mesh2indices[mesh][i];
+                return;
+            }
+
+            if (bufferView == null)
+            {
+                bufferView = CreateStreamBufferView(mesh.name + "-indices");
+            }
+
+            primitive.Indices = AccessorToId(
+                ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort, (int[] data, int index) => {
+                    var offset = index % 3;
+
+                    return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
+                }),
+                bufferView
+            );
+            primitive.Indices.Value.Name += "-" + i;
         }
 
         private int GetBufferLength(UnityEngine.Mesh mesh)
@@ -334,10 +370,10 @@ namespace SeinJS
                 stride += 3 * 4;
             }
 
-            //if (mesh.colors.Length > 0)
-            //{
-            //    stride += 4 * 4;
-            //}
+            if (mesh.colors.Length > 0)
+            {
+                stride += 4 * 4;
+            }
 
             if (mesh.uv.Length > 0)
             {
@@ -363,16 +399,16 @@ namespace SeinJS
             return stride;
         }
 
-        private AccessorId PackAttrToBuffer<DataType>(EntryBufferView bufferView, DataType[] data, int offset)
+        private AccessorId PackAttrToBuffer<DataType>(EntryBufferView bufferView, DataType[] data, int offset, Func<DataType[], int, DataType> getValueByIndex = null)
         {
-            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.Float, offset, bufferView.view.ByteStride);
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.Float, offset, bufferView.view.ByteStride, getValueByIndex);
 
             return AccessorToId(accessor, bufferView);
         }
 
-        private AccessorId PackAttrToBufferShort<DataType>(EntryBufferView bufferView, DataType[] data, int offset)
+        private AccessorId PackAttrToBufferShort<DataType>(EntryBufferView bufferView, DataType[] data, int offset, Func<DataType[], int, DataType> getValueByIndex = null)
         {
-            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.UnsignedShort, offset, bufferView.view.ByteStride);
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.UnsignedShort, offset, bufferView.view.ByteStride, getValueByIndex);
 
             return AccessorToId(accessor, bufferView);
         }
@@ -389,28 +425,6 @@ namespace SeinJS
             root.Accessors.Add(accessor);
 
             return new AccessorId { Id = root.Accessors.Count - 1, Root = root };
-        }
-
-        private void SaveIndices(UnityEngine.Mesh mesh, MeshPrimitive primitive, int i, ref EntryBufferView bufferView)
-        {
-            primitive.Mode = DrawMode.Triangles;
-
-            if (_mesh2indices.ContainsKey(mesh) && _mesh2indices[mesh].ContainsKey(i))
-            {
-                primitive.Indices = _mesh2indices[mesh][i];
-                return;
-            }
-
-            if (bufferView == null)
-            {
-                bufferView = CreateStreamBufferView(mesh.name + "-indices");
-            }
-
-            primitive.Indices = AccessorToId(
-                ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort),
-                bufferView
-            );
-            primitive.Indices.Value.Name += "-" + i;
         }
 
         public MaterialId SaveNormalMaterial(UnityEngine.Material material)
@@ -796,7 +810,7 @@ namespace SeinJS
 
             var node = tr2node[tr];
             var skin = new Skin();
-            skin.Name = "skeleton-" + skinMesh.rootBone.name;
+            skin.Name = "skeleton-" + skinMesh.rootBone.name + "-" + tr.name;
             skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(node), Root = root };
             skin.Joints = new List<NodeId>();
 
@@ -811,16 +825,14 @@ namespace SeinJS
             }
 
             // Create invBindMatrices accessor
-            var bufferView = CreateStreamBufferView(skin.Name);
-            bufferView.view.ByteStride = 16 * 4;
+            var bufferView = CreateStreamBufferView("invBind-" + skinMesh.rootBone.name + "-" + tr.name);
 
             Matrix4x4[] invBindMatrices = new Matrix4x4[skin.Joints.Count];
             for (int i = 0; i < skinMesh.bones.Length; ++i)
             {
                 // Generates inverseWorldMatrix in right-handed coordinate system
                 Matrix4x4 invBind = skinMesh.sharedMesh.bindposes[i];
-                Utils.ConvertMat4LeftToRightHandedness(invBind);
-                invBindMatrices[i] = invBind;
+                invBindMatrices[i] = Utils.ConvertMat4LeftToRightHandedness(ref invBind);
             }
 
             skin.InverseBindMatrices = AccessorToId(
@@ -1092,7 +1104,7 @@ namespace SeinJS
                 AccessorId id = null;
                 if (translations != null)
                 {
-                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float), bufferView);
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }), bufferView);
                     accessor.Add(GLTFAnimationChannelPath.translation, id);
                     id.Value.Name += "-" + path + "-" + "translation";
                 }
@@ -1106,7 +1118,7 @@ namespace SeinJS
 
                 if (rotations != null)
                 {
-                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float), bufferView);
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }), bufferView);
                     accessor.Add(GLTFAnimationChannelPath.rotation, id);
                     id.Value.Name += "-" + path + "-" + "rotations";
                 }

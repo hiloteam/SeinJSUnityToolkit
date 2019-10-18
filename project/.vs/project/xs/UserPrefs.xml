@@ -1,33 +1,29 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_customMaterialExtension.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="536" Column="70" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="539" Column="18" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="437" Column="37" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="312" Column="13" />
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="59" Column="25" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="39" Column="42" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="79" Column="26" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" Line="75" Column="114" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="70" Column="47" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="287" Column="14" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="164" Column="66" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_customMaterialExtensionFactory.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_customMaterialExtension.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="SeinCustomMaterials" expanded="True">
-                <Node name="Unlit" expanded="True" />
-              </Node>
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
-                <Node name="Converter" expanded="True" />
-                <Node name="Exporter" expanded="True">
-                  <Node name="ExporterEntry.cs" selected="True" />
-                </Node>
+                <Node name="Exporter" expanded="True" />
                 <Node name="Extensions" expanded="True">
-                  <Node name="Basic" expanded="True" />
-                  <Node name="GLTFExtensions" expanded="True" />
+                  <Node name="Components" expanded="True" />
+                  <Node name="GLTFExtensions" expanded="True">
+                    <Node name="Sein_customMaterialExtension.cs" selected="True" />
+                  </Node>
                 </Node>
-                <Node name="Importer" expanded="True" />
-                <Node name="Shaders" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -37,7 +33,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="041ec67a-a29a-4a9a-89bc-b50957db6412" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="fc22b0c3-70e9-4b4d-a616-2f52c9f52d70" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

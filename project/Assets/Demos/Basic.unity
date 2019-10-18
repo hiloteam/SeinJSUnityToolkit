@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 916606156}
   - component: {fileID: 916606155}
   - component: {fileID: 916606159}
+  - component: {fileID: 916606160}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -235,6 +236,24 @@ MonoBehaviour:
   updateOnEverTick: 1
   isStatic: 0
   skipThisNode: 0
+--- !u!114 &916606160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 916606154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f9bf28e1f504983ac96821296a22a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mass: 1
+  friction: 0
+  restitution: 0
+  unControl: 0
+  physicStatic: 0
+  sleeping: 0
 --- !u!1 &1914969380
 GameObject:
   m_ObjectHideFlags: 0
@@ -455,6 +474,7 @@ GameObject:
   - component: {fileID: 7303071943500156466}
   - component: {fileID: 7303071943500156465}
   - component: {fileID: 7303071943500156467}
+  - component: {fileID: 7303071943500156468}
   m_Layer: 0
   m_Name: bird
   m_TagString: Untagged
@@ -532,3 +552,21 @@ MonoBehaviour:
   updateOnEverTick: 1
   isStatic: 0
   skipThisNode: 0
+--- !u!114 &7303071943500156468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7303071943500156464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f9bf28e1f504983ac96821296a22a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mass: 1
+  friction: 0
+  restitution: 0
+  unControl: 0
+  physicStatic: 0
+  sleeping: 0

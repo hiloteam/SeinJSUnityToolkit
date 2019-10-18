@@ -139,44 +139,62 @@ namespace SeinJS {
             return relativePath;
         }
 
-        public static GLTF.Math.Vector3 convertVector3LeftToRightHandedness(Vector3 v)
+        public static GLTF.Math.Vector3 ConvertVector3LeftToRightHandedness(Vector3 v)
         {
             return new GLTF.Math.Vector3(v.x, v.y, -v.z);
         }
 
-        public static GLTF.Math.Vector4 convertVector4LeftToRightHandedness(Vector4 v)
+        public static GLTF.Math.Vector4 ConvertVector4LeftToRightHandedness(Vector4 v)
         {
             return new GLTF.Math.Vector4(v.x, v.y, -v.z, -v.w);
         }
 
-        public static GLTF.Math.Quaternion convertQuatLeftToRightHandedness(Quaternion q)
+        public static GLTF.Math.Quaternion ConvertQuatLeftToRightHandedness(Quaternion q)
         {
             return new GLTF.Math.Quaternion(q.x, q.y, -q.z, -q.w);
         }
 
-        public static void convertVector3LeftToRightHandedness(ref Vector3 v)
+        public static Vector3 ConvertVector3LeftToRightHandedness(ref Vector3 v)
         {
             v.z = -v.z;
+
+            return v;
         }
 
-        public static void convertVector4LeftToRightHandedness(ref Vector4 v)
+        public static Vector4 ConvertVector4LeftToRightHandedness(ref Vector4 v)
         {
             v.z = -v.z;
             v.w = -v.w;
+
+            return v;
         }
 
-        public static void convertQuatLeftToRightHandedness(ref Quaternion q)
+        public static Quaternion ConvertQuatLeftToRightHandedness(ref Quaternion q)
         {
             q.z = -q.z;
             q.w = -q.w;
+
+            return q;
         }
 
         public static GLTF.Math.Matrix4x4 ConvertMat4LeftToRightHandedness(Matrix4x4 mat)
         {
+            ConvertMat4LeftToRightHandedness(ref mat);
+
+            return new GLTF.Math.Matrix4x4 (
+                mat.m00, mat.m01, mat.m02, mat.m03,
+                mat.m10, mat.m11, mat.m12, mat.m13,
+                mat.m20, mat.m21, mat.m22, mat.m23,
+                mat.m30, mat.m31, mat.m32, mat.m33
+            );
+        }
+
+        public static Matrix4x4 ConvertMat4LeftToRightHandedness(ref Matrix4x4 mat)
+        {
             Vector3 position = mat.GetColumn(3);
-            convertVector3LeftToRightHandedness(ref position);
+            ConvertVector3LeftToRightHandedness(ref position);
             Quaternion rotation = Quaternion.LookRotation(mat.GetColumn(2), mat.GetColumn(1));
-            convertQuatLeftToRightHandedness(ref rotation);
+            ConvertQuatLeftToRightHandedness(ref rotation);
 
             Vector3 scale = new Vector3(mat.GetColumn(0).magnitude, mat.GetColumn(1).magnitude, mat.GetColumn(2).magnitude);
             float epsilon = 0.00001f;
@@ -199,12 +217,7 @@ namespace SeinJS {
             // convert transform values from left handed to right handed
             mat.SetTRS(position, rotation, scale);
 
-            return new GLTF.Math.Matrix4x4 (
-                mat.m00, mat.m10, mat.m20, mat.m30,
-                mat.m01, mat.m11, mat.m21, mat.m31,
-                mat.m02, mat.m12, mat.m22, mat.m32,
-                mat.m03, mat.m13, mat.m23, mat.m33
-            );
+            return mat;
         }
     }
 }

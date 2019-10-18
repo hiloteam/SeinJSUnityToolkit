@@ -24,6 +24,7 @@ namespace SeinJS
             if (go.GetComponent<SeinRigidBody>() == null)
             {
                 rigidBody = go.AddComponent<SeinRigidBody>();
+                rigidBody.sleeping = true;
             }
 
             var value = new JObject(
@@ -61,7 +62,7 @@ namespace SeinJS
                     tmp.Add("name", "box" + i);
                     tmp.Add("type", "BOX");
                     tmp.Add("offset", new JArray { center.x, center.y, center.z });
-                    tmp.Add("radius", new JArray { size.x, size.y, size.z });
+                    tmp.Add("size", new JArray { size.x, size.y, size.z });
                 }
                 else
                 {

@@ -133,6 +133,8 @@ GameObject:
   - component: {fileID: 68159248}
   - component: {fileID: 68159247}
   - component: {fileID: 68159246}
+  - component: {fileID: 68159251}
+  - component: {fileID: 68159250}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -212,6 +214,46 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &68159250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68159245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f9bf28e1f504983ac96821296a22a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mass: 1
+  friction: 0
+  restitution: 0
+  unControl: 0
+  physicStatic: 0
+  sleeping: 1
+--- !u!114 &68159251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68159245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c9c2a060d5234abf96a35acd112c9b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfType: 2
+  childrenType: 1
+  className: 
+  tag: 
+  layer: 268435455
+  persistent: 0
+  emitComponentsDestroy: 1
+  updateOnEverTick: 1
+  isStatic: 0
+  skipThisNode: 0
 --- !u!1 &343480384
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,6 +264,7 @@ GameObject:
   m_Component:
   - component: {fileID: 343480386}
   - component: {fileID: 343480385}
+  - component: {fileID: 343480387}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -303,6 +346,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 57.2, y: -105.4, z: -21.1}
+--- !u!114 &343480387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343480384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c9c2a060d5234abf96a35acd112c9b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfType: 2
+  childrenType: 1
+  className: 
+  tag: 
+  layer: 268435455
+  persistent: 0
+  emitComponentsDestroy: 1
+  updateOnEverTick: 1
+  isStatic: 0
+  skipThisNode: 0
 --- !u!1 &991739405
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,6 +380,8 @@ GameObject:
   - component: {fileID: 991739408}
   - component: {fileID: 991739407}
   - component: {fileID: 991739406}
+  - component: {fileID: 991739411}
+  - component: {fileID: 991739410}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -394,3 +461,43 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &991739410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991739405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02f9bf28e1f504983ac96821296a22a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mass: 1
+  friction: 0
+  restitution: 0
+  unControl: 0
+  physicStatic: 0
+  sleeping: 1
+--- !u!114 &991739411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991739405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c9c2a060d5234abf96a35acd112c9b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfType: 2
+  childrenType: 1
+  className: 
+  tag: 
+  layer: 268435455
+  persistent: 0
+  emitComponentsDestroy: 1
+  updateOnEverTick: 1
+  isStatic: 0
+  skipThisNode: 0
