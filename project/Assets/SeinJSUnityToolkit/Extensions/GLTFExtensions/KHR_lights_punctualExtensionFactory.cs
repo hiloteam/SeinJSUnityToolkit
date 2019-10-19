@@ -16,6 +16,7 @@ namespace SeinJS
     {
         public override string GetExtensionName() { return "KHR_lights_punctual"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(Light) }; }
+        public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Node, EExtensionType.Global }; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {

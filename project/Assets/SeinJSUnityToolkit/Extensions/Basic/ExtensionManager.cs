@@ -39,7 +39,9 @@ namespace SeinJS
 
             var name = factory.GetExtensionName();
             var components = factory.GetBindedComponents();
+            var types = factory.GetExtensionTypes();
             factory.ExtensionName = name;
+            factory.ExtensionTypes = types;
 
             if (Class2Extensions.ContainsKey(FactoryClass))
             {
@@ -98,6 +100,34 @@ namespace SeinJS
 
                 factory.Awake(entry);
                 factory.Serialize(entry, extensions, component);
+            }
+        }
+
+        public static void Import(string extensionName, GLTFRoot root, Extension extension) {
+            if (Name2Extensions.ContainsKey(extensionName))
+            {
+                Name2Extensions[extensionName].Import(root, extension);
+            }
+        }
+
+        public static void Import(string extensionName, GLTFRoot root, GameObject gameObject, Extension extension) {
+            if (Name2Extensions.ContainsKey(extensionName))
+            {
+                Name2Extensions[extensionName].Import(root, gameObject, extension);
+            }
+        }
+
+        public static void Import(string extensionName, GLTFRoot root, UnityEngine.Material material, Extension extension) {
+            if (Name2Extensions.ContainsKey(extensionName))
+            {
+                Name2Extensions[extensionName].Import(root, material, extension);
+            }
+        }
+
+        public static void Import(string extensionName, GLTFRoot root, UnityEngine.Mesh mesh, Extension extension) {
+            if (Name2Extensions.ContainsKey(extensionName))
+            {
+                Name2Extensions[extensionName].Import(root, mesh, extension);
             }
         }
     }

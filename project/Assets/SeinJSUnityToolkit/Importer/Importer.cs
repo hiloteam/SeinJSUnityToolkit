@@ -13,7 +13,7 @@ namespace SeinJS
 {
 	class GlTFImporter
 	{
-		GLTFEditorImporter _importer;
+		EditorImporter _importer;
 		private List<string> _unzippedFiles;
 
 		// Settings
@@ -24,9 +24,9 @@ namespace SeinJS
         bool _generateLightMapUvs = false;
         string _gltfInput;
 
-		public GlTFImporter(GLTFEditorImporter.ProgressCallback progressCallback, GLTFEditorImporter.RefreshWindow finishCallback)
+		public GlTFImporter(EditorImporter.ProgressCallback progressCallback, EditorImporter.RefreshWindow finishCallback)
 		{
-			_importer = new GLTFEditorImporter(progressCallback, finishCallback);
+			_importer = new EditorImporter(progressCallback, finishCallback);
 			_unzippedFiles = new List<string>();
 		}
 

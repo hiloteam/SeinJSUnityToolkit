@@ -314,39 +314,39 @@ namespace SeinJS
 			_importer.loadFromFile(_importFilePath);
 		}
 
-		public void UpdateProgress(GLTFEditorImporter.IMPORT_STEP step, int current, int total)
+		public void UpdateProgress(EditorImporter.IMPORT_STEP step, int current, int total)
 		{
 			string element = "";
 			switch (step)
 			{
-				case GLTFEditorImporter.IMPORT_STEP.BUFFER:
+				case EditorImporter.IMPORT_STEP.BUFFER:
 					element = "Buffer";
 					break;
-				case GLTFEditorImporter.IMPORT_STEP.IMAGE:
+				case EditorImporter.IMPORT_STEP.IMAGE:
 					element = "Image";
 					break;
-				case GLTFEditorImporter.IMPORT_STEP.TEXTURE:
+				case EditorImporter.IMPORT_STEP.TEXTURE:
 					element = "Texture";
 					break;
-				case GLTFEditorImporter.IMPORT_STEP.MATERIAL:
+				case EditorImporter.IMPORT_STEP.MATERIAL:
 					element = "Material";
 					break;
-				case GLTFEditorImporter.IMPORT_STEP.MESH:
+				case EditorImporter.IMPORT_STEP.MESH:
 					element = "Mesh";
 					break;
-                case GLTFEditorImporter.IMPORT_STEP.AUDIO:
+                case EditorImporter.IMPORT_STEP.AUDIO:
                     element = "AudioClips";
                     break;
-                case GLTFEditorImporter.IMPORT_STEP.NODE:
+                case EditorImporter.IMPORT_STEP.NODE:
 					element = "Node";
 					break;
-				case GLTFEditorImporter.IMPORT_STEP.ANIMATION:
+				case EditorImporter.IMPORT_STEP.ANIMATION:
 					element = "Animation";
 					break;
-				case GLTFEditorImporter.IMPORT_STEP.SKIN:
+				case EditorImporter.IMPORT_STEP.SKIN:
 					element = "Skin";
 					break;
-                case GLTFEditorImporter.IMPORT_STEP.SKINNEDMESH:
+                case EditorImporter.IMPORT_STEP.SKINNEDMESH:
                     element = "SkinnedMesh";
                     break;
             }

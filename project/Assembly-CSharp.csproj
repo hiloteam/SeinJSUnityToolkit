@@ -10,7 +10,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{7CA597AC-799E-2D81-E8A0-0EA9A568434E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -121,7 +122,7 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\AssetCache.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\MaterialCacheData.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\MeshCacheData.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\GLTFEditorImporter.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Importer\EditorImporter.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Importer.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\ImporterWindow.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Resizer.cs" />

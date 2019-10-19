@@ -57,7 +57,7 @@ namespace SeinJS
                     }
 
                     l.Add("specular", new JObject(
-                        new JProperty("type", "Cube"),
+                        new JProperty("type", "CUBE"),
                         new JProperty("intensity", light.specIntensity),
                         new JProperty("brdfLUT", light.brdfLUT),
                         new JProperty("faces", JArray.FromObject(light.specMapFaces))

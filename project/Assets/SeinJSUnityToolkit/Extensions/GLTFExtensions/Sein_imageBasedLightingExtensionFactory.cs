@@ -20,6 +20,7 @@ namespace SeinJS
     public class Sein_imageBasedLightingExtensionFactory : SeinExtensionFactory
     {
         public override string GetExtensionName() { return "Sein_imageBasedLighting"; }
+        public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global, EExtensionType.Material }; }
         private static Texture2D brdfLUT;
 
         private Dictionary<Cubemap, int> _cache = new Dictionary<Cubemap, int>();

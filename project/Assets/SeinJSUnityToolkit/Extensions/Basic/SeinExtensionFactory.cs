@@ -11,9 +11,23 @@ using System.Collections.Generic;
 
 namespace SeinJS
 {
+    public enum EExtensionType
+    {
+        Node,
+        Material,
+        Mesh,
+        Image,
+        Texture,
+        Accessor,
+        BufferView,
+        Buffer,
+        Global
+    }
+
 	public abstract class SeinExtensionFactory: ExtensionFactory
 	{
         public List<Type> BindedComponents;
+        public List<EExtensionType> ExtensionTypes;
 
         public virtual string GetExtensionName()
         {
@@ -22,6 +36,11 @@ namespace SeinJS
 
         public virtual List<Type> GetBindedComponents() {
             return new List<Type>();
+        }
+
+        public virtual List<EExtensionType> GetExtensionTypes()
+        {
+            return new List<EExtensionType> { EExtensionType.Node };
         }
 
         public virtual void BeforeExport()
@@ -47,6 +66,6 @@ namespace SeinJS
         public virtual void Import(GLTFRoot root, Extension extension) { }
         public virtual void Import(GLTFRoot root, GameObject gameObject, Extension extension) { }
         public virtual void Import(GLTFRoot root, UnityEngine.Material material, Extension extension) { }
-        public virtual void Import(GLTFRoot root, UnityEngine.Mesh material, Extension extension) { }
+        public virtual void Import(GLTFRoot root, UnityEngine.Mesh mesh, Extension extension) { }
     }
 }

@@ -17,7 +17,7 @@ namespace SeinJS
     /// Editor windows to load a GLTF scene in editor
     /// </summary>
     ///
-    public class GLTFEditorImporter
+    public class EditorImporter
 	{
         protected class MeshAttrsTemp
         {
@@ -94,7 +94,7 @@ namespace SeinJS
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		public GLTFEditorImporter()
+		public EditorImporter()
 		{
 			Initialize();
 		}
@@ -103,7 +103,7 @@ namespace SeinJS
 		/// Constructors setting the delegate function to call after each iteration
 		/// </summary>
 		/// <param name="delegateFunction">The function to call after each iteration (usually Repaint())</param>
-		public GLTFEditorImporter(ProgressCallback progressCallback, RefreshWindow finish=null)
+		public EditorImporter(ProgressCallback progressCallback, RefreshWindow finish=null)
 		{
 			_progressCallback = progressCallback;
 			_finishCallback = finish;
