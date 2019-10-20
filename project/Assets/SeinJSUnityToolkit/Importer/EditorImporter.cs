@@ -228,9 +228,12 @@ namespace SeinJS
 				LoadMaterialsEnum();
 
             var extensions = _root.Extensions;
-            if (extensions != null && extensions.ContainsKey("Sein_audioClips"))
+            if (extensions != null)
             {
-                LoadAudioClipsEnum();
+                foreach (var extension in extensions)
+                {
+                    ExtensionManager.Import(extension.Key, _root, extension.Value);
+                }
             }
 
             LoadMeshesEnum();
@@ -429,7 +432,17 @@ namespace SeinJS
 
 			source.filterMode = desiredFilterMode;
 			source.wrapMode = desiredWrapMode;
-			_assetManager.registerTexture(source);
+
+            var extensions = def.Extensions;
+            if (extensions != null)
+            {
+                foreach (var extension in extensions)
+                {
+                    ExtensionManager.Import(extension.Key, _root, source, extension.Value);
+                }
+            }
+
+            _assetManager.registerTexture(source);
 		}
 
         private IEnumerator LoadAudioClips()
@@ -484,13 +497,42 @@ namespace SeinJS
 		{
 			for(int i = 0; i < _root.Materials.Count; ++i)
 			{
-				CreateUnityMaterial(_root.Materials[i], i);
-				setProgress(IMPORT_STEP.MATERIAL, (i + 1), _root.Materials.Count);
+                var mat = _root.Materials[i];
+                UnityEngine.Material material;
+                var extensions = mat.Extensions;
+                var cmeName = ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory));
+
+                if (extensions != null && extensions.ContainsKey(cmeName))
+                {
+                    material = new UnityEngine.Material(Shader.Find("Sein/PBR"));
+                    ExtensionManager.Import(cmeName, _root, material, extensions[cmeName]);
+                }
+                else
+                {
+                    material = CreateUnityMaterial(mat, i);
+                }
+
+                if (extensions != null)
+                {
+                    foreach (var extension in extensions)
+                    {
+                        if (extension.Key != "KHR_materials_pbrSpecularGlossiness" && extension.Key != cmeName)
+                        {
+                            ExtensionManager.Import(extension.Key, _root, material, extension.Value);
+                        }
+                    }
+                }
+
+                material = _assetManager.saveMaterial(material, i);
+                _assetManager._parsedMaterials.Add(material);
+                material.hideFlags = HideFlags.None;
+
+                setProgress(IMPORT_STEP.MATERIAL, (i + 1), _root.Materials.Count);
 				yield return null;
 			}
 		}
 
-		protected virtual void CreateUnityMaterial(GLTF.Schema.Material def, int materialIndex)
+		protected virtual UnityEngine.Material CreateUnityMaterial(GLTF.Schema.Material def, int materialIndex)
 		{
             Extension specularGlossinessExtension = null;
 			bool isSpecularPBR = def.Extensions != null && def.Extensions.TryGetValue("KHR_materials_pbrSpecularGlossiness", out specularGlossinessExtension);
@@ -638,9 +680,8 @@ namespace SeinJS
 			}
 
 			material.SetColor("_emission", isLinear ? def.EmissiveFactor.ToUnityColor().gamma : def.EmissiveFactor.ToUnityColor());
-			material = _assetManager.saveMaterial(material, materialIndex);
-			_assetManager._parsedMaterials.Add(material);
-			material.hideFlags = HideFlags.None;
+
+            return material;
 		}
 
 		public UnityEngine.Texture2D combineMetalRoughOcclusionTexture(Texture2D metalRoughnessTexture, Texture2D occlusionTexture)
@@ -841,6 +882,15 @@ namespace SeinJS
             mainMesh.RecalculateBounds();
             mainMesh.RecalculateTangents();
             mainMesh = _assetManager.saveMesh(mainMesh, mesh.Name + "-" + meshId);
+
+            var extensions = mesh.Extensions;
+            if (extensions != null)
+            {
+                foreach (var extension in extensions)
+                {
+                    ExtensionManager.Import(extension.Key, _root, mainMesh, extension.Value);
+                }
+            }
 
             _assetManager.addPrimitiveMeshData(meshId, mainMesh, attrs.materials);
         }
@@ -1329,7 +1379,14 @@ namespace SeinJS
                 }
             }
 
-            processSeinComponents(nodeObj, node);
+            var extensions = node.Extensions;
+            if (extensions != null)
+            {
+                foreach (var extension in extensions)
+                {
+                    ExtensionManager.Import(extension.Key, _root, nodeObj, extension.Value);
+                }
+            }
 
 			if (node.Children != null)
 			{

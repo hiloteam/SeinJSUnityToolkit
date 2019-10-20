@@ -130,6 +130,14 @@ namespace SeinJS
                 Name2Extensions[extensionName].Import(root, mesh, extension);
             }
         }
+
+        public static void Import(string extensionName, GLTFRoot root, Texture2D texture, Extension extension)
+        {
+            if (Name2Extensions.ContainsKey(extensionName))
+            {
+                Name2Extensions[extensionName].Import(root, texture, extension);
+            }
+        }
     }
 }
 

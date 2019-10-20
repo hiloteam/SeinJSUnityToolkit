@@ -64,5 +64,20 @@ namespace SeinJS
 
             return extension;
         }
+
+        public override void Import(GLTFRoot root, GameObject gameObject, Extension extension)
+        {
+            var n = (Sein_nodeExtension)extension;
+            var seinNode = gameObject.AddComponent<SeinNode>();
+            seinNode.selfType = n.selfType;
+            seinNode.className = n.className;
+            seinNode.tag = n.tag;
+            seinNode.layer = n.layer;
+            seinNode.persistent = n.persistent;
+            seinNode.emitComponentsDestroy = n.emitComponentsDestroy;
+            seinNode.updateOnEverTick = n.updateOnEverTick;
+            seinNode.isStatic = n.isStatic;
+            seinNode.skipThisNode = n.skipThisNode;
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace SeinJS
         Mesh,
         Image,
         Texture,
+        Animation,
         Accessor,
         BufferView,
         Buffer,
@@ -67,5 +68,6 @@ namespace SeinJS
         public virtual void Import(GLTFRoot root, GameObject gameObject, Extension extension) { }
         public virtual void Import(GLTFRoot root, UnityEngine.Material material, Extension extension) { }
         public virtual void Import(GLTFRoot root, UnityEngine.Mesh mesh, Extension extension) { }
+        public virtual void Import(GLTFRoot root, Texture2D texture, Extension extension) { }
     }
 }
