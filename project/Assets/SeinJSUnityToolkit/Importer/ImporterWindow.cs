@@ -308,50 +308,20 @@ namespace SeinJS
                 {
                     return;
                 }
+
+                foreach (var dir in new DirectoryInfo(_importDirectory).GetDirectories())
+                {
+                    FileUtil.DeleteFileOrDirectory(dir.FullName);
+                }
             }
 
             _importer.configure(_importDirectory, _currentSampleName, _addToCurrentScene, _generateLightMapUvs);
 			_importer.loadFromFile(_importFilePath);
 		}
 
-		public void UpdateProgress(EditorImporter.IMPORT_STEP step, int current, int total)
+		public void UpdateProgress(string step, int current, int total)
 		{
-			string element = "";
-			switch (step)
-			{
-				case EditorImporter.IMPORT_STEP.BUFFER:
-					element = "Buffer";
-					break;
-				case EditorImporter.IMPORT_STEP.IMAGE:
-					element = "Image";
-					break;
-				case EditorImporter.IMPORT_STEP.TEXTURE:
-					element = "Texture";
-					break;
-				case EditorImporter.IMPORT_STEP.MATERIAL:
-					element = "Material";
-					break;
-				case EditorImporter.IMPORT_STEP.MESH:
-					element = "Mesh";
-					break;
-                case EditorImporter.IMPORT_STEP.AUDIO:
-                    element = "AudioClips";
-                    break;
-                case EditorImporter.IMPORT_STEP.NODE:
-					element = "Node";
-					break;
-				case EditorImporter.IMPORT_STEP.ANIMATION:
-					element = "Animation";
-					break;
-				case EditorImporter.IMPORT_STEP.SKIN:
-					element = "Skin";
-					break;
-                case EditorImporter.IMPORT_STEP.SKINNEDMESH:
-                    element = "SkinnedMesh";
-                    break;
-            }
-
-			EditorUtility.DisplayProgressBar("Importing glTF", "Importing " + element + " (" + current + " / " + total + ")", (float)current / (float)total);
+			EditorUtility.DisplayProgressBar("Importing glTF", "Importing " + step[0] + step.Substring(1).ToLower() + " (" + current + " / " + total + ")", (float)current / (float)total);
 			this.Repaint();
 		}
 

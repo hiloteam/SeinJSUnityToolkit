@@ -41,5 +41,12 @@ namespace SeinJS
 
             return extension;
         }
+
+        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        {
+            var source = (Sein_audioListenerExtension)extension;
+            var audioSource = gameObject.AddComponent<SeinAudioListener>();
+            audioSource.rotatable = source.rotatable;
+        }
     }
 }

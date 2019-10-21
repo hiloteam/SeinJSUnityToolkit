@@ -105,5 +105,24 @@ namespace SeinJS
 
             return extension;
         }
+
+        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        {
+            var source = (Sein_audioSourceExtension)extension;
+            var audioSource = gameObject.AddComponent<SeinAudioSource>();
+            audioSource.defaultClip = source.defaultClip;
+            audioSource.needAutoPlay = source.needAutoPlay;
+            audioSource.isSpaceAudio = source.isSpaceAudio;
+            audioSource.autoPlayOptions = source.autoPlayOptions;
+            audioSource.spaceOptions = source.spaceOptions;
+            audioSource.clips = new SeinAudioOneClip[source.clips.Count];
+            for (int i = 0; i < source.clips.Count; i += 1)
+            {
+                var clip = new SeinAudioOneClip();
+                clip.name = source.clips[i].Key;
+                clip.clip = Sein_audioClipsExtensionFactory.IMPORTED_CLIPS[source.clips[i].Value];
+                audioSource.clips[i] = clip;
+            }
+        }
     }
 }

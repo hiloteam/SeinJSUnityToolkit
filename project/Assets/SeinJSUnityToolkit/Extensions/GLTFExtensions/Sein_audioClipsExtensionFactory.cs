@@ -14,17 +14,20 @@ using GLTF.Schema;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Collections;
 
 namespace SeinJS
 {
     public class Sein_audioClipsExtensionFactory : SeinExtensionFactory
     {
         public override string GetExtensionName() { return "Sein_audioClips"; }
-        private static Dictionary<ExporterEntry, List<SeinAudioClip>> ENTRY_CLIPS = new Dictionary<ExporterEntry, List<SeinAudioClip>>();
-        private static Dictionary<ExporterEntry, Dictionary<AudioClip, string>> ENTRY_URIS = new Dictionary<ExporterEntry, Dictionary<AudioClip, string>>();
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global }; }
 
-        public const string CLIPS = "clips";
+        private static Dictionary<ExporterEntry, List<SeinAudioClip>> ENTRY_CLIPS = new Dictionary<ExporterEntry, List<SeinAudioClip>>();
+        private static Dictionary<ExporterEntry, Dictionary<AudioClip, string>> ENTRY_URIS = new Dictionary<ExporterEntry, Dictionary<AudioClip, string>>();
+
+        public static List<string> IMPORTED_URIS = new List<string>();
+        public static List<SeinAudioClip> IMPORTED_CLIPS = new List<SeinAudioClip>();
 
         public static int GetClipIndex(ExporterEntry entry, SeinAudioClip clip)
         {
@@ -35,6 +38,12 @@ namespace SeinJS
         {
             ENTRY_CLIPS.Clear();
             ENTRY_URIS.Clear();
+        }
+
+        public override void BeforeImport()
+        {
+            IMPORTED_CLIPS.Clear();
+            IMPORTED_URIS.Clear();
         }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
@@ -116,7 +125,7 @@ namespace SeinJS
 
             if (extensionToken != null)
             {
-                var clipsToken = extensionToken.Value[CLIPS];
+                var clipsToken = extensionToken.Value["clips"];
 
                 foreach (var clipToken in clipsToken)
                 {
@@ -135,6 +144,83 @@ namespace SeinJS
             }
 
             return new Sein_audioClipsExtension { clips = clips };
+        }
+
+        public override void Import(EditorImporter importer, Extension extension)
+        {
+            importer.taskManager.addTask(LoadClips(importer, (Sein_audioClipsExtension)extension));
+        }
+
+        private IEnumerator LoadClips(EditorImporter importer, Sein_audioClipsExtension extension)
+        {
+            var clips = extension.clips;
+            var basePath = Path.Combine(Config.GetImportPath(), "audios");
+            Directory.CreateDirectory(basePath);
+            int i = 0;
+
+            foreach (var clip in clips)
+            {
+                LoadClip(clip, importer.gltfDirectoryPath, basePath, i);
+                importer.SetProgress("AUDIO", (i + 1), clips.Count);
+                i += 1;
+
+                yield return null;
+            }
+        }
+
+        private void LoadClip(Sein_audioClipsExtension.AudioClip clip, string gltfPath, string basePath, int i)
+        {
+            var uri = Path.Combine(gltfPath, clip.uri);
+            if (clip.uri != null && File.Exists(uri))
+            {
+                var tmp = clip.uri.Split('/');
+                var name = tmp[tmp.Length - 1];
+
+                if (clip.name != null)
+                {
+                    name = clip.name;
+                }
+
+                var path = Path.Combine(basePath, name);
+
+                if (File.Exists(path))
+                {
+                    if (!IMPORTED_URIS.Contains(clip.uri))
+                    {
+                        name = Path.GetFileNameWithoutExtension(name) + "-" + i + Path.GetExtension(name);
+                        path = Path.Combine(basePath, name);
+                        FileUtil.CopyFileOrDirectory(uri, path);
+                        IMPORTED_URIS.Add(clip.uri);
+                    }
+                }
+                else
+                {
+                    FileUtil.CopyFileOrDirectory(uri, path);
+                    IMPORTED_URIS.Add(clip.uri);
+                }
+
+                AssetDatabase.Refresh();
+                var unityClip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+
+                var directory = GLTFUtils.getPathProjectFromAbsolute(basePath);
+                path = Path.Combine(directory, name + ".asset");
+                var seinClip = ScriptableObject.CreateInstance<SeinAudioClip>();
+                seinClip.clip = unityClip;
+                seinClip.mode = clip.mode;
+                seinClip.isLazy = clip.isLazy;
+
+                AssetDatabase.CreateAsset(seinClip, path);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+
+                seinClip = AssetDatabase.LoadAssetAtPath<SeinAudioClip>(path);
+
+                IMPORTED_CLIPS.Add(seinClip);
+            }
+            else
+            {
+                Debug.LogWarning("Audio clip not found");
+            }
         }
     }
 }

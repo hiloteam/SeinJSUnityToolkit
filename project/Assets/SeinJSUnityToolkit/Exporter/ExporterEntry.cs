@@ -200,6 +200,12 @@ namespace SeinJS
             root.Meshes.Add(m);
             var id = new MeshId { Id = root.Meshes.Count - 1, Root = root };
 
+            if (!_mesh2Id.ContainsKey(mesh))
+            {
+                _mesh2Id.Add(mesh, new Dictionary<string, MeshId>());
+            }
+            _mesh2Id[mesh].Add(materialsId, id);
+
             return new Pair<MeshId, bool>(id, true);
         }
 
@@ -261,6 +267,8 @@ namespace SeinJS
             {
                 attr.Value.Value.Name += "-" + attr.Key;
             }
+
+            _mesh2attrs.Add(mesh, attrs);
 
             return attrs;
         }
@@ -333,6 +341,8 @@ namespace SeinJS
                 }
             }
 
+            _mesh2targets.Add(mesh, targets);
+
             return targets;
         }
 
@@ -360,6 +370,13 @@ namespace SeinJS
                 bufferView
             );
             primitive.Indices.Value.Name += "-" + i;
+
+            if (!_mesh2indices.ContainsKey(mesh))
+            {
+                _mesh2indices.Add(mesh, new Dictionary<int, AccessorId>());
+            }
+
+            _mesh2indices[mesh].Add(i, primitive.Indices);
         }
 
         private int GetBufferLength(UnityEngine.Mesh mesh)
@@ -435,10 +452,18 @@ namespace SeinJS
                 root.Materials = new List<GLTF.Schema.Material>();
             }
 
+            var mid = material.GetInstanceID();
+            if (_material2ID.ContainsKey(mid))
+            {
+                return _material2ID[mid];
+            }
+
 			var mat = ExporterUtils.ConvertMaterial(material, this);
 			root.Materials.Add(mat);
 
 			var id = new MaterialId { Id = root.Materials.Count - 1, Root = root };
+            _material2ID.Add(mid, id);
+
 			return id;
 		}
 
@@ -856,7 +881,6 @@ namespace SeinJS
                 root.Animations = new List<GLTF.Schema.Animation>();
             }
 
-            var node = tr2node[tr];
             AnimationClip[] clips = null;
             string defaultClip = null;
 
@@ -867,8 +891,7 @@ namespace SeinJS
             }
             else if (tr.GetComponent<UnityEngine.Animation>())
             {
-                clips = new AnimationClip[] { tr.GetComponent<UnityEngine.Animation>().clip };
-                defaultClip = clips[0].name;
+                throw new Exception("Never support Unity.Animation component now, use Unity.Animator to instead of it !");
             }
 
             if (clips == null)
@@ -883,15 +906,15 @@ namespace SeinJS
             }
             animator.modelAnimations = new string[clips.Length];
             animator.prefixes = new string[clips.Length];
-
+            animator.name = tr.GetComponent<Animator>().runtimeAnimatorController.name;
             animator.defaultAnimation = defaultClip;
 
             for (int i = 0; i < clips.Length; i++)
             {
-                var prefix = clips.GetHashCode().ToString();
                 var clip = clips[i];
+                var prefix = clip.GetHashCode().ToString();
 
-                var anim = SaveAnimationClip(tr, clip, prefix);
+                SaveAnimationClip(tr, clip, prefix);
 
                 animator.modelAnimations[i] = clip.name;
                 animator.prefixes[i] = prefix;

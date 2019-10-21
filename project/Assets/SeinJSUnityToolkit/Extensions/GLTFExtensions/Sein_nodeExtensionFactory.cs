@@ -65,7 +65,7 @@ namespace SeinJS
             return extension;
         }
 
-        public override void Import(GLTFRoot root, GameObject gameObject, Extension extension)
+        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
         {
             var n = (Sein_nodeExtension)extension;
             var seinNode = gameObject.AddComponent<SeinNode>();

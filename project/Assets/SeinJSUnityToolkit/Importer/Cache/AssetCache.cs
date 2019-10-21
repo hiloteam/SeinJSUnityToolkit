@@ -34,8 +34,6 @@ namespace UnityGLTF.Cache
 		/// </summary>
 		public List<MeshCacheData[]> MeshCache { get; private set; }
 
-        public SeinAudioClip[] AudioClipCache { get; private set; }
-
         /// <summary>
         /// Creates an asset cache which caches objects used in scene
         /// </summary>
@@ -58,17 +56,11 @@ namespace UnityGLTF.Cache
 			MaterialCache = new MaterialCacheData[materialCacheSize];
 			BufferCache = new Dictionary<int, byte[]>(bufferCacheSize);
 			MeshCache = new List<MeshCacheData[]>(meshCacheSize);
-            AudioClipCache = null;
 			for(int i = 0; i < meshCacheSize; ++i)
 			{
 				MeshCache.Add(null);
 			}
 		}
-
-        public void InitAudioClips(int size)
-        {
-            AudioClipCache = new SeinAudioClip[size];
-        }
 
         public void Dispose()
 		{
@@ -77,7 +69,6 @@ namespace UnityGLTF.Cache
 			MaterialCache = null;
 			BufferCache.Clear();
 			MeshCache = null;
-            AudioClipCache = null;
 		}
 	}
 }

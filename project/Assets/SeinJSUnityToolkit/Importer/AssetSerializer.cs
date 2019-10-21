@@ -16,7 +16,6 @@ namespace SeinJS
         protected string _importMaterialsDirectory;
         protected string _importTexturesDirectory;
         protected string _importAnimationDirectory;
-        protected string _importAudioClipDirectory;
         public List<string> _generatedFiles;
 
         // Import data
@@ -59,12 +58,6 @@ namespace SeinJS
         {
             _importAnimationDirectory = Path.Combine(_importDirectory, "animations");
             Directory.CreateDirectory(_importAnimationDirectory);
-        }
-
-        private void createAudioClipDirectory()
-        {
-            _importAudioClipDirectory = Path.Combine(_importDirectory, "audios");
-            Directory.CreateDirectory(_importAudioClipDirectory);
         }
 
         public void softClean()
@@ -238,43 +231,6 @@ namespace SeinJS
             return tex;
         }
 
-        public SeinAudioClip copyAndRegisterAudioClipInProject(Sein_audioClipsExtension.AudioClip clip, int id)
-        {
-            if (_importAudioClipDirectory == null)
-            {
-                createAudioClipDirectory();
-            }
-
-            string directory = GLTFUtils.getPathProjectFromAbsolute(_importAudioClipDirectory);
-            var tmp = clip.name.Split('.');
-            var name = tmp[0] + "_" + id;
-            string path = directory + "/" + name + "." + tmp[1];
-            if (File.Exists(path))
-            {
-                FileUtil.ReplaceFile(clip.uri, path);
-            }
-            else
-            {
-                FileUtil.CopyFileOrDirectory(clip.uri, path);
-            }
-            AssetDatabase.Refresh();
-            var unityClip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
-
-            path = directory + "/" + name + ".asset";
-            var seinClip = ScriptableObject.CreateInstance<SeinAudioClip>();
-            seinClip.clip = unityClip;
-            seinClip.mode = clip.mode;
-            seinClip.isLazy = clip.isLazy;
-
-            AssetDatabase.CreateAsset(seinClip, path);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            seinClip = AssetDatabase.LoadAssetAtPath<SeinAudioClip>(path);
-
-            return seinClip;
-        }
-
         public void serializeAsset(Object asset, string projectPath, string fullPath, bool overrideFile = true)
         {
             if (overrideFile == true && File.Exists(fullPath))
@@ -308,8 +264,24 @@ namespace SeinJS
                 createAnimationDirectory();
             }
 
-            string directory = GLTFUtils.getPathProjectFromAbsolute(_importAnimationDirectory);
-            string path = directory + "/" + clip.name + ".anim";
+            var directory = GLTFUtils.getPathProjectFromAbsolute(_importAnimationDirectory);
+            var path = directory + "/" + clip.name + ".anim";
+
+            if (File.Exists(path))
+            {
+                int i = 1;
+                while (true)
+                {
+                    var newDir = directory + "/" + i;
+                    path = newDir + "/" + clip.name + ".anim";
+
+                    if (!Directory.Exists(newDir) || !File.Exists(path))
+                    {
+                        break;
+                    }
+                }
+            }
+
             AssetDatabase.CreateAsset(clip, path);
             AssetDatabase.Refresh();
 
@@ -327,7 +299,7 @@ namespace SeinJS
 
             foreach (var clip in clips)
             {
-                Motion motion = (Motion)clip as Motion;
+                Motion motion = (Motion)clip;
                 controller.AddMotion(motion);
             }
 
@@ -356,10 +328,13 @@ namespace SeinJS
             if (File.Exists(fullPath))
             {
                 var list = new List<GameObjectAndPath>();
-                var temp = new List<GameObjectAndPath> { new GameObjectAndPath {
-                path = new List<string>(),
-                obj = sceneObject
-            }};
+                var temp = new List<GameObjectAndPath> {
+                    new GameObjectAndPath {
+                        path = new List<string>(),
+                        obj = sceneObject
+                    }
+                };
+
                 var children = new List<GameObjectAndPath>();
 
                 var prefabResPath = prefabPathInProject.Replace("Assets/Resources/", "").Replace(".prefab", "");
@@ -415,15 +390,9 @@ namespace SeinJS
                 AssetDatabase.Refresh();
             }
 
-            var animator = sceneObject.GetComponent<Animator>();
-            if (animator)
+            if (sceneObject.GetComponent<Animator>() == null && _animatorController)
             {
-                Object.DestroyImmediate(animator);
-            }
-
-            if (_animatorController)
-            {
-                animator = sceneObject.AddComponent<Animator>();
+                var animator = sceneObject.AddComponent<Animator>();
                 animator.runtimeAnimatorController = _animatorController;
             }
 

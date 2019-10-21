@@ -33,6 +33,7 @@ namespace SeinJS
                 new JProperty("className", className),
                 new JProperty("tag", tag),
                 new JProperty("layer", layer),
+                new JProperty("persistent", persistent),
                 new JProperty("emitComponentsDestroy", emitComponentsDestroy),
                 new JProperty("updateOnEverTick", updateOnEverTick),
                 new JProperty("isStatic", isStatic),

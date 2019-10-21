@@ -11,8 +11,11 @@ using UnityEditor;
 public class SeinAnimator : MonoBehaviour
 {
     [HideInInspector]
+    public new string name;
+    [HideInInspector]
     public string[] modelAnimations;
     [HideInInspector]
     public string defaultAnimation;
+    [HideInInspector]
     public string[] prefixes;
 }

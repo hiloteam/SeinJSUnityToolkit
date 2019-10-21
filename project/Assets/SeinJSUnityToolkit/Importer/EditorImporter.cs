@@ -67,34 +67,50 @@ namespace SeinJS
 		Dictionary<int, List<SkinnedMeshRenderer>>_skinIndexToGameObjects;
         Dictionary<Node, GameObject> _skinObjectsStore = new Dictionary<Node, GameObject>();
 
-        // Import Progress
-        public enum IMPORT_STEP
-		{
-			READ_FILE,
-			BUFFER,
-			IMAGE,
-            AUDIO,
-			TEXTURE,
-			MATERIAL,
-			MESH,
-			NODE,
-			ANIMATION,
-			SKIN,
-            SKINNEDMESH
-		}
-
 		public delegate void RefreshWindow();
-		public delegate void ProgressCallback(IMPORT_STEP step, int current, int total);
+		public delegate void ProgressCallback(string step, int current, int total);
 
 		private RefreshWindow _finishCallback;
 		private ProgressCallback _progressCallback;
 
 		protected const string Base64StringInitializer = "^data:[a-z-]+/[a-z-]+;base64,";
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		public EditorImporter()
+        public GLTFRoot root
+        {
+            get
+            {
+                return _root;
+            }
+        }
+
+        public string gltfDirectoryPath
+        {
+            get
+            {
+                return _gltfDirectoryPath;
+            }
+        }
+
+        public string importDirectoryPath
+        {
+            get
+            {
+                return _projectDirectoryPath;
+            }
+        }
+
+        public TaskManager taskManager
+        {
+            get
+            {
+                return _taskManager;
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public EditorImporter()
 		{
 			Initialize();
 		}
@@ -174,6 +190,7 @@ namespace SeinJS
 			_isDone = false;
 			_userStopped = false;
 			_useGLTFMaterial = useGLTFMaterial;
+            ExtensionManager.BeforeImport();
 			LoadFile();
 			LoadGLTFScene();
 		}
@@ -232,7 +249,7 @@ namespace SeinJS
             {
                 foreach (var extension in extensions)
                 {
-                    ExtensionManager.Import(extension.Key, _root, extension.Value);
+                    ExtensionManager.Import(extension.Key, this, extension.Value);
                 }
             }
 
@@ -246,6 +263,8 @@ namespace SeinJS
 
 			if (_root.Skins != null && _root.Skins.Count > 0)
 				LoadSkinsEnum();
+
+            LoadNodesExtensionsEnum();
 		}
 
 		private void LoadBuffersEnum()
@@ -273,11 +292,6 @@ namespace SeinJS
 			_taskManager.addTask(LoadMeshes());
 		}
 
-        private void LoadAudioClipsEnum()
-        {
-            _taskManager.addTask(LoadAudioClips());
-        }
-
         private void LoadSceneEnum()
 		{
 			_taskManager.addTask(LoadScene());
@@ -298,12 +312,17 @@ namespace SeinJS
 			_taskManager.addTask(LoadSkins());
 		}
 
+        private void LoadNodesExtensionsEnum()
+        {
+            _taskManager.addTask(LoadNodesExtensions());
+        }
+
 		private IEnumerator LoadBuffers()
 		{
 			if (_root.Buffers != null)
 			{
 				// todo add fuzzing to verify that buffers are before uri
-				setProgress(IMPORT_STEP.BUFFER, 0, _root.Buffers.Count);
+				SetProgress("BUFFER", 0, _root.Buffers.Count);
 				for (int i = 0; i < _root.Buffers.Count; ++i)
 				{
 					GLTF.Schema.Buffer buffer = _root.Buffers[i];
@@ -317,7 +336,7 @@ namespace SeinJS
 						GLTFParser.ExtractBinaryChunk(_glTFData, i, out glbBuffer);
 						_assetCache.BufferCache[i] = glbBuffer;
 					}
-					setProgress(IMPORT_STEP.BUFFER, (i + 1), _root.Buffers.Count);
+					SetProgress("BUFFER", (i + 1), _root.Buffers.Count);
 					yield return null;
 				}
 			}
@@ -341,7 +360,7 @@ namespace SeinJS
 			{
 				Image image = _root.Images[i];
 				LoadImage(_gltfDirectoryPath, image, i);
-				setProgress(IMPORT_STEP.IMAGE, (i + 1), _root.Images.Count);
+				SetProgress("IMAGE", (i + 1), _root.Images.Count);
 				yield return null;
 			}
 		}
@@ -392,7 +411,7 @@ namespace SeinJS
 			for(int i = 0; i < _root.Textures.Count; ++i)
 			{
 				SetupTexture(_root.Textures[i], i);
-				setProgress(IMPORT_STEP.TEXTURE, (i + 1), _root.Textures.Count);
+				SetProgress("TEXTURE", (i + 1), _root.Textures.Count);
 				yield return null;
 			}
 		}
@@ -438,60 +457,12 @@ namespace SeinJS
             {
                 foreach (var extension in extensions)
                 {
-                    ExtensionManager.Import(extension.Key, _root, source, extension.Value);
+                    ExtensionManager.Import(extension.Key, this, source, extension.Value);
                 }
             }
 
             _assetManager.registerTexture(source);
 		}
-
-        private IEnumerator LoadAudioClips()
-        {
-            var extensions = _root.Extensions;
-            var extension = (Sein_audioClipsExtension)extensions["Sein_audioClips"];
-            var clips = extension.clips;
-            _assetCache.InitAudioClips(clips.Count);
-
-            for (int i = 0; i < clips.Count; ++i)
-            {
-                var clip = clips[i];
-                LoadAudioClip(_gltfDirectoryPath, clip, i);
-                setProgress(IMPORT_STEP.AUDIO, (i + 1), clips.Count);
-                yield return null;
-            }
-        }
-
-        private void LoadAudioClip(string rootPath, Sein_audioClipsExtension.AudioClip clip, int clipID)
-        {
-            if (_assetCache.AudioClipCache[clipID] == null)
-            {
-                if (clip.uri != null)
-                {
-                    // Is base64 uri ?
-                    var uri = clip.uri;
-
-                    //Regex regex = new Regex(Base64StringInitializer);
-                    //Match match = regex.Match(uri);
-                    //if (match.Success)
-                    //{
-                    //    var base64Data = uri.Substring(match.Length);
-                    //    var clipData = Convert.FromBase64String(base64Data);
-
-                    //    _assetManager.registerImageFromData(clipData, clip, clipID);
-                    //}
-                    //else 
-                    if (File.Exists(Path.Combine(rootPath, uri))) // File is a real file
-                    {
-                        clip.uri = Path.Combine(rootPath, uri);
-                        _assetCache.AudioClipCache[clipID] = _assetManager.copyAndRegisterAudioClipInProject(clip, clipID);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Audio clip not found");
-                    }
-                }
-            }
-        }
 
         private IEnumerator LoadMaterials()
 		{
@@ -505,7 +476,7 @@ namespace SeinJS
                 if (extensions != null && extensions.ContainsKey(cmeName))
                 {
                     material = new UnityEngine.Material(Shader.Find("Sein/PBR"));
-                    ExtensionManager.Import(cmeName, _root, material, extensions[cmeName]);
+                    ExtensionManager.Import(cmeName, this, material, extensions[cmeName]);
                 }
                 else
                 {
@@ -518,7 +489,7 @@ namespace SeinJS
                     {
                         if (extension.Key != "KHR_materials_pbrSpecularGlossiness" && extension.Key != cmeName)
                         {
-                            ExtensionManager.Import(extension.Key, _root, material, extension.Value);
+                            ExtensionManager.Import(extension.Key, this, material, extension.Value);
                         }
                     }
                 }
@@ -527,7 +498,7 @@ namespace SeinJS
                 _assetManager._parsedMaterials.Add(material);
                 material.hideFlags = HideFlags.None;
 
-                setProgress(IMPORT_STEP.MATERIAL, (i + 1), _root.Materials.Count);
+                SetProgress("MATERIAL", (i + 1), _root.Materials.Count);
 				yield return null;
 			}
 		}
@@ -765,7 +736,7 @@ namespace SeinJS
 			for(int i = 0; i < _root.Meshes.Count; ++i)
 			{
 				CreateMeshObject(_root.Meshes[i], i);
-				setProgress(IMPORT_STEP.MESH, (i + 1), _root.Meshes.Count);
+				SetProgress("MESH", (i + 1), _root.Meshes.Count);
 				yield return null;
 			}
 		}
@@ -888,7 +859,7 @@ namespace SeinJS
             {
                 foreach (var extension in extensions)
                 {
-                    ExtensionManager.Import(extension.Key, _root, mainMesh, extension.Value);
+                    ExtensionManager.Import(extension.Key, this, mainMesh, extension.Value);
                 }
             }
 
@@ -1135,7 +1106,7 @@ namespace SeinJS
             int i = 0;
             foreach (var pair in _skinObjectsStore)
             {
-                setProgress(IMPORT_STEP.SKINNEDMESH, i, _skinObjectsStore.Count);
+                SetProgress("SKINNEDMESH", i, _skinObjectsStore.Count);
 
                 var node = pair.Key;
                 var go = pair.Value;
@@ -1160,7 +1131,7 @@ namespace SeinJS
 				AnimationClip clip = new AnimationClip();
 				clip.wrapMode = UnityEngine.WrapMode.Loop;
 				LoadAnimation(_root.Animations[i], i, clip);
-				setProgress(IMPORT_STEP.ANIMATION, (i + 1), _root.Animations.Count);
+				SetProgress("ANIMATION", (i + 1), _root.Animations.Count);
 				_assetManager.saveAnimationClip(clip);
                 clips.Add(clip);
 
@@ -1168,27 +1139,31 @@ namespace SeinJS
                 {
                     _assetManager.createAnimatorAsset(clips);
                 }
-                 yield return null;
+
+                yield return null;
 			}
         }
 
 		private void LoadAnimation(GLTF.Schema.Animation gltfAnimation, int index, AnimationClip clip)
 		{
             Regex rgx = new Regex(@"\S+@");
+            string name = gltfAnimation.Name;
 
-            if (gltfAnimation.Name != null)
+            if (name != null)
             {
-                gltfAnimation.Name = gltfAnimation.Name.Replace('|', '-').Replace('.', '-');
-                gltfAnimation.Name = rgx.Replace(gltfAnimation.Name, "");
+                name = gltfAnimation.Name.Replace('|', '-').Replace('.', '-');
+                name = rgx.Replace(name, "");
             }
 
-            clip.name = gltfAnimation.Name != null && gltfAnimation.Name.Length > 0 ? gltfAnimation.Name : "GLTFAnimation_" + index;
-			for(int i=0; i < gltfAnimation.Channels.Count; ++i)
+            clip.name = name != null && name.Length > 0 ? name : "GLTFAnimation_" + index;
+			for (int i=0; i < gltfAnimation.Channels.Count; ++i)
 			{
 				addGLTFChannelDataToClip(gltfAnimation.Channels[i], clip);
 			}
 
 			clip.EnsureQuaternionContinuity();
+
+            Sein_animatorExtensionFactory.IMPORTED_CLIPS.Add(gltfAnimation.Name, clip);
 		}
 
 		private void addGLTFChannelDataToClip(GLTF.Schema.AnimationChannel channel, AnimationClip clip)
@@ -1251,7 +1226,7 @@ namespace SeinJS
 			}
 		}
 
-		private void setProgress(IMPORT_STEP step, int current, int total)
+		public void SetProgress(string step, int current, int total)
 		{
 			if (_progressCallback != null)
 				_progressCallback(step, current, total);
@@ -1259,11 +1234,11 @@ namespace SeinJS
 
 		private IEnumerator LoadSkins()
 		{
-			setProgress(IMPORT_STEP.SKIN, 0, _root.Skins.Count);
+			SetProgress("SKIN", 0, _root.Skins.Count);
 			for (int i = 0; i < _root.Skins.Count; ++i)
 			{
 				LoadSkin(_root.Skins[i], i);
-				setProgress(IMPORT_STEP.SKIN, (i + 1), _root.Skins.Count);
+				SetProgress("SKIN", (i + 1), _root.Skins.Count);
 				yield return null;
 			}
 		}
@@ -1342,7 +1317,7 @@ namespace SeinJS
 			var nodeObj = createGameObject(node.Name != null ? node.Name : "SeinNode");
 
 			_nbParsedNodes++;
-			setProgress(IMPORT_STEP.NODE, _nbParsedNodes, _root.Nodes.Count);
+			SetProgress("NODE", _nbParsedNodes, _root.Nodes.Count);
 			Vector3 position;
 			Quaternion rotation;
 			Vector3 scale;
@@ -1379,15 +1354,6 @@ namespace SeinJS
                 }
             }
 
-            var extensions = node.Extensions;
-            if (extensions != null)
-            {
-                foreach (var extension in extensions)
-                {
-                    ExtensionManager.Import(extension.Key, _root, nodeObj, extension.Value);
-                }
-            }
-
 			if (node.Children != null)
 			{
 				foreach (var child in node.Children)
@@ -1396,6 +1362,30 @@ namespace SeinJS
 					childObj.transform.SetParent(nodeObj.transform, false);
 				}
 			}
+
+            if (node.Camera != null)
+            {
+                var cam = node.Camera.Value;
+                var camera = nodeObj.AddComponent<UnityEngine.Camera>();
+
+                if (cam.Type == GLTF.Schema.CameraType.orthographic)
+                {
+                    camera.orthographic = true;
+                    var matrix = camera.projectionMatrix;
+                    matrix[1, 1] = 1 / (float)cam.Orthographic.YMag;
+                    matrix[0, 0] = 1 / (float)cam.Orthographic.XMag;
+                    matrix[2, 2] = 2 / (float)(cam.Orthographic.ZNear - cam.Orthographic.ZFar);
+                    matrix[2, 3] = ((float)cam.Orthographic.ZFar + 1 / matrix[2, 2]) * matrix[2, 2];
+                }
+                else
+                {
+                    camera.orthographic = false;
+                    camera.farClipPlane = (float)cam.Perspective.ZFar;
+                    camera.nearClipPlane = (float)cam.Perspective.ZNear;
+                    camera.aspect = (float)cam.Perspective.AspectRatio;
+                    camera.fieldOfView = (float)cam.Perspective.YFov;
+                }
+            }
 
 			_importedObjects.Add(index, nodeObj);
 			return nodeObj;
@@ -1407,92 +1397,27 @@ namespace SeinJS
 			return _assetManager.createGameObject(name);
 		}
 
-        private void processSeinComponents(GameObject go, Node node)
+        private IEnumerator LoadNodesExtensions()
         {
-            if (node.Extensions == null)
+            int i = 0;
+            foreach (var item in _importedObjects)
             {
-                return;
-            }
+                var go = item.Value;
+                var node = _root.Nodes[item.Key];
 
-            if (node.Extensions.ContainsKey("Sein_node"))
-            {
-                var n = (Sein_nodeExtension)node.Extensions["Sein_node"];
-                var seinNode = go.AddComponent<SeinNode>();
-                seinNode.selfType = n.selfType;
-                seinNode.className = n.className;
-                seinNode.tag = n.tag;
-                seinNode.layer = n.layer;
-                seinNode.persistent = n.persistent;
-                seinNode.emitComponentsDestroy = n.emitComponentsDestroy;
-                seinNode.updateOnEverTick = n.updateOnEverTick;
-                seinNode.isStatic = n.isStatic;
-                seinNode.skipThisNode = n.skipThisNode;
-            }
-
-            if (node.Extensions.ContainsKey("Sein_audioSource"))
-            {
-                var source = (Sein_audioSourceExtension)node.Extensions["Sein_audioSource"];
-                var audioSource = go.AddComponent<SeinAudioSource>();
-                audioSource.defaultClip = source.defaultClip;
-                audioSource.needAutoPlay = source.needAutoPlay;
-                audioSource.isSpaceAudio = source.isSpaceAudio;
-                audioSource.autoPlayOptions = source.autoPlayOptions;
-                audioSource.spaceOptions = source.spaceOptions;
-                audioSource.clips = new SeinAudioOneClip[source.clips.Count];
-                for (int i = 0; i < source.clips.Count; i += 1)
+                var extensions = node.Extensions;
+                if (extensions != null)
                 {
-                    var clip = new SeinAudioOneClip();
-                    clip.name = source.clips[i].Key;
-                    clip.clip = _assetCache.AudioClipCache[source.clips[i].Value];
-                    audioSource.clips[i] = clip;
-                }
-            }
-
-            if (node.Extensions.ContainsKey("Sein_audioListener"))
-            {
-                var source = (Sein_audioListenerExtension)node.Extensions["Sein_audioListener"];
-                var audioSource = go.AddComponent<SeinAudioListener>();
-                audioSource.rotatable = source.rotatable;
-            }
-
-            if (node.Extensions.ContainsKey("Sein_animator"))
-            {
-                var ani = (Sein_animatorExtension)node.Extensions["Sein_animator"];
-                var animator = go.AddComponent<SeinAnimator>();
-                animator.modelAnimations = ani.modelAnimations;
-                animator.defaultAnimation = ani.defaultAnimation;
-            }
-
-            if (node.Extensions.ContainsKey("Sein_physicBody"))
-            {
-                var physicBody = (Sein_physicBodyExtension)node.Extensions["Sein_physicBody"];
-                var rigidBody = go.AddComponent<SeinRigidBody>();
-                rigidBody.mass = physicBody.rigidBody.mass;
-                rigidBody.restitution = physicBody.rigidBody.restitution;
-                rigidBody.friction = physicBody.rigidBody.friction;
-                rigidBody.unControl = physicBody.rigidBody.unControl;
-                rigidBody.physicStatic = physicBody.rigidBody.physicStatic;
-                rigidBody.sleeping = physicBody.rigidBody.sleeping;
-
-                foreach (var c in physicBody.colliders)
-                {
-                    if (c is SphereCollider)
+                    foreach (var extension in extensions)
                     {
-                        var collider = go.AddComponent<SphereCollider>();
-                        collider.center = ((SphereCollider)c).center;
-                        collider.radius = ((SphereCollider)c).radius;
-                        collider.isTrigger = c.isTrigger;
-                    }
-                    else if (c is BoxCollider)
-                    {
-                        var collider = go.AddComponent<BoxCollider>();
-                        collider.center = ((BoxCollider)c).center;
-                        collider.size = ((BoxCollider)c).size;
-                        collider.isTrigger = c.isTrigger;
+                        ExtensionManager.Import(extension.Key, this, go, extension.Value);
                     }
                 }
 
-                UnityEngine.Object.DestroyImmediate(physicBody.go);
+                i += 1;
+                SetProgress("NODE EXTENSIONS", i, _importedObjects.Count);
+
+                yield return null;
             }
         }
 

@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "cannon-dtysky": "^0.6.4",
-    "seinjs": "^1.3.12",
+    "seinjs": "^1.3.13",
     "seinjs-audio": "^0.8.0",
     "seinjs-camera-controls": "^0.8.2",
     "seinjs-debug-tools": "^0.8.0",

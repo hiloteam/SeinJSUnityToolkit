@@ -1,0 +1,1382 @@
+{
+  "extensionsUsed": [
+    "Sein_renderer",
+    "Sein_animator",
+    "Sein_node"
+  ],
+  "extensionsRequired": [
+    "Sein_renderer",
+    "Sein_animator",
+    "Sein_node"
+  ],
+  "accessors": [
+    {
+      "bufferView": 0,
+      "componentType": 5126,
+      "count": 1062,
+      "type": "VEC3",
+      "max": [
+        3.1213381290435791,
+        1.6995480060577393,
+        1.043850302696228
+      ],
+      "min": [
+        -1.0002442598342896,
+        -0.04492032527923584,
+        -1.0455179214477539
+      ],
+      "name": "Sphere.014_0_1-1-primitives-POSITION"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 12,
+      "componentType": 5126,
+      "count": 1062,
+      "type": "VEC3",
+      "max": [
+        0.991179347038269,
+        0.973131537437439,
+        0.99561285972595215
+      ],
+      "min": [
+        -0.97624099254608154,
+        -0.97753387689590454,
+        -0.99552315473556519
+      ],
+      "name": "Sphere.014_0_1-1-primitives-NORMAL"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 24,
+      "componentType": 5126,
+      "count": 1062,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "name": "Sphere.014_0_1-1-primitives-TANGENT"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 40,
+      "componentType": 5123,
+      "count": 1062,
+      "type": "VEC4",
+      "max": [
+        0.0,
+        2.0,
+        2.0,
+        0.0
+      ],
+      "min": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_1-1-primitives-JOINTS_0"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 48,
+      "componentType": 5126,
+      "count": 1062,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.42616218328475952,
+        0.38040408492088318,
+        0.0
+      ],
+      "min": [
+        0.50083369016647339,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_1-1-primitives-WEIGHTS_0"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5123,
+      "count": 1620,
+      "type": "SCALAR",
+      "max": [
+        1061.0
+      ],
+      "min": [
+        0.0
+      ],
+      "name": "Sphere.014_0_1-1-indices-0"
+    },
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 482,
+      "type": "VEC3",
+      "max": [
+        3.1213381290435791,
+        2.1594550609588623,
+        0.83074426651000977
+      ],
+      "min": [
+        -1.3541121482849121,
+        1.3070764541625977,
+        -0.83068585395812988
+      ],
+      "name": "Sphere.014_0_2-2-primitives-POSITION"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 12,
+      "componentType": 5126,
+      "count": 482,
+      "type": "VEC3",
+      "max": [
+        0.81008309125900269,
+        0.99848395586013794,
+        0.93367314338684082
+      ],
+      "min": [
+        -0.804977297782898,
+        -0.96342748403549194,
+        -0.92643815279006958
+      ],
+      "name": "Sphere.014_0_2-2-primitives-NORMAL"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 24,
+      "componentType": 5126,
+      "count": 482,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "name": "Sphere.014_0_2-2-primitives-TANGENT"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 40,
+      "componentType": 5123,
+      "count": 482,
+      "type": "VEC4",
+      "max": [
+        0.0,
+        2.0,
+        2.0,
+        0.0
+      ],
+      "min": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_2-2-primitives-JOINTS_0"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 48,
+      "componentType": 5126,
+      "count": 482,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.26019006967544556,
+        0.36477980017662048,
+        0.0
+      ],
+      "min": [
+        0.51563310623168945,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_2-2-primitives-WEIGHTS_0"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5123,
+      "count": 702,
+      "type": "SCALAR",
+      "max": [
+        481.0
+      ],
+      "min": [
+        0.0
+      ],
+      "name": "Sphere.014_0_2-2-indices-0"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 3104,
+      "type": "VEC3",
+      "max": [
+        2.2938468456268311,
+        1.9719433784484863,
+        1.5361645221710205
+      ],
+      "min": [
+        -0.03379523754119873,
+        0.48610740900039673,
+        -1.5395635366439819
+      ],
+      "name": "Sphere.014_0_3-3-primitives-POSITION"
+    },
+    {
+      "bufferView": 4,
+      "byteOffset": 12,
+      "componentType": 5126,
+      "count": 3104,
+      "type": "VEC3",
+      "max": [
+        0.9449923038482666,
+        0.991098940372467,
+        0.9968101978302002
+      ],
+      "min": [
+        -0.96621626615524292,
+        -0.9988473653793335,
+        -0.99681013822555542
+      ],
+      "name": "Sphere.014_0_3-3-primitives-NORMAL"
+    },
+    {
+      "bufferView": 4,
+      "byteOffset": 24,
+      "componentType": 5126,
+      "count": 3104,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "name": "Sphere.014_0_3-3-primitives-TANGENT"
+    },
+    {
+      "bufferView": 4,
+      "byteOffset": 40,
+      "componentType": 5123,
+      "count": 3104,
+      "type": "VEC4",
+      "max": [
+        2.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_3-3-primitives-JOINTS_0"
+    },
+    {
+      "bufferView": 4,
+      "byteOffset": 48,
+      "componentType": 5126,
+      "count": 3104,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_3-3-primitives-WEIGHTS_0"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5123,
+      "count": 4692,
+      "type": "SCALAR",
+      "max": [
+        3103.0
+      ],
+      "min": [
+        0.0
+      ],
+      "name": "Sphere.014_0_3-3-indices-0"
+    },
+    {
+      "bufferView": 6,
+      "componentType": 5126,
+      "count": 238,
+      "type": "VEC3",
+      "max": [
+        3.3421776294708252,
+        0.89445072412490845,
+        0.43268811702728271
+      ],
+      "min": [
+        2.2077205181121826,
+        0.3782801628112793,
+        -0.41394150257110596
+      ],
+      "name": "Sphere.014_0_0-0-primitives-POSITION"
+    },
+    {
+      "bufferView": 6,
+      "byteOffset": 12,
+      "componentType": 5126,
+      "count": 238,
+      "type": "VEC3",
+      "max": [
+        0.99919420480728149,
+        0.99968868494033813,
+        0.95301377773284912
+      ],
+      "min": [
+        -0.39023303985595703,
+        -0.994500458240509,
+        -0.95336157083511353
+      ],
+      "name": "Sphere.014_0_0-0-primitives-NORMAL"
+    },
+    {
+      "bufferView": 6,
+      "byteOffset": 24,
+      "componentType": 5126,
+      "count": 238,
+      "type": "VEC4",
+      "max": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "min": [
+        1.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "name": "Sphere.014_0_0-0-primitives-TANGENT"
+    },
+    {
+      "bufferView": 6,
+      "byteOffset": 40,
+      "componentType": 5123,
+      "count": 238,
+      "type": "VEC4",
+      "max": [
+        0.0,
+        1.0,
+        2.0,
+        0.0
+      ],
+      "min": [
+        0.0,
+        1.0,
+        2.0,
+        0.0
+      ],
+      "name": "Sphere.014_0_0-0-primitives-JOINTS_0"
+    },
+    {
+      "bufferView": 6,
+      "byteOffset": 48,
+      "componentType": 5126,
+      "count": 238,
+      "type": "VEC4",
+      "max": [
+        0.59365814924240112,
+        0.135317862033844,
+        0.35829511284828186,
+        0.0
+      ],
+      "min": [
+        0.52238696813583374,
+        0.11385607719421387,
+        0.28348898887634277,
+        0.0
+      ],
+      "name": "Sphere.014_0_0-0-primitives-WEIGHTS_0"
+    },
+    {
+      "bufferView": 7,
+      "componentType": 5123,
+      "count": 372,
+      "type": "SCALAR",
+      "max": [
+        237.0
+      ],
+      "min": [
+        0.0
+      ],
+      "name": "Sphere.014_0_0-0-indices-0"
+    },
+    {
+      "bufferView": 8,
+      "componentType": 5126,
+      "count": 3,
+      "type": "MAT4",
+      "max": [
+        0.589381754398346,
+        0.51910227537155151,
+        3.273146376159275E-08,
+        0.0,
+        0.0,
+        0.589381754398346,
+        8.0489179765663721E-08,
+        0.0,
+        5.5390856346093642E-08,
+        0.0,
+        0.589381754398346,
+        0.0,
+        0.39666566252708435,
+        -0.23613421618938446,
+        0.71958702802658081,
+        1.0
+      ],
+      "min": [
+        0.27911227941513062,
+        0.0,
+        0.0,
+        0.0,
+        -0.51910233497619629,
+        0.279112309217453,
+        0.0,
+        0.0,
+        0.0,
+        -6.69455673119046E-08,
+        0.589381754398346,
+        0.0,
+        0.14272645115852356,
+        -0.36151596903800964,
+        -0.689096212387085,
+        1.0
+      ],
+      "name": "invBind-bird-bird-1"
+    },
+    {
+      "bufferView": 9,
+      "componentType": 5126,
+      "count": 3,
+      "type": "MAT4",
+      "max": [
+        0.589381754398346,
+        0.51910227537155151,
+        3.273146376159275E-08,
+        0.0,
+        0.0,
+        0.589381754398346,
+        8.0489179765663721E-08,
+        0.0,
+        5.5390856346093642E-08,
+        0.0,
+        0.589381754398346,
+        0.0,
+        0.39666566252708435,
+        -0.23613421618938446,
+        0.71958702802658081,
+        1.0
+      ],
+      "min": [
+        0.27911227941513062,
+        0.0,
+        0.0,
+        0.0,
+        -0.51910233497619629,
+        0.279112309217453,
+        0.0,
+        0.0,
+        0.0,
+        -6.69455673119046E-08,
+        0.589381754398346,
+        0.0,
+        0.14272645115852356,
+        -0.36151596903800964,
+        -0.689096212387085,
+        1.0
+      ],
+      "name": "invBind-bird-bird-2"
+    },
+    {
+      "bufferView": 10,
+      "componentType": 5126,
+      "count": 3,
+      "type": "MAT4",
+      "max": [
+        0.589381754398346,
+        0.51910227537155151,
+        3.273146376159275E-08,
+        0.0,
+        0.0,
+        0.589381754398346,
+        8.0489179765663721E-08,
+        0.0,
+        5.5390856346093642E-08,
+        0.0,
+        0.589381754398346,
+        0.0,
+        0.39666566252708435,
+        -0.23613421618938446,
+        0.71958702802658081,
+        1.0
+      ],
+      "min": [
+        0.27911227941513062,
+        0.0,
+        0.0,
+        0.0,
+        -0.51910233497619629,
+        0.279112309217453,
+        0.0,
+        0.0,
+        0.0,
+        -6.69455673119046E-08,
+        0.589381754398346,
+        0.0,
+        0.14272645115852356,
+        -0.36151596903800964,
+        -0.689096212387085,
+        1.0
+      ],
+      "name": "invBind-bird-bird-3"
+    },
+    {
+      "bufferView": 11,
+      "componentType": 5126,
+      "count": 3,
+      "type": "MAT4",
+      "max": [
+        0.589381754398346,
+        0.51910227537155151,
+        3.273146376159275E-08,
+        0.0,
+        0.0,
+        0.589381754398346,
+        8.0489179765663721E-08,
+        0.0,
+        5.5390856346093642E-08,
+        0.0,
+        0.589381754398346,
+        0.0,
+        0.39666566252708435,
+        -0.23613421618938446,
+        0.71958702802658081,
+        1.0
+      ],
+      "min": [
+        0.27911227941513062,
+        0.0,
+        0.0,
+        0.0,
+        -0.51910233497619629,
+        0.279112309217453,
+        0.0,
+        0.0,
+        0.0,
+        -6.69455673119046E-08,
+        0.589381754398346,
+        0.0,
+        0.14272645115852356,
+        -0.36151596903800964,
+        -0.689096212387085,
+        1.0
+      ],
+      "name": "invBind-bird-bird"
+    },
+    {
+      "bufferView": 12,
+      "componentType": 5126,
+      "count": 91,
+      "type": "SCALAR",
+      "max": [
+        3.0163042545318604
+      ],
+      "min": [
+        0.0
+      ],
+      "name": "animation--946798336@ArmatureAction-001-times"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 364,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC3",
+      "max": [
+        -0.12806743383407593,
+        1.1328030824661255,
+        0.0
+      ],
+      "min": [
+        -0.12806743383407593,
+        0.16500279307365417,
+        0.0
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone-translation"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 1456,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC3",
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone-scales"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 2548,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC4",
+      "max": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "min": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone-rotations"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 4004,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC3",
+      "max": [
+        0.2732861340045929,
+        0.28443419933319092,
+        0.68909609317779541
+      ],
+      "min": [
+        0.2732861340045929,
+        0.28443419933319092,
+        0.68909609317779541
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone/bird.001_Bone.001-translation"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 5096,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC3",
+      "max": [
+        1.0,
+        0.99999982118606567,
+        0.99999994039535522
+      ],
+      "min": [
+        1.0,
+        0.99999982118606567,
+        0.99999994039535522
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone/bird.001_Bone.001-scales"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 6188,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC4",
+      "max": [
+        0.22205586731433868,
+        -0.025750257074832916,
+        -0.46250012516975403,
+        0.85809695720672607
+      ],
+      "min": [
+        0.015390953049063683,
+        -0.37151488661766052,
+        -0.51288789510726929,
+        0.77379453182220459
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone/bird.001_Bone.001-rotations"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 7644,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC3",
+      "max": [
+        0.27328610420227051,
+        0.28443416953086853,
+        -0.71958708763122559
+      ],
+      "min": [
+        0.27328610420227051,
+        0.28443416953086853,
+        -0.71958708763122559
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone/bird.001_Bone.002-translation"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 8736,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC3",
+      "max": [
+        0.99999988079071045,
+        0.99999994039535522,
+        1.0
+      ],
+      "min": [
+        0.99999988079071045,
+        0.99999994039535522,
+        1.0
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone/bird.001_Bone.002-scales"
+    },
+    {
+      "bufferView": 12,
+      "byteOffset": 9828,
+      "componentType": 5126,
+      "count": 91,
+      "type": "VEC4",
+      "max": [
+        -0.01067678164690733,
+        0.25539371371269226,
+        -0.48980975151062012,
+        0.85822659730911255
+      ],
+      "min": [
+        -0.15264990925788879,
+        0.017862856388092041,
+        -0.51296550035476685,
+        0.81948566436767578
+      ],
+      "name": "animation--946798336@ArmatureAction-001-bird.001_Bone/bird.001_Bone.002-rotations"
+    }
+  ],
+  "animations": [
+    {
+      "channels": [
+        {
+          "sampler": 0,
+          "target": {
+            "node": 5,
+            "path": "translation"
+          }
+        },
+        {
+          "sampler": 1,
+          "target": {
+            "node": 5,
+            "path": "scale"
+          }
+        },
+        {
+          "sampler": 2,
+          "target": {
+            "node": 5,
+            "path": "rotation"
+          }
+        },
+        {
+          "sampler": 3,
+          "target": {
+            "node": 2,
+            "path": "translation"
+          }
+        },
+        {
+          "sampler": 4,
+          "target": {
+            "node": 2,
+            "path": "scale"
+          }
+        },
+        {
+          "sampler": 5,
+          "target": {
+            "node": 2,
+            "path": "rotation"
+          }
+        },
+        {
+          "sampler": 6,
+          "target": {
+            "node": 7,
+            "path": "translation"
+          }
+        },
+        {
+          "sampler": 7,
+          "target": {
+            "node": 7,
+            "path": "scale"
+          }
+        },
+        {
+          "sampler": 8,
+          "target": {
+            "node": 7,
+            "path": "rotation"
+          }
+        }
+      ],
+      "samplers": [
+        {
+          "input": 28,
+          "output": 29
+        },
+        {
+          "input": 28,
+          "output": 30
+        },
+        {
+          "input": 28,
+          "output": 31
+        },
+        {
+          "input": 28,
+          "output": 32
+        },
+        {
+          "input": 28,
+          "output": 33
+        },
+        {
+          "input": 28,
+          "output": 34
+        },
+        {
+          "input": 28,
+          "output": 35
+        },
+        {
+          "input": 28,
+          "output": 36
+        },
+        {
+          "input": 28,
+          "output": 37
+        }
+      ],
+      "name": "-946798336@ArmatureAction-001"
+    }
+  ],
+  "asset": {
+    "generator": "Sein.js Unity Toolkit",
+    "version": "2.0",
+    "exporterVersion": "1.0"
+  },
+  "buffers": [
+    {
+      "uri": "scene.bin",
+      "byteLength": 339552
+    }
+  ],
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 24,
+      "byteLength": 67968,
+      "byteStride": 64,
+      "name": "Sphere.014_0_1-1-primitives"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 67992,
+      "byteLength": 3240,
+      "name": "Sphere.014_0_1-1-indices"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 71232,
+      "byteLength": 30848,
+      "byteStride": 64,
+      "name": "Sphere.014_0_2-2-primitives"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 102080,
+      "byteLength": 1404,
+      "name": "Sphere.014_0_2-2-indices"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 103484,
+      "byteLength": 198656,
+      "byteStride": 64,
+      "name": "Sphere.014_0_3-3-primitives"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 302140,
+      "byteLength": 9384,
+      "name": "Sphere.014_0_3-3-indices"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 311524,
+      "byteLength": 15232,
+      "byteStride": 64,
+      "name": "Sphere.014_0_0-0-primitives"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 326756,
+      "byteLength": 744,
+      "name": "Sphere.014_0_0-0-indices"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 327500,
+      "byteLength": 192,
+      "name": "invBind-bird-bird-1"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 327692,
+      "byteLength": 192,
+      "name": "invBind-bird-bird-2"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 327884,
+      "byteLength": 192,
+      "name": "invBind-bird-bird-3"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 328076,
+      "byteLength": 192,
+      "name": "invBind-bird-bird"
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 328268,
+      "byteLength": 11284,
+      "name": "animation--946798336@ArmatureAction-001"
+    }
+  ],
+  "materials": [
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1.0,
+          0.894448,
+          0.269015163,
+          1.0
+        ],
+        "metallicFactor": 0.094674557447433472,
+        "roughnessFactor": 0.31952661275863647
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.5924486,
+          0.641087651,
+          0.63174355,
+          1.0
+        ],
+        "metallicFactor": 0.076923079788684845,
+        "roughnessFactor": 0.27810651063919067
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.691011131,
+          0.880315065,
+          0.54949373,
+          1.0
+        ],
+        "metallicFactor": 0.076923079788684845,
+        "roughnessFactor": 0.37278100848197937
+      }
+    },
+    {
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.707555532,
+          0.7209682,
+          0.7183117,
+          1.0
+        ],
+        "metallicFactor": 0.10059169679880142,
+        "roughnessFactor": 0.21893489360809326
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TANGENT": 2,
+            "JOINTS_0": 3,
+            "WEIGHTS_0": 4
+          },
+          "indices": 5,
+          "material": 0
+        }
+      ],
+      "name": "Sphere.014_0_1-1"
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 6,
+            "NORMAL": 7,
+            "TANGENT": 8,
+            "JOINTS_0": 9,
+            "WEIGHTS_0": 10
+          },
+          "indices": 11,
+          "material": 1
+        }
+      ],
+      "name": "Sphere.014_0_2-2"
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 12,
+            "NORMAL": 13,
+            "TANGENT": 14,
+            "JOINTS_0": 15,
+            "WEIGHTS_0": 16
+          },
+          "indices": 17,
+          "material": 2
+        }
+      ],
+      "name": "Sphere.014_0_3-3"
+    },
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 18,
+            "NORMAL": 19,
+            "TANGENT": 20,
+            "JOINTS_0": 21,
+            "WEIGHTS_0": 22
+          },
+          "indices": 23,
+          "material": 3
+        }
+      ],
+      "name": "Sphere.014_0_0-0"
+    }
+  ],
+  "nodes": [
+    {
+      "skin": 0,
+      "matrix": [
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        -3.855341,
+        -0.07317758,
+        0.54,
+        1.0
+      ],
+      "mesh": 0,
+      "name": "bird-1",
+      "extensions": {
+        "Sein_renderer": {
+          "castShadows": true,
+          "receiveShadows": true,
+          "gammaCorrection": true
+        }
+      }
+    },
+    {
+      "skin": 1,
+      "matrix": [
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        -3.855341,
+        -0.07317758,
+        0.54,
+        1.0
+      ],
+      "mesh": 1,
+      "name": "bird-2",
+      "extensions": {
+        "Sein_renderer": {
+          "castShadows": true,
+          "receiveShadows": true,
+          "gammaCorrection": true
+        }
+      }
+    },
+    {
+      "rotation": [
+        0.0153881414,
+        -0.0257455427,
+        -0.512815058,
+        0.857975066
+      ],
+      "translation": [
+        0.2732861,
+        0.2844342,
+        0.6890961
+      ],
+      "name": "bird.001_Bone.001"
+    },
+    {
+      "skin": 2,
+      "matrix": [
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        -3.855341,
+        -0.07317758,
+        0.54,
+        1.0
+      ],
+      "mesh": 2,
+      "name": "bird-3",
+      "extensions": {
+        "Sein_renderer": {
+          "castShadows": true,
+          "receiveShadows": true,
+          "gammaCorrection": true
+        }
+      }
+    },
+    {
+      "children": [
+        5,
+        6
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        -3.87,
+        0.0,
+        0.54,
+        1.0
+      ],
+      "name": "bird",
+      "extensions": {
+        "Sein_animator": {
+          "defaultAnimation": "ArmatureAction-001",
+          "modelAnimations": [
+            "ArmatureAction-001"
+          ],
+          "prefixes": [
+            "-946798336"
+          ]
+        },
+        "Sein_node": {
+          "selfType": 2,
+          "childrenType": 1,
+          "className": "",
+          "tag": "",
+          "layer": 268435455,
+          "emitComponentsDestroy": true,
+          "updateOnEverTick": true,
+          "isStatic": false,
+          "skipThisNode": false
+        }
+      }
+    },
+    {
+      "children": [
+        2,
+        7
+      ],
+      "translation": [
+        -0.1280674,
+        0.1629567,
+        0.0
+      ],
+      "name": "bird.001_Bone"
+    },
+    {
+      "children": [
+        0,
+        1,
+        3
+      ],
+      "skin": 3,
+      "matrix": [
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.5893818,
+        0.0,
+        -3.855341,
+        -0.07317758,
+        0.54,
+        1.0
+      ],
+      "mesh": 3,
+      "name": "bird",
+      "extensions": {
+        "Sein_renderer": {
+          "castShadows": true,
+          "receiveShadows": true,
+          "gammaCorrection": true
+        }
+      }
+    },
+    {
+      "rotation": [
+        -0.0106748594,
+        0.0178596377,
+        -0.512934864,
+        0.8581753
+      ],
+      "translation": [
+        0.2732861,
+        0.2844342,
+        -0.7195871
+      ],
+      "name": "bird.001_Bone.002"
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "nodes": [
+        4
+      ]
+    }
+  ],
+  "skins": [
+    {
+      "inverseBindMatrices": 24,
+      "skeleton": 0,
+      "joints": [
+        5,
+        2,
+        7
+      ],
+      "name": "skeleton-bird-bird-1"
+    },
+    {
+      "inverseBindMatrices": 25,
+      "skeleton": 1,
+      "joints": [
+        5,
+        2,
+        7
+      ],
+      "name": "skeleton-bird-bird-2"
+    },
+    {
+      "inverseBindMatrices": 26,
+      "skeleton": 3,
+      "joints": [
+        5,
+        2,
+        7
+      ],
+      "name": "skeleton-bird-bird-3"
+    },
+    {
+      "inverseBindMatrices": 27,
+      "skeleton": 6,
+      "joints": [
+        5,
+        2,
+        7
+      ],
+      "name": "skeleton-bird-bird"
+    }
+  ]
+}

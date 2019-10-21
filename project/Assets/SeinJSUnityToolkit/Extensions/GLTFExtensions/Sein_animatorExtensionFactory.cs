@@ -12,6 +12,8 @@ using GLTF.Extensions;
 using System.Collections.Generic;
 using GLTF.Schema;
 using UnityEngine;
+using UnityEditor.Animations;
+using System.IO;
 
 namespace SeinJS
 {
@@ -20,11 +22,21 @@ namespace SeinJS
         public override string GetExtensionName() { return "Sein_animator"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinAnimator) }; }
 
+        public static Dictionary<string, AnimationClip> IMPORTED_CLIPS = new Dictionary<string, AnimationClip>();
+        public static Dictionary<string, AnimatorController> IMPORTED_CONTROLLERS = new Dictionary<string, AnimatorController>();
+
+        public override void BeforeImport()
+        {
+            IMPORTED_CLIPS.Clear();
+            IMPORTED_CONTROLLERS.Clear();
+        }
+
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var animator = component as SeinAnimator;
             var extension = new Sein_animatorExtension();
 
+            extension.name = animator.name;
             extension.prefixes = animator.prefixes;
             extension.defaultAnimation = animator.defaultAnimation;
             extension.modelAnimations = animator.modelAnimations;
@@ -40,11 +52,102 @@ namespace SeinJS
             {
                 extension.defaultAnimation = (string)extensionToken.Value["defaultAnimation"];
                 extension.modelAnimations = extensionToken.Value["modelAnimations"].ToObject<string[]>();
-                extension.prefix = (string)extensionToken.Value["prefix"];
-                extension.prefixes = extensionToken.Value<string[]>("prefixes");
+                if (extensionToken.Value["prefix"] != null)
+                {
+                    extension.prefix = (string)extensionToken.Value["prefix"];
+                }
+                if (extensionToken.Value["prefixes"] != null)
+                {
+                    extension.prefixes = extensionToken.Value["prefixes"].ToObject<string[]>();
+                }
+                if (extensionToken.Value["name"] != null)
+                {
+                    extension.name = (string)extensionToken.Value["name"];
+                }
+            }
+
+            var list = new List<string>(extension.modelAnimations);
+            var hasDefault = extension.defaultAnimation != null && extension.defaultAnimation != "" && list.Contains(extension.defaultAnimation);
+            
+            if (hasDefault)
+            {
+                list.Remove(extension.defaultAnimation);
+            }
+
+            Array.Sort(extension.modelAnimations);
+
+            if (hasDefault)
+            {
+                list.Insert(0, extension.defaultAnimation);
             }
 
             return extension;
+        }
+
+        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        {
+            var seinAnimator = (Sein_animatorExtension)extension;
+            var id = "";
+
+            for (var i = 0; i < seinAnimator.modelAnimations.Length; i += 1)
+            {
+                var prefix = seinAnimator.prefixes.Length > i ? seinAnimator.prefixes[i] : seinAnimator.prefix;
+                var name = seinAnimator.modelAnimations[i];
+
+                if (prefix != null && prefix.Length > 0)
+                {
+                    id += prefix + "@" + name;
+                } else
+                {
+                    id += name;
+                }
+            }
+
+            AnimatorController controller;
+            if (IMPORTED_CONTROLLERS.ContainsKey(id))
+            {
+                controller = IMPORTED_CONTROLLERS[id];
+            } else
+            {
+                var controllerName = seinAnimator.name != null && seinAnimator.name != "" ? seinAnimator.name : gameObject.name;
+                var controllerPath = Path.Combine(new string[] { importer.importDirectoryPath, "animations", controllerName + ".controller" });
+                if (File.Exists(controllerPath))
+                {
+                    int index = 1;
+                    while (true)
+                    {
+                        controllerPath = Path.Combine(new string[] { importer.importDirectoryPath, "animations", controllerName + "-" + index +".controller" });
+
+                        if (!File.Exists(controllerPath))
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                controller = AnimatorController.CreateAnimatorControllerAtPath(GLTFUtils.getPathProjectFromAbsolute(controllerPath));
+
+                for (var i = 0; i < seinAnimator.modelAnimations.Length; i += 1)
+                {
+                    var prefix = seinAnimator.prefixes.Length > i ? seinAnimator.prefixes[i] : seinAnimator.prefix;
+                    var name = seinAnimator.modelAnimations[i];
+
+                    if (prefix != null && prefix.Length > 0)
+                    {
+                        name = prefix + "@" + name;
+                    }
+
+                    if (!IMPORTED_CLIPS.ContainsKey(name))
+                    {
+                        continue;
+                    }
+
+                    controller.AddMotion((Motion)IMPORTED_CLIPS[name]);
+                }
+            }
+
+            var animator = gameObject.AddComponent<Animator>();
+            animator.runtimeAnimatorController = controller;
         }
     }
 }

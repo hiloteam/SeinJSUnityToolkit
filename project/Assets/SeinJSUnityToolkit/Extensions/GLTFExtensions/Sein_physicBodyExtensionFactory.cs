@@ -107,5 +107,37 @@ namespace SeinJS
 
             return extension;
         }
+
+        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        {
+            var physicBody = (Sein_physicBodyExtension)extension;
+            var rigidBody = gameObject.AddComponent<SeinRigidBody>();
+            rigidBody.mass = physicBody.rigidBody.mass;
+            rigidBody.restitution = physicBody.rigidBody.restitution;
+            rigidBody.friction = physicBody.rigidBody.friction;
+            rigidBody.unControl = physicBody.rigidBody.unControl;
+            rigidBody.physicStatic = physicBody.rigidBody.physicStatic;
+            rigidBody.sleeping = physicBody.rigidBody.sleeping;
+
+            foreach (var c in physicBody.colliders)
+            {
+                if (c is SphereCollider)
+                {
+                    var collider = gameObject.AddComponent<SphereCollider>();
+                    collider.center = ((SphereCollider)c).center;
+                    collider.radius = ((SphereCollider)c).radius;
+                    collider.isTrigger = c.isTrigger;
+                }
+                else if (c is BoxCollider)
+                {
+                    var collider = gameObject.AddComponent<BoxCollider>();
+                    collider.center = ((BoxCollider)c).center;
+                    collider.size = ((BoxCollider)c).size;
+                    collider.isTrigger = c.isTrigger;
+                }
+            }
+
+            UnityEngine.Object.DestroyImmediate(physicBody.go);
+        }
     }
 }

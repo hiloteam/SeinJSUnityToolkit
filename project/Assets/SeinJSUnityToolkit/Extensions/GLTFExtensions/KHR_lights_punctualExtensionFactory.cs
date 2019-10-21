@@ -48,7 +48,6 @@ namespace SeinJS
             l.name = light.name;
             l.intensity = light.intensity;
             l.color = light.color;
-            l.range = light.range;
 
             if (light.type == LightType.Directional)
             {
@@ -60,6 +59,7 @@ namespace SeinJS
             }
             else if (light.type == LightType.Spot)
             {
+                l.range = light.range;
                 var spotAngleRad = light.spotAngle * (float)Math.PI / 180;
                 spotAngleRad = spotAngleRad / 2;
                 l.innerConeAngle = (spotAngleRad - (float)Math.PI / 180 * 5);
@@ -98,8 +98,8 @@ namespace SeinJS
                     var type = light.Value<string>("type");
                     l.name = light.Value<string>("name");
                     l.intensity = light.Value<float>("intensity");
-                    var c = light.Value<float[]>("color");
-                    l.color = new Color(c[0], c[1], c[2]);
+                    var c = light.Value<JArray>("color");
+                    l.color = new Color((float)c[0], (float)c[1], (float)c[2]);
 
                     if (type == "directional")
                     {
@@ -118,6 +118,7 @@ namespace SeinJS
                         l.outerConeAngle = light.Value<float>("outerConeAngle");
                     }
 
+                    extension.lights.Add(l);
                 }
             }
             else
@@ -126,6 +127,35 @@ namespace SeinJS
             }
 
             return extension;
+        }
+
+        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        {
+            var lightIndex = ((KHR_lights_punctualExtension)extension).lightIndex;
+            var lights = (KHR_lights_punctualExtension)importer.root.Extensions[ExtensionName];
+
+            var l = gameObject.AddComponent<Light>();
+            var light = lights.lights[lightIndex];
+            l.type = light.type;
+            l.color = light.color;
+            l.intensity = light.intensity;
+            l.name = light.name;
+
+            var type = light.type;
+            if (type == LightType.Directional)
+            {
+
+            }
+            else if (type == LightType.Point)
+            {
+                l.range = light.range;
+            }
+            else if (type == LightType.Spot)
+            {
+                l.range = light.range;
+                l.spotAngle = light.outerConeAngle * 2 * 180 / (float)Math.PI;
+            }
+
         }
     }
 }

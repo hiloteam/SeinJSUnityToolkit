@@ -49,6 +49,11 @@ namespace SeinJS
 
         }
 
+        public virtual void BeforeImport()
+        {
+
+        }
+
         public virtual void Awake(ExporterEntry entry)
         {
             entry.AddExtension(ExtensionName);
@@ -64,10 +69,10 @@ namespace SeinJS
         /*
          * @todo: import entry
          */
-        public virtual void Import(GLTFRoot root, Extension extension) { }
-        public virtual void Import(GLTFRoot root, GameObject gameObject, Extension extension) { }
-        public virtual void Import(GLTFRoot root, UnityEngine.Material material, Extension extension) { }
-        public virtual void Import(GLTFRoot root, UnityEngine.Mesh mesh, Extension extension) { }
-        public virtual void Import(GLTFRoot root, Texture2D texture, Extension extension) { }
+        public virtual void Import(EditorImporter importer, Extension extension) { }
+        public virtual void Import(EditorImporter importer, GameObject gameObject, Extension extension) { }
+        public virtual void Import(EditorImporter importer, UnityEngine.Material material, Extension extension) { }
+        public virtual void Import(EditorImporter importer, UnityEngine.Mesh mesh, Extension extension) { }
+        public virtual void Import(EditorImporter importer, Texture2D texture, Extension extension) { }
     }
 }

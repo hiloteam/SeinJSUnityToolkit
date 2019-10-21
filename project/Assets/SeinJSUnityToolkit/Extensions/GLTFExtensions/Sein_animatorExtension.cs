@@ -18,10 +18,12 @@ namespace SeinJS
         public string defaultAnimation;
         public string prefix = null;
         public string[] prefixes = null;
+        public string name;
 
         public JProperty Serialize()
         {
             var value = new JObject(
+                new JProperty("name", name),
                 new JProperty("defaultAnimation", defaultAnimation),
                 new JProperty("modelAnimations", new JArray(modelAnimations)),
                 new JProperty("prefixes", new JArray(prefixes))

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace SeinJS
 {
-    class TaskManager
+    public class TaskManager
     {
         List<IEnumerator> _tasks;
         IEnumerator _current = null;
