@@ -29,5 +29,13 @@ namespace SeinJS
         {
             return new KHR_materials_unlitExtension();
         }
+
+        public override void Import(EditorImporter importer, UnityEngine.Material material, Extension extension)
+        {
+            if (material.HasProperty("unlit"))
+            {
+                material.SetInt("unlit", 1);
+            }
+        }
     }
 }

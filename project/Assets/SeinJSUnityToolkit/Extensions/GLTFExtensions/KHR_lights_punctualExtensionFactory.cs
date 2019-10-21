@@ -139,7 +139,6 @@ namespace SeinJS
             l.type = light.type;
             l.color = light.color;
             l.intensity = light.intensity;
-            l.name = light.name;
 
             var type = light.type;
             if (type == LightType.Directional)

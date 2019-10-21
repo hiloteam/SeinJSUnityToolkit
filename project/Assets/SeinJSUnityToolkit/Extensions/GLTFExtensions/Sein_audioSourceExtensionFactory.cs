@@ -62,6 +62,7 @@ namespace SeinJS
 
                 if (extension.needAutoPlay)
                 {
+                    extension.autoPlayOptions = new SeinAudioSourceAutoPlayOptions();
                     extension.autoPlayOptions.start = (float)extensionToken.Value["autoPlayOptions"]["start"];
                     extension.autoPlayOptions.end = (float)extensionToken.Value["autoPlayOptions"]["end"];
                     extension.autoPlayOptions.loop = (bool)extensionToken.Value["autoPlayOptions"]["loop"];
@@ -69,6 +70,7 @@ namespace SeinJS
 
                 if (extension.isSpaceAudio)
                 {
+                    extension.spaceOptions = new SeinAudioSourceSpaceOptions();
                     extension.spaceOptions.rotatable = (bool)extensionToken.Value["spaceOptions"]["rotatable"];
                     extension.spaceOptions.refDistance = (float)extensionToken.Value["spaceOptions"]["refDistance"];
                     extension.spaceOptions.maxDistance = (float)extensionToken.Value["spaceOptions"]["maxDistance"];

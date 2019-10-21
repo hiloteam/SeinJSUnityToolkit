@@ -35,6 +35,22 @@ namespace SeinJS
 
 		public static Texture2D header;
 
+        public static bool IsInMacOS
+        {
+            get
+            {
+                return UnityEngine.SystemInfo.operatingSystem.IndexOf("Mac OS") != -1;
+            }
+        }
+
+        public static bool IsInWinOS
+        {
+            get
+            {
+                return UnityEngine.SystemInfo.operatingSystem.IndexOf("Windows") != -1;
+            }
+        }
+
         public static string GetExportPath()
 		{
 			Init();
@@ -68,16 +84,30 @@ namespace SeinJS
 
 			configPath = Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json");
 			JObject config = JObject.Parse(File.ReadAllText(configPath));
+
 			exportPath = (string)config["exportPath"];
             if (string.IsNullOrEmpty(exportPath))
             {
                 exportPath = DefaultExportFolder;
             }
-			importPath = (string)config["importPath"];
+
+			importPath = (string)config["importPath"];            
             if (string.IsNullOrEmpty(importPath))
             {
                 importPath = DefaultImportFolder;
             }
+
+            if (IsInWinOS)
+            {
+                importPath = importPath.Replace("/", "\\");
+                exportPath = exportPath.Replace("/", "\\");
+            }
+            else
+            {
+                importPath = importPath.Replace("\\", "/");
+                exportPath = exportPath.Replace("\\", "/");
+            }
+
             header = new Texture2D(1, 1);
 			header.LoadImage(File.ReadAllBytes(Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/logo.jpg")));
 			header.Apply();

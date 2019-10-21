@@ -154,7 +154,7 @@ namespace SeinJS
         private IEnumerator LoadClips(EditorImporter importer, Sein_audioClipsExtension extension)
         {
             var clips = extension.clips;
-            var basePath = Path.Combine(Config.GetImportPath(), "audios");
+            var basePath = Path.Combine(importer.importDirectoryPath, "audios");
             Directory.CreateDirectory(basePath);
             int i = 0;
 

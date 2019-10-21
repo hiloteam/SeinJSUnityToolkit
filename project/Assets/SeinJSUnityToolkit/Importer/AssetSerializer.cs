@@ -275,7 +275,13 @@ namespace SeinJS
                     var newDir = directory + "/" + i;
                     path = newDir + "/" + clip.name + ".anim";
 
-                    if (!Directory.Exists(newDir) || !File.Exists(path))
+                    if (!Directory.Exists(newDir))
+                    {
+                        Directory.CreateDirectory(newDir);
+                        break;
+                    }
+
+                    if (!File.Exists(path))
                     {
                         break;
                     }
@@ -390,10 +396,18 @@ namespace SeinJS
                 AssetDatabase.Refresh();
             }
 
-            if (sceneObject.GetComponent<Animator>() == null && _animatorController)
+            if (_animatorController != null)
             {
-                var animator = sceneObject.AddComponent<Animator>();
-                animator.runtimeAnimatorController = _animatorController;
+                var animator = sceneObject.GetComponent<Animator>();
+                if (animator == null)
+                {
+                    animator = sceneObject.AddComponent<Animator>();
+                }
+
+                if (animator.runtimeAnimatorController == null)
+                {
+                    animator.runtimeAnimatorController = _animatorController;
+                }
             }
 
             _generatedFiles.Add(fullPath);

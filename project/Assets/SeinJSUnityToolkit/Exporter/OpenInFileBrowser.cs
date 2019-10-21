@@ -2,22 +2,6 @@
 {
     public static class OpenInFileBrowser
     {
-        public static bool IsInMacOS
-        {
-            get
-            {
-                return UnityEngine.SystemInfo.operatingSystem.IndexOf("Mac OS") != -1;
-            }
-        }
-
-        public static bool IsInWinOS
-        {
-            get
-            {
-                return UnityEngine.SystemInfo.operatingSystem.IndexOf("Windows") != -1;
-            }
-        }
-
         public static void OpenInMac(string path)
         {
             bool openInsidesOfFolder = false;
@@ -82,11 +66,11 @@
 
         public static void Open(string path)
         {
-            if (IsInWinOS)
+            if (Config.IsInWinOS)
             {
                 OpenInWin(path);
             }
-            else if (IsInMacOS)
+            else if (Config.IsInMacOS)
             {
                 OpenInMac(path);
             }

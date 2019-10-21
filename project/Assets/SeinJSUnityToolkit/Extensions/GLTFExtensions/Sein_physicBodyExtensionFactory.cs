@@ -49,18 +49,20 @@ namespace SeinJS
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
             var extension = new Sein_physicBodyExtension();
-            SeinRigidBody rigidBody;
-            List<Collider> colliders = new List<Collider>();
-
             var tmpGo = new GameObject();
 
-            rigidBody = tmpGo.AddComponent<SeinRigidBody>();
-            rigidBody.mass = (float)extensionToken.Value["mass"];
-            rigidBody.friction = (float)extensionToken.Value["friction"];
-            rigidBody.restitution = (float)extensionToken.Value["restitution"];
-            rigidBody.unControl = (bool)extensionToken.Value["unControl"];
-            rigidBody.physicStatic = (bool)extensionToken.Value["physicStatic"];
-            rigidBody.sleeping = (bool)extensionToken.Value["sleeping"];
+            List<Collider> colliders = new List<Collider>();
+            var rigidBody = tmpGo.AddComponent<SeinRigidBody>();
+
+            if (extensionToken.Value["mass"] != null)
+            {
+                rigidBody.mass = (float)extensionToken.Value["mass"];
+                rigidBody.friction = (float)extensionToken.Value["friction"];
+                rigidBody.restitution = (float)extensionToken.Value["restitution"];
+                rigidBody.unControl = (bool)extensionToken.Value["unControl"];
+                rigidBody.physicStatic = (bool)extensionToken.Value["physicStatic"];
+                rigidBody.sleeping = (bool)extensionToken.Value["sleeping"];
+            }
 
             foreach (JContainer collider in extensionToken.Value["colliders"]) {
                 var type = (string)collider["type"];
@@ -75,7 +77,11 @@ namespace SeinJS
                             (float)collider["offset"][1],
                             (float)collider["offset"][2]
                         );
-                        sc.isTrigger = (bool)collider["isTrigger"];
+
+                        if (collider["isTrigger"] != null)
+                        {
+                            sc.isTrigger = (bool)collider["isTrigger"];
+                        }
 
                         colliders.Add(sc);
                         break;
@@ -86,12 +92,17 @@ namespace SeinJS
                             (float)collider["size"][1],
                             (float)collider["size"][2]
                         );
+
                         bc.center = new UnityEngine.Vector3(
                             (float)collider["offset"][0],
                             (float)collider["offset"][1],
                             (float)collider["offset"][2]
                         );
-                        bc.isTrigger = (bool)collider["isTrigger"];
+
+                        if (collider["isTrigger"] != null)
+                        {
+                            bc.isTrigger = (bool)collider["isTrigger"];
+                        }
 
                         colliders.Add(bc);
                         break;

@@ -91,7 +91,7 @@ namespace SeinJS
 
             for (var i = 0; i < seinAnimator.modelAnimations.Length; i += 1)
             {
-                var prefix = seinAnimator.prefixes.Length > i ? seinAnimator.prefixes[i] : seinAnimator.prefix;
+                var prefix = (seinAnimator.prefixes != null && seinAnimator.prefixes.Length > i) ? seinAnimator.prefixes[i] : seinAnimator.prefix;
                 var name = seinAnimator.modelAnimations[i];
 
                 if (prefix != null && prefix.Length > 0)
@@ -129,7 +129,7 @@ namespace SeinJS
 
                 for (var i = 0; i < seinAnimator.modelAnimations.Length; i += 1)
                 {
-                    var prefix = seinAnimator.prefixes.Length > i ? seinAnimator.prefixes[i] : seinAnimator.prefix;
+                    var prefix = (seinAnimator.prefixes != null && seinAnimator.prefixes.Length > i) ? seinAnimator.prefixes[i] : seinAnimator.prefix;
                     var name = seinAnimator.modelAnimations[i];
 
                     if (prefix != null && prefix.Length > 0)
