@@ -93,11 +93,8 @@ namespace SeinJS {
 
 	    void OnGUI()
 	    {
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
             GUILayout.Label(Config.header);
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
+            GUILayout.Label("Version: " + Config.Version, EditorStyles.boldLabel);
 
             string defaultExportFolder = Config.DefaultExportFolder;
 

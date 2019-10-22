@@ -19,7 +19,6 @@ namespace SeinJS {
     public class Utils: Editor
     {
         public static bool inited = false;
-        public static System.Version version = new System.Version("1.00");
         static System.Version newVersion = null;
 
         static string checlUrl = "https://api.github.com/repos/SeinJS/SeinUnityToolkit/git/refs/tags";
@@ -69,8 +68,8 @@ namespace SeinJS {
                 string tag = tags[tags.Length - 1].Replace("v", "");
                 newVersion = new System.Version(tag);
 
-                if (newVersion <= version)
-                {   
+                if (newVersion <= Config.Version)
+                {
                     coroutine = null;
                     yield break;
                 }
@@ -88,7 +87,7 @@ namespace SeinJS {
             }
         }
 
-        [MenuItem("SeinJS/Check for update", priority = 3)]
+        [MenuItem("SeinJS/Check for update", priority = 2)]
         public static void Init()
         {
             if (!inited)

@@ -58,6 +58,7 @@ namespace SeinJS
         // key: SeinCustomMaterial componenet or UnityMateiral InistanceID
         private Dictionary<int, MaterialId> _material2ID = new Dictionary<int, MaterialId>();
         private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
+        private Dictionary<Texture2D, ImageId> _texture2d2ImageID = new Dictionary<Texture2D, ImageId>();
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
         private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
         private Dictionary<AnimationClip, GLTF.Schema.Animation> _animClip2anim = new Dictionary<AnimationClip, GLTF.Schema.Animation>();
@@ -488,6 +489,18 @@ namespace SeinJS
                 return _texture2d2ID[texture];
             }
 
+            var imageId = SaveImage(texture, hasTransparency, path);
+
+            return GenerateTexture(texture, imageId);
+        }
+
+        public ImageId SaveImage(Texture2D texture, bool hasTransparency, string path = null)
+        {
+            if (_texture2d2ImageID.ContainsKey(texture))
+            {
+                return _texture2d2ImageID[texture];
+            }
+
             string format = ".png";
             if (!hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
             {
@@ -508,20 +521,9 @@ namespace SeinJS
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
 
-            if (File.Exists(exportPath)) {
-                return GenerateTexture(texture, pathInGlTF);
-            }
-
             var tex = TextureFlipY(
                 texture,
-                color => {
-                    if (!hasTransparency)
-                    {
-                        color.a = 1;
-                    }
-
-                    return color;
-                },
+                null,
                 newtex => {
                     var maxSize = ExporterSettings.NormalTexture.maxSize;
                     if (newtex.width > maxSize || newtex.height > maxSize)
@@ -542,9 +544,7 @@ namespace SeinJS
                 content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
             }
 
-            File.WriteAllBytes(exportPath, content);
-
-            return GenerateTexture(texture, pathInGlTF);
+            return GenerateImage(content, exportPath, pathInGlTF);
         }
 
         public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
@@ -566,81 +566,68 @@ namespace SeinJS
                 return _texture2d2ID[texture];
             }
 
+            var imageId = SaveImageHDR(texture, type, maxSize, path);
+
+            return GenerateTexture(texture, imageId);
+        }
+
+        public ImageId SaveImageHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
+        {
+            if (_texture2d2ImageID.ContainsKey(texture))
+            {
+                return _texture2d2ImageID[texture];
+            }
+
             string format = ".png";
             string[] pathes;
             if (path == null)
             {
                 pathes = GetTextureOutPath(texture, format);
-            } else
+            }
+            else
             {
                 pathes = ExporterUtils.GetAssetOutPath(path, format);
             }
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
 
-            if (File.Exists(exportPath)) {
-                return GenerateTexture(texture, pathInGlTF);
+            var newtex = GLTFTextureUtils.HDR2RGBD(texture);
+
+            if (maxSize > 0 && (newtex.width > maxSize || newtex.height > maxSize))
+            {
+                TextureScale.Bilinear(newtex, maxSize, maxSize);
             }
 
-            var tex = TextureFlipY(
-                texture,
-                origColor => {
-                    var color = new Color(0, 0, 0, 1);
+            byte[] content = newtex.EncodeToPNG();
 
-                    if (Math.Abs(origColor.a) > 0.001)
-                    {
-                        origColor = DecodeRGBM(origColor);
-                        var d = 1f;
-                        var m = Math.Max(origColor.r, Math.Max(origColor.g, origColor.b));
-                        if (m > 1f)
-                        {
-                            d = 1f / m;
-                        }
-
-                        color = new Color(
-                            origColor.r * d,
-                            origColor.g * d,
-                            origColor.b * d,
-                            d
-                        );
-                    }
-
-                    return color;
-                },
-                newtex => {
-                    if (maxSize > 0 && (newtex.width > maxSize || newtex.height > maxSize))
-                    {
-                        TextureScale.Bilinear(newtex, maxSize, maxSize);
-                    }
-                }
-            );
-
-            byte[] content = tex.EncodeToPNG();
-
-            File.WriteAllBytes(exportPath, content);
-
-            return GenerateTexture(texture, pathInGlTF);
+            return GenerateImage(content, exportPath, pathInGlTF);
         }
 
-        private TextureId GenerateTexture(Texture2D texture, string pathInGltf)
+        private ImageId GenerateImage(byte[] content, string exportPath, string pathInGltf)
         {
-            if (root.Textures == null)
-            {
-                root.Textures = new List<GLTF.Schema.Texture>();
-            }
+            File.WriteAllBytes(exportPath, content);
 
             if (root.Images == null)
             {
                 root.Images = new List<GLTF.Schema.Image>();
             }
 
+            root.Images.Add(new Image { Uri = pathInGltf });
+
+            return new ImageId { Id = root.Images.Count - 1, Root = root };
+        }
+
+        private TextureId GenerateTexture(Texture2D texture, ImageId imageId)
+        {
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
             if (root.Samplers == null)
             {
                 root.Samplers = new List<GLTF.Schema.Sampler>();
             }
-
-            root.Images.Add(new Image { Uri = pathInGltf });
-            var imageId = new ImageId { Id = root.Images.Count - 1, Root = root };
 
             var hasMipMap = texture.mipmapCount > 0;
             MagFilterMode magFilter = MagFilterMode.None;
@@ -715,18 +702,53 @@ namespace SeinJS
             return id;
         }
 
-        // http://dphgame.com/doku.php?id=shader%E5%9F%BA%E7%A1%80:unity%E5%86%85%E7%BD%AEshader:%E5%85%AC%E5%85%B1%E5%87%BD%E6%95%B0#decodelightmap
-        private Color DecodeRGBM(Color color)
+        private Texture2D TextureFlipY(Texture2D texture, Func<Color, Color> convertColor = null, Action<Texture2D> processTexture = null)
         {
-            var realColor = color;
-            var dFactor = realColor.a;
+            Texture2D newTex;
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
 
-            return new Color(
-                dFactor * realColor.r,
-                dFactor * realColor.g,
-                dFactor * realColor.b,
-                1
-            );
+            if (convertColor == null && (im == null || im.textureType != TextureImporterType.NormalMap))
+            {
+                // use gpu to speed up
+                newTex = GLTFTextureUtils.flipTexture(texture);
+            }
+            else
+            {
+                int height = texture.height;
+                int width = texture.width;
+                Color[] newTextureColors = new Color[height * width];
+
+                ExporterUtils.DoActionForTexture(ref texture, tex =>
+                {
+                    Color[] textureColors = tex.GetPixels();
+                    for (int i = 0; i < height; ++i)
+                    {
+                        for (int j = 0; j < width; ++j)
+                        {
+                            var c = textureColors[(height - i - 1) * width + j];
+
+                            newTextureColors[i * width + j] = convertColor != null ? convertColor(c) : c;
+                        }
+                    }
+                }
+                );
+
+                newTex = new Texture2D(width, height);
+                newTex.SetPixels(newTextureColors);
+                newTex.Apply();
+            }
+
+            if (processTexture != null)
+            {
+                processTexture(newTex);
+            }
+
+            return newTex;
+        }
+
+        private string[] GetTextureOutPath(Texture2D texture, string format)
+        {
+            return ExporterUtils.GetAssetOutPath(texture, format);
         }
 
         public CameraId SaveCamera(UnityEngine.Camera camera)
@@ -780,44 +802,6 @@ namespace SeinJS
             }
 
             return cam;
-        }
-
-        private Texture2D TextureFlipY(Texture2D texture, Func<Color, Color> convertColor = null, Action<Texture2D> processTexture = null)
-        {
-            int height = texture.height;
-            int width = texture.width;
-            Color[] newTextureColors = new Color[height * width];
-
-            ExporterUtils.DoActionForTexture(ref texture, tex =>
-                {
-                    Color[] textureColors = tex.GetPixels();
-                    for (int i = 0; i < height; ++i)
-                    {
-                        for (int j = 0; j < width; ++j)
-                        {
-                            var c = textureColors[(height - i - 1) * width + j];
-
-                            newTextureColors[i * width + j] = convertColor != null ? convertColor(c) : c;
-                        }
-                    }
-                }
-            );
-
-            var newtex = new Texture2D(width, height);
-            newtex.SetPixels(newTextureColors);
-            newtex.Apply();
-
-            if (processTexture != null)
-            {
-                processTexture(newtex);
-            }
-
-            return newtex;
-        }
-
-        private string[] GetTextureOutPath(Texture2D texture, string format)
-        {
-            return ExporterUtils.GetAssetOutPath(texture, format);
         }
 
         public SkinId SaveSkin(Transform tr)

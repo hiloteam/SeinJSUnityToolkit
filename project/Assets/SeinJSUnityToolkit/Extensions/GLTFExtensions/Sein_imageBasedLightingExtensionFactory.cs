@@ -141,7 +141,8 @@ namespace SeinJS
                         break;
                 }
                 tex2d.SetPixels(colors);
-                light.specMapFaces[i] = entry.SaveTextureHDR(tex2d, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, origAssetPath.Replace(ext, "-" + i + ext)).Id;
+                tex2d.Apply();
+                light.specMapFaces[i] = entry.SaveImageHDR(tex2d, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, origAssetPath.Replace(ext, "-" + i + ext)).Id;
             }
             DeleteTempMap(blurredSpecMap);
 

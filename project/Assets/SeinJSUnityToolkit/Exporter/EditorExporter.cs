@@ -45,7 +45,7 @@ namespace SeinJS
             root.Asset = new Asset();
             root.Asset.Generator = Config.GeneratorName;
             root.Asset.Version = "2.0";
-            root.Asset.Extras = new JProperty("exporterVersion", Utils.version.ToString());
+            root.Asset.Extras = new JProperty("exporterVersion", Config.Version.ToString());
             root.Scenes = new List<Scene>();
             root.Scenes.Add(new Scene());
             root.Scene = new SceneId{ Id = 0, Root = root };

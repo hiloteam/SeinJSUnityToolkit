@@ -111,7 +111,7 @@ namespace SeinJS
             return mr;
         }
 
-        [MenuItem("SeinJS/Materials to SeinPBR", priority = 2)]
+        [MenuItem("SeinJS/Materials to SeinPBR", priority = 4)]
         private static void AllToSeinPBR()
         {
             Material[] materials = (Material[])Resources.FindObjectsOfTypeAll(typeof(Material));

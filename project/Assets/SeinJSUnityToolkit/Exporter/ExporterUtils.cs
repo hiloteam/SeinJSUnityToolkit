@@ -343,8 +343,7 @@ namespace SeinJS
                     Texture2D occlusion = (Texture2D)mat.GetTexture("_occlusionMap");
 
                     var metalRoughTextureAo = CreateOcclusionMetallicRoughnessTexture(
-                        ref metallicTexture, ref roughnessTexture, ref occlusion,
-                        EImageChannel.B, EImageChannel.G, EImageChannel.R, EImageChannel.G
+                        ref metallicTexture, ref roughnessTexture, ref occlusion
                     );
                     var assetPath = AssetDatabase.GetAssetPath(metallicTexture);
                     var ext = Path.GetExtension(assetPath);
@@ -631,118 +630,6 @@ namespace SeinJS
             return true;
         }
 
-        private static Texture2D CreateOcclusionMetallicRoughnessTexture(
-            ref Texture2D metallic,
-            ref Texture2D roughness,
-            ref Texture2D occlusion,
-            EImageChannel metallicChannel = EImageChannel.R,
-            EImageChannel roughnessChannel = EImageChannel.R,
-            EImageChannel occlusionChannel = EImageChannel.R,
-            EImageChannel roughnessDist = EImageChannel.G_INVERT
-        )
-        {
-            string texName = metallic.name + "_orm";
-            var textureM = metallic;
-            var textureR = roughness;
-            var textureAO = occlusion;
-
-            string id = "";
-            if (metallic)
-            {
-                id += metallic.GetInstanceID();
-            }
-            if (roughness)
-            {
-                id += roughness.GetInstanceID();
-            }
-            if (occlusion)
-            {
-                id += occlusion.GetInstanceID();
-            }
-
-            if (ExporterEntry.composedTextures.ContainsKey(id))
-            {
-                return ExporterEntry.composedTextures[id];
-            }
-
-            int width = textureM.width;
-            int height = textureM.height;
-
-            if (textureR != null)
-            {
-                width = textureR.width > width ? textureR.width : width;
-                height = textureR.height > height ? textureR.height : height;
-            }
-
-            if (textureAO != null)
-            {
-                width = textureAO.width > width ? textureAO.width : width;
-                height = textureAO.height > height ? textureAO.height : height;
-            }
-
-            if (textureM.width != width || textureM.height != height)
-            {
-                CloneAndResize(ref metallic, out textureM, width, height);
-            }
-
-            if (textureR != null && (textureR.width != width || textureR.height != height))
-            {
-                CloneAndResize(ref roughness, out textureR, width, height);
-            }
-
-            if (textureAO != null && (textureAO.width != width || textureAO.height != height))
-            {
-                CloneAndResize(ref occlusion, out textureAO, width, height);
-            }
-
-            // Let's consider that the three textures have the same resolution
-            Color[] outputColors = new Color[width * height];
-            for (int i = 0; i < outputColors.Length; ++i)
-            {
-                outputColors[i] = new Color(0.0f, 0.0f, 0.0f);
-            }
-
-            SetTextureChannel(ref textureM, ref outputColors, EImageChannel.B, metallicChannel);
-
-            if (textureR != null)
-            {
-                SetTextureChannel(ref textureR, ref outputColors, roughnessDist, roughnessChannel);
-            }
-
-            if (textureAO != null)
-            {
-                SetTextureChannel(ref textureAO, ref outputColors, EImageChannel.R, occlusionChannel);
-            }
-
-            Texture2D newtex = new Texture2D(width, height);
-            newtex.name = texName;
-            newtex.SetPixels(outputColors);
-            newtex.Apply();
-
-            newtex.filterMode = textureM.filterMode;
-            newtex.wrapMode = textureM.wrapMode;
-
-            ExporterEntry.composedTextures.Add(id, newtex);
-
-            return newtex;
-        }
-
-        private static void CloneAndResize(ref Texture2D tex, out Texture2D newtex, int width, int height)
-        {
-            Texture2D newTex = null;
-            DoActionForTexture(ref tex, t =>
-                {
-                    newTex = new Texture2D(t.width, t.height);
-                    newTex.name = t.name;
-                    newTex.SetPixels(t.GetPixels());
-                    newTex.Apply();
-                    TextureScale.Bilinear(newTex, width, height);
-                }
-            );
-
-            newtex = newTex;
-        }
-
         public static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
         {
             TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
@@ -779,69 +666,43 @@ namespace SeinJS
             im.SaveAndReimport();
         }
 
-        private static void SetTextureChannel(ref Texture2D texture, ref Color[] colors, EImageChannel outputChannel, EImageChannel inputChannel = EImageChannel.R)
+        private static Texture2D CreateOcclusionMetallicRoughnessTexture(
+            ref Texture2D metallic,
+            ref Texture2D roughness,
+            ref Texture2D occlusion
+        )
         {
-            int height = texture.height;
-            int width = texture.width;
-            Color[] inputColors = new Color[texture.width * texture.height];
-            DoActionForTexture(ref texture, tex => { inputColors = tex.GetPixels(); });
+            string texName = metallic.name + "_orm";
+            var textureM = metallic;
+            var textureR = roughness;
+            var textureAO = occlusion;
 
-            if (!texture || inputColors.Length <= 0)
+            string id = "";
+            if (metallic)
             {
-                return;
+                id += metallic.GetInstanceID();
+            }
+            if (roughness)
+            {
+                id += roughness.GetInstanceID();
+            }
+            if (occlusion)
+            {
+                id += occlusion.GetInstanceID();
             }
 
-            if (height * width != colors.Length)
+            if (ExporterEntry.composedTextures.ContainsKey(id))
             {
-                Debug.LogError("Issue with texture dimensions");
-                return;
+                return ExporterEntry.composedTextures[id];
             }
 
-            for (int i = 0; i < height; ++i)
-            {
-                for (int j = 0; j < width; ++j)
-                {
-                    int index = i * width + j;
-                    Color c = colors[index];
-                    float inputValue;
-                    if (inputChannel == EImageChannel.R)
-                    {
-                        inputValue = inputColors[index].r;
-                    }
-                    else if (inputChannel == EImageChannel.G)
-                    {
-                        inputValue = inputColors[index].g;
-                    }
-                    else if (inputChannel == EImageChannel.B)
-                    {
-                        inputValue = inputColors[index].b;
-                    }
-                    else
-                    {
-                        inputValue = inputColors[index].a;
-                    }
+            var newTex = GLTFTextureUtils.packOcclusionMetalRough(metallic, roughness, occlusion, texName);
+            newTex.filterMode = metallic.filterMode;
+            newTex.wrapMode = metallic.wrapMode;
 
-                    if (outputChannel == EImageChannel.R)
-                    {
-                        c.r = inputValue;
-                    }
-                    else if (outputChannel == EImageChannel.G)
-                    {
-                        c.g = inputValue;
-                    }
-                    else if (outputChannel == EImageChannel.B)
-                    {
-                        c.b = inputValue;
-                    }
-                    else if (outputChannel == EImageChannel.G_INVERT)
-                    {
-                        c.g = 1.0f - inputValue;
-                    }
+            ExporterEntry.composedTextures.Add(id, newTex);
 
-                    colors[index] = c;
-                }
-            }
-
+            return newTex;
         }
     }
 }
