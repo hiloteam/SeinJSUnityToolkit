@@ -49,7 +49,17 @@ namespace SeinJS
 
         }
 
+        public virtual void FinishExport()
+        {
+
+        }
+
         public virtual void BeforeImport()
+        {
+
+        }
+
+        public virtual void FinishImport()
         {
 
         }
@@ -70,9 +80,9 @@ namespace SeinJS
          * @todo: import entry
          */
         public virtual void Import(EditorImporter importer, Extension extension) { }
-        public virtual void Import(EditorImporter importer, GameObject gameObject, Extension extension) { }
-        public virtual void Import(EditorImporter importer, UnityEngine.Material material, Extension extension) { }
-        public virtual void Import(EditorImporter importer, UnityEngine.Mesh mesh, Extension extension) { }
-        public virtual void Import(EditorImporter importer, Texture2D texture, Extension extension) { }
+        public virtual void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension) { }
+        public virtual void Import(EditorImporter importer, UnityEngine.Material material, GLTF.Schema.Material gltfMat, Extension extension) { }
+        public virtual void Import(EditorImporter importer, UnityEngine.Mesh mesh, GLTF.Schema.Mesh gltfMesh, Extension extension) { }
+        public virtual void Import(EditorImporter importer, Texture2D texture, GLTF.Schema.Texture gltfTex, Extension extension) { }
     }
 }

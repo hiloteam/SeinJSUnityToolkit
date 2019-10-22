@@ -44,8 +44,27 @@ namespace SeinJS
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
-            //todo: complete
+            var extension = new Sein_rendererExtension();
+
+            if (extensionToken != null)
+            {
+                extension.castShadows = (bool)extensionToken["castShadows"];
+                extension.receiveShadows = (bool)extensionToken["receiveShadows"];
+            }
+
             return new Sein_rendererExtension();
+        }
+
+        public override void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension)
+        {
+            var mr = gameObject.GetComponent<Renderer>();
+            var r = (Sein_rendererExtension)extension;
+
+            if (mr != null)
+            {
+                mr.shadowCastingMode = r.castShadows ? UnityEngine.Rendering.ShadowCastingMode.On : UnityEngine.Rendering.ShadowCastingMode.Off;
+                mr.receiveShadows = r.receiveShadows;
+            }
         }
     }
 }

@@ -457,7 +457,7 @@ namespace SeinJS
             {
                 foreach (var extension in extensions)
                 {
-                    ExtensionManager.Import(extension.Key, this, source, extension.Value);
+                    ExtensionManager.Import(extension.Key, this, source, def, extension.Value);
                 }
             }
 
@@ -476,7 +476,7 @@ namespace SeinJS
                 if (extensions != null && extensions.ContainsKey(cmeName))
                 {
                     material = new UnityEngine.Material(Shader.Find("Sein/PBR"));
-                    ExtensionManager.Import(cmeName, this, material, extensions[cmeName]);
+                    ExtensionManager.Import(cmeName, this, material, mat, extensions[cmeName]);
                 }
                 else
                 {
@@ -489,7 +489,7 @@ namespace SeinJS
                     {
                         if (extension.Key != "KHR_materials_pbrSpecularGlossiness" && extension.Key != cmeName)
                         {
-                            ExtensionManager.Import(extension.Key, this, material, extension.Value);
+                            ExtensionManager.Import(extension.Key, this, material, mat, extension.Value);
                         }
                     }
                 }
@@ -543,7 +543,7 @@ namespace SeinJS
             if (def.NormalTexture != null)
 			{
 				var texture = def.NormalTexture.Index.Id;
-				Texture2D normalTexture = getTexture(texture) as Texture2D;
+				Texture2D normalTexture = GetTexture(texture) as Texture2D;
 
 				//Automatically set it to normal map
 				TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(normalTexture)) as TextureImporter;
@@ -553,7 +553,7 @@ namespace SeinJS
                     im.sRGBTexture = false;
                 }
                 im.SaveAndReimport();
-                material.SetTexture("_normalMap", getTexture(texture));
+                material.SetTexture("_normalMap", GetTexture(texture));
                 material.SetFloat("_normalScale", (float)def.NormalTexture.Scale);
             }
 
@@ -561,7 +561,7 @@ namespace SeinJS
 			{
 				//material.EnableKeyword("EMISSION_MAP_ON");
 				var texture = def.EmissiveTexture.Index.Id;
-				material.SetTexture("_emissionMap", getTexture(texture));
+				material.SetTexture("_emissionMap", GetTexture(texture));
                 material.SetInt("_emissionUV", def.EmissiveTexture.TexCoord);
 			}
 
@@ -575,13 +575,13 @@ namespace SeinJS
 				if (pbr.DiffuseTexture != null)
 				{
 					var texture = pbr.DiffuseTexture.Index.Id;
-					material.SetTexture("_baseColorMap", getTexture(texture));
+					material.SetTexture("_baseColorMap", GetTexture(texture));
 				}
 
 				if (pbr.SpecularGlossinessTexture != null)
 				{
 					var textureID = pbr.SpecularGlossinessTexture.Index.Id;
-                    var texture = getTexture(textureID);
+                    var texture = GetTexture(textureID);
                     ChangeSRGB(ref texture, true);
                     material.SetTexture("_specularGlossinessMap", texture);
 					material.SetFloat("_glossMapScale", (float)pbr.GlossinessFactor);
@@ -599,7 +599,7 @@ namespace SeinJS
 				if (def.OcclusionTexture != null)
 				{
                     var textureID = pbr.SpecularGlossinessTexture.Index.Id;
-                    var texture = getTexture(textureID);
+                    var texture = GetTexture(textureID);
                     material.SetFloat("_occlusionStrength", (float)def.OcclusionTexture.Strength);
                     ChangeSRGB(ref texture, false);
                     material.SetTexture("_occlusionMap", texture);
@@ -613,7 +613,7 @@ namespace SeinJS
 				if (pbr.BaseColorTexture != null)
 				{
 					var textureID = pbr.BaseColorTexture.Index.Id;
-                    var texture = getTexture(textureID);
+                    var texture = GetTexture(textureID);
                     ChangeSRGB(ref texture, true);
                     material.SetTexture("_baseColorMap", texture);
 				}
@@ -624,7 +624,7 @@ namespace SeinJS
 				if (pbr.MetallicRoughnessTexture != null)
 				{
 					var texture = pbr.MetallicRoughnessTexture.Index.Id;
-					Texture2D metalRoughnessTexture = getTexture(texture) as Texture2D;
+					Texture2D metalRoughnessTexture = GetTexture(texture) as Texture2D;
                     Texture2D occlusionTexture = null;
                     if (def.OcclusionTexture != null)
                     {
@@ -634,7 +634,7 @@ namespace SeinJS
                         }
                         else
                         {
-                            occlusionTexture = getTexture(def.OcclusionTexture.Index.Id) as Texture2D;
+                            occlusionTexture = GetTexture(def.OcclusionTexture.Index.Id) as Texture2D;
                         }
                     }
 
@@ -721,7 +721,7 @@ namespace SeinJS
             im.SaveAndReimport();
         }
 
-        private Texture2D getTexture(int index)
+        public Texture2D GetTexture(int index)
 		{
 			return _assetManager.getTexture(index);
 		}
@@ -859,7 +859,7 @@ namespace SeinJS
             {
                 foreach (var extension in extensions)
                 {
-                    ExtensionManager.Import(extension.Key, this, mainMesh, extension.Value);
+                    ExtensionManager.Import(extension.Key, this, mainMesh, mesh, extension.Value);
                 }
             }
 
@@ -1387,7 +1387,26 @@ namespace SeinJS
                 }
             }
 
-			_importedObjects.Add(index, nodeObj);
+            if (node.Mesh != null)
+            {
+                foreach (var p in node.Mesh.Value.Primitives)
+                {
+                    var mat = p.Material.Value;
+                    var extName = ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory));
+
+                    if (mat != null && mat.Extensions != null && mat.Extensions.ContainsKey(extName))
+                    {
+                        var ext = mat.Extensions[extName] as Sein_customMaterialExtension;
+
+                        if (ext.isComponent)
+                        {
+                            ext.AddComponentToGO(nodeObj);
+                        }
+                    }
+                }
+            }
+
+            _importedObjects.Add(index, nodeObj);
 			return nodeObj;
 		}
 
@@ -1410,7 +1429,7 @@ namespace SeinJS
                 {
                     foreach (var extension in extensions)
                     {
-                        ExtensionManager.Import(extension.Key, this, go, extension.Value);
+                        ExtensionManager.Import(extension.Key, this, go, node, extension.Value);
                     }
                 }
 
@@ -1483,7 +1502,8 @@ namespace SeinJS
 
 			_taskManager.clear();
 			Resources.UnloadUnusedAssets();
-		}
+            ExtensionManager.FinishExport();
+        }
 
 		private void cleanObjects()
 		{

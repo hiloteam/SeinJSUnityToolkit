@@ -42,7 +42,7 @@ namespace SeinJS
             return extension;
         }
 
-        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        public override void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension)
         {
             var source = (Sein_audioListenerExtension)extension;
             var audioSource = gameObject.AddComponent<SeinAudioListener>();

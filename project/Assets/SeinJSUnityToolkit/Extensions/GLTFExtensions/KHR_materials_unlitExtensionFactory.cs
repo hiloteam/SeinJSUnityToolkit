@@ -30,7 +30,7 @@ namespace SeinJS
             return new KHR_materials_unlitExtension();
         }
 
-        public override void Import(EditorImporter importer, UnityEngine.Material material, Extension extension)
+        public override void Import(EditorImporter importer, UnityEngine.Material material, GLTF.Schema.Material gltfMat, Extension extension)
         {
             if (material.HasProperty("unlit"))
             {

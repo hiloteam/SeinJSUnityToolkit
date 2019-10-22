@@ -36,7 +36,8 @@ namespace SeinJS
             {
                 ExportOne(entry);
             }
-            ExporterUtils.FinishExport();
+
+            FinishExport();
         }
 
         private void ExportOne(ExporterEntry entry)
@@ -402,12 +403,14 @@ namespace SeinJS
 
         private void Clear()
         {
-
+            ExporterUtils.FinishExport();
+            ExtensionManager.FinishExport();
+            Resources.UnloadUnusedAssets();
         }
 
         private void FinishExport()
         {
-
+            Clear();
         }
     }
 }

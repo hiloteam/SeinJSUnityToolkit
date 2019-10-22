@@ -129,7 +129,7 @@ namespace SeinJS
             return extension;
         }
 
-        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        public override void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension)
         {
             var lightIndex = ((KHR_lights_punctualExtension)extension).lightIndex;
             var lights = (KHR_lights_punctualExtension)importer.root.Extensions[ExtensionName];

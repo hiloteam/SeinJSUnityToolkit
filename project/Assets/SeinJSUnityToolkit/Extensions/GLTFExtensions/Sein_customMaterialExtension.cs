@@ -13,6 +13,9 @@ namespace SeinJS
 {
     public class Sein_customMaterialExtension : Extension
     {
+        public bool isComponent = false;
+        public UnityEngine.Material material = null;
+
         public string className = "";
         public string unityMaterialName = "";
 
@@ -41,7 +44,6 @@ namespace SeinJS
             res.Add("className", className);
             res.Add("renderOrder", renderOrder);
             res.Add("cloneForInst", cloneForInst);
-            res.Add("transparent", transparent);
 
             var uniforms = new JObject();
             res.Add("uniforms", uniforms);
@@ -107,6 +109,7 @@ namespace SeinJS
                         var fv4 = (uniform as SeinMaterialUniformFloatVec4).value;
                         if (uniform.GetType() == typeof(SeinMaterialUniformColor) && PlayerSettings.colorSpace == ColorSpace.Linear)
                         {
+                            value.Add(new JProperty("isColor", true));
                             fv4 = (uniform as SeinMaterialUniformColor).value.linear;
                         }
                         value.Add(new JProperty("value", new JArray { fv4.x, fv4.y, fv4.z, fv4.w }));
@@ -136,6 +139,31 @@ namespace SeinJS
                         break;
                 }
             }
+        }
+
+        public void AddComponentToGO(GameObject go)
+        {
+            var mat = go.AddComponent<SeinCustomMaterial>();
+
+            mat.unityMaterialName = material.name;
+            mat.className = className;
+            mat.cloneForInst = cloneForInst;
+            mat.renderOrder = renderOrder;
+            mat.transparent = transparent;
+            mat.uniformsColor = uniformsColor;
+            mat.uniformsTexture = uniformsTexture;
+            mat.uniformsCubeTexture = uniformsCubeTexture;
+            mat.uniformsFloat = uniformsFloat;
+            mat.uniformsFloatVec2 = uniformsFloatVec2;
+            mat.uniformsFloatVec3 = uniformsFloatVec3;
+            mat.uniformsFloatVec4 = uniformsFloatVec4;
+            mat.uniformsFloatMat2 = uniformsFloatMat2;
+            mat.uniformsFloatMat3 = uniformsFloatMat3;
+            mat.uniformsFloatMat4 = uniformsFloatMat4;
+            mat.uniformsInt = uniformsInt;
+            mat.uniformsIntVec2 = uniformsIntVec2;
+            mat.uniformsIntVec3 = uniformsIntVec3;
+            mat.uniformsIntVec4 = uniformsIntVec4;
         }
     }
 }

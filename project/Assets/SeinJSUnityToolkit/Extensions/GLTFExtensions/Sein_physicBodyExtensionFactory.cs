@@ -119,7 +119,7 @@ namespace SeinJS
             return extension;
         }
 
-        public override void Import(EditorImporter importer, GameObject gameObject, Extension extension)
+        public override void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension)
         {
             var physicBody = (Sein_physicBodyExtension)extension;
             var rigidBody = gameObject.AddComponent<SeinRigidBody>();

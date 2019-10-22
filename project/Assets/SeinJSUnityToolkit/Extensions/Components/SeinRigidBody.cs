@@ -4,8 +4,6 @@ using System.Collections;
 [AddComponentMenu("Sein/Core Components/Sein Rigid Body")]
 public class SeinRigidBody : MonoBehaviour
 {
-    public static string extensionName = "Sein_physicBody";
-
     [Header("Body Options")]
     // If this node is toplevel, selfType will default to Actor
     // If not toplevel, it will default to Inherit

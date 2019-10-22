@@ -79,6 +79,22 @@ namespace SeinJS
             }
         }
 
+        public static void FinishExport()
+        {
+            foreach (var factory in Name2Extensions.Values)
+            {
+                factory.FinishExport();
+            }
+        }
+
+        public static void FinishImport()
+        {
+            foreach (var factory in Name2Extensions.Values)
+            {
+                factory.FinishImport();
+            }
+        }
+
         public static string GetExtensionName(Type FactoryClass)
         {
             return Class2Extensions[FactoryClass];
@@ -118,32 +134,32 @@ namespace SeinJS
             }
         }
 
-        public static void Import(string extensionName, EditorImporter importer, GameObject gameObject, Extension extension) {
+        public static void Import(string extensionName, EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension) {
             if (Name2Extensions.ContainsKey(extensionName))
             {
-                Name2Extensions[extensionName].Import(importer, gameObject, extension);
+                Name2Extensions[extensionName].Import(importer, gameObject, gltfNode, extension);
             }
         }
 
-        public static void Import(string extensionName, EditorImporter importer, UnityEngine.Material material, Extension extension) {
+        public static void Import(string extensionName, EditorImporter importer, UnityEngine.Material material, GLTF.Schema.Material gltfMat, Extension extension) {
             if (Name2Extensions.ContainsKey(extensionName))
             {
-                Name2Extensions[extensionName].Import(importer, material, extension);
+                Name2Extensions[extensionName].Import(importer, material, gltfMat, extension);
             }
         }
 
-        public static void Import(string extensionName, EditorImporter importer, UnityEngine.Mesh mesh, Extension extension) {
+        public static void Import(string extensionName, EditorImporter importer, UnityEngine.Mesh mesh, GLTF.Schema.Mesh gltfMesh, Extension extension) {
             if (Name2Extensions.ContainsKey(extensionName))
             {
-                Name2Extensions[extensionName].Import(importer, mesh, extension);
+                Name2Extensions[extensionName].Import(importer, mesh, gltfMesh, extension);
             }
         }
 
-        public static void Import(string extensionName, EditorImporter importer, Texture2D texture, Extension extension)
+        public static void Import(string extensionName, EditorImporter importer, Texture2D texture, GLTF.Schema.Texture gltfTex, Extension extension)
         {
             if (Name2Extensions.ContainsKey(extensionName))
             {
-                Name2Extensions[extensionName].Import(importer, texture, extension);
+                Name2Extensions[extensionName].Import(importer, texture, gltfTex, extension);
             }
         }
     }

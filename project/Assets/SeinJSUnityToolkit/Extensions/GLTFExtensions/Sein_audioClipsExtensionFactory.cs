@@ -46,6 +46,12 @@ namespace SeinJS
             IMPORTED_URIS.Clear();
         }
 
+        public override void FinishImport()
+        {
+            IMPORTED_CLIPS.Clear();
+            IMPORTED_URIS.Clear();
+        }
+
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             if (!ENTRY_CLIPS.ContainsKey(entry))

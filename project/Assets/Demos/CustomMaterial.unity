@@ -157,9 +157,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   className: TestMaterial
   unityMaterialName: 
-  renderOrder: 0
-  cloneForInst: 0
-  transparent: 0
+  renderOrder: 100
+  cloneForInst: 1
+  transparent: 1
   uniformsTexture:
   - name: u_bg
     value: {fileID: 2800000, guid: db3548be7ed76444a8cfc2c9a486f5de, type: 3}

@@ -485,10 +485,10 @@ namespace SeinJS
                 }
 
                 var n = propName;
-                if (propName.Substring(0, 1) == "_")
-                {
-                    propName = propName.Substring(1);
-                }
+                //if (propName.Substring(0, 1) == "_")
+                //{
+                //    propName = propName.Substring(1);
+                //}
 
                 switch (propType)
                 {
@@ -515,7 +515,11 @@ namespace SeinJS
                 customMaterial.uniformsTexture = textureArray.ToArray();
             }
 
-            return ConvertMaterial(customMaterial, entry);
+            var tempM = new GLTF.Schema.Material();
+            customMaterial.transparent = ProcessTransparency(mat, tempM);
+            var m = ConvertMaterial(customMaterial, entry);
+
+            return m;
         }
 
         //private static GLTF.Schema.Material ConvertKHRWebGLMaterial(UnityEngine.Material material, ExportorEntry entry)
@@ -550,6 +554,12 @@ namespace SeinJS
             {
                 material.Extensions = new Dictionary<string, Extension>();
             }
+
+            if (mat.transparent)
+            {
+                material.AlphaMode = AlphaMode.BLEND;
+            }
+
             ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory)), entry, material.Extensions, mat);
             return material;
         }

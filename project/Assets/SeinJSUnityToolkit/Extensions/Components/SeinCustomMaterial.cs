@@ -80,6 +80,7 @@ public class SeinCustomMaterialInspector : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("unityMaterialName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("renderOrder"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("cloneForInst"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("transparent"));
 
         var option = EEditorListOption.ListLabel | EEditorListOption.Buttons | EEditorListOption.ElementLabels;
         var activeUniforms = GetActiveUniforms();
@@ -95,8 +96,6 @@ public class SeinCustomMaterialInspector : Editor
 [AddComponentMenu("Sein/Core Components/Sein Custom Material")]
 public class SeinCustomMaterial : MonoBehaviour
 {
-    public static string extensionName = "Sein_customMaterial";
-
     public string className = "";
     public string unityMaterialName = "";
 
