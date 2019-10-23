@@ -93,6 +93,7 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinAudioSource.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinCustomMaterial.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinNode.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinNodeClass.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinRigidBody.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_lights_punctualExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_lights_punctualExtensionFactory.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Resizer.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\UI.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBRShaderGUI.cs" />
+    <Compile Include="Assets\TestActor.cs" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFPackOccMetalRough.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFLinear2sRGB.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFColorSpace.cginc" />
