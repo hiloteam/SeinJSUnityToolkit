@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: bird.mp3
   m_EditorClassIdentifier: 
   mode: 1
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 66ffeee6a710af44a845f40eb8af37ef, type: 3}
   isLazy: 0

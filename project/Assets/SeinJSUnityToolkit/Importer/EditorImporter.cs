@@ -83,6 +83,14 @@ namespace SeinJS
             }
         }
 
+        public GameObject sceneObject
+        {
+            get
+            {
+                return _sceneObject;
+            }
+        }
+
         public string gltfDirectoryPath
         {
             get
@@ -227,6 +235,7 @@ namespace SeinJS
 				throw new Exception("No default scene in gltf file.");
 			}
 
+            _assetManager.hasAnimatorExtension = _root.ExtensionsUsed.Contains(ExtensionManager.GetExtensionName(typeof(Sein_animatorExtensionFactory)));
 			_assetCache = new AssetCache(
 				_root.Images != null ? _root.Images.Count : 0,
 				_root.Textures != null ? _root.Textures.Count : 0,
@@ -565,13 +574,11 @@ namespace SeinJS
                 material.SetInt("_emissionUV", def.EmissiveTexture.TexCoord);
 			}
 
-            bool isLinear = PlayerSettings.colorSpace == ColorSpace.Linear;
-
             // PBR channels
             if (specularGlossinessExtension != null)
 			{
 				KHR_materials_pbrSpecularGlossinessExtension pbr = (KHR_materials_pbrSpecularGlossinessExtension)specularGlossinessExtension;
-				material.SetColor("_baseColor", isLinear ? pbr.DiffuseFactor.ToUnityColor().gamma : pbr.DiffuseFactor.ToUnityColor());
+				material.SetColor("_baseColor", pbr.DiffuseFactor.ToUnityColor());
 				if (pbr.DiffuseTexture != null)
 				{
 					var texture = pbr.DiffuseTexture.Index.Id;
@@ -594,7 +601,7 @@ namespace SeinJS
 
 				Vector3 specularVec3 = pbr.SpecularFactor.ToUnityVector3();
                 var spec = new Color(specularVec3.x, specularVec3.y, specularVec3.z, 1.0f);
-                material.SetColor("_specular", isLinear ? spec.gamma : spec);
+                material.SetColor("_specular", spec);
 
 				if (def.OcclusionTexture != null)
 				{
@@ -609,7 +616,7 @@ namespace SeinJS
 			{
 				var pbr = def.PbrMetallicRoughness;
 
-				material.SetColor("_baseColor", isLinear ? pbr.BaseColorFactor.ToUnityColor().gamma : pbr.BaseColorFactor.ToUnityColor());
+				material.SetColor("_baseColor", pbr.BaseColorFactor.ToUnityColor());
 				if (pbr.BaseColorTexture != null)
 				{
 					var textureID = pbr.BaseColorTexture.Index.Id;
@@ -650,7 +657,7 @@ namespace SeinJS
 				}
 			}
 
-			material.SetColor("_emission", isLinear ? def.EmissiveFactor.ToUnityColor().gamma : def.EmissiveFactor.ToUnityColor());
+			material.SetColor("_emission", def.EmissiveFactor.ToUnityColor());
 
             return material;
 		}

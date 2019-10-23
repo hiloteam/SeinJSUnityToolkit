@@ -867,11 +867,24 @@ namespace SeinJS
 
             AnimationClip[] clips = null;
             string defaultClip = null;
+            var a = tr.GetComponent<Animator>();
 
-            if (tr.GetComponent<Animator>())
+            if (a != null && a.runtimeAnimatorController != null)
             {
                 clips = AnimationUtility.GetAnimationClips(tr.gameObject);
-                defaultClip = tr.GetComponent<Animator>().GetCurrentAnimatorClipInfo(0)[0].clip.name;
+                
+                var current = a.GetCurrentAnimatorClipInfo(0);
+                if (current.Length == 0)
+                {
+                    if (a.runtimeAnimatorController.animationClips.Length > 0)
+                    {
+                        defaultClip = a.runtimeAnimatorController.animationClips[0].name;
+                    }
+                }
+                else
+                {
+                    defaultClip = current[0].clip.name;
+                }
             }
             else if (tr.GetComponent<UnityEngine.Animation>())
             {

@@ -26,6 +26,8 @@ namespace SeinJS
         public List<Texture2D> _parsedTextures;
         public List<int> _usedSources;
         public AnimatorController _animatorController;
+        public bool hasAnimatorExtension = false;
+
         private string _prefabName;
 
         public AssetManager(string projectDirectoryPath, string modelName = "Imported")
@@ -399,13 +401,10 @@ namespace SeinJS
             if (_animatorController != null)
             {
                 var animator = sceneObject.GetComponent<Animator>();
-                if (animator == null)
+
+                if (animator == null && !hasAnimatorExtension)
                 {
                     animator = sceneObject.AddComponent<Animator>();
-                }
-
-                if (animator.runtimeAnimatorController == null)
-                {
                     animator.runtimeAnimatorController = _animatorController;
                 }
             }
@@ -420,6 +419,7 @@ namespace SeinJS
             foreach (Component comp in allComponents)
             {
                 var t = comp.GetType();
+
                 if (obj.GetComponent(t) != null)
                 {
                     continue;

@@ -48,8 +48,8 @@ namespace SeinJS
 
             if (extensionToken != null)
             {
-                extension.castShadows = (bool)extensionToken["castShadows"];
-                extension.receiveShadows = (bool)extensionToken["receiveShadows"];
+                extension.castShadows = (bool)extensionToken.Value["castShadows"];
+                extension.receiveShadows = (bool)extensionToken.Value["receiveShadows"];
             }
 
             return new Sein_rendererExtension();

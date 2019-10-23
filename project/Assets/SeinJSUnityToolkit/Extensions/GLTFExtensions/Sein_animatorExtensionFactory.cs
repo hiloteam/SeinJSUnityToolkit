@@ -14,6 +14,7 @@ using GLTF.Schema;
 using UnityEngine;
 using UnityEditor.Animations;
 using System.IO;
+using UnityEditor;
 
 namespace SeinJS
 {
@@ -142,12 +143,41 @@ namespace SeinJS
                         continue;
                     }
 
-                    controller.AddMotion((Motion)IMPORTED_CLIPS[name]);
+                    var clip = IMPORTED_CLIPS[name];
+                    controller.AddMotion((Motion)clip);
+
+                    var nodePath = AnimationUtility.CalculateTransformPath(gameObject.transform, importer.sceneObject.transform);
+                    var temp = new List<Temp>();
+                    foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+                    {
+                        var path = binding.path;
+                        var realPath = path.Substring(nodePath.Length);
+                        var propertyName = binding.propertyName;
+                        var type = binding.type;
+                        var curve = AnimationUtility.GetEditorCurve(clip, binding);
+
+                        temp.Add(new Temp { path = realPath, propertyName = propertyName, type = type, curve = curve });
+                    }
+
+                    clip.ClearCurves();
+
+                    foreach (var binding in temp)
+                    {
+                        clip.SetCurve(binding.path, binding.type, binding.propertyName, binding.curve);
+                    }
                 }
             }
 
             var animator = gameObject.AddComponent<Animator>();
             animator.runtimeAnimatorController = controller;
+        }
+
+        struct Temp
+        {
+            public string path;
+            public string propertyName;
+            public Type type;
+            public AnimationCurve curve;
         }
     }
 }

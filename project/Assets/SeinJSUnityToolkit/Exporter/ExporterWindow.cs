@@ -153,7 +153,7 @@ namespace SeinJS {
             GUILayout.Space(SPACE_SIZE);
 
             GUILayout.Label("Lighting Settings", EditorStyles.boldLabel);
-            ExporterSettings.Lighting.ambient = EditorGUILayout.Toggle("Export amibent light", ExporterSettings.Lighting.ambient);
+            ExporterSettings.Lighting.ambient = EditorGUILayout.Toggle("Export ambient light", ExporterSettings.Lighting.ambient);
 
             ExporterSettings.Lighting.lightMap = EditorGUILayout.Toggle("Export light map", ExporterSettings.Lighting.lightMap);
             ExporterSettings.Lighting.lightMapType = (EHDRTextureType)EditorGUILayout.EnumPopup("Light map image type", ExporterSettings.Lighting.lightMapType);
