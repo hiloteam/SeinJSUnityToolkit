@@ -53,8 +53,6 @@ Shader "GLTF/HDR2RGBD" {
                 color.b = color.b * d;
                 color.a = d;
 
-                color = float4(d, 0, 0, 1);
-
                 return color;
              }
 
