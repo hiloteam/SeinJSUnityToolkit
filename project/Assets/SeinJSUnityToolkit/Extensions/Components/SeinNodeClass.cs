@@ -110,11 +110,11 @@ public class SeinNodeClass : MonoBehaviour
         }
         else
         {
-            return SerializeValueUnkown(entry, option);
+            return SerializeValueUnknown(entry, option);
         }
     }
 
-    public virtual SeinJS.SeinNodeOption SerializeValueUnkown(SeinJS.ExporterEntry entry, object option)
+    public virtual SeinJS.SeinNodeOption SerializeValueUnknown(SeinJS.ExporterEntry entry, object option)
     {
         var result = new JObject();
 
