@@ -6,21 +6,6 @@ using System;
 
 namespace SeinJS
 {
-    public enum ESeinNodeOptionType
-    {
-        Num,
-        Arr,
-        Str,
-        Bool,
-        Tex2D,
-        Vec2,
-        Vec3,
-        Vec4,
-        Quat,
-        Col,
-        Mat4
-    }
-
     public struct SeinNodeOption
     {
         public string type;
@@ -114,10 +99,14 @@ public class SeinNodeClass : MonoBehaviour
             var res = new JArray();
             foreach (var item in (Array)option)
             {
-                res.Add(SerializeValue(entry, item).value);
+                var value = SerializeValue(entry, item);
+                res.Add(new JObject(
+                    new JProperty("type", value.type),
+                    new JProperty("value", value.value)
+                ));
             }
 
-            return new SeinJS.SeinNodeOption("Arr", res);
+            return new SeinJS.SeinNodeOption("Array", res);
         }
         else
         {
@@ -138,22 +127,22 @@ public class SeinNodeClass : MonoBehaviour
             ));
         }
 
-        return new SeinJS.SeinNodeOption("obj", result);
+        return new SeinJS.SeinNodeOption("Object", result);
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, float option)
     {
-        return new SeinJS.SeinNodeOption("Num", option);
+        return new SeinJS.SeinNodeOption("Float", option);
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, int option)
     {
-        return new SeinJS.SeinNodeOption("Num", option);
+        return new SeinJS.SeinNodeOption("Int", option);
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, string option)
     {
-        return new SeinJS.SeinNodeOption("Str", option);
+        return new SeinJS.SeinNodeOption("String", option);
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, bool option)
