@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 696af64dd60b243af9e92733507d44e5, type: 3}
+  m_Name: bird.mp3
+  m_EditorClassIdentifier: 
+  mode: 1
+  clip: {fileID: 8300000, guid: 66ffeee6a710af44a845f40eb8af37ef, type: 3}
+  isLazy: 0
