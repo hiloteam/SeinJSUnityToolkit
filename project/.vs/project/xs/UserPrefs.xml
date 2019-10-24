@@ -1,25 +1,23 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Converter/StandardToSeinPBR.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtension.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Components/NewMonoBehaviour.cs" Line="34" Column="8" />
-      <File FileName="Assets/NewMonoBehaviour.cs" Line="18" Column="2" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="296" Column="33" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Importer/AssetSerializer.cs" Line="260" Column="10" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Components/SeinCustomMaterial.cs" Line="11" Column="24" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Converter/StandardToSeinPBR.cs" Line="1" Column="1" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Components/SeinNodeClass.cs" Line="61" Column="10" />
+      <File FileName="Assets/SeinNodeClass_TestActor.cs" Line="27" Column="23" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtension.cs" Line="51" Column="1" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtensionFactory.cs" Line="40" Column="14" NotebookId="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
+              <Node name="Resources" expanded="True" />
               <Node name="SeinJSUnityToolkit" expanded="True">
-                <Node name="Converter" expanded="True">
-                  <Node name="StandardToSeinPBR.cs" selected="True" />
-                </Node>
                 <Node name="Extensions" expanded="True">
                   <Node name="Components" expanded="True" />
-                  <Node name="GLTFExtensions" expanded="True" />
+                  <Node name="GLTFExtensions" expanded="True">
+                    <Node name="Sein_nodeExtension.cs" selected="True" />
+                  </Node>
                 </Node>
               </Node>
             </Node>

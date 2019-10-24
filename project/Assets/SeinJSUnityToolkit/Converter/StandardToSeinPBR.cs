@@ -14,20 +14,6 @@ namespace SeinJS
 {
     public class StandardToSeinPBR : MonoBehaviour
     {
-        [MenuItem("GameObject/Test", priority = 11)]
-        private static void TTT()
-        {
-            var transforms = Selection.GetTransforms(SelectionMode.Deep);
-            var go = transforms[0].gameObject;
-
-            var com = go.GetComponent<SeinNodeClass>();
-            var p = com.GetType().GetProperty("props");
-            var t = com.GetType();
-            var props = com.props;
-            Debug.Log(t.FullName);
-            Debug.Log(t.GetMember("props"));
-        }
-
         [MenuItem("Assets/Materials to SeinPBR", priority = 0)]
         private static void AssetsToSeinPBR()
         {

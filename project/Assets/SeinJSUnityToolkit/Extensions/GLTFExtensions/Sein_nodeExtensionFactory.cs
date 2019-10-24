@@ -6,9 +6,6 @@
  */
 using System;
 using Newtonsoft.Json.Linq;
-using GLTF.Math;
-using Newtonsoft.Json;
-using GLTF.Extensions;
 using System.Collections.Generic;
 using GLTF.Schema;
 using UnityEngine;
@@ -35,6 +32,12 @@ namespace SeinJS
             extension.updateOnEverTick = node.updateOnEverTick;
             extension.isStatic = node.isStatic;
             extension.skipThisNode = node.skipThisNode;
+
+            var com = node.GetComponent<SeinNodeClass>();
+            if (com != null)
+            {
+                extension.initOptions = com.Serialize(entry, extension);
+            }
 
             AddExtension(extensions, extension);
         }

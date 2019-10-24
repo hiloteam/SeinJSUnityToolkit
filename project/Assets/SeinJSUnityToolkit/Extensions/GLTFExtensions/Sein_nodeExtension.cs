@@ -6,9 +6,7 @@
  */
 using GLTF.Math;
 using GLTF.Schema;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 namespace SeinJS
 {
@@ -24,6 +22,7 @@ namespace SeinJS
         public bool updateOnEverTick;
         public bool isStatic;
         public bool skipThisNode;
+        public JObject initOptions;
 
         public JProperty Serialize()
         {
@@ -39,6 +38,11 @@ namespace SeinJS
                 new JProperty("isStatic", isStatic),
                 new JProperty("skipThisNode", skipThisNode)
             );
+
+            if (initOptions != null)
+            {
+                value.Add("initOptions", initOptions);
+            }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_nodeExtensionFactory)), value);
         }

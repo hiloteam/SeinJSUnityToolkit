@@ -63,7 +63,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\CustomSeinMaterial.cs" />
+    <Compile Include="Assets\Resources\CustomSeinMaterial.cs" />
+    <Compile Include="Assets\Resources\SeinNodeClass_TestActor.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBRCameraScript.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancePBRShaderGUI.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\FreeCameraControl.cs" />
@@ -129,7 +130,6 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Resizer.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\UI.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBRShaderGUI.cs" />
-    <Compile Include="Assets\TestActor.cs" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFPackOccMetalRough.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFLinear2sRGB.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFColorSpace.cginc" />
