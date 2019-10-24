@@ -198,7 +198,6 @@ public class SeinNodeClass : MonoBehaviour
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Texture2D option)
     {
-        //return new SeinJS.SeinNodeOption("Tex2D", new JObject(new JOptionerty("index", entry.SaveTexture(option, true))));
-        return new SeinJS.SeinNodeOption("Tex2D", null);
+        return new SeinJS.SeinNodeOption("Tex2D", new JObject(new JProperty("index", entry.SaveTexture(option, true).Id)));
     }
 }
