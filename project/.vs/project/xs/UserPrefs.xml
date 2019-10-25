@@ -6,7 +6,7 @@
       <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="145" Column="56" />
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="594" Column="47" />
       <File FileName="Assets/SeinJSUnityToolkit/Common/GLTFTextureUtils.cs" Line="85" Column="34" />
-      <File FileName="Assets/SeinJSUnityToolkit/Shaders/GLTFHDR2RGBD.shader" Line="55" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Shaders/GLTFHDR2RGBD.shader" Line="54" Column="29" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
