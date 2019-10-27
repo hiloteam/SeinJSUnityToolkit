@@ -1,23 +1,26 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/Components/SeinNodeClass.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Shaders/GLTFHDR2RGBD.shader">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/Components/SeinNodeClass.cs" Line="124" Column="47" />
-      <File FileName="Assets/SeinNodeClass_TestActor.cs" Line="30" Column="24" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtension.cs" Line="51" Column="1" NotebookId="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtensionFactory.cs" Line="40" Column="14" NotebookId="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtension.cs" Line="51" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtensionFactory.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="145" Column="56" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="594" Column="47" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/GLTFTextureUtils.cs" Line="85" Column="34" />
+      <File FileName="Assets/SeinJSUnityToolkit/Shaders/GLTFHDR2RGBD.shader" Line="54" Column="29" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="Resources" expanded="True" />
               <Node name="SeinJSUnityToolkit" expanded="True">
+                <Node name="Common" expanded="True" />
+                <Node name="Exporter" expanded="True" />
                 <Node name="Extensions" expanded="True">
-                  <Node name="Components" expanded="True">
-                    <Node name="SeinNodeClass.cs" selected="True" />
-                  </Node>
                   <Node name="GLTFExtensions" expanded="True" />
+                </Node>
+                <Node name="Shaders" expanded="True">
+                  <Node name="GLTFHDR2RGBD.shader" selected="True" />
                 </Node>
               </Node>
             </Node>
@@ -28,7 +31,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4825ee6b-ef76-4731-a07e-d3b548b5b900" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="752072a1-3310-46bb-9693-70c365afc288" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

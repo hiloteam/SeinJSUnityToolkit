@@ -27,8 +27,8 @@ namespace SeinJS
 
         public override void BeforeExport()
         {
+            _cache.Clear();
             var brdfPath = "Assets/SeinJSUnityToolkit/Shaders/brdfLUT.jpg";
-            var e = File.Exists(brdfPath);
             brdfLUT = AssetDatabase.LoadAssetAtPath<Texture2D>(brdfPath);
         }
 

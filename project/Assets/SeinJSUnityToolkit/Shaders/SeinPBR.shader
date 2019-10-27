@@ -385,14 +385,15 @@ Shader "Sein/PBR" {
                 float3 worldNormal = mul(UNITY_MATRIX_I_V, pbr.N);
                 #if DIFFUSE_ENV_MAP 
                     float3 diffuseLight = ShadeSH9(float4(worldNormal, 1));
-                    color.rgb += diffuseLight * pbr.diffuseColor * pbr.ao;                    
+                    color.rgb += diffuseLight * pbr.diffuseColor * pbr.ao;
                 #endif
                 
                 #if SPECULAR_ENV_MAP
                     float3 worldView = mul(UNITY_MATRIX_I_V, pbr.V);
                     float3 R = -normalize(reflect(worldView, worldNormal));
-                    float3 brdf = tex2D(_brdfLUT, float2(pbr.NdotV, 1.0 - pbr.roughness)).rgb;                    
+                    float3 brdf = tex2D(_brdfLUT, float2(pbr.NdotV, 1.0 - pbr.roughness)).rgb;
                     float lod = pbr.roughness * UNITY_SPECCUBE_LOD_STEPS;
+                    lod = clamp(lod, 0.0, UNITY_SPECCUBE_LOD_STEPS);
                     float3 specularLight = DecodeHDR(UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, R, lod), unity_SpecCube0_HDR);
                     color.rgb += specularLight * (pbr.specularColor * brdf.x + brdf.y);
                 #endif
@@ -411,7 +412,8 @@ Shader "Sein/PBR" {
                 float3 radiance = convertLightColor(_LightColor0.rgb);
                 
                 fixed4 color;
-                color.rgb = UNITY_LIGHTMODEL_AMBIENT.xyz * baseColor.rgb * ao;
+                color.rgb = float3(0, 0, 0);
+                color.rgb += UNITY_LIGHTMODEL_AMBIENT.xyz * baseColor.rgb * ao;
                 color.rgb += radiance * calculateLo(pbr);
 
                 #ifdef LIGHTMAP_ON
@@ -419,7 +421,7 @@ Shader "Sein/PBR" {
                 #endif
                 
                 color.rgb += getIBLContribution(pbr);
-
+                
                 color.rgb += (_emission * sampleTexture(_emissionMap, i.uv)).rgb;
 
                 return color;
