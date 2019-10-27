@@ -797,7 +797,7 @@ namespace SeinJS
                     ZFar = camera.farClipPlane,
                     ZNear = camera.nearClipPlane,
                     AspectRatio = camera.aspect,
-                    YFov = camera.fieldOfView
+                    YFov = camera.fieldOfView / 180 * Math.PI
                 };
             }
 

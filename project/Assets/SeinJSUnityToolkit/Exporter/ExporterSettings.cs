@@ -40,10 +40,20 @@ namespace SeinJS
                 }
                 else
                 {
-                    Config.SetExportPath(Utils.MakeRelativePath(Application.dataPath, folder));
+                    Config.SetExportPath(Utils.MakeRelativePath(Config.AppDataPath, folder));
                 }
 
-                ExporterSettings.Export.folder = Path.GetFullPath(Path.Combine(Application.dataPath, Config.GetExportPath()));
+                Export.folder = Path.GetFullPath(Path.Combine(Config.AppDataPath, Config.GetExportPath()));
+            }
+
+            public static void UpdateFolderTemp(string folder)
+            {
+                if (folder.Substring(0, 1) != ".")
+                {
+                     folder = Utils.MakeRelativePath(Config.AppDataPath, folder);
+                }
+
+                Export.folder = Path.GetFullPath(Path.Combine(Config.AppDataPath, folder));
             }
 
             public static string GetExportPath(string n = null)
@@ -56,7 +66,6 @@ namespace SeinJS
 				return Path.Combine(folder, n + ".gltf");
 			}
 		}
-
 
 		public class NormalTexture
 		{

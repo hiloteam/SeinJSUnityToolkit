@@ -1,6 +1,12 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\project",
+    "\\project\\Assets",
+    "\\project\\Assets\\SeinJSUnityToolkit",
+    "\\project\\Assets\\SeinJSUnityToolkit\\Dependencies",
+    "\\project\\Assets\\SeinJSUnityToolkit\\Previewer"
   ],
+  "SelectedNode": "\\project\\Assets\\SeinJSUnityToolkit\\Dependencies\\GLTFSerialization.dll",
   "PreviewInSolutionExplorer": true
 }

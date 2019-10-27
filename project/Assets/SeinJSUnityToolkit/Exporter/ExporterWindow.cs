@@ -48,9 +48,8 @@ namespace SeinJS {
 
         Rect windowRect;
         private Exporter _exporter;
-
-	    //private List<String> tagList;
-	    void Awake()
+        
+        void Awake()
 	    {
             _exporter = new Exporter();
             ExporterSettings.Export.UpdateFolder(Config.GetExportPath());
@@ -166,8 +165,40 @@ namespace SeinJS {
             ExporterSettings.Lighting.reflectionSize = EditorGUILayout.IntField(ExporterSettings.Lighting.reflectionSize);
 
 		    GUILayout.BeginHorizontal();
-		    GUILayout.FlexibleSpace();
-		    if (GUILayout.Button ("Export", GUILayout.Width(250), GUILayout.Height(40))) {
+		    if (GUILayout.Button ("Preview", GUILayout.Width(240), GUILayout.Height(40))) {
+                var origFolder = ExporterSettings.Export.folder;
+                var origSplit = ExporterSettings.Export.splitChunks;
+                var origName = ExporterSettings.Export.name;
+                ExporterSettings.Export.UpdateFolderTemp("../sein-previewer-temp-assets");
+                ExporterSettings.Export.splitChunks = false;
+                ExporterSettings.Export.name = "scene";
+                var folder = ExporterSettings.Export.folder;
+
+                try
+                {
+                    if (!Directory.Exists(folder))
+                    {
+                        Directory.CreateDirectory(folder);
+                    }
+
+                    DirectoryInfo directory = new DirectoryInfo(folder);
+                    var files = directory.GetFiles();
+                    var subDirectories = directory.GetDirectories();
+
+                    StartExport(files, subDirectories, false);
+
+                    Previewer.StartPreview();
+                }
+                finally
+                {
+                    ExporterSettings.Export.UpdateFolderTemp(origFolder);
+                    ExporterSettings.Export.splitChunks = origSplit;
+                    ExporterSettings.Export.name = origName;
+                }
+		    }
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Export", GUILayout.Width(240), GUILayout.Height(40)))
+            {
                 var folder = ExporterSettings.Export.folder;
                 if (!Directory.Exists(folder))
                 {
@@ -198,20 +229,26 @@ namespace SeinJS {
                 }
 
                 StartExport(files, subDirectories);
-		    }
-	    }
+            }
 
-        void StartExport(FileInfo[] files, DirectoryInfo[] subDirectories)
+            GUILayout.EndHorizontal();
+        }
+
+        void StartExport(FileInfo[] files, DirectoryInfo[] subDirectories, bool openFolder = true)
         {
             //delete files:
-            foreach (System.IO.FileInfo file in files)
+            foreach (FileInfo file in files)
                 file.Delete();
             //delete directories in this directory:
-            foreach (System.IO.DirectoryInfo subDirectory in subDirectories)
+            foreach (DirectoryInfo subDirectory in subDirectories)
                 subDirectory.Delete(true);
 
             _exporter.Export();
-            OpenInFileBrowser.Open(Path.GetDirectoryName(ExporterSettings.Export.GetExportPath()));
+
+            if (openFolder)
+            {
+                OpenInFileBrowser.Open(Path.GetDirectoryName(ExporterSettings.Export.GetExportPath()));
+            }
         }
 
 	    void OnDestroy()
