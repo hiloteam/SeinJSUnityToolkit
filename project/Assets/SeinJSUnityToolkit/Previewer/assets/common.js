@@ -1,4 +1,4 @@
-webpackHotUpdate("common",{
+(window["webpackJsonp"] = window["webpackJsonp"] || []).push([["common"],{
 
 /***/ "./node_modules/_cannon-dtysky@0.6.4@cannon-dtysky/build/cannon.js":
 /*!*************************************************************************!*\
@@ -14558,6 +14558,288 @@ World.prototype.clearForces = function(){
 
 /***/ }),
 
+/***/ "./node_modules/_css-loader@0.28.11@css-loader/lib/css-base.js":
+/*!*********************************************************************!*\
+  !*** ./node_modules/_css-loader@0.28.11@css-loader/lib/css-base.js ***!
+  \*********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/_process@0.11.10@process/browser.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/_process@0.11.10@process/browser.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+
 /***/ "./node_modules/_seinjs-audio@0.8.8@seinjs-audio/lib/GlTFExtensions.js":
 /*!*****************************************************************************!*\
   !*** ./node_modules/_seinjs-audio@0.8.8@seinjs-audio/lib/GlTFExtensions.js ***!
@@ -16689,6 +16971,2148 @@ Sein.Audio = {
 };
 
 
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/ActorObserveControlComponent.js":
+/*!*********************************************************************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/ActorObserveControlComponent.js ***!
+  \*********************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : ActorObserveControlComponent.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/1/2018, 5:20:10 PM
+ * @Description:
+ */
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+/**
+ * @hidden
+ */
+var tempEuler = new Sein.Euler();
+tempEuler.order = 'XYZ';
+/**
+ * @hidden
+ */
+var tempQuat = new Sein.Quaternion();
+/**
+ * @hidden
+ */
+var tempVector = new Sein.Vector3();
+var tempScaleDelta = 0;
+/**
+ * @hidden
+ */
+var tempEulerXYDelta = new Sein.Vector2(0, 0);
+/**
+ * @hidden
+ */
+var tempPanDelta = new Sein.Vector2(0, 0);
+/**
+ * @hidden
+ */
+var MOUSE = {
+    LEFT: 0,
+    MID: 1,
+    RIGHT: 2
+};
+/**
+ * @hidden
+ */
+var STATE = {
+    NONE: -1,
+    MOVE: 0,
+    ZOOM: 1,
+    PAN: 2
+};
+/**
+ * Actor观察期组件，用于挂载任意Actor上来对其进行观察。
+ * 注意此控制器控制的不是摄像机！
+ *
+ * @noInheritDoc
+ */
+var ActorObserveControlComponent = /** @class */ (function (_super) {
+    __extends(ActorObserveControlComponent, _super);
+    function ActorObserveControlComponent() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this._mouseInfo = {};
+        _this.onMouseDown = function (event) {
+            _this._mouseInfo.isDown = true;
+            switch (event.button) {
+                case MOUSE.LEFT:
+                    _this._mouseInfo.startX = event.pageX;
+                    _this._mouseInfo.startY = event.pageY;
+                    _this._mouseInfo.state = _this.reverseRotateAndPan ? STATE.PAN : STATE.MOVE;
+                    break;
+                case MOUSE.RIGHT:
+                    _this._mouseInfo.startX = event.pageX;
+                    _this._mouseInfo.startY = event.pageY;
+                    _this._mouseInfo.state = _this.reverseRotateAndPan ? STATE.MOVE : STATE.PAN;
+                    break;
+                default:
+                    break;
+            }
+            var hid = _this.getGame().hid;
+            hid.add('MouseMove', _this.onMouseMove);
+            hid.add('MouseUp', _this.onMouseUp);
+            hid.add('MouseOut', _this.onMouseUp);
+            hid.remove('MouseDown', _this.onMouseDown);
+        };
+        _this.onMouseMove = function (event) {
+            if (!_this._mouseInfo.isDown) {
+                return;
+            }
+            switch (_this._mouseInfo.state) {
+                case STATE.MOVE:
+                    _this.handleMouseMove(event);
+                    break;
+                case STATE.PAN:
+                    _this.handleMousePan(event);
+                    break;
+                default:
+                    break;
+            }
+        };
+        _this.onMouseUp = function (event) {
+            _this._mouseInfo.isDown = false;
+            _this._mouseInfo.state = STATE.NONE;
+            var hid = _this.getGame().hid;
+            hid.add('MouseDown', _this.onMouseDown);
+            hid.remove('MouseMove', _this.onMouseMove);
+            hid.remove('MouseUp', _this.onMouseUp);
+            hid.remove('MouseOut', _this.onMouseUp);
+        };
+        _this.onContextMenu = function () {
+        };
+        _this.onTouchStart = function (event) {
+            _this._mouseInfo.isDown = true;
+            _this._mouseInfo.startX = event.touches[0].pageX;
+            _this._mouseInfo.startY = event.touches[0].pageY;
+            switch (event.touches.length) {
+                case 1:
+                    _this._mouseInfo.state = STATE.MOVE;
+                    break;
+                case 2:
+                    _this._mouseInfo.state = STATE.ZOOM;
+                    break;
+                case 3:
+                    _this._mouseInfo.state = STATE.PAN;
+                    break;
+                default:
+                    break;
+            }
+            var hid = _this.getGame().hid;
+            hid.add('TouchMove', _this.onTouchMove);
+            hid.add('TouchEnd', _this.onTouchEnd);
+            hid.remove('TouchStart', _this.onTouchStart);
+        };
+        _this.onTouchMove = function (event) {
+            if (!_this._mouseInfo.isDown || !event.touches[0]) {
+                return;
+            }
+            switch (_this._mouseInfo.state) {
+                case STATE.MOVE:
+                    _this.handleToucheMove(event);
+                    break;
+                case STATE.ZOOM:
+                    if (event.touches.length === 2) {
+                        _this.handleToucheZoom(event);
+                    }
+                    break;
+                case STATE.PAN:
+                    if (event.touches.length === 3) {
+                        _this.handleTouchePan(event);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+        _this.onTouchEnd = function (event) {
+            _this._mouseInfo.isDown = false;
+            _this._mouseInfo.state = STATE.NONE;
+            var hid = _this.getGame().hid;
+            hid.add('TouchStart', _this.onTouchStart);
+            hid.remove('TouchMove', _this.onTouchMove);
+            hid.remove('TouchEnd', _this.onTouchEnd);
+        };
+        _this.onWheel = function (event) {
+            var deltaY = event.deltaY;
+            if (deltaY < -100) {
+                deltaY = -100;
+            }
+            else if (deltaY > 100) {
+                deltaY = 100;
+            }
+            var s = deltaY * .001 + 1;
+            _this.scale(s);
+        };
+        _this.handleMousePan = function (event) {
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.getRoot().worldMatrix.getScaling(tempVector);
+            _this.move(distanceX * .2 * tempVector.x, distanceY * .2 * tempVector.y);
+        };
+        _this.handleMouseMove = function (event) {
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.rotate(distanceX, distanceY);
+        };
+        _this.handleToucheZoom = function (evt) {
+            var event = evt.touches[0];
+            var delta = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            if (delta < -25) {
+                delta = -25;
+            }
+            else if (delta > 25) {
+                delta = 25;
+            }
+            var s = delta * .004 + 1;
+            _this.scale(s);
+        };
+        _this.handleTouchePan = function (evt) {
+            var event = evt.touches[0];
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.move(distanceX * .01, -distanceY * .01);
+        };
+        return _this;
+    }
+    Object.defineProperty(ActorObserveControlComponent.prototype, "active", {
+        /**
+         * 当前是否正在控制。
+         */
+        get: function () {
+            return this._mouseInfo.state !== STATE.NONE;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(ActorObserveControlComponent.prototype, "damping", {
+        /**
+         * 当前是否正在缓动。
+         */
+        get: function () {
+            return Math.abs(tempEulerXYDelta.x) > 0.001
+                || Math.abs(tempEulerXYDelta.y) > 0.001
+                || Math.abs(tempScaleDelta) > 0.001
+                || Math.abs(tempPanDelta.x) > 0.001
+                || Math.abs(tempPanDelta.y) > 0.001;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * 初始化，继承请先`super.onInit()`。
+     */
+    ActorObserveControlComponent.prototype.onInit = function (options) {
+        if (options === void 0) { options = {}; }
+        this.isEnabled = false;
+        this.isLockX = !!options.isLockX;
+        this.isLockY = !!options.isLockY;
+        this.isLockScale = !!options.isLockScale;
+        this.isLockRotate = !!options.isLockRotate;
+        this.isLockMove = !!options.isLockMove;
+        this.zoomMax = options.zoomMax || Infinity;
+        this.zoomMin = options.zoomMin || -Infinity;
+        this.enableDamping = !!options.enableDamping;
+        this.dampingFactor = options.dampingFactor || 1;
+        this.panSpeed = options.panSpeed || 1;
+        this.rotateSpeed = options.rotateSpeed || 1;
+        this.reverseRotateAndPan = !!options.reverseRotateAndPan;
+        if (options.eulerOrder) {
+            tempEuler.order = options.eulerOrder;
+        }
+    };
+    /**
+     * 添加到世界，继承请先`super.onAdd()`。
+     */
+    ActorObserveControlComponent.prototype.onAdd = function () {
+        this.enable();
+    };
+    /**
+     * 每一帧更新，继承请先`super.onUpdate()`。
+     */
+    ActorObserveControlComponent.prototype.onUpdate = function () {
+        this.updateTransform();
+    };
+    /**
+     * 继承请先`super.onUnLink()`。
+     */
+    ActorObserveControlComponent.prototype.onUnLink = function () {
+        this.disable();
+    };
+    /**
+     * 继承请先`super.reUnLink()`。
+     */
+    ActorObserveControlComponent.prototype.reUnLink = function () {
+        this.enable();
+    };
+    /**
+     * 销毁，继承请先`super.onUpdate()`。
+     */
+    ActorObserveControlComponent.prototype.onDestroy = function () {
+        this.disable();
+    };
+    /**
+     * 手动设置四元数。
+     */
+    ActorObserveControlComponent.prototype.setQuat = function (x, y, z, w) {
+        tempQuat.x = x;
+        tempQuat.y = y;
+        tempQuat.z = z;
+        tempQuat.w = w;
+        tempEuler.fromQuat(tempQuat);
+        this.getRoot().quaternion.copy(tempQuat);
+    };
+    /**
+     * 启动控制器。
+     */
+    ActorObserveControlComponent.prototype.enable = function () {
+        if (this.isEnabled) {
+            return;
+        }
+        var root = this.getRoot();
+        tempEuler.x = root.rotation.x;
+        tempEuler.y = root.rotation.y;
+        tempEuler.z = root.rotation.z;
+        this._mouseInfo = {
+            startX: 0,
+            startY: 0,
+            isDown: false,
+            state: STATE.NONE
+        };
+        var _a = this.getGame(), hid = _a.hid, deviceInfo = _a.deviceInfo;
+        hid.add('Wheel', this.onWheel);
+        if (deviceInfo.touchable) {
+            hid.add('TouchStart', this.onTouchStart);
+        }
+        else {
+            hid.add('ContextMenu', this.onContextMenu);
+            hid.add('MouseDown', this.onMouseDown);
+        }
+        this.isEnabled = true;
+    };
+    /**
+     * 关闭控制器。
+     */
+    ActorObserveControlComponent.prototype.disable = function () {
+        if (!this.isEnabled) {
+            return;
+        }
+        var _a = this.getGame(), hid = _a.hid, deviceInfo = _a.deviceInfo;
+        hid.remove('Wheel', this.onWheel);
+        if (deviceInfo.touchable) {
+            hid.remove('TouchStart', this.onTouchStart);
+            hid.remove('TouchMove', this.onTouchMove);
+            hid.remove('TouchEnd', this.onTouchEnd);
+        }
+        else {
+            hid.remove('ContextMenu', this.onContextMenu);
+            hid.remove('MouseDown', this.onMouseDown);
+            hid.remove('MouseMove', this.onMouseMove);
+            hid.remove('MouseUp', this.onMouseUp);
+            hid.remove('MouseOut', this.onMouseUp);
+        }
+        this.isEnabled = false;
+    };
+    ActorObserveControlComponent.prototype.rotate = function (distanceX, distanceY) {
+        if (this.isLockRotate) {
+            return;
+        }
+        var x = distanceY / 100;
+        var y = distanceX / 100;
+        if (!this.isLockY) {
+            tempEulerXYDelta.y = y;
+        }
+        else {
+            tempEulerXYDelta.y = 0;
+        }
+        if (!this.isLockX) {
+            tempEulerXYDelta.x = x;
+        }
+        else {
+            tempEulerXYDelta.x = 0;
+        }
+    };
+    ActorObserveControlComponent.prototype.scale = function (s) {
+        if (this.isLockScale) {
+            return;
+        }
+        var transform = this.getRoot();
+        tempScaleDelta = transform.scale.x * s - transform.scale.x;
+    };
+    ;
+    ActorObserveControlComponent.prototype.move = function (x, y) {
+        if (this.isLockMove) {
+            return;
+        }
+        tempPanDelta.x = x * -.1;
+        tempPanDelta.y = y * -.1;
+    };
+    ;
+    ActorObserveControlComponent.prototype.updateTransform = function () {
+        if (!this.damping) {
+            return;
+        }
+        var transform = this.getRoot();
+        if (tempScaleDelta) {
+            var scale = transform.scale.x + tempScaleDelta;
+            if (scale > this.zoomMax) {
+                scale = this.zoomMax;
+            }
+            if (scale < this.zoomMin) {
+                scale = this.zoomMin;
+            }
+            transform.setScale(scale, scale, scale);
+        }
+        tempEuler.x += tempEulerXYDelta.x * this.rotateSpeed;
+        tempEuler.y += tempEulerXYDelta.y * this.rotateSpeed;
+        transform.quaternion.fromEuler(tempEuler);
+        transform.position.x += tempPanDelta.x * this.panSpeed;
+        transform.position.y += tempPanDelta.y * this.panSpeed;
+        if (!this.enableDamping) {
+            tempEulerXYDelta.set(0, 0);
+            tempScaleDelta = 0;
+            tempPanDelta.set(0, 0);
+            return;
+        }
+        var factor = 1 - this.dampingFactor;
+        tempEulerXYDelta.scale(factor);
+        tempPanDelta.scale(factor);
+        tempScaleDelta *= factor;
+    };
+    ActorObserveControlComponent.prototype.handleToucheMove = function (event) {
+        this.handleMouseMove(event.touches[0]);
+    };
+    ActorObserveControlComponent = __decorate([
+        Sein.SClass({ className: 'ActorObserveControlComponent' })
+    ], ActorObserveControlComponent);
+    return ActorObserveControlComponent;
+}(Sein.Component));
+exports.default = ActorObserveControlComponent;
+
+
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/index.js":
+/*!**********************************************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/index.js ***!
+  \**********************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : index.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/1/2018, 5:20:06 PM
+ * @Description:
+ */
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+var ActorObserveControlComponent_1 = __webpack_require__(/*! ./ActorObserveControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/ActorObserveControlComponent.js");
+exports.ActorObserveControlComponent = ActorObserveControlComponent_1.default;
+Sein.CameraControls = Sein.CameraControls || {};
+Sein.CameraControls.ActorObserveControlComponent = ActorObserveControlComponent_1.default;
+
+
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/CameraFreeControlComponent.js":
+/*!*****************************************************************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/CameraFreeControlComponent.js ***!
+  \*****************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : CameraFreeControlComponent.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/1/2018, 5:20:10 PM
+ * @Description:
+ */
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+/**
+ * @hidden
+ */
+var tempScaleDelta = 0;
+/**
+ * @hidden
+ */
+var tempEulerXYDelta = new Sein.Vector2(0, 0);
+/**
+ * @hidden
+ */
+var tempQuat = new Sein.Quaternion();
+/**
+ * @hidden
+ */
+var tempPanDelta = new Sein.Vector2(0, 0);
+/**
+ * @hidden
+ */
+var tempUp = new Sein.Vector3(0, 1, 0);
+/**
+ * @hidden
+ */
+var MOUSE = {
+    LEFT: 0,
+    MID: 1,
+    RIGHT: 2
+};
+/**
+ * @hidden
+ */
+var STATE = {
+    NONE: -1,
+    MOVE: 0,
+    ZOOM: 1,
+    PAN: 2
+};
+/**
+ * 自由摄像机控制器，用于为指定的Actor下挂载的摄相机组件提供添加**标准鼠标或触摸**控制。
+ * 此控制器将会使得摄像机在世界中自由得**漫游**，若想让摄像机绕某个Actor或一点转动，请用[CameraOrbitControlComponent](../cameraorbitcontrolcomponent)。
+ *
+ * @noInheritDoc
+ */
+var CameraFreeControlComponent = /** @class */ (function (_super) {
+    __extends(CameraFreeControlComponent, _super);
+    function CameraFreeControlComponent() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this._mouseInfo = {};
+        _this._currentScale = 1;
+        _this._rotateXMaxCos = 0;
+        _this._rotateXMinCos = 0;
+        _this.onMouseDown = function (event) {
+            _this._mouseInfo.isDown = true;
+            switch (event.button) {
+                case MOUSE.LEFT:
+                    _this._mouseInfo.startX = event.pageX;
+                    _this._mouseInfo.startY = event.pageY;
+                    _this._mouseInfo.state = _this.reverseRotateAndPan ? STATE.PAN : STATE.MOVE;
+                    break;
+                case MOUSE.RIGHT:
+                    _this._mouseInfo.startX = event.pageX;
+                    _this._mouseInfo.startY = event.pageY;
+                    _this._mouseInfo.state = _this.reverseRotateAndPan ? STATE.MOVE : STATE.PAN;
+                    break;
+                default:
+                    break;
+            }
+            var hid = _this.getGame().hid;
+            hid.add('MouseMove', _this.onMouseMove);
+            hid.add('MouseUp', _this.onMouseUp);
+            hid.add('MouseOut', _this.onMouseUp);
+            hid.remove('MouseDown', _this.onMouseDown);
+        };
+        _this.onMouseMove = function (event) {
+            if (!_this._mouseInfo.isDown) {
+                return;
+            }
+            switch (_this._mouseInfo.state) {
+                case STATE.MOVE:
+                    _this.handleMouseMove(event);
+                    break;
+                case STATE.PAN:
+                    _this.handleMousePan(event);
+                    break;
+                default:
+                    break;
+            }
+        };
+        _this.onMouseUp = function (event) {
+            _this._mouseInfo.isDown = false;
+            _this._mouseInfo.state = STATE.NONE;
+            var hid = _this.getGame().hid;
+            hid.add('MouseDown', _this.onMouseDown);
+            hid.remove('MouseMove', _this.onMouseMove);
+            hid.remove('MouseUp', _this.onMouseUp);
+            hid.remove('MouseOut', _this.onMouseUp);
+        };
+        _this.onContextMenu = function () {
+        };
+        _this.onTouchStart = function (event) {
+            _this._mouseInfo.isDown = true;
+            _this._mouseInfo.startX = event.touches[0].pageX;
+            _this._mouseInfo.startY = event.touches[0].pageY;
+            switch (event.touches.length) {
+                case 1:
+                    _this._mouseInfo.state = STATE.MOVE;
+                    break;
+                case 2:
+                    _this._mouseInfo.state = STATE.ZOOM;
+                    break;
+                case 3:
+                    _this._mouseInfo.state = STATE.PAN;
+                    break;
+                default:
+                    break;
+            }
+            var hid = _this.getGame().hid;
+            hid.add('TouchMove', _this.onTouchMove);
+            hid.add('TouchEnd', _this.onTouchEnd);
+            hid.remove('TouchStart', _this.onTouchStart);
+        };
+        _this.onTouchMove = function (event) {
+            if (!_this._mouseInfo.isDown) {
+                return;
+            }
+            switch (_this._mouseInfo.state) {
+                case STATE.MOVE:
+                    _this.handleToucheMove(event);
+                    break;
+                case STATE.ZOOM:
+                    if (event.touches.length === 2) {
+                        _this.handleToucheZoom(event);
+                    }
+                    break;
+                case STATE.PAN:
+                    if (event.touches.length === 3) {
+                        _this.handleTouchePan(event);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+        _this.onTouchEnd = function (event) {
+            _this._mouseInfo.isDown = false;
+            _this._mouseInfo.state = STATE.NONE;
+            var hid = _this.getGame().hid;
+            hid.add('TouchStart', _this.onTouchStart);
+            hid.remove('TouchMove', _this.onTouchMove);
+            hid.remove('TouchEnd', _this.onTouchEnd);
+        };
+        _this.onWheel = function (event) {
+            var deltaY = event.deltaY;
+            if (deltaY < -100) {
+                deltaY = -100;
+            }
+            else if (deltaY > 100) {
+                deltaY = 100;
+            }
+            var s = deltaY * .01 * _this.zoomSpeed;
+            _this.scale(s);
+        };
+        _this.handleMousePan = function (event) {
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.move(distanceX * .1, distanceY * .1);
+        };
+        _this.handleMouseMove = function (event) {
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.rotate(distanceX, distanceY);
+        };
+        _this.handleToucheZoom = function (evt) {
+            var event = evt.touches[0];
+            var delta = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            if (delta < -25) {
+                delta = -25;
+            }
+            else if (delta > 25) {
+                delta = 25;
+            }
+            var s = delta * .004 + 1;
+            _this.scale(s);
+        };
+        _this.handleTouchePan = function (evt) {
+            var event = evt.touches[0];
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.move(distanceX * .1, -distanceY * .1);
+        };
+        return _this;
+    }
+    Object.defineProperty(CameraFreeControlComponent.prototype, "active", {
+        /**
+         * 当前是否正在控制。
+         */
+        get: function () {
+            return this._mouseInfo.state !== STATE.NONE;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CameraFreeControlComponent.prototype, "damping", {
+        /**
+         * 当前是否正在缓动。
+         */
+        get: function () {
+            return Math.abs(tempEulerXYDelta.x) > 0.001
+                || Math.abs(tempEulerXYDelta.y) > 0.001
+                || Math.abs(tempScaleDelta) > 0.001
+                || Math.abs(tempPanDelta.x) > 0.001
+                || Math.abs(tempPanDelta.y) > 0.001;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * 初始化，继承请先`super.onInit()`。
+     */
+    CameraFreeControlComponent.prototype.onInit = function (options) {
+        if (options === void 0) { options = {}; }
+        this.switchCamera(options.cameraComponentName);
+        this.isLockX = !!options.isLockX;
+        this.isLockZoom = !!options.isLockZoom;
+        this.isLockRotate = !!options.isLockRotate;
+        this.isLockMove = !!options.isLockMove;
+        this.zoomMax = options.zoomMax || Infinity;
+        this.zoomMin = options.zoomMin || -Infinity;
+        this.panXMax = options.panXMax || Infinity;
+        this.panXMin = options.panXMin || -Infinity;
+        this.panYMax = options.panYMax || Infinity;
+        this.panYMin = options.panYMin || -Infinity;
+        this.rotateXMax = options.rotateXMax;
+        this.rotateXMin = options.rotateXMin;
+        this._rotateXMaxCos = options.rotateXMax ? Math.cos(Math.PI / 2 - options.rotateXMax) : 1;
+        this._rotateXMinCos = options.rotateXMin ? Math.cos(Math.PI / 2 + options.rotateXMin) : -1;
+        this.enableDamping = !!options.enableDamping;
+        this.dampingFactor = options.dampingFactor || 1;
+        this.panSpeed = options.panSpeed || 1;
+        this.rotateXSpeed = options.rotateXSpeed || 1;
+        this.rotateYSpeed = options.rotateYSpeed || 1;
+        this.zoomSpeed = options.zoomSpeed || 1;
+        this.reverseRotateAndPan = !!options.reverseRotateAndPan;
+        this.customMovingX = options.customMovingX;
+        this.customMovingY = options.customMovingY;
+        this.useZBounding = !!options.useZBounding;
+        this.isEnabled = false;
+    };
+    /**
+     * 添加到世界，继承请先`super.onAdd()`。
+     */
+    CameraFreeControlComponent.prototype.onAdd = function () {
+        this.enable();
+    };
+    /**
+     * 每一帧更新，继承请先`super.onUpdate()`。
+     */
+    CameraFreeControlComponent.prototype.onUpdate = function () {
+        this.updateTransform();
+    };
+    /**
+     * 继承请先`super.onUnLink()`。
+     */
+    CameraFreeControlComponent.prototype.onUnLink = function () {
+        this.disable();
+    };
+    /**
+     * 继承请先`super.reUnLink()`。
+     */
+    CameraFreeControlComponent.prototype.reUnLink = function () {
+        this.enable();
+    };
+    /**
+     * 销毁，继承请先`super.onUpdate()`。
+     */
+    CameraFreeControlComponent.prototype.onDestroy = function () {
+        this.disable();
+    };
+    /**
+     * 通过组件名称`cameraComponentName`来切换当前控制的摄相机。
+     */
+    CameraFreeControlComponent.prototype.switchCamera = function (cameraComponentName) {
+        if (cameraComponentName === void 0) { cameraComponentName = 'root'; }
+        this._camera = this.getOwner().findComponentByName(cameraComponentName);
+        if (!this._camera) {
+            throw new Sein.UnmetRequireException(this, 'You muse give a valid component name !.');
+        }
+        if (!this._camera.isCameraComponent) {
+            throw new Sein.TypeConflictException(this._camera, 'Camera', this);
+        }
+    };
+    /**
+     * 启动控制器。
+     */
+    CameraFreeControlComponent.prototype.enable = function () {
+        if (this.isEnabled) {
+            return;
+        }
+        this._mouseInfo = {
+            startX: 0,
+            startY: 0,
+            isDown: false,
+            state: STATE.NONE
+        };
+        var _a = this.getGame(), hid = _a.hid, deviceInfo = _a.deviceInfo;
+        hid.add('Wheel', this.onWheel);
+        if (deviceInfo.touchable) {
+            hid.add('TouchStart', this.onTouchStart);
+        }
+        else {
+            hid.add('ContextMenu', this.onContextMenu);
+            hid.add('MouseDown', this.onMouseDown);
+        }
+        this.isEnabled = true;
+    };
+    /**
+     * 关闭控制器。
+     */
+    CameraFreeControlComponent.prototype.disable = function () {
+        if (!this.isEnabled) {
+            return;
+        }
+        var _a = this.getGame(), hid = _a.hid, deviceInfo = _a.deviceInfo;
+        hid.remove('Wheel', this.onWheel);
+        if (deviceInfo.touchable) {
+            hid.remove('TouchStart', this.onTouchStart);
+            hid.remove('TouchMove', this.onTouchMove);
+            hid.remove('TouchEnd', this.onTouchEnd);
+        }
+        else {
+            hid.remove('ContextMenu', this.onContextMenu);
+            hid.remove('MouseDown', this.onMouseDown);
+            hid.remove('MouseMove', this.onMouseMove);
+            hid.remove('MouseUp', this.onMouseUp);
+            hid.remove('MouseOut', this.onMouseUp);
+        }
+        this.isEnabled = false;
+    };
+    CameraFreeControlComponent.prototype.rotate = function (distanceX, distanceY) {
+        if (this.isLockRotate) {
+            return;
+        }
+        var x = distanceY / 100;
+        var y = distanceX / 100;
+        tempEulerXYDelta.y = y;
+        if (this.isLockX) {
+            tempEulerXYDelta.x = 0;
+        }
+        else {
+            tempEulerXYDelta.x = x;
+        }
+    };
+    CameraFreeControlComponent.prototype.scale = function (s) {
+        if (this.isLockZoom) {
+            return;
+        }
+        tempScaleDelta = s;
+        var scale = this._currentScale + tempScaleDelta;
+        if (scale >= this.zoomMax) {
+            tempScaleDelta = this.zoomMax - this._currentScale;
+        }
+        if (scale <= this.zoomMin) {
+            tempScaleDelta = this.zoomMin - this._currentScale;
+        }
+    };
+    CameraFreeControlComponent.prototype.move = function (mx, my) {
+        if (this.isLockMove) {
+            return;
+        }
+        var position = this._camera.position;
+        tempPanDelta.x = mx * -.1 * this.panSpeed;
+        tempPanDelta.y = my * -.1 * this.panSpeed;
+        var x = position.x;
+        var y = this.useZBounding ? position.z : position.y;
+        var resX = x + tempPanDelta.x;
+        var resY = y + tempPanDelta.y;
+        if (resX >= this.panXMax) {
+            tempPanDelta.x = this.panXMax - position.x;
+        }
+        else if (resX <= this.panXMin) {
+            tempPanDelta.x = this.panXMin - position.x;
+        }
+        if (resY >= this.panYMax) {
+            tempPanDelta.y = this.panYMax - y;
+        }
+        else if (resY <= this.panYMin) {
+            tempPanDelta.y = this.panYMin - y;
+        }
+    };
+    CameraFreeControlComponent.prototype.updateTransform = function () {
+        if (!this.damping) {
+            return;
+        }
+        var transform = this._camera;
+        var position = transform.position;
+        if (tempScaleDelta) {
+            if (Sein.isOrthographicCameraComponent(transform)) {
+                var _a = this.getGame().bound, width = _a.width, height = _a.height;
+                var deltaY = tempScaleDelta * height / width;
+                transform.left -= tempScaleDelta;
+                transform.right += tempScaleDelta;
+                transform.bottom -= deltaY;
+                transform.top += deltaY;
+            }
+            else {
+                var forwardVector = transform.forwardVector;
+                position.add(forwardVector.scale(tempScaleDelta));
+            }
+            this._currentScale += tempScaleDelta;
+        }
+        var rotateDeltaX = tempEulerXYDelta.x * this.rotateXSpeed;
+        transform.quaternion.rotateX(rotateDeltaX);
+        tempQuat.copy(transform.quaternion).invert();
+        tempUp.set(0, 1, 0).transformQuat(tempQuat);
+        transform.rotate(tempUp, -tempEulerXYDelta.y * this.rotateYSpeed);
+        position.add((this.customMovingX ? this.customMovingX.clone() : transform.rightVector).scale(tempPanDelta.x)).add((this.customMovingY ? this.customMovingY.clone() : transform.upVector).scale(tempPanDelta.y));
+        if (!this.enableDamping) {
+            tempEulerXYDelta.set(0, 0);
+            tempScaleDelta = 0;
+            tempPanDelta.set(0, 0);
+            return;
+        }
+        var factor = 1 - this.dampingFactor;
+        tempPanDelta.scale(factor);
+        if (this.panXMax !== Infinity || this.panXMin !== -Infinity) {
+            var x = position.x;
+            var resX = x + tempPanDelta.x;
+            if (resX >= this.panXMax || resX <= this.panXMin) {
+                tempPanDelta.x = 0;
+            }
+        }
+        if (this.panYMax !== Infinity || this.panYMin !== -Infinity) {
+            var y = this.useZBounding ? position.z : position.y;
+            var resY = y + tempPanDelta.y;
+            if (resY >= this.panYMax || resY <= this.panYMin) {
+                tempPanDelta.y = 0;
+            }
+        }
+        if (this._currentScale < this.zoomMax && this._currentScale > this.zoomMin) {
+            tempScaleDelta *= factor;
+        }
+        else {
+            tempScaleDelta = 0;
+        }
+        tempEulerXYDelta.scale(factor);
+        if (this.rotateXMax !== 1 || this.rotateXMin !== -1) {
+            var forwardVector = this._camera.forwardVector;
+            var cos = forwardVector.dot(Sein.World.UP);
+            if (cos < this._rotateXMinCos) {
+                tempEulerXYDelta.x = 0;
+                transform.quaternion.rotateX(-rotateDeltaX);
+            }
+            if (cos > this._rotateXMaxCos) {
+                tempEulerXYDelta.x = 0;
+                transform.quaternion.rotateX(-rotateDeltaX);
+            }
+        }
+    };
+    CameraFreeControlComponent.prototype.handleToucheMove = function (event) {
+        this.handleMouseMove(event.touches[0]);
+    };
+    CameraFreeControlComponent = __decorate([
+        Sein.SClass({ className: 'CameraFreeControlComponent' })
+    ], CameraFreeControlComponent);
+    return CameraFreeControlComponent;
+}(Sein.Component));
+exports.default = CameraFreeControlComponent;
+
+
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/index.js":
+/*!********************************************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/index.js ***!
+  \********************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : index.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/1/2018, 5:20:06 PM
+ * @Description:
+ */
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+var CameraFreeControlComponent_1 = __webpack_require__(/*! ./CameraFreeControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/CameraFreeControlComponent.js");
+exports.CameraFreeControlComponent = CameraFreeControlComponent_1.default;
+Sein.CameraControls = Sein.CameraControls || {};
+Sein.CameraControls.CameraFreeControlComponent = CameraFreeControlComponent_1.default;
+
+
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/CameraOrbitControlComponent.js":
+/*!*******************************************************************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/CameraOrbitControlComponent.js ***!
+  \*******************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : CameraOrbitControlComponent.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/5/2018, 5:52:40 PM
+ * @Description:
+ */
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+/**
+ * @hidden
+ */
+var MOUSE = {
+    LEFT: 0,
+    MID: 1,
+    RIGHT: 2
+};
+/**
+ * @hidden
+ */
+var STATE = {
+    NONE: -1,
+    MOVE: 0,
+    ZOOM: 1,
+    PAN: 2
+};
+/**
+ * @hidden
+ */
+var deltaEye = new Sein.Vector3();
+/**
+ * @hidden
+ */
+var deltaSpherical = new Sein.Spherical();
+/**
+ * @hidden
+ */
+function isSceneActor(value) {
+    return value.isSceneActor;
+}
+/**
+ * @hidden
+ */
+function isSceneComponent(value) {
+    return value.isSceneComponent;
+}
+/**
+ * 绕轨摄像机控制器，用于为指定的Actor下挂载的摄相机组件提供添加**标准鼠标或触摸**控制。
+ * 此控制器将会使得摄像机在绕着世界中一点或者Actor的轨迹上运动，若想让摄像机自有得运动，请用[CameraFreeControlComponent](../camerafreecontrolcomponent)。
+ *
+ * @noInheritDoc
+ */
+var CameraOrbitControlComponent = /** @class */ (function (_super) {
+    __extends(CameraOrbitControlComponent, _super);
+    function CameraOrbitControlComponent() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this._eye = new Sein.Vector3();
+        _this._spherical = new Sein.Spherical();
+        _this._originSpherical = new Sein.Spherical();
+        _this._mouseInfo = null;
+        _this._tmpVec = new Sein.Vector3();
+        _this._tmpUp = new Sein.Vector3();
+        _this.overBounding = false;
+        _this.onResize = function () {
+            var _a = _this.getGame(), screenWidth = _a.screenWidth, screenHeight = _a.screenHeight;
+            _this._radius = (screenWidth + screenHeight) / 4;
+        };
+        _this.onMouseDown = function (event) {
+            _this._mouseInfo.isDown = true;
+            switch (event.button) {
+                case MOUSE.LEFT:
+                    _this._mouseInfo.startX = event.pageX;
+                    _this._mouseInfo.startY = event.pageY;
+                    _this._mouseInfo.state = STATE.MOVE;
+                    break;
+                case MOUSE.RIGHT:
+                    _this._mouseInfo.startX = event.pageX;
+                    _this._mouseInfo.startY = event.pageY;
+                    _this._mouseInfo.state = STATE.PAN;
+                    break;
+                default:
+                    break;
+            }
+            var hid = _this.getGame().hid;
+            hid.add('MouseMove', _this.onMouseMove);
+            hid.add('MouseUp', _this.onMouseUp);
+            hid.add('MouseOut', _this.onMouseUp);
+            hid.remove('MouseDown', _this.onMouseDown);
+        };
+        _this.onMouseMove = function (event) {
+            if (!_this._mouseInfo.isDown) {
+                return;
+            }
+            switch (_this._mouseInfo.state) {
+                case STATE.MOVE:
+                    _this.handleMouseMove(event);
+                    break;
+                case STATE.PAN:
+                    _this.handleMousePan(event);
+                    break;
+                default:
+                    break;
+            }
+        };
+        _this.onMouseUp = function (event) {
+            _this._mouseInfo.isDown = false;
+            _this._mouseInfo.state = STATE.NONE;
+            var hid = _this.getGame().hid;
+            hid.add('MouseDown', _this.onMouseDown);
+            hid.remove('MouseMove', _this.onMouseMove);
+            hid.remove('MouseUp', _this.onMouseUp);
+            hid.remove('MouseOut', _this.onMouseUp);
+        };
+        _this.onContextMenu = function () {
+        };
+        _this.onTouchStart = function (event) {
+            _this._mouseInfo.isDown = true;
+            var touch0 = event.touches[0];
+            _this._mouseInfo.startX = touch0.pageX;
+            _this._mouseInfo.startY = touch0.pageY;
+            switch (event.touches.length) {
+                case 1:
+                    _this._mouseInfo.state = STATE.MOVE;
+                    break;
+                case 2:
+                    _this._mouseInfo.state = STATE.ZOOM;
+                    break;
+                case 3:
+                    _this._mouseInfo.state = STATE.PAN;
+                    break;
+                default:
+                    break;
+            }
+            var hid = _this.getGame().hid;
+            hid.add('TouchMove', _this.onTouchMove);
+            hid.add('TouchEnd', _this.onTouchEnd);
+            hid.remove('TouchStart', _this.onTouchStart);
+        };
+        _this.onTouchMove = function (event) {
+            if (!_this._mouseInfo.isDown) {
+                return;
+            }
+            switch (_this._mouseInfo.state) {
+                case STATE.MOVE:
+                    if (event.touches.length === 1) {
+                        _this.handleToucheMove(event);
+                    }
+                    break;
+                case STATE.ZOOM:
+                    if (event.touches.length === 2) {
+                        _this.handleToucheZoom(event);
+                    }
+                    break;
+                case STATE.PAN:
+                    if (event.touches.length === 3) {
+                        _this.handleTouchePan(event);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+        _this.onTouchEnd = function (event) {
+            _this._mouseInfo.isDown = false;
+            _this._mouseInfo.state = STATE.NONE;
+            var hid = _this.getGame().hid;
+            hid.add('TouchStart', _this.onTouchStart);
+            hid.remove('TouchMove', _this.onTouchMove);
+            hid.remove('TouchEnd', _this.onTouchEnd);
+        };
+        _this.handleMousePan = function (event) {
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.move(distanceX * .1, distanceY * .1);
+        };
+        _this.handleMouseMove = function (event) {
+            _this.rotate(event.pageX, event.pageY);
+        };
+        _this.handleToucheZoom = function (evt) {
+            var event = evt.touches[0];
+            var delta = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            if (delta < -25) {
+                delta = -25;
+            }
+            else if (delta > 25) {
+                delta = 25;
+            }
+            var s = delta * .004 + 1;
+            _this.scale(s);
+        };
+        _this.handleTouchePan = function (evt) {
+            var event = evt.touches[0];
+            var distanceX = event.pageX - _this._mouseInfo.startX;
+            var distanceY = event.pageY - _this._mouseInfo.startY;
+            _this._mouseInfo.startX = event.pageX;
+            _this._mouseInfo.startY = event.pageY;
+            _this.move(distanceX * .01, -distanceY * .01);
+        };
+        _this.onWheel = function (event) {
+            var deltaY = event.deltaY;
+            if (deltaY < -100) {
+                deltaY = -100;
+            }
+            else if (deltaY > 100) {
+                deltaY = 100;
+            }
+            var s = deltaY * .001 + 1;
+            _this.scale(s);
+        };
+        return _this;
+    }
+    Object.defineProperty(CameraOrbitControlComponent.prototype, "active", {
+        /**
+         * 当前是否正在控制。
+         */
+        get: function () {
+            return this._mouseInfo.state !== STATE.NONE;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CameraOrbitControlComponent.prototype, "damping", {
+        /**
+         * 当前是否正在缓动。
+         */
+        get: function () {
+            return this.enableDamping && (Math.abs(deltaSpherical.radius) > 0.01 ||
+                Math.abs(deltaSpherical.theta) > 0.01 ||
+                Math.abs(deltaSpherical.phi) > 0.01 ||
+                deltaEye.length() > 0.01);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(CameraOrbitControlComponent.prototype, "target", {
+        /**
+         * 获取当前目标。
+         */
+        get: function () {
+            return this._target;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * 初始化，继承请先`super.onInit()`。
+     */
+    CameraOrbitControlComponent.prototype.onInit = function (options) {
+        this.switchCamera(options.cameraComponentName);
+        this.switchTarget(options.target);
+        this.isLockY = !!options.isLockY;
+        this.isLockX = !!options.isLockX;
+        this.isLockZoom = !!options.isLockZoom;
+        this.isLockRotate = !!options.isLockRotate;
+        this.isLockMove = !!options.isLockMove;
+        this.zoomMax = options.zoomMax || Infinity;
+        this.zoomMin = options.zoomMin || -Infinity;
+        this.panMax = options.panMax;
+        this.panMin = options.panMin;
+        this.panSpeed = options.panSpeed || 1;
+        this.rotateSpeed = options.rotateSpeed || 1;
+        this.zoomSpeed = options.zoomSpeed || 1;
+        this.enableDamping = !!options.enableDamping;
+        this.dampingFactor = options.dampingFactor || 1;
+        this.isEnabled = false;
+    };
+    /**
+     * 添加到世界，继承请先`super.onAdd()`。
+     */
+    CameraOrbitControlComponent.prototype.onAdd = function () {
+        var event = this.getGame().event;
+        event.add('Resize', this.onResize);
+        this.onResize();
+        this.enable();
+    };
+    /**
+     * 每一帧更新，继承请先`super.onUpdate()`。
+     */
+    CameraOrbitControlComponent.prototype.onUpdate = function () {
+        this.updateTransform();
+    };
+    /**
+     * 继承请先`super.onUnLink()`。
+     */
+    CameraOrbitControlComponent.prototype.onUnLink = function () {
+        this.disable();
+    };
+    /**
+     * 继承请先`super.reUnLink()`。
+     */
+    CameraOrbitControlComponent.prototype.reUnLink = function () {
+        this.enable();
+    };
+    /**
+     * 销毁，继承请先`super.onUpdate()`。
+     */
+    CameraOrbitControlComponent.prototype.onDestroy = function () {
+        var event = this.getGame().event;
+        event.remove('Resize', this.onResize);
+        this.disable();
+    };
+    /**
+     * 通过组件名称`cameraComponentName`来切换当前控制的摄相机。
+     */
+    CameraOrbitControlComponent.prototype.switchCamera = function (cameraComponentName) {
+        if (cameraComponentName === void 0) { cameraComponentName = 'root'; }
+        this._camera = this.getOwner().findComponentByName(cameraComponentName);
+        if (!this._camera) {
+            throw new Sein.UnmetRequireException(this, 'You muse give a valid component name !.');
+        }
+        if (!this._camera.isCameraComponent) {
+            throw new Sein.TypeConflictException(this._camera, 'Camera', this);
+        }
+        if (this._target) {
+            this.resetSpherical();
+        }
+    };
+    /**
+     * 切换当前的目标。
+     */
+    CameraOrbitControlComponent.prototype.switchTarget = function (target) {
+        if (isSceneActor(target)) {
+            this._target = target.transform.absolutePosition.clone();
+        }
+        else if (isSceneComponent(target)) {
+            this._target = target.absolutePosition.clone();
+        }
+        else {
+            this._target = target.clone();
+        }
+        if (this._camera) {
+            this.resetSpherical();
+        }
+    };
+    /**
+     * 启动控制器。
+     */
+    CameraOrbitControlComponent.prototype.enable = function () {
+        if (this.isEnabled) {
+            return;
+        }
+        this._mouseInfo = {
+            startX: 0,
+            startY: 0,
+            isDown: false,
+            startPointerDistance: 0,
+            state: STATE.NONE,
+            dampState: STATE.NONE
+        };
+        var _a = this.getGame(), hid = _a.hid, deviceInfo = _a.deviceInfo;
+        hid.add('Wheel', this.onWheel);
+        if (deviceInfo.touchable) {
+            hid.add('TouchStart', this.onTouchStart);
+        }
+        else {
+            hid.add('ContextMenu', this.onContextMenu);
+            hid.add('MouseDown', this.onMouseDown);
+        }
+        this.resetSpherical();
+        this.isEnabled = true;
+    };
+    /**
+     * 关闭控制器。
+     */
+    CameraOrbitControlComponent.prototype.disable = function () {
+        if (!this.isEnabled) {
+            return;
+        }
+        var _a = this.getGame(), hid = _a.hid, deviceInfo = _a.deviceInfo;
+        hid.remove('Wheel', this.onWheel);
+        if (deviceInfo.touchable) {
+            hid.remove('TouchStart', this.onTouchStart);
+            hid.remove('TouchMove', this.onTouchMove);
+            hid.remove('TouchEnd', this.onTouchEnd);
+        }
+        else {
+            hid.remove('ContextMenu', this.onContextMenu);
+            hid.remove('MouseDown', this.onMouseDown);
+            hid.remove('MouseMove', this.onMouseMove);
+            hid.remove('MouseUp', this.onMouseUp);
+            hid.remove('MouseOut', this.onMouseUp);
+        }
+        this.isEnabled = false;
+    };
+    CameraOrbitControlComponent.prototype.resetSpherical = function () {
+        this._spherical.setFromVector3(this._eye.copy(this._camera.position).subtract(this._target));
+        this._originSpherical.copy(this._spherical);
+    };
+    CameraOrbitControlComponent.prototype.rotate = function (x, y) {
+        if (this.isLockRotate) {
+            return;
+        }
+        var _a = this._mouseInfo, startX = _a.startX, startY = _a.startY;
+        var theta = (x - startX) / this._radius * -this.rotateSpeed;
+        var phi = (y - startY) / this._radius * -this.rotateSpeed;
+        if (Math.abs(theta) < .01 && Math.abs(phi) < .01) {
+            return;
+        }
+        if (this.isLockX) {
+            theta = 0;
+        }
+        if (this.isLockY) {
+            phi = 0;
+        }
+        deltaSpherical.theta = theta;
+        deltaSpherical.phi = phi;
+        this._mouseInfo.startX = x;
+        this._mouseInfo.startY = y;
+        this._mouseInfo.dampState = STATE.MOVE;
+    };
+    CameraOrbitControlComponent.prototype.scale = function (s) {
+        if (this.isLockZoom) {
+            return;
+        }
+        var radius = this._spherical.radius;
+        var maxRadius = this.zoomMax;
+        var minRadius = this.zoomMin;
+        var newRadius = radius * s;
+        if (newRadius > maxRadius) {
+            deltaSpherical.radius = maxRadius - radius;
+        }
+        else if (newRadius < minRadius) {
+            deltaSpherical.radius = minRadius - radius;
+        }
+        else {
+            deltaSpherical.radius = (newRadius - radius) * this.zoomSpeed;
+        }
+        this._mouseInfo.dampState = STATE.ZOOM;
+    };
+    ;
+    CameraOrbitControlComponent.prototype.move = function (x, y) {
+        if (this.isLockMove) {
+            return;
+        }
+        var camera = this._camera;
+        var position = camera.position;
+        var _a = this, panMax = _a.panMax, panMin = _a.panMin;
+        this._tmpVec.copy(camera.rightVector);
+        this._tmpUp.copy(camera.upVector);
+        var pan = this.setVector3Length(this._tmpVec, x);
+        pan.add(this.setVector3Length(this._tmpUp, -y));
+        pan.scale(this.panSpeed);
+        if (panMax || panMin) {
+            var res = this._tmpVec.copy(position).add(pan);
+            if (res.x >= panMax.x) {
+                pan.x = panMax.x - position.x;
+                this.overBounding = true;
+            }
+            else if (res.x <= panMin.x) {
+                pan.x = panMin.x - position.x;
+                this.overBounding = true;
+            }
+            if (res.y >= panMax.y) {
+                pan.y = panMax.y - position.y;
+                this.overBounding = true;
+            }
+            else if (res.y <= panMin.y) {
+                pan.y = panMin.y - position.y;
+                this.overBounding = true;
+            }
+            if (res.z >= panMax.z) {
+                pan.z = panMax.z - position.z;
+                this.overBounding = true;
+            }
+            else if (res.x <= panMin.x) {
+                pan.z = panMin.z - position.z;
+                this.overBounding = true;
+            }
+        }
+        deltaEye.copy(pan);
+        this._mouseInfo.dampState = STATE.PAN;
+    };
+    ;
+    CameraOrbitControlComponent.prototype.updateTransform = function () {
+        if (!this.damping) {
+            return;
+        }
+        this._eye.copy(this._camera.position).subtract(this._target);
+        switch (this._mouseInfo.dampState) {
+            case STATE.PAN:
+                this._target.add(deltaEye);
+                break;
+            case STATE.MOVE:
+                this._spherical.theta += deltaSpherical.theta;
+                this._spherical.phi += deltaSpherical.phi;
+                this._spherical.makeSafe();
+                this._spherical.toVector3(this._eye);
+                break;
+            case STATE.ZOOM:
+                this._spherical.radius += deltaSpherical.radius;
+                this._spherical.makeSafe();
+                this._spherical.toVector3(this._eye);
+                break;
+            default:
+                break;
+        }
+        this._camera.position.copy(this._eye.add(this._target));
+        this._camera.lookAt(this._target);
+        if (!this.enableDamping) {
+            deltaEye.set(0, 0, 0);
+            deltaSpherical.theta = deltaSpherical.phi = 0;
+            return;
+        }
+        var factor = 1 - this.dampingFactor;
+        if (this.overBounding) {
+            deltaEye.set(0, 0, 0);
+            this.overBounding = false;
+        }
+        else {
+            deltaEye.scale(factor);
+        }
+        deltaSpherical.theta *= factor;
+        deltaSpherical.phi *= factor;
+        var newRadius = (deltaSpherical.radius *= factor) + this._spherical.radius;
+        if (newRadius > this.zoomMax || newRadius < this.zoomMin) {
+            deltaSpherical.radius = 0;
+        }
+    };
+    CameraOrbitControlComponent.prototype.handleToucheMove = function (event) {
+        this.handleMouseMove(event.touches[0]);
+    };
+    CameraOrbitControlComponent.prototype.setVector3Length = function (vector, length) {
+        return vector.normalize().scale(length);
+    };
+    CameraOrbitControlComponent = __decorate([
+        Sein.SClass({ className: 'CameraOrbitControlComponent' })
+    ], CameraOrbitControlComponent);
+    return CameraOrbitControlComponent;
+}(Sein.Component));
+exports.default = CameraOrbitControlComponent;
+
+
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/index.js":
+/*!*********************************************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/index.js ***!
+  \*********************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : index.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/5/2018, 5:52:44 PM
+ * @Description:
+ */
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+var CameraOrbitControlComponent_1 = __webpack_require__(/*! ./CameraOrbitControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/CameraOrbitControlComponent.js");
+exports.CameraOrbitControlComponent = CameraOrbitControlComponent_1.default;
+Sein.CameraControls = Sein.CameraControls || {};
+Sein.CameraControls.CameraOrbitControlComponent = CameraOrbitControlComponent_1.default;
+
+
+/***/ }),
+
+/***/ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/index.js":
+/*!*****************************************************************************************!*\
+  !*** ./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/index.js ***!
+  \*****************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @File   : index.ts
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Date   : 11/1/2018, 5:20:06 PM
+ * @Description:
+ */
+__export(__webpack_require__(/*! ./ActorObserveControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/index.js"));
+__export(__webpack_require__(/*! ./CameraOrbitControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/index.js"));
+__export(__webpack_require__(/*! ./CameraFreeControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/index.js"));
+
+
+/***/ }),
+
+/***/ "./node_modules/_style-loader@0.19.1@style-loader/lib/addStyles.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/_style-loader@0.19.1@style-loader/lib/addStyles.js ***!
+  \*************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			var styleTarget = fn.call(this, selector);
+			// Special case to return head of iframe instead of iframe itself
+			if (styleTarget instanceof window.HTMLIFrameElement) {
+				try {
+					// This will throw an exception if access to iframe is blocked
+					// due to cross-origin restrictions
+					styleTarget = styleTarget.contentDocument.head;
+				} catch(e) {
+					styleTarget = null;
+				}
+			}
+			memo[selector] = styleTarget;
+		}
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(/*! ./urls */ "./node_modules/_style-loader@0.19.1@style-loader/lib/urls.js");
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton && typeof options.singleton !== "boolean") options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto)
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else if (typeof options.insertAt === "object" && options.insertAt.before) {
+		var nextSibling = getElement(options.insertInto + " " + options.insertAt.before);
+		target.insertBefore(style, nextSibling);
+	} else {
+		throw new Error("[Style Loader]\n\n Invalid value for parameter 'insertAt' ('options.insertAt') found.\n Must be 'top', 'bottom', or Object.\n (https://github.com/webpack-contrib/style-loader#insertat)\n");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media)
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/_style-loader@0.19.1@style-loader/lib/urls.js":
+/*!********************************************************************!*\
+  !*** ./node_modules/_style-loader@0.19.1@style-loader/lib/urls.js ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/_webpack@4.41.2@webpack/buildin/global.js":
+/*!***********************************!*\
+  !*** (webpack)/buildin/global.js ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || new Function("return this")();
+} catch (e) {
+	// This works if the window reference is available
+	if (typeof window === "object") g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
 /***/ })
 
-})
+}]);

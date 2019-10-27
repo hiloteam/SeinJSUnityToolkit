@@ -21,16 +21,14 @@ module.exports = {
 
   entry: {
     main: [
-      isDev && 'webpack-dev-server/client?/',
-      isDev && 'webpack/hot/dev-server',
       path.resolve(__dirname, `src/index.ts`)
     ].filter(s => !!s)
   },
 
   output: {
     path: outPath,
-    filename: `[name].[hash].js`,
-    chunkFilename: `[name].[hash].js`,
+    filename: `[name].js`,
+    chunkFilename: `[name].js`,
     publicPath: `/previewer/`,
     
   },
@@ -156,7 +154,6 @@ module.exports = {
         NODE_ENV: JSON.stringify(Mode)
       }
     }),
-    isDev && new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       template: './index.html'
     }),
