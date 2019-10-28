@@ -124,3 +124,13 @@ export async function createDefaultLights(game: Sein.Game) {
     amount: 2
   });
 }
+
+export async function checkUpdate() {
+  const res = await Sein.HTTP.get('/heart-beat-and-update');
+
+  if (res.data && res.data.update) {
+    location.reload();
+  }
+
+  setTimeout(() => checkUpdate(), 1000);
+}

@@ -253,7 +253,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.16@seinjs/lib/seinjs.umd.js");
 __webpack_require__(/*! seinjs-audio */ "./node_modules/_seinjs-audio@0.8.8@seinjs-audio/lib/index.js");
-__webpack_require__(/*! seinjs-inspector */ "./node_modules/_seinjs-inspector@0.8.3@seinjs-inspector/lib/index.js");
+__webpack_require__(/*! seinjs-inspector */ "./node_modules/_seinjs-inspector@0.8.5@seinjs-inspector/lib/index.js");
 var CANNON = __webpack_require__(/*! cannon-dtysky */ "./node_modules/_cannon-dtysky@0.6.4@cannon-dtysky/build/cannon.js");
 var types_1 = __webpack_require__(/*! ./types */ "./src/game/types.ts");
 exports.EModelEvents = types_1.EModelEvents;
@@ -321,6 +321,9 @@ function main(canvas) {
                         }
                     });
                     game.event.trigger(types_1.EModelEvents.New, [{ name: 'miku.gltf', url: '/previewer/scene.gltf' }]);
+                    if (location.search.indexOf('qrcode=true') < 0) {
+                        script_1.checkUpdate();
+                    }
                     return [2 /*return*/, game];
             }
         });
@@ -509,6 +512,24 @@ function createDefaultLights(game) {
     });
 }
 exports.createDefaultLights = createDefaultLights;
+function checkUpdate() {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, Sein.HTTP.get('/heart-beat-and-update')];
+                case 1:
+                    res = _a.sent();
+                    if (res.data && res.data.update) {
+                        location.reload();
+                    }
+                    setTimeout(function () { return checkUpdate(); }, 1000);
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+exports.checkUpdate = checkUpdate;
 
 
 /***/ }),
@@ -574,7 +595,7 @@ game_1.main(canvas);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/previewer/src/index.ts */"./src/index.ts");
+module.exports = __webpack_require__(/*! /mnt/c/Users/dtysky/ComplexMind/SeinUnityToolkit/previewer/src/index.ts */"./src/index.ts");
 
 
 /***/ })

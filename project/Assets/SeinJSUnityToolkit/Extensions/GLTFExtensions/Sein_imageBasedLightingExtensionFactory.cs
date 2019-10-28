@@ -41,8 +41,9 @@ namespace SeinJS
 
             var mat = component as UnityEngine.Material;
 
-            if (RenderSettings.ambientMode != UnityEngine.Rendering.AmbientMode.Skybox)
+            if (RenderSettings.defaultReflectionMode != UnityEngine.Rendering.DefaultReflectionMode.Custom)
             {
+                Debug.LogWarning("Exporting reflection is only supported in `custom` mode now, check your 'Environment Reflection' setting !");
                 return;
             }
 
@@ -60,7 +61,7 @@ namespace SeinJS
             }
             else
             {
-                globalExtension = (Sein_imageBasedLightingExtension)extensions["KHR_lights_punctual"];
+                globalExtension = (Sein_imageBasedLightingExtension)extensions[ExtensionName];
             }
 
             var extension = new Sein_imageBasedLightingExtension();

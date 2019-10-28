@@ -10,7 +10,7 @@ import 'seinjs-inspector';
 import * as CANNON from 'cannon-dtysky';
 
 import {EModelEvents} from './types';
-import {bindCameraControl, createNewModels, initEvents, createDefaultCamera} from './script';
+import {bindCameraControl, createNewModels, initEvents, createDefaultCamera, checkUpdate} from './script';
 
 export {EModelEvents};
 
@@ -73,6 +73,10 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
   });
 
   game.event.trigger(EModelEvents.New, [{name: 'miku.gltf', url: '/previewer/scene.gltf'}]);
+
+  if (location.search.indexOf('qrcode=true') < 0) {
+    checkUpdate();
+  }
 
   return game;
 }

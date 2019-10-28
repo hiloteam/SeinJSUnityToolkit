@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: SeinPBR
   m_Shader: {fileID: 4800000, guid: 7328ca6c0382a4773ad835cbe189905b, type: 3}
-  m_ShaderKeywords: HAS_NORMAL_MAP
+  m_ShaderKeywords: DIFFUSE_ENV_MAP HAS_NORMAL_MAP SPECULAR_ENV_MAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -69,10 +69,10 @@ Material:
     - _metallic: 1
     - _normalScale: 1
     - _occlusionStrength: 1
-    - _roughness: 0.613
+    - _roughness: 0.314
     - cloneForInst: 0
     - envDiffuseReflection: 0
-    - envReflection: 0
+    - envReflection: 2
     - envSpecReflection: 0
     - unlit: 0
     - workflow: 0

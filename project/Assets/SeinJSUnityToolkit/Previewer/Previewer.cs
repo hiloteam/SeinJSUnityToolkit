@@ -1,4 +1,10 @@
-﻿using System;
+﻿/**
+ * @File   : Previewer.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/10/26 0:00:00PM
+ */
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.NetworkInformation;
@@ -9,25 +15,19 @@ using UniWebServer;
 
 namespace SeinJS
 {
-    public class Previewer : EditorWindow
+    public class Previewer : MonoBehaviour
     {
-        private static WebViewHook _webView;
-        private static EditorWindow _webViewWin;
         private static WebServer _server;
         private static string _localIP;
         private static Dictionary<string, IWebResource> _resources = new Dictionary<string, IWebResource>();
 
         public static void StartPreview()
         {
-            //if (_server != null)
-            //{
-            //    Clear();
-            //}
-
             if (_server == null)
             {
                 _localIP = LocalIPAddress();
                 AddWebResource("/previewer", new PreviewerHandler());
+                AddWebResource("/heart-beat-and-update", new HeartBeatHandler());
 
                 _server = new WebServer(9999, 2, false);
                 _server.logRequests = false;
@@ -35,14 +35,16 @@ namespace SeinJS
                 _server.Start();
             }
 
-            if (_webView == null)
+            var hhHandler = (HeartBeatHandler)_resources["/heart-beat-and-update"];
+            if (hhHandler.isAlive)
             {
-                _webView = CreateInstance<WebViewHook>();
-                _webViewWin = GetWindow<Previewer>();
+                hhHandler.needUpdate = true;
             }
-
-            _webView.Reload();
-            _webViewWin.ShowTab();
+            else
+            {
+                Application.OpenURL("http://" + "192.168.50.126" + ":9999/previewer");
+            }
+            //Application.OpenURL("http://" + _localIP + ":9999/previewer");
         }
 
         public static void Serve404(Request request, Response response)
@@ -80,7 +82,19 @@ namespace SeinJS
 
         private static void HandleRequest(Request request, Response response)
         {
-            var prefixes = request.path.Split('/');
+            var temp = request.path.Split('?');
+            string[] prefixes = new string[] { };
+
+            if (temp.Length >= 1)
+            {
+                prefixes = temp[0].Split('/');
+            }
+
+            if (temp.Length >= 2)
+            {
+                request.query = "?" + temp[1];
+            }
+
             if (prefixes.Length <= 1)
             {
                 Serve404(request, response);
@@ -138,58 +152,25 @@ namespace SeinJS
             throw new System.Exception("No network adapters with an IPv4 address in the system!");
         }
 
-        public void OnBecameInvisible()
-        {
-            if (_webView)
-            {
-                // signal the browser to unhook
-                _webView.Detach();
-            }
-        }
-
-        void OnDestroy()
+        void OnApplicationQuit()
         {
             Clear();
         }
 
         static void Clear()
         {
-            if (_webView != null)
-            {
-                DestroyImmediate(_webView);
-                _webView = null;
-            }
 
             if (_server != null)
             {
                 _server.Dispose();
-                DestroyImmediate(_webViewWin);
                 _resources.Clear();
                 _server = null;
-                _webViewWin = null;
-            }
-        }
-
-        void OnGUI()
-        {
-            if (_webView == null)
-            {
-                return;
-            }
-
-            if (_webView.Hook(this))
-            {
-                _webView.LoadURL("http://" + _localIP + ":9999/previewer");
-            }
-
-            if (_webView != null)
-            {
-                _webView.OnGUI(new Rect(Vector2.zero, this.position.size));
             }
         }
 
         void Update()
         {
+            Debug.Log(1);
             if (_server != null && _server.processRequestsInMainThread)
             {
                 _server.ProcessRequests();

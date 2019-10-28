@@ -1,7 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿/**
+ * @File   : PreviewerHandler.cs
+ * @Author : dtysky (dtysky@outlook.com)
+ * @Link   : dtysky.moe
+ * @Date   : 2019/10/26 0:00:00PM
+ */
 using UniWebServer;
-using System.Collections.Generic;
 using System.IO;
 
 namespace SeinJS
@@ -12,10 +15,16 @@ namespace SeinJS
         {
             //private Dictionary<string, byte[]> _cache;
 
+            var query = request.query;
             var path = request.path.Replace("/previewer", "");
+
+            if (request.query != null)
+            {
+                path = path.Replace(query, "");
+            }
+
             path = (path == "" || path == "/") ? "/index.html" : path;
             path = path.Substring(1);
-            //var query = request.query;
             var ext = Path.GetExtension(path);
 
             string folder;
