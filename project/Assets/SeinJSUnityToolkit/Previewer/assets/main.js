@@ -251,9 +251,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : Tue Oct 15 2019
  * @Description: main.
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
-var CANNON = __webpack_require__(/*! cannon-dtysky */ "./node_modules/_cannon-dtysky@0.6.4@cannon-dtysky/build/cannon.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.16@seinjs/lib/seinjs.umd.js");
 __webpack_require__(/*! seinjs-audio */ "./node_modules/_seinjs-audio@0.8.8@seinjs-audio/lib/index.js");
+__webpack_require__(/*! seinjs-inspector */ "./node_modules/_seinjs-inspector@0.8.3@seinjs-inspector/lib/index.js");
+var CANNON = __webpack_require__(/*! cannon-dtysky */ "./node_modules/_cannon-dtysky@0.6.4@cannon-dtysky/build/cannon.js");
 var types_1 = __webpack_require__(/*! ./types */ "./src/game/types.ts");
 exports.EModelEvents = types_1.EModelEvents;
 var script_1 = __webpack_require__(/*! ./script */ "./src/game/script.ts");
@@ -268,7 +269,7 @@ function main(canvas) {
                     engine = new Sein.Engine();
                     game = new Sein.Game('intro-game', {
                         canvas: canvas,
-                        clearColor: new Sein.Color(0, .6, .9, 1),
+                        clearColor: new Sein.Color(.5, .5, .5, 1),
                         width: canvas.offsetWidth,
                         height: canvas.offsetHeight,
                         pixelRatio: window.devicePixelRatio
@@ -281,6 +282,10 @@ function main(canvas) {
                     return [4 /*yield*/, game.start()];
                 case 1:
                     _a.sent();
+                    game.addActor('inspector', Sein.Inspector.Actor, {
+                        dom: document.getElementById('container'),
+                        updateRate: 10
+                    });
                     game.world.enablePhysic(new Sein.CannonPhysicWorld(CANNON));
                     game.resource.register('Audio', Sein.Audio.Loader);
                     game.addActor('audioSystem', Sein.Audio.SystemActor);
@@ -378,7 +383,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : Tue Oct 15 2019
  * @Description: script.
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.14@seinjs/lib/seinjs.es.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.16@seinjs/lib/seinjs.umd.js");
 __webpack_require__(/*! seinjs-camera-controls */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/index.js");
 var types_1 = __webpack_require__(/*! ./types */ "./src/game/types.ts");
 function initEvents(game) {
@@ -569,7 +574,7 @@ game_1.main(canvas);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /mnt/c/Users/dtysky/ComplexMind/SeinUnityToolkit/previewer/src/index.ts */"./src/index.ts");
+module.exports = __webpack_require__(/*! /Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/previewer/src/index.ts */"./src/index.ts");
 
 
 /***/ })

@@ -235,7 +235,7 @@ namespace SeinJS
 				throw new Exception("No default scene in gltf file.");
 			}
 
-            _assetManager.hasAnimatorExtension = _root.ExtensionsUsed.Contains(ExtensionManager.GetExtensionName(typeof(Sein_animatorExtensionFactory)));
+            _assetManager.hasAnimatorExtension = _root.ExtensionsUsed == null ? false : _root.ExtensionsUsed.Contains(ExtensionManager.GetExtensionName(typeof(Sein_animatorExtensionFactory)));
 			_assetCache = new AssetCache(
 				_root.Images != null ? _root.Images.Count : 0,
 				_root.Textures != null ? _root.Textures.Count : 0,
@@ -1398,6 +1398,11 @@ namespace SeinJS
             {
                 foreach (var p in node.Mesh.Value.Primitives)
                 {
+                    if (p.Material == null)
+                    {
+                        continue;
+                    }
+
                     var mat = p.Material.Value;
                     var extName = ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory));
 

@@ -43,12 +43,13 @@
   },
   "dependencies": {
     "cannon-dtysky": "^0.6.4",
-    "seinjs": "^1.3.13",
+    "seinjs": "^1.3.16",
     "seinjs-audio": "^0.8.0",
     "seinjs-camera-controls": "^0.8.2",
     "seinjs-debug-tools": "^0.8.0",
     "seinjs-dom-hud": "^0.8.0",
     "seinjs-gpu-particle-system": "^0.8.3",
+    "seinjs-inspector": "^0.8.3",
     "seinjs-post-processing-system": "^0.8.0"
   }
 }

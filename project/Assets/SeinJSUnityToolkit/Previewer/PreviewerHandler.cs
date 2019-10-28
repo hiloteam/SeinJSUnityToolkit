@@ -32,31 +32,11 @@ namespace SeinJS
 
             if (!File.Exists(fullPath))
             {
-                Previewer.Return404(response);
+                Previewer.Serve404(request, response);
                 return;
             }
 
-            // serve the file
-            response.statusCode = 200;
-            response.message = "OK";
-            response.headers.Add("Content-Type", MimeTypeMap.GetMimeType(ext));
-
-            // read file and set bytes
-            using (FileStream fs = File.OpenRead(fullPath))
-            {
-                int length = (int)fs.Length;
-                byte[] buffer;
-
-                // add content length
-                response.headers.Add("Content-Length", length.ToString());
-
-                // use binary for mostly all except text
-                using (BinaryReader br = new BinaryReader(fs))
-                {
-                    buffer = br.ReadBytes(length);
-                }
-                response.SetBytes(buffer);
-            }
+            Previewer.ServeFile(fullPath, response);
         }
 
     }

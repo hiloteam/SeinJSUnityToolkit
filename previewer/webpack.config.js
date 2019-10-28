@@ -36,7 +36,8 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     alias: {
-      assets: path.resolve(__dirname, `src/assets`)
+      assets: path.resolve(__dirname, `src/assets`),
+      seinjs: path.resolve(__dirname, './node_modules/seinjs/lib/seinjs.umd.js')
     }
   },
   

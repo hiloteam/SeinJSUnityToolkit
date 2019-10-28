@@ -5,8 +5,9 @@
  * @Description: main.
  */
 import * as Sein from 'seinjs';
-import * as CANNON from 'cannon-dtysky';
 import 'seinjs-audio';
+import 'seinjs-inspector';
+import * as CANNON from 'cannon-dtysky';
 
 import {EModelEvents} from './types';
 import {bindCameraControl, createNewModels, initEvents, createDefaultCamera} from './script';
@@ -22,7 +23,7 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
     'intro-game',
     {
       canvas,
-      clearColor: new Sein.Color(0, .6, .9, 1),
+      clearColor: new Sein.Color(.5, .5, .5, 1),
       width: canvas.offsetWidth,
       height: canvas.offsetHeight,
       pixelRatio: window.devicePixelRatio
@@ -37,6 +38,10 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
   game.addWorld('main', Sein.GameModeActor, Sein.LevelScriptActor);
 
   await game.start();
+  game.addActor('inspector', Sein.Inspector.Actor, {
+    dom: document.getElementById('container'),
+    updateRate: 10
+  });
   game.world.enablePhysic(new Sein.CannonPhysicWorld(CANNON));
   game.resource.register('Audio', Sein.Audio.Loader);
   game.addActor('audioSystem', Sein.Audio.SystemActor);
