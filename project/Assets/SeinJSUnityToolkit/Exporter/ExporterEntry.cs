@@ -1208,6 +1208,13 @@ namespace SeinJS
                     bufferView.view.Buffer = bufferId;
 
                     offset += length;
+
+                    var rem = offset % 4;
+                    if (rem != 0)
+                    {
+                        binWriter.Write(new byte[4 - rem]);
+                        offset += 4 - rem;
+                    }
                 }
 
                 binWriter.Flush();

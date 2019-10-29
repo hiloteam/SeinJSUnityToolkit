@@ -105,8 +105,8 @@ export async function createDefaultCamera(game: Sein.Game, actors: Sein.SceneAct
   camera.addComponent('control', Sein.CameraControls.CameraOrbitControlComponent, {
     enableDamping: true,
     dampingFactor: .2,
-    zoomMax: 100,
-    zoomMin: .1,
+    zoomMax: 1000,
+    zoomMin: .01,
     target
   });
 }
