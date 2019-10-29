@@ -54,6 +54,8 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
     game.event.trigger(EModelEvents.LoadStart);
     preModels.push(...newModels);
     game.event.trigger(EModelEvents.LoadEnd, {models: newModels});
+
+    console.log(newModels);
   });
 
   game.event.add(EModelEvents.LoadEnd, (params: any) => {

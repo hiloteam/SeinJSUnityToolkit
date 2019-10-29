@@ -1,14 +1,15 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Importer/EditorImporter.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Config.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtension.cs" Line="51" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtensionFactory.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Previewer/Previewer.cs" Line="16" Column="42" />
-      <File FileName="Assets/SeinJSUnityToolkit/Previewer/PreviewerHandler.cs" Line="39" Column="53" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="200" Column="88" />
-      <File FileName="Assets/SeinJSUnityToolkit/Importer/EditorImporter.cs" Line="238" Column="56" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="145" Column="76" />
+      <File FileName="Assets/SeinJSUnityToolkit/Previewer/Previewer.cs" Line="44" Column="14" />
+      <File FileName="Assets/SeinJSUnityToolkit/Previewer/PreviewerHandler.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Importer/EditorImporter.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/config.json" Line="1" Column="52" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="21" Column="102" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="18" Column="17" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="26" Column="59" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -16,16 +17,10 @@
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="SeinJSUnityToolkit" expanded="True">
-                <Node name="Common" expanded="True" />
+                <Node name="Common" expanded="True">
+                  <Node name="Config.cs" selected="True" />
+                </Node>
                 <Node name="Exporter" expanded="True" />
-                <Node name="Extensions" expanded="True">
-                  <Node name="Basic" expanded="True" />
-                </Node>
-                <Node name="Importer" expanded="True">
-                  <Node name="EditorImporter.cs" selected="True" />
-                </Node>
-                <Node name="Previewer" expanded="True" />
-                <Node name="Shaders" expanded="True" />
               </Node>
             </Node>
           </Node>

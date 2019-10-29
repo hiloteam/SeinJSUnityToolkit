@@ -140,7 +140,9 @@ namespace SeinJS
 
             if (!isBone)
             {
-                node.Matrix = Utils.ConvertMat4LeftToRightHandedness(tr.localToWorldMatrix);
+                var matrix = new UnityEngine.Matrix4x4();
+                matrix.SetTRS(tr.localPosition, tr.localRotation, tr.localScale);
+                node.Matrix = Utils.ConvertMat4LeftToRightHandedness(matrix);
             }
             else
             {
@@ -910,22 +912,29 @@ namespace SeinJS
             {
                 var clip = clips[i];
                 var prefix = clip.GetHashCode().ToString();
+                var clipName = clip.name;
 
-                SaveAnimationClip(tr, clip, prefix);
+                if (clipName.Contains(tr.name + "@"))
+                {
+                    clipName = clipName.Replace(tr.name + "@", "");
+                }
 
-                animator.modelAnimations[i] = clip.name;
+                SaveAnimationClip(tr, clip, prefix, clipName);
+
+                animator.modelAnimations[i] = clipName;
+
                 animator.prefixes[i] = prefix;
             }
         }
 
-        private GLTF.Schema.Animation SaveAnimationClip(Transform tr, AnimationClip clip, string prefix)
+        private GLTF.Schema.Animation SaveAnimationClip(Transform tr, AnimationClip clip, string prefix, string clipName)
         {
             if (_animClip2anim.ContainsKey(clip))
             {
                 return _animClip2anim[clip];
             }
 
-            var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clip.name };
+            var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clipName };
             var targets = BakeAnimationClip(anim, tr, clip);
             var accessors = _animClip2Accessors[clip];
             var timeAccessorId = _animClip2TimeAccessor[clip];

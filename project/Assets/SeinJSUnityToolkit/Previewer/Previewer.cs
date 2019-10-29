@@ -42,9 +42,9 @@ namespace SeinJS
             }
             else
             {
-                Application.OpenURL("http://" + "192.168.50.126" + ":9999/previewer");
+                //Application.OpenURL("http://" + "192.168.50.126" + ":9999/previewer");
+                Application.OpenURL("http://" + _localIP + ":9999/previewer");
             }
-            //Application.OpenURL("http://" + _localIP + ":9999/previewer");
         }
 
         public static void Serve404(Request request, Response response)
