@@ -118,18 +118,18 @@ namespace SeinJS {
 
             GUILayout.Space(SPACE_SIZE);
 
-		    GUILayout.Label("Export Settings", EditorStyles.boldLabel);
+		    GUILayout.Label("Export Settings(导出设置)", EditorStyles.boldLabel);
 
-            GUILayout.Label("Name");
+            GUILayout.Label("Name(场景名)");
 		    ExporterSettings.Export.name = EditorGUILayout.TextField(ExporterSettings.Export.name);
 		    GUILayout.Space(SPACE_SIZE);
 
-            GUILayout.Label("Folder");
+            GUILayout.Label("Folder(目录)");
             GUILayout.BeginHorizontal();
             GUILayout.TextField(ExporterSettings.Export.folder, GUILayout.MinWidth(350), GUILayout.Height(21));
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button("Select Folder", GUILayout.Height(21), GUILayout.Width(150)))
+            if (GUILayout.Button("Select Folder(选择目录)", GUILayout.Height(21), GUILayout.Width(150)))
             {
                 var tmp= EditorUtility.OpenFolderPanel("Choose a folder", ExporterSettings.Export.folder, "");
                 if (tmp != "")
@@ -139,33 +139,34 @@ namespace SeinJS {
             }
             GUILayout.EndHorizontal();
 
-            ExporterSettings.Export.splitChunks = EditorGUILayout.Toggle("Split chunks", ExporterSettings.Export.splitChunks);
+            ExporterSettings.Export.splitChunks = EditorGUILayout.Toggle("Split chunks(分割物体)", ExporterSettings.Export.splitChunks);
 
-            GUILayout.Label("Normal Texture Settings", EditorStyles.boldLabel);
+            GUILayout.Label("Normal Texture Settings(一般纹理设置)", EditorStyles.boldLabel);
 
-            ExporterSettings.NormalTexture.opaqueType = (ENormalTextureType)EditorGUILayout.EnumPopup("Opaque image type", ExporterSettings.NormalTexture.opaqueType);
-            ExporterSettings.NormalTexture.transparentType = (ENormalTextureType)EditorGUILayout.EnumPopup("Transparent image type", ExporterSettings.NormalTexture.transparentType);
-            GUILayout.Label("Texture max size");
+            EditorGUIUtility.labelWidth = 200;
+            ExporterSettings.NormalTexture.opaqueType = (ENormalTextureType)EditorGUILayout.EnumPopup("Opaque image type(不透明纹理)", ExporterSettings.NormalTexture.opaqueType);
+            ExporterSettings.NormalTexture.transparentType = (ENormalTextureType)EditorGUILayout.EnumPopup("Transparent image type(透明纹理)", ExporterSettings.NormalTexture.transparentType);
+            GUILayout.Label("Texture max size(纹理尺寸限制)");
             ExporterSettings.NormalTexture.maxSize = EditorGUILayout.IntField(ExporterSettings.NormalTexture.maxSize);
-            GUILayout.Label("Texture jpg quality");
+            GUILayout.Label("Texture jpg quality(JPG压缩率)");
             ExporterSettings.NormalTexture.jpgQulity = EditorGUILayout.IntField(ExporterSettings.NormalTexture.jpgQulity);
             GUILayout.Space(SPACE_SIZE);
 
-            GUILayout.Label("Lighting Settings", EditorStyles.boldLabel);
-            ExporterSettings.Lighting.ambient = EditorGUILayout.Toggle("Export ambient light", ExporterSettings.Lighting.ambient);
+            GUILayout.Label("Lighting Settings(光照设置)", EditorStyles.boldLabel);
+            ExporterSettings.Lighting.ambient = EditorGUILayout.Toggle("Export ambient light(输出环境光)", ExporterSettings.Lighting.ambient);
 
-            ExporterSettings.Lighting.lightMap = EditorGUILayout.Toggle("Export light map", ExporterSettings.Lighting.lightMap);
-            ExporterSettings.Lighting.lightMapType = (EHDRTextureType)EditorGUILayout.EnumPopup("Light map image type", ExporterSettings.Lighting.lightMapType);
-            GUILayout.Label("Light map max size");
+            ExporterSettings.Lighting.lightMap = EditorGUILayout.Toggle("Export light map(输出光照贴图)", ExporterSettings.Lighting.lightMap);
+            ExporterSettings.Lighting.lightMapType = (EHDRTextureType)EditorGUILayout.EnumPopup("Light map image type(编码类型)", ExporterSettings.Lighting.lightMapType);
+            GUILayout.Label("Light map max size(贴图尺寸限制)");
             ExporterSettings.Lighting.lightMapSize = EditorGUILayout.IntField(ExporterSettings.Lighting.lightMapSize);
 
-            ExporterSettings.Lighting.reflection = EditorGUILayout.Toggle("Export reflection", ExporterSettings.Lighting.reflection);
-            ExporterSettings.Lighting.reflectionType = (EHDRTextureType)EditorGUILayout.EnumPopup("Reflection map image type", ExporterSettings.Lighting.reflectionType);
-            GUILayout.Label("Reflection map max size");
+            ExporterSettings.Lighting.reflection = EditorGUILayout.Toggle("Export reflection(输出全局反射)", ExporterSettings.Lighting.reflection);
+            ExporterSettings.Lighting.reflectionType = (EHDRTextureType)EditorGUILayout.EnumPopup("Reflection map image type(编码类型)", ExporterSettings.Lighting.reflectionType);
+            GUILayout.Label("Reflection map max size(贴图尺寸限制)");
             ExporterSettings.Lighting.reflectionSize = EditorGUILayout.IntField(ExporterSettings.Lighting.reflectionSize);
 
 		    GUILayout.BeginHorizontal();
-		    if (GUILayout.Button ("Preview", GUILayout.Width(240), GUILayout.Height(40))) {
+		    if (GUILayout.Button ("Preview(预览)", GUILayout.Width(240), GUILayout.Height(40))) {
                 var origFolder = ExporterSettings.Export.folder;
                 var origSplit = ExporterSettings.Export.splitChunks;
                 var origName = ExporterSettings.Export.name;
@@ -197,7 +198,7 @@ namespace SeinJS {
                 }
 		    }
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Export", GUILayout.Width(240), GUILayout.Height(40)))
+            if (GUILayout.Button("Export(导出)", GUILayout.Width(240), GUILayout.Height(40)))
             {
                 var folder = ExporterSettings.Export.folder;
                 if (!Directory.Exists(folder))

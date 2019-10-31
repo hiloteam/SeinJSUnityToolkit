@@ -38,7 +38,7 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
   game.addWorld('main', Sein.GameModeActor, Sein.LevelScriptActor);
 
   await game.start();
-  game.addActor('inspector', Sein.Inspector.Actor, {
+  const inspector = game.addActor('inspector', Sein.Inspector.Actor, {
     dom: document.getElementById('container'),
     updateRate: 10
   });
@@ -48,14 +48,22 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
 
   await initEvents(game);
 
+  const loading = document.getElementById('loading');
+
   game.event.add(EModelEvents.New, async (sources: {name: string, url: string}[]) => {
+    loading.style.display = 'block';
     const newModels = await createNewModels(game, sources, preModels);
+    loading.style.display = 'none';
     preModels.slice(0, 0);
     game.event.trigger(EModelEvents.LoadStart);
     preModels.push(...newModels);
     game.event.trigger(EModelEvents.LoadEnd, {models: newModels});
 
     console.log(newModels);
+  });
+
+  game.event.add(EModelEvents.Loading, (state: {source: {name: string, url: string}}) => {
+    loading.innerText = `Loading: ${state.source.name}`;
   });
 
   game.event.add(EModelEvents.LoadEnd, (params: any) => {
@@ -72,9 +80,11 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
     if (!hasCamera) {
       createDefaultCamera(game, models);
     }
+
+    inspector.syncVerticesInfo();
   });
 
-  game.event.trigger(EModelEvents.New, [{name: 'miku.gltf', url: '/previewer/scene.gltf'}]);
+  game.event.trigger(EModelEvents.New, [{name: 'scene.gltf', url: '/previewer/scene.gltf'}]);
 
   if (location.search.indexOf('qrcode=true') < 0) {
     checkUpdate();

@@ -45,12 +45,21 @@ export async function createNewModels(
   return newModels;
 }
 
-export function bindCameraControl(camera: Sein.PerspectiveCameraActor, models: Sein.SceneActor[]) {
-  camera.addComponent('control', Sein.CameraControls.CameraFreeControlComponent, {
+export function bindCameraControl(camera: Sein.PerspectiveCameraActor, actors: Sein.SceneActor[]) {
+  const bounds = calcModelsBound(actors);
+  const target = new Sein.Vector3(
+    (bounds.x0 + bounds.x1) / 2,
+    (bounds.y0 + bounds.y1) / 2,
+    (bounds.z0 + bounds.z1) / 2
+  );
+  camera.lookAt(target);
+
+  camera.addComponent('control', Sein.CameraControls.CameraOrbitControlComponent, {
     enableDamping: true,
     dampingFactor: .2,
-    zoomMax: 100,
-    zoomMin: .1
+    zoomMax: 1000,
+    zoomMin: .01,
+    target
   });
 
   camera.getWorld().setMainCamera(camera);
@@ -69,23 +78,7 @@ export async function createDefaultCamera(game: Sein.Game, actors: Sein.SceneAct
 
   let target: Sein.Vector3;
 
-  const bounds = {
-    x0: 0, x1: 0, y0: 0, y1: 0, z0: 0, z1: 0,
-  };
-  actors.forEach((actor) => {
-    const b = actor.getBounds();
-
-    if (!b) {
-      return;
-    }
-
-    bounds.x0 = b.xMin < bounds.x0 ? b.xMin : bounds.x0;
-    bounds.x1 = b.xMax > bounds.x1 ? b.xMax : bounds.x1;
-    bounds.y0 = b.yMin < bounds.y0 ? b.yMin : bounds.y0;
-    bounds.y1 = b.yMax > bounds.y1 ? b.yMax : bounds.y1;
-    bounds.z0 = b.zMin < bounds.z0 ? b.zMin : bounds.z0;
-    bounds.z1 = b.zMax > bounds.z1 ? b.zMax : bounds.z1;
-  });
+  const bounds = calcModelsBound(actors);
 
   const radius = Math.sqrt(
     (((bounds.x1 - bounds.x0) / 2) ** 2)
@@ -109,6 +102,28 @@ export async function createDefaultCamera(game: Sein.Game, actors: Sein.SceneAct
     zoomMin: .01,
     target
   });
+}
+
+function calcModelsBound(actors: Sein.SceneActor[]) {
+  const bounds = {
+    x0: 0, x1: 0, y0: 0, y1: 0, z0: 0, z1: 0,
+  };
+  actors.forEach((actor) => {
+    const b = actor.getBounds();
+
+    if (!b) {
+      return;
+    }
+
+    bounds.x0 = b.xMin < bounds.x0 ? b.xMin : bounds.x0;
+    bounds.x1 = b.xMax > bounds.x1 ? b.xMax : bounds.x1;
+    bounds.y0 = b.yMin < bounds.y0 ? b.yMin : bounds.y0;
+    bounds.y1 = b.yMax > bounds.y1 ? b.yMax : bounds.y1;
+    bounds.z0 = b.zMin < bounds.z0 ? b.zMin : bounds.z0;
+    bounds.z1 = b.zMax > bounds.z1 ? b.zMax : bounds.z1;
+  });
+
+  return bounds;
 }
 
 export async function createDefaultLights(game: Sein.Game) {
