@@ -24,6 +24,7 @@ namespace SeinJS
         private static Texture2D brdfLUT;
 
         private Dictionary<Cubemap, int> _cache = new Dictionary<Cubemap, int>();
+        private int onlyLightingId = -1;
 
         public override void BeforeExport()
         {
@@ -34,16 +35,12 @@ namespace SeinJS
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
-            if (!ExporterSettings.Lighting.reflection)
-            {
-                return;
-            }
-
             var mat = component as UnityEngine.Material;
+            var hasReflection = ExporterSettings.Lighting.reflection && mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off;
+            var hasLighting = RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Skybox;
 
-            if (RenderSettings.defaultReflectionMode != UnityEngine.Rendering.DefaultReflectionMode.Custom)
+            if (!hasReflection && !hasLighting)
             {
-                Debug.LogWarning("Exporting reflection is only supported in `custom` mode now, check your 'Environment Reflection' setting !");
                 return;
             }
 
@@ -66,21 +63,10 @@ namespace SeinJS
 
             var extension = new Sein_imageBasedLightingExtension();
 
-            Cubemap specMap = null;
-            //ReflectionProbe
-            float specIntensity = RenderSettings.reflectionIntensity;
-            if (RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom)
+            if (hasLighting && !hasReflection && onlyLightingId >= 0)
             {
-                specMap = RenderSettings.customReflection;
-            }
-            else
-            {
-                //todo: support skybox cubemap
-            }
-
-            if (_cache.ContainsKey(specMap))
-            {
-                extension.iblIndex = _cache[specMap];
+                extension.iblIndex = onlyLightingId;
+                extension.iblType = 1;
                 AddExtension(extensions, extension);
                 return;
             }
@@ -110,12 +96,47 @@ namespace SeinJS
             light.shCoefficients = coefficients;
             light.diffuseIntensity = diffuseIntensity;
             light.brdfLUT = entry.SaveTexture(brdfLUT, false).Id;
+
+            var isCustomCubMap = RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom;
+            if (!isCustomCubMap)
+            {
+                Debug.LogWarning("Exporting reflection is only supported in `custom` mode now, check your 'Environment Reflection' setting !");
+            }
+
+            if (hasLighting && !(hasReflection && isCustomCubMap))
+            {
+                globalExtension.lights.Add(light);
+                onlyLightingId = globalExtension.lights.Count - 1;
+                extension.iblIndex = onlyLightingId;
+                extension.iblType = 1;
+                return;
+            }
+
+            Cubemap specMap = null;
+            //ReflectionProbe
+            float specIntensity = RenderSettings.reflectionIntensity;
+            if (isCustomCubMap)
+            {
+                specMap = RenderSettings.customReflection;
+            }
+            else
+            {
+                //todo: support skybox cubemap
+            }
+
+            if (_cache.ContainsKey(specMap))
+            {
+                extension.iblIndex = _cache[specMap];
+                AddExtension(extensions, extension);
+                return;
+            }
             light.specIntensity = specIntensity;
             light.specMapFaces = new int[6];
 
             string origAssetPath = AssetDatabase.GetAssetPath(specMap);
             string ext = Path.GetExtension(origAssetPath);
             var blurredSpecMap = GetSpecularCubeMap(specMap);
+            //@todo: use gpu to process it
             for (var i = 0; i < 6; i += 1)
             {
                 var tex2d = new Texture2D(blurredSpecMap.width, blurredSpecMap.height, TextureFormat.RGBAHalf, false);
@@ -147,17 +168,15 @@ namespace SeinJS
             }
             DeleteTempMap(blurredSpecMap);
 
+            if (RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Flat)
+            {
+                light.diffuseIntensity = 1;
+            }
+
             globalExtension.lights.Add(light);
 
             extension.iblIndex = globalExtension.lights.Count - 1;
-            if (mat.HasProperty("envReflection"))
-            {
-                extension.iblType = mat.GetInt("envReflection");
-            }
-            else
-            {
-                extension.iblType = 2;
-            }
+            extension.iblType = 2;
             AddExtension(extensions, extension);
         }
 
@@ -250,20 +269,6 @@ namespace SeinJS
             // Positive Z
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveZ);
             GL.Begin(GL.QUADS);
-            GL.TexCoord3(-1, 1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, -1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, 1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 4, 0);
-
-            // Negative Z
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeZ);
-            GL.Begin(GL.QUADS);
             GL.TexCoord3(1, 1, -1);
             GL.Vertex3(0, 0, 1);
             GL.TexCoord3(1, -1, -1);
@@ -271,6 +276,20 @@ namespace SeinJS
             GL.TexCoord3(-1, -1, -1);
             GL.Vertex3(1, 1, 1);
             GL.TexCoord3(-1, 1, -1);
+            GL.Vertex3(1, 0, 1);
+            GL.End();
+            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 4, 0);
+
+            // Negative Z
+            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeZ);
+            GL.Begin(GL.QUADS);
+            GL.TexCoord3(-1, 1, 1);
+            GL.Vertex3(0, 0, 1);
+            GL.TexCoord3(-1, -1, 1);
+            GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(1, -1, 1);
+            GL.Vertex3(1, 1, 1);
+            GL.TexCoord3(1, 1, 1);
             GL.Vertex3(1, 0, 1);
             GL.End();
             tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 5, 0);

@@ -377,18 +377,15 @@ Shader "Sein/PBR" {
             
             #pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
             #pragma multi_compile_fwdbase
-            #pragma shader_feature DIFFUSE_ENV_MAP
-            #pragma shader_feature SPECULAR_ENV_MAP
+            #pragma shader_feature ENV_SPECULAR_ON
             
             fixed3 getIBLContribution(pbrdata pbr) {
                 fixed3 color = fixed3(.0, .0, .0);
                 float3 worldNormal = mul(UNITY_MATRIX_I_V, pbr.N);
-                #if DIFFUSE_ENV_MAP 
-                    float3 diffuseLight = ShadeSH9(float4(worldNormal, 1));
-                    color.rgb += diffuseLight * pbr.diffuseColor * pbr.ao;
-                #endif
+                float3 diffuseLight = ShadeSH9(float4(worldNormal, 1));
+                color.rgb += diffuseLight * pbr.diffuseColor * pbr.ao;
                 
-                #if SPECULAR_ENV_MAP
+                #if ENV_SPECULAR_ON
                     float3 worldView = mul(UNITY_MATRIX_I_V, pbr.V);
                     float3 R = -normalize(reflect(worldView, worldNormal));
                     float3 brdf = tex2D(_brdfLUT, float2(pbr.NdotV, 1.0 - pbr.roughness)).rgb;
@@ -413,15 +410,13 @@ Shader "Sein/PBR" {
                 
                 fixed4 color;
                 color.rgb = float3(0, 0, 0);
-                color.rgb += UNITY_LIGHTMODEL_AMBIENT.xyz * baseColor.rgb * ao;
                 color.rgb += radiance * calculateLo(pbr);
 
                 #ifdef LIGHTMAP_ON
                     color.rgb += baseColor.rgb * DecodeLightmap(UNITY_SAMPLE_TEX2D(unity_Lightmap, i.uv1));
                 #endif
-                
+
                 color.rgb += getIBLContribution(pbr);
-                
                 color.rgb += (_emission * sampleTexture(_emissionMap, i.uv)).rgb;
 
                 return color;

@@ -20,8 +20,17 @@ namespace SeinJS
         {
             var extension = new Sein_ambientLightExtension();
 
-            extension.intensity = RenderSettings.ambientIntensity;
-            extension.color = RenderSettings.ambientLight;
+            var hdrColor = RenderSettings.ambientLight;
+            var r = hdrColor.r;
+            var g = hdrColor.r;
+            var b = hdrColor.b;
+            var d = Math.Max(r, Math.Max(g, b));
+            r /= d;
+            g /= d;
+            b /= d;
+
+            extension.intensity = d;
+            extension.color = new Color(r, g, b);
 
             AddExtension(extensions, extension);
         }

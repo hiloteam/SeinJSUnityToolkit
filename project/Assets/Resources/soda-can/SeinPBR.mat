@@ -69,7 +69,7 @@ Material:
     - _metallic: 1
     - _normalScale: 1
     - _occlusionStrength: 1
-    - _roughness: 0.314
+    - _roughness: 0.287
     - cloneForInst: 0
     - envDiffuseReflection: 0
     - envReflection: 2

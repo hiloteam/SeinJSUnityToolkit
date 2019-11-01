@@ -31,8 +31,7 @@ namespace UnityEditor
         public enum EnvReflection
         {
             Off = 0,
-            Specular = 1,
-            All = 2
+            On = 1
         }
 
         private static class Styles
@@ -282,21 +281,11 @@ namespace UnityEditor
         {
             switch (mode)
             {
-                //case EnvReflection.Diffuse:
-                //    material.EnableKeyword("DIFFUSE_ENV_MAP");
-                //    material.DisableKeyword("SPECULAR_ENV_MAP");
-                //    break;
-                case EnvReflection.Specular:
-                    material.EnableKeyword("SPECULAR_ENV_MAP");
-                    material.DisableKeyword("DIFFUSE_ENV_MAP");
-                    break;
-                case EnvReflection.All:
-                    material.EnableKeyword("DIFFUSE_ENV_MAP");
-                    material.EnableKeyword("SPECULAR_ENV_MAP");
+                case EnvReflection.On:
+                    material.EnableKeyword("ENV_SPECULAR_ON");
                     break;
                 case EnvReflection.Off:
-                    material.DisableKeyword("DIFFUSE_ENV_MAP");
-                    material.DisableKeyword("SPECULAR_ENV_MAP");
+                    material.DisableKeyword("ENV_SPECULAR_ON");
                     break;
             }
 

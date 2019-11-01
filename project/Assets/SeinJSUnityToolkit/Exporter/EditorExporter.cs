@@ -51,7 +51,8 @@ namespace SeinJS
             root.Scenes.Add(new Scene());
             root.Scene = new SceneId{ Id = 0, Root = root };
 
-            if (ExporterSettings.Lighting.ambient)
+            // if ambientMode is not Flat, use sein_imageBaseLighting extension
+            if (ExporterSettings.Lighting.ambient && RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Flat)
             {
                 var tmpGo = new GameObject();
                 tmpGo.name = "sein-ambient-light";

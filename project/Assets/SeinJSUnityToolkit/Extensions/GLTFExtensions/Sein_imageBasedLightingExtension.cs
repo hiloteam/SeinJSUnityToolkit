@@ -30,6 +30,9 @@ namespace SeinJS
 
         // each
         public int iblIndex = -1;
+        // off 0
+        // light only 1
+        // all 2
         public int iblType = 2;
 
         public JProperty Serialize()
@@ -69,7 +72,7 @@ namespace SeinJS
             else
             {
                 value.Add("light", iblIndex);
-                value.Add("type", iblType == 1 ? "SPECULAR" : "ALL");
+                value.Add("type", iblType == 1 ? "DIFFUSE" : "ALL");
             }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_imageBasedLightingExtensionFactory)), value);
