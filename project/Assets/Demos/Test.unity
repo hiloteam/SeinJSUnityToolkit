@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1.83
+  m_AmbientIntensity: 3.12
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 0c2908e9eff6e4643828c65aeb0a7b6e, type: 2}
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 8900000, guid: cd2b0d52a9c164817a37593c0d71a467, type: 3}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.32833818, g: 0.2997874, b: 0.2969894, a: 1}
+  m_IndirectSpecularColor: {r: 0.09921976, g: 0.090591304, b: 0.08974399, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -133,20 +133,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: changjing12
       objectReference: {fileID: 0}
+    - target: {fileID: 3705500280733692668, guid: 42e90869a10644eb09635ea70ff04310,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 375994526066213103, guid: 42e90869a10644eb09635ea70ff04310,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.011292267
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 375994526066213103, guid: 42e90869a10644eb09635ea70ff04310,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.1508378
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 375994526066213103, guid: 42e90869a10644eb09635ea70ff04310,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.0069429013
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 375994526066213103, guid: 42e90869a10644eb09635ea70ff04310,
         type: 3}
@@ -247,16 +252,16 @@ Light:
   serializedVersion: 9
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1.61
+  m_Intensity: 11.1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
-    m_Strength: 1
+    m_Strength: 0.405
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
@@ -408,10 +413,10 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1396785256}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -17.63, y: 1, z: 0.11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}

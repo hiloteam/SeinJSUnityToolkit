@@ -2,7 +2,7 @@
 /**
  * @File   : GLTFHDR2RGBD.shader
  * @Author : dtysky (dtysky@outlook.com)
- * @Date   : 11/22/2019, 1:30:53 PM
+ * @Date   : 10/22/2019, 1:30:53 PM
  * @Description:
  */
 Shader "GLTF/HDR2RGBD" {

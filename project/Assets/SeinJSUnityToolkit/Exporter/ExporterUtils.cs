@@ -437,7 +437,7 @@ namespace SeinJS
                 material.EmissiveFactor = new GLTF.Math.Color(emissive.r, emissive.g, emissive.b, emissive.a);
             }
 
-            if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off || (ExporterSettings.Lighting.ambient && RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Skybox))
+            if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off || (ExporterSettings.Lighting.ambient && (RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Skybox || RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Trilight)))
             {
                 if (material.Extensions == null)
                 {

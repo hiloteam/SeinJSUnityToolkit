@@ -1,14 +1,13 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="464" Column="39" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="440" Column="87" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="183" Column="30" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="173" Column="44" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" Line="75" Column="58" />
-      <File FileName="Assets/SeinJSUnityToolkit/Shaders/SeinPBR.shader" Line="386" Column="17" />
-      <File FileName="Assets/SeinJSUnityToolkit/Shaders/SeinPBRShaderGUI.cs" Line="220" Column="52" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="1183" Column="27" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="599" Column="30" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="184" Column="22" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Shaders/SeinPBR.shader" Line="374" Column="47" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="171" Column="26" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="53" Column="29" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,11 +16,11 @@
             <Node name="Assets" expanded="True">
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
-                <Node name="Exporter" expanded="True" />
+                <Node name="Exporter" expanded="True">
+                  <Node name="Exporter.cs" selected="True" />
+                </Node>
                 <Node name="Extensions" expanded="True">
-                  <Node name="GLTFExtensions" expanded="True">
-                    <Node name="Sein_imageBasedLightingExtensionFactory.cs" selected="True" />
-                  </Node>
+                  <Node name="GLTFExtensions" expanded="True" />
                 </Node>
                 <Node name="Importer" expanded="True" />
                 <Node name="Previewer" expanded="True" />

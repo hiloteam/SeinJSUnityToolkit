@@ -50,7 +50,7 @@ namespace SeinJS
                     entries.Add(new ExporterEntry
                     {
                             path = ExporterSettings.Export.GetExportPath(tr.name),
-                            name = ExporterSettings.Export.name,
+                            name = ExporterUtils.CleanPath(tr.name),
                             transforms = tr.GetComponentsInChildren<Transform>()
 					});
                 }

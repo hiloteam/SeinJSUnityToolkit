@@ -14856,7 +14856,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/24/2019, 2:37:20 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js");
 var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
 var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js");
@@ -14997,7 +14997,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:38:07 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js");
 /**
  * ListenerComponent的一个简单封装容器。
@@ -15069,7 +15069,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:37:56 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
 /**
  * 判断一个实例是否为`ListenerComponent`。
@@ -15241,7 +15241,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:39:12 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var StreamClip_1 = __webpack_require__(/*! ./clip/StreamClip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/StreamClip.js");
 var BufferClip_1 = __webpack_require__(/*! ./clip/BufferClip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/BufferClip.js");
 var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
@@ -15450,7 +15450,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 8:12:59 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js");
 /**
  * SourceComponent的一个简单封装容器。
@@ -15518,7 +15518,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 8:12:53 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
 /**
  * @hidden
@@ -15938,7 +15938,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:37:35 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 /**
  * 判断一个实例是否为`SystemActor`。
  */
@@ -16200,7 +16200,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/23/2019, 8:11:01 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var Clip_1 = __webpack_require__(/*! ./Clip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js");
 var BufferClip = /** @class */ (function (_super) {
     __extends(BufferClip, _super);
@@ -16466,7 +16466,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/23/2019, 10:29:13 AM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -16772,7 +16772,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/23/2019, 8:10:52 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var Clip_1 = __webpack_require__(/*! ./Clip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js");
 var StreamClip = /** @class */ (function (_super) {
     __extends(StreamClip, _super);
@@ -16931,7 +16931,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 2018/9/25 上午11:58:00
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
 exports.SystemActor = SystemActor_1.default;
 exports.isSystemActor = SystemActor_1.isSystemActor;
@@ -17013,7 +17013,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:10 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -17447,7 +17447,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:06 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var ActorObserveControlComponent_1 = __webpack_require__(/*! ./ActorObserveControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/ActorObserveControlComponent.js");
 exports.ActorObserveControlComponent = ActorObserveControlComponent_1.default;
 Sein.CameraControls = Sein.CameraControls || {};
@@ -17491,7 +17491,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:10 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -17987,7 +17987,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:06 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var CameraFreeControlComponent_1 = __webpack_require__(/*! ./CameraFreeControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/CameraFreeControlComponent.js");
 exports.CameraFreeControlComponent = CameraFreeControlComponent_1.default;
 Sein.CameraControls = Sein.CameraControls || {};
@@ -18031,7 +18031,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/5/2018, 5:52:40 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -18577,7 +18577,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/5/2018, 5:52:44 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.18@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
 var CameraOrbitControlComponent_1 = __webpack_require__(/*! ./CameraOrbitControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/CameraOrbitControlComponent.js");
 exports.CameraOrbitControlComponent = CameraOrbitControlComponent_1.default;
 Sein.CameraControls = Sein.CameraControls || {};

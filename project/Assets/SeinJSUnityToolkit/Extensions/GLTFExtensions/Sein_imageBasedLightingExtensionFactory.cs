@@ -37,7 +37,7 @@ namespace SeinJS
         {
             var mat = component as UnityEngine.Material;
             var hasReflection = ExporterSettings.Lighting.reflection && mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off;
-            var hasLighting = RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Skybox;
+            var hasLighting = RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Skybox || RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Trilight;
 
             if (!hasReflection && !hasLighting)
             {
@@ -76,7 +76,7 @@ namespace SeinJS
             var coefficients = new float[9][];
             UnityEngine.Rendering.SphericalHarmonicsL2 shs;
             LightProbes.GetInterpolatedProbe(new UnityEngine.Vector3(), null, out shs);
-            float diffuseIntensity = RenderSettings.ambientIntensity;
+            float diffuseIntensity = 1;
             if (shs != null)
             {
                 for (var c = 0; c < 9; c += 1)
@@ -168,11 +168,6 @@ namespace SeinJS
             }
             DeleteTempMap(blurredSpecMap);
 
-            if (RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Flat)
-            {
-                light.diffuseIntensity = 1;
-            }
-
             globalExtension.lights.Add(light);
 
             extension.iblIndex = globalExtension.lights.Count - 1;
@@ -198,7 +193,7 @@ namespace SeinJS
             dstCubemap.filterMode = FilterMode.Trilinear;
             dstCubemap.isPowerOfTwo = true;
             dstCubemap.Create();
-            var mip = .2f;
+            var mip = .3f;
             var dstMip = 0;
             var mipRes = srcCubemap.width;
 

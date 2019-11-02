@@ -228,6 +228,11 @@ namespace SeinJS
         {
             foreach (var tr in entry.transforms)
             {
+                if (!tr.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
                 var id = entry.tr2nodeId[tr];
                 if (!tr.parent || !entry.tr2node.ContainsKey(tr.parent))
                 {

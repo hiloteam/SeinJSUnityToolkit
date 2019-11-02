@@ -382,7 +382,7 @@ Shader "Sein/PBR" {
             fixed3 getIBLContribution(pbrdata pbr) {
                 fixed3 color = fixed3(.0, .0, .0);
                 float3 worldNormal = mul(UNITY_MATRIX_I_V, pbr.N);
-                float3 diffuseLight = ShadeSH9(float4(worldNormal, 1));
+                float3 diffuseLight = SHEvalLinearL0L1(float4(worldNormal, 1));
                 color.rgb += diffuseLight * pbr.diffuseColor * pbr.ao;
                 
                 #if ENV_SPECULAR_ON
@@ -418,7 +418,7 @@ Shader "Sein/PBR" {
 
                 color.rgb += getIBLContribution(pbr);
                 color.rgb += (_emission * sampleTexture(_emissionMap, i.uv)).rgb;
-
+                
                 return color;
             }
 

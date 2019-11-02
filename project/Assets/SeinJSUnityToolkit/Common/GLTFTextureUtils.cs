@@ -9,6 +9,7 @@ namespace SeinJS
     {
         private static string _flipTexture = "GLTF/FlipTexture";
         private static string _hdr2RGBD = "GLTF/HDR2RGBD";
+        private static string _splitCube = "GLTF/SplitCube";
         private static string _packOcclusionMetalRough = "GLTF/PackOcclusionMetalRough";
         private static string _convertBump = "GLTF/BumpToNormal";
         public static bool _useOriginalImages = true;
