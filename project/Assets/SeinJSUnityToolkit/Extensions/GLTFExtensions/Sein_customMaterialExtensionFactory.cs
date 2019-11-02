@@ -126,11 +126,7 @@ namespace SeinJS
                                 var fv4 = uniform.Value<JArray>("value");
                                 if (uniform.Value<bool>("isColor"))
                                 {
-                                    var value = new Color((float)fv4[0], (float)fv4[1], (float)fv4[2], (float)fv4[3]);
-                                    if (PlayerSettings.colorSpace == ColorSpace.Linear)
-                                    {
-                                        value = value.gamma;
-                                    }
+                                    var value = Utils.ImportColor(new Color((float)fv4[0], (float)fv4[1], (float)fv4[2], (float)fv4[3]));
                                     uniformsColor.Add(new SeinMaterialUniformColor { name = name, value = value });
                                 } else
                                 {

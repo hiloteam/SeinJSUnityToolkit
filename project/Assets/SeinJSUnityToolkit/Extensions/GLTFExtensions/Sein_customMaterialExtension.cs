@@ -110,7 +110,7 @@ namespace SeinJS
                         if (uniform.GetType() == typeof(SeinMaterialUniformColor) && PlayerSettings.colorSpace == ColorSpace.Linear)
                         {
                             value.Add(new JProperty("isColor", true));
-                            fv4 = (uniform as SeinMaterialUniformColor).value.linear;
+                            fv4 = Utils.ExportColorVec4((uniform as SeinMaterialUniformColor).value);
                         }
                         value.Add(new JProperty("value", new JArray { fv4.x, fv4.y, fv4.z, fv4.w }));
                         break;

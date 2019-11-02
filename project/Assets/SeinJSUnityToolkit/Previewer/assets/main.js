@@ -251,8 +251,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : Tue Oct 15 2019
  * @Description: main.
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-__webpack_require__(/*! seinjs-audio */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/index.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+__webpack_require__(/*! seinjs-audio */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/index.js");
 __webpack_require__(/*! seinjs-inspector */ "./node_modules/_seinjs-inspector@0.8.10@seinjs-inspector/lib/index.js");
 var CANNON = __webpack_require__(/*! cannon-dtysky */ "./node_modules/_cannon-dtysky@0.6.4@cannon-dtysky/build/cannon.js");
 var types_1 = __webpack_require__(/*! ./types */ "./src/game/types.ts");
@@ -323,6 +323,11 @@ function main(canvas) {
                                 script_1.bindCameraControl(actor, models);
                                 hasCamera = true;
                             }
+                            actor.findComponentsByClass(Sein.StaticMeshComponent).forEach(function (c) {
+                                // c.material.useHDR = false;
+                                c.material.exposure = 1.5;
+                                c.material.gammaCorrection = true;
+                            });
                         });
                         if (!hasCamera) {
                             script_1.createDefaultCamera(game, models);
@@ -395,7 +400,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : Tue Oct 15 2019
  * @Description: script.
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 __webpack_require__(/*! seinjs-camera-controls */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/index.js");
 var types_1 = __webpack_require__(/*! ./types */ "./src/game/types.ts");
 function initEvents(game) {
@@ -612,7 +617,7 @@ game_1.main(canvas);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/previewer/src/index.ts */"./src/index.ts");
+module.exports = __webpack_require__(/*! /mnt/c/Users/dtysky/ComplexMind/SeinUnityToolkit/previewer/src/index.ts */"./src/index.ts");
 
 
 /***/ })

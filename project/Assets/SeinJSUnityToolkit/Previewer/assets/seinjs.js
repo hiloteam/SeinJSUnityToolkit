@@ -1,8 +1,8 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([["seinjs"],{
 
-/***/ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js":
+/***/ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js":
 /*!**************************************************************!*\
-  !*** ./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js ***!
+  !*** ./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js ***!
   \**************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -596,6 +596,16 @@
           _this.parent = parent;
           return _this;
       }
+      Object.defineProperty(Observable.prototype, "count", {
+          /**
+           * 拥有的监听者数量。
+           */
+          get: function () {
+              return this._length;
+          },
+          enumerable: true,
+          configurable: true
+      });
       /**
        * 添加一个回调到队列中。
        */
@@ -825,6 +835,15 @@
        */
       EventManager.prototype.has = function (type) {
           return !!this._observables[type];
+      };
+      /**
+       * 判断一个时间的监听者数量。
+       */
+      EventManager.prototype.getCount = function (type) {
+          if (!this.has(type)) {
+              return 0;
+          }
+          return this._observables[type].count;
       };
       EventManager.prototype.clear = function (type) {
           if (!this._observables[type]) {
@@ -7233,8 +7252,11 @@
                   else {
                       material.uvMatrix1 = new Matrix3().fromRotationTranslationScale(uvRotation, uvOffset[0], uvOffset[1], uvScale[0], uvScale[1]);
                   }
-                  material.useHDR = true;
-                  material.exposure = .7;
+
+                  if (info.useHDR) {
+                      material.useHDR = true;
+                      material.exposure = info.exposure || 1;
+                  }
               }
               material.receiveShadows = info.castShadows || false;
               material.castShadows = info.receiveShadows || false;
@@ -7365,7 +7387,6 @@
                   if (light.diffuse.type == 'SH') {
                       material.diffuseEnvSphereHarmonics3 = light.diffuse.coefficients;
                   }
-                  material.useHDR = true;
               }
               else if (isRawShaderMaterial(material)) {
                   /**
@@ -16925,7 +16946,7 @@
    * @Date   : 2018-7-28 13:54:12
    * @Description:
    */
-  var version = '1.3.19';
+  var version = '1.3.20';
   var author = 'Tianyu Dai <dtysky@outlook.com>';
   /* tslint:disable-line */
   console.log("Sein.js verison: " + version);

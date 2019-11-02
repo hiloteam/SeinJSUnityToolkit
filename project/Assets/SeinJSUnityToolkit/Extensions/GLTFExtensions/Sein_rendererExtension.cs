@@ -18,6 +18,8 @@ namespace SeinJS
         public int uvRotation = 0;
         public Vector2 uvScale;
         public Vector2 uvOffset;
+        public bool useHDR = false;
+        public float exposure = 0;
         public bool castShadows;
         public bool receiveShadows;
         public bool gammaCorrection;
@@ -32,16 +34,30 @@ namespace SeinJS
 
             if (lightMapIndex >= 0)
             {
-                value.Add("uvChannel", uvChannel);
-                value.Add("uvRotation", uvRotation);
-                value.Add("uvScale", new JArray { uvScale.x, uvScale.y });
-                value.Add("uvOffset", new JArray { uvOffset.x, uvOffset.y });
-                value.Add("lightMapIndex", lightMapIndex);
+                var lm = new JObject(
+                    new JProperty("uvChannel", uvChannel),
+                    new JProperty("uvRotation", uvRotation),
+                    new JProperty("uvScale", new JArray { uvScale.x, uvScale.y }),
+                    new JProperty("uvOffset", new JArray { uvOffset.x, uvOffset.y }),
+                    new JProperty("lightMapIndex", lightMapIndex)
+                );
 
                 if (aoMapIndex >= 0)
                 {
-                    value.Add("aoMapIndex", aoMapIndex);
+                    lm.Add("aoMapIndex", aoMapIndex);
                 }
+
+                value.Add("lightMap", lm);
+            }
+
+            if (useHDR)
+            {
+                value.Add("useHDR", useHDR);
+            }
+
+            if (exposure != 0)
+            {
+                value.Add("exposure", exposure);
             }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_rendererExtensionFactory)), value);

@@ -25,9 +25,13 @@ namespace SeinJS
             var g = hdrColor.r;
             var b = hdrColor.b;
             var d = Math.Max(r, Math.Max(g, b));
-            r /= d;
-            g /= d;
-            b /= d;
+
+            if (d >= 0.01)
+            {
+                r /= d;
+                g /= d;
+                b /= d;
+            }
 
             extension.intensity = d;
             extension.color = new Color(r, g, b);

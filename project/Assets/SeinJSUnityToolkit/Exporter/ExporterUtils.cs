@@ -321,7 +321,7 @@ namespace SeinJS
                 if (mat.GetColor("_baseColor") != null)
                 {
                     Color c = mat.GetColor("_baseColor");
-                    material.PbrMetallicRoughness.BaseColorFactor = new GLTF.Math.Color(c.r, c.g, c.b, c.a);
+                    material.PbrMetallicRoughness.BaseColorFactor = Utils.ExportColor(c);
                 }
             }
 
@@ -367,7 +367,7 @@ namespace SeinJS
             {
                 TextureInfo specGlossMap = null;
                 TextureInfo diffuseMap = null;
-                GLTF.Math.Color diffuseColor = new GLTF.Math.Color();
+                var diffuseColor = new GLTF.Math.Color();
 
                 if (mat.GetTexture("_baseColorMap") != null)
                 {
@@ -378,7 +378,7 @@ namespace SeinJS
                 if (mat.GetColor("_baseColor") != null)
                 {
                     Color c = mat.GetColor("_baseColor");
-                    diffuseColor = new GLTF.Math.Color(c.r, c.g, c.b, c.a);
+                    diffuseColor = Utils.ExportColor(c);
                 }
 
                 bool hasPBRMap = mat.GetTexture("_specularGlossinessMap") != null;
@@ -388,7 +388,7 @@ namespace SeinJS
                     specGlossMap = new TextureInfo { Index = entry.SaveTexture((Texture2D)mat.GetTexture("_specularGlossinessMap"), true) };
                 }
 
-                var specularFactor = hasPBRMap ? Color.white : mat.GetColor("_specular");
+                var specularFactor = hasPBRMap ? Color.white : (Color)Utils.ExportColorVec4(mat.GetColor("_specular"));
                 var glossinessFactor = hasPBRMap ? 1.0f : mat.GetFloat("_glossiness");
 
                 if (material.Extensions == null)
@@ -434,7 +434,7 @@ namespace SeinJS
             var emissive = mat.GetColor("_emission");
             if (!emissive.Equals(new Color(0, 0, 0)))
             {
-                material.EmissiveFactor = new GLTF.Math.Color(emissive.r, emissive.g, emissive.b, emissive.a);
+                material.EmissiveFactor = Utils.ExportColor(emissive);
             }
 
             if (mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off || (ExporterSettings.Lighting.ambient && (RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Skybox || RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Trilight)))
@@ -563,7 +563,6 @@ namespace SeinJS
             ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory)), entry, material.Extensions, mat);
             return material;
         }
-
 
         /// <summary>
         /// 

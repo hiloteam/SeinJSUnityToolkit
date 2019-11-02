@@ -76,7 +76,7 @@ namespace SeinJS
 		}
 
 		public class Lighting {
-		    public static bool ambient = true;
+            public static bool ambient = true;
 			public static bool lightMap = true;
 			public static int lightMapSize = 1024;
 			public static EHDRTextureType lightMapType = EHDRTextureType.RGBD;

@@ -35,6 +35,7 @@ namespace SeinJS
                 extension.lightMapIndex = lightTextureIndex.Id;
             }
 
+            //@todo: hdr
             extension.castShadows = mr.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On;
             extension.receiveShadows = mr.receiveShadows;
             extension.gammaCorrection = PlayerSettings.colorSpace == ColorSpace.Linear;

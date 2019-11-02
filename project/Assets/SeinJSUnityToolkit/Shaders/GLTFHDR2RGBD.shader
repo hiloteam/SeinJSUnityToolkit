@@ -7,7 +7,7 @@
  */
 Shader "GLTF/HDR2RGBD" {
     Properties{
-        _HDRTexture("Texture", 2D) = "white" {}
+		[HDR] _HDRTexture("Texture", 2D) = "white" {}
     }
 
     SubShader {

@@ -218,5 +218,47 @@ namespace SeinJS {
 
             return mat;
         }
+
+        public static GLTF.Math.Color ExportColor(Color color)
+        {
+            var c = color;
+
+            // in unity, all color are in gamma space
+            if (PlayerSettings.colorSpace == ColorSpace.Linear)
+            {
+                c = color.linear;
+            }
+
+            return new GLTF.Math.Color(c.r, c.g, c.b, c.a);
+        }
+
+        public static Vector4 ExportColorVec4(Color color)
+        {
+            var c = color;
+
+            // in unity, all color are in gamma space
+            if (PlayerSettings.colorSpace == ColorSpace.Linear)
+            {
+                c = color.linear;
+            }
+
+            return c;
+        }
+
+        public static Color ImportColor(GLTF.Math.Color color)
+        {
+            return ImportColor(new Color(color.R, color.G, color.B, color.A));
+        }
+
+        public static Color ImportColor(Color color)
+        {
+            if (PlayerSettings.colorSpace == ColorSpace.Gamma)
+            {
+                return color;
+            }
+
+            // in unity, all color are in gamma space
+            return color.gamma;
+        }
     }
 }

@@ -578,7 +578,7 @@ namespace SeinJS
             if (specularGlossinessExtension != null)
 			{
 				KHR_materials_pbrSpecularGlossinessExtension pbr = (KHR_materials_pbrSpecularGlossinessExtension)specularGlossinessExtension;
-				material.SetColor("_baseColor", pbr.DiffuseFactor.ToUnityColor());
+				material.SetColor("_baseColor", Utils.ImportColor(pbr.DiffuseFactor));
 				if (pbr.DiffuseTexture != null)
 				{
 					var texture = pbr.DiffuseTexture.Index.Id;
@@ -601,7 +601,7 @@ namespace SeinJS
 
 				Vector3 specularVec3 = pbr.SpecularFactor.ToUnityVector3();
                 var spec = new Color(specularVec3.x, specularVec3.y, specularVec3.z, 1.0f);
-                material.SetColor("_specular", spec);
+                material.SetColor("_specular", Utils.ImportColor(spec));
 
 				if (def.OcclusionTexture != null)
 				{
@@ -616,7 +616,7 @@ namespace SeinJS
 			{
 				var pbr = def.PbrMetallicRoughness;
 
-				material.SetColor("_baseColor", pbr.BaseColorFactor.ToUnityColor());
+				material.SetColor("_baseColor", Utils.ImportColor(pbr.BaseColorFactor));
 				if (pbr.BaseColorTexture != null)
 				{
 					var textureID = pbr.BaseColorTexture.Index.Id;
@@ -657,7 +657,7 @@ namespace SeinJS
 				}
 			}
 
-			material.SetColor("_emission", def.EmissiveFactor.ToUnityColor());
+			material.SetColor("_emission", Utils.ImportColor(def.EmissiveFactor));
 
             return material;
 		}

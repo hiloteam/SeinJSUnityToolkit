@@ -75,6 +75,12 @@ export async function main(canvas: HTMLCanvasElement): Promise<Sein.Game> {
         bindCameraControl(actor as Sein.PerspectiveCameraActor, models);
         hasCamera = true;
       }
+
+      actor.findComponentsByClass(Sein.StaticMeshComponent).forEach(c => {
+        // c.material.useHDR = false;
+        c.material.exposure = 1.5;
+        c.material.gammaCorrection = true;
+      });
     });
 
     if (!hasCamera) {

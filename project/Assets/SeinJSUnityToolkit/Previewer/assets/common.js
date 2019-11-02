@@ -14840,9 +14840,9 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/GlTFExtensions.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/GlTFExtensions.js":
 /*!******************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/GlTFExtensions.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/GlTFExtensions.js ***!
   \******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -14856,10 +14856,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/24/2019, 2:37:20 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js");
-var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
-var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceComponent.js");
+var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js");
+var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerComponent.js");
 function getRelativePath(basePath, path) {
     if (/^(?:http|blob|data:|\/)/.test(path)) {
         return path;
@@ -14962,9 +14962,9 @@ Sein.GlTFLoader.REGISTER_EXTENSION(exports.SeinAudioListenerExtension);
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerActor.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerActor.js":
 /*!*****************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerActor.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerActor.js ***!
   \*****************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -14997,8 +14997,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:38:07 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerComponent.js");
 /**
  * ListenerComponent的一个简单封装容器。
  */
@@ -15034,9 +15034,9 @@ exports.default = ListenerActor;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerComponent.js":
 /*!*********************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerComponent.js ***!
   \*********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -15069,8 +15069,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:37:56 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js");
 /**
  * 判断一个实例是否为`ListenerComponent`。
  */
@@ -15171,9 +15171,9 @@ exports.default = ListenerComponent;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/Loader.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/Loader.js":
 /*!**********************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/Loader.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/Loader.js ***!
   \**********************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -15241,10 +15241,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:39:12 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var StreamClip_1 = __webpack_require__(/*! ./clip/StreamClip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/StreamClip.js");
-var BufferClip_1 = __webpack_require__(/*! ./clip/BufferClip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/BufferClip.js");
-var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var StreamClip_1 = __webpack_require__(/*! ./clip/StreamClip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/StreamClip.js");
+var BufferClip_1 = __webpack_require__(/*! ./clip/BufferClip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/BufferClip.js");
+var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js");
 /**
  * 判断一个实例是否为`AudioLoader`。
  */
@@ -15415,9 +15415,9 @@ exports.default = Loader;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceActor.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceActor.js":
 /*!***************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceActor.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceActor.js ***!
   \***************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -15450,8 +15450,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 8:12:59 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceComponent.js");
 /**
  * SourceComponent的一个简单封装容器。
  */
@@ -15483,9 +15483,9 @@ exports.default = SourceActor;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceComponent.js":
 /*!*******************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceComponent.js ***!
   \*******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -15518,8 +15518,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 8:12:53 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js");
 /**
  * @hidden
  */
@@ -15903,9 +15903,9 @@ exports.default = SourceComponent;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js":
 /*!***************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js ***!
   \***************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -15938,7 +15938,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/22/2019, 6:37:35 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 /**
  * 判断一个实例是否为`SystemActor`。
  */
@@ -16002,6 +16002,26 @@ var SystemActor = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(SystemActor.prototype, "running", {
+        /**
+         * 是否正在运行
+        */
+        get: function () {
+            return this._context.state === 'running';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SystemActor.prototype, "closed", {
+        /**
+         * 是否已经关闭
+        */
+        get: function () {
+            return this._context.state === 'closed';
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * **不要自己调用！！！**
      */
@@ -16046,6 +16066,22 @@ var SystemActor = /** @class */ (function (_super) {
     SystemActor.prototype.start = function () {
         // 'interrupted' is for iOS
         if (this._context.state === 'suspended' || this._context.state === 'interrupted') {
+            this._context.resume();
+        }
+    };
+    /**
+     * 暂停所有Source
+     */
+    SystemActor.prototype.pause = function () {
+        if (this.running) {
+            this._context.suspend();
+        }
+    };
+    /**
+     * 唤醒所有Source
+     */
+    SystemActor.prototype.resume = function () {
+        if (!this.running) {
             this._context.resume();
         }
     };
@@ -16130,9 +16166,9 @@ exports.default = SystemActor;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/BufferClip.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/BufferClip.js":
 /*!*******************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/BufferClip.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/BufferClip.js ***!
   \*******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -16200,8 +16236,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/23/2019, 8:11:01 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var Clip_1 = __webpack_require__(/*! ./Clip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var Clip_1 = __webpack_require__(/*! ./Clip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/Clip.js");
 var BufferClip = /** @class */ (function (_super) {
     __extends(BufferClip, _super);
     function BufferClip() {
@@ -16431,9 +16467,9 @@ exports.default = BufferClip;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/Clip.js":
 /*!*************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/Clip.js ***!
   \*************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -16466,7 +16502,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/23/2019, 10:29:13 AM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -16737,9 +16773,9 @@ exports.default = Clip;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/StreamClip.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/StreamClip.js":
 /*!*******************************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/StreamClip.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/StreamClip.js ***!
   \*******************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -16772,8 +16808,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 4/23/2019, 8:10:52 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var Clip_1 = __webpack_require__(/*! ./Clip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var Clip_1 = __webpack_require__(/*! ./Clip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/Clip.js");
 var StreamClip = /** @class */ (function (_super) {
     __extends(StreamClip, _super);
     function StreamClip() {
@@ -16915,9 +16951,9 @@ exports.default = StreamClip;
 
 /***/ }),
 
-/***/ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/index.js":
+/***/ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/index.js":
 /*!*********************************************************************!*\
-  !*** ./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/index.js ***!
+  !*** ./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/index.js ***!
   \*********************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -16931,32 +16967,32 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 2018/9/25 上午11:58:00
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
-var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SystemActor.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
+var SystemActor_1 = __webpack_require__(/*! ./SystemActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SystemActor.js");
 exports.SystemActor = SystemActor_1.default;
 exports.isSystemActor = SystemActor_1.isSystemActor;
-var Loader_1 = __webpack_require__(/*! ./Loader */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/Loader.js");
+var Loader_1 = __webpack_require__(/*! ./Loader */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/Loader.js");
 exports.Loader = Loader_1.default;
 exports.isLoader = Loader_1.isLoader;
-var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceComponent.js");
+var SourceComponent_1 = __webpack_require__(/*! ./SourceComponent */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceComponent.js");
 exports.SourceComponent = SourceComponent_1.default;
 exports.isSourceActor = SourceComponent_1.isSourceActor;
 exports.isSourceComponent = SourceComponent_1.isSourceComponent;
-var SourceActor_1 = __webpack_require__(/*! ./SourceActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/SourceActor.js");
+var SourceActor_1 = __webpack_require__(/*! ./SourceActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/SourceActor.js");
 exports.SourceActor = SourceActor_1.default;
-var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerComponent.js");
+var ListenerComponent_1 = __webpack_require__(/*! ./ListenerComponent */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerComponent.js");
 exports.ListenerComponent = ListenerComponent_1.default;
 exports.isListenerActor = ListenerComponent_1.isListenerActor;
 exports.isListenerComponent = ListenerComponent_1.isListenerComponent;
-var ListenerActor_1 = __webpack_require__(/*! ./ListenerActor */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/ListenerActor.js");
+var ListenerActor_1 = __webpack_require__(/*! ./ListenerActor */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/ListenerActor.js");
 exports.ListenerActor = ListenerActor_1.default;
-var Clip_1 = __webpack_require__(/*! ./clip/Clip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/Clip.js");
+var Clip_1 = __webpack_require__(/*! ./clip/Clip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/Clip.js");
 exports.Clip = Clip_1.default;
-var StreamClip_1 = __webpack_require__(/*! ./clip/StreamClip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/StreamClip.js");
+var StreamClip_1 = __webpack_require__(/*! ./clip/StreamClip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/StreamClip.js");
 exports.StreamClip = StreamClip_1.default;
-var BufferClip_1 = __webpack_require__(/*! ./clip/BufferClip */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/clip/BufferClip.js");
+var BufferClip_1 = __webpack_require__(/*! ./clip/BufferClip */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/clip/BufferClip.js");
 exports.BufferClip = BufferClip_1.default;
-__webpack_require__(/*! ./GlTFExtensions */ "./node_modules/_seinjs-audio@0.8.10@seinjs-audio/lib/GlTFExtensions.js");
+__webpack_require__(/*! ./GlTFExtensions */ "./node_modules/_seinjs-audio@0.8.11@seinjs-audio/lib/GlTFExtensions.js");
 Sein.Audio = {
     SystemActor: SystemActor_1.default,
     isSystemActor: SystemActor_1.isSystemActor,
@@ -17013,7 +17049,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:10 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -17447,7 +17483,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:06 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 var ActorObserveControlComponent_1 = __webpack_require__(/*! ./ActorObserveControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/ActorObserveControlComponent/ActorObserveControlComponent.js");
 exports.ActorObserveControlComponent = ActorObserveControlComponent_1.default;
 Sein.CameraControls = Sein.CameraControls || {};
@@ -17491,7 +17527,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:10 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -17987,7 +18023,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/1/2018, 5:20:06 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 var CameraFreeControlComponent_1 = __webpack_require__(/*! ./CameraFreeControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraFreeControlComponent/CameraFreeControlComponent.js");
 exports.CameraFreeControlComponent = CameraFreeControlComponent_1.default;
 Sein.CameraControls = Sein.CameraControls || {};
@@ -18031,7 +18067,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/5/2018, 5:52:40 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 /**
  * @hidden
  */
@@ -18577,7 +18613,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @Date   : 11/5/2018, 5:52:44 PM
  * @Description:
  */
-var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.19@seinjs/lib/seinjs.umd.js");
+var Sein = __webpack_require__(/*! seinjs */ "./node_modules/_seinjs@1.3.20@seinjs/lib/seinjs.umd.js");
 var CameraOrbitControlComponent_1 = __webpack_require__(/*! ./CameraOrbitControlComponent */ "./node_modules/_seinjs-camera-controls@0.8.12@seinjs-camera-controls/lib/CameraOrbitControlComponent/CameraOrbitControlComponent.js");
 exports.CameraOrbitControlComponent = CameraOrbitControlComponent_1.default;
 Sein.CameraControls = Sein.CameraControls || {};
