@@ -149,11 +149,12 @@ namespace SeinJS
             return processTextureMaterial(temp, flipMaterial, useJPGTexture(texture));
         }
 
-        public static Texture2D HDR2RGBD(Texture2D texture)
+        public static Texture2D HDR2RGBD(Texture2D texture, bool flipY = true)
         {
             Material material = new Material(Shader.Find(_hdr2RGBD));
 
             material.SetTexture("_HDRTexture", texture);
+            material.SetInt("_FlipY", flipY ? 1 : 0);
             return processTextureMaterial(texture, material, useJPGTexture(texture));
         }
 

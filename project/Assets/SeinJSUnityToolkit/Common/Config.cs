@@ -84,8 +84,13 @@ namespace SeinJS
 			}
 
             AppDataPath = Application.dataPath;
-            configPath = Path.Combine(Application.dataPath, "./SeinJSUnityToolkit/config.json");
-			JObject config = JObject.Parse(File.ReadAllText(configPath));
+            configPath = Path.Combine(Application.dataPath, "./seinjs.config.json");
+            JObject config = new JObject();
+
+            if (File.Exists(configPath))
+            {
+                config = JObject.Parse(File.ReadAllText(configPath));
+            }
 
 			exportPath = (string)config["exportPath"];
             if (string.IsNullOrEmpty(exportPath))
@@ -108,6 +113,11 @@ namespace SeinJS
             {
                 importPath = importPath.Replace("\\", "/");
                 exportPath = exportPath.Replace("\\", "/");
+            }
+
+            if (File.Exists(configPath))
+            {
+                Save();
             }
 
             header = new Texture2D(1, 1);

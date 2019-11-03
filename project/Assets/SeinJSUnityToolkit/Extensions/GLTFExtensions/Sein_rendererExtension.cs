@@ -12,52 +12,58 @@ namespace SeinJS
 {
     public class Sein_rendererExtension : Extension
     {
+        public bool isGlobal = false;
+        // global extension
+        public bool gammaCorrection = false;
+        public bool useHDR = false;
+        public float exposure = 0;
+
+        // node extension
         public int lightMapIndex = -1;
         public int aoMapIndex = -1;
         public int uvChannel = 1;
         public int uvRotation = 0;
         public Vector2 uvScale;
         public Vector2 uvOffset;
-        public bool useHDR = false;
-        public float exposure = 0;
         public bool castShadows;
         public bool receiveShadows;
-        public bool gammaCorrection;
 
         public JProperty Serialize()
         {
-            var value = new JObject(
-                new JProperty("castShadows", castShadows),
-                new JProperty("receiveShadows", receiveShadows),
-                new JProperty("gammaCorrection", gammaCorrection)
-            );
+            JObject value;
 
-            if (lightMapIndex >= 0)
+            if (isGlobal)
             {
-                var lm = new JObject(
-                    new JProperty("uvChannel", uvChannel),
-                    new JProperty("uvRotation", uvRotation),
-                    new JProperty("uvScale", new JArray { uvScale.x, uvScale.y }),
-                    new JProperty("uvOffset", new JArray { uvOffset.x, uvOffset.y }),
-                    new JProperty("lightMapIndex", lightMapIndex)
+                value = new JObject(
+                    new JProperty("gammaCorrection", gammaCorrection),
+                    new JProperty("useHDR", useHDR),
+                    new JProperty("exposure", exposure)
+                );
+            }
+            else
+            {
+                value = new JObject(
+                    new JProperty("castShadows", castShadows),
+                    new JProperty("receiveShadows", receiveShadows)
                 );
 
-                if (aoMapIndex >= 0)
+                if (lightMapIndex >= 0)
                 {
-                    lm.Add("aoMapIndex", aoMapIndex);
+                    var lm = new JObject(
+                        new JProperty("uvChannel", uvChannel),
+                        new JProperty("uvRotation", uvRotation),
+                        new JProperty("uvScale", new JArray { uvScale.x, uvScale.y }),
+                        new JProperty("uvOffset", new JArray { uvOffset.x, uvOffset.y }),
+                        new JProperty("lightMapIndex", lightMapIndex)
+                    );
+
+                    if (aoMapIndex >= 0)
+                    {
+                        lm.Add("aoMapIndex", aoMapIndex);
+                    }
+
+                    value.Add("lightMap", lm);
                 }
-
-                value.Add("lightMap", lm);
-            }
-
-            if (useHDR)
-            {
-                value.Add("useHDR", useHDR);
-            }
-
-            if (exposure != 0)
-            {
-                value.Add("exposure", exposure);
             }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_rendererExtensionFactory)), value);

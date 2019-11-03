@@ -10,7 +10,7 @@ Shader "Sein/PBR" {
         [HideInInspector] _Cutoff ("Alpha cutoff", Range(0., 1.)) = .5
         [HideInInspector] [MaterialToggle] unlit ("Is unlit", int) = 0
         [HideInInspector] [MaterialToggle] workflow ("Workflow", int) = 0
-        // 0: off, 1: spec only, 2: diffuse only, 3: all
+        // 0: off, 1: on
         [HideInInspector] envReflection("Env Reflection", int) = 0
     
         _baseColor ("Base Color", Color) = (1,1,1,1)

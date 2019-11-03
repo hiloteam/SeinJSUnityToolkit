@@ -23,7 +23,6 @@ Shader "GLTF/FlipTexture" {
 			 };
 
 			 sampler2D _TextureToFlip;
-			 int _FlipY;
 
 			 vertOutput vert(vertInput input) {
 				 vertOutput o;

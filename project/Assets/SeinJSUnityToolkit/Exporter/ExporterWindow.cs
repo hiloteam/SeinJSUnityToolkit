@@ -37,7 +37,7 @@ namespace SeinJS {
 
         // UI dimensions (to be cleaned)
         [SerializeField]
-	    Vector2 fullSize = new Vector2(520, 660);
+	    Vector2 fullSize = new Vector2(520, 640);
 
 	    // Exporter UI: static elements
 	    [SerializeField]

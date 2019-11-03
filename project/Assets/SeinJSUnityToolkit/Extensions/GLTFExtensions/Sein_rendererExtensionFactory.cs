@@ -20,25 +20,38 @@ namespace SeinJS
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
-            var extension = new Sein_rendererExtension();
-            var mr = component as Renderer;
+            Sein_rendererExtension extension;
 
-            var lightmapIndex = mr.lightmapIndex;
-            if (ExporterSettings.Lighting.lightMap && lightmapIndex > -1)
+            if (component == null)
             {
-                Vector4 lightmapScaleOffset = mr.lightmapScaleOffset;
-                var lightData = LightmapSettings.lightmaps[lightmapIndex];
-                var lightTexture = lightData.lightmapColor;
-                var lightTextureIndex = entry.SaveTextureHDR(lightTexture, ExporterSettings.Lighting.lightMapType, ExporterSettings.Lighting.lightMapSize);
-                extension.uvScale = new Vector2(lightmapScaleOffset.x, lightmapScaleOffset.y);
-                extension.uvOffset = new Vector2(lightmapScaleOffset.z, lightmapScaleOffset.w);
-                extension.lightMapIndex = lightTextureIndex.Id;
+                extension = new Sein_rendererExtension {
+                    isGlobal = true,
+                    gammaCorrection = PlayerSettings.colorSpace == ColorSpace.Linear,
+                    //@todo: support hdr
+                    useHDR = false,
+                    exposure = 0
+                };
             }
+            else
+            {
+                extension = new Sein_rendererExtension { isGlobal = false };
+                var mr = component as Renderer;
 
-            //@todo: hdr
-            extension.castShadows = mr.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On;
-            extension.receiveShadows = mr.receiveShadows;
-            extension.gammaCorrection = PlayerSettings.colorSpace == ColorSpace.Linear;
+                var lightmapIndex = mr.lightmapIndex;
+                if (ExporterSettings.Lighting.lightMap && lightmapIndex > -1)
+                {
+                    Vector4 lightmapScaleOffset = mr.lightmapScaleOffset;
+                    var lightData = LightmapSettings.lightmaps[lightmapIndex];
+                    var lightTexture = lightData.lightmapColor;
+                    var lightTextureIndex = entry.SaveTextureHDR(lightTexture, ExporterSettings.Lighting.lightMapType, ExporterSettings.Lighting.lightMapSize);
+                    extension.uvScale = new Vector2(lightmapScaleOffset.x, lightmapScaleOffset.y);
+                    extension.uvOffset = new Vector2(lightmapScaleOffset.z, lightmapScaleOffset.w);
+                    extension.lightMapIndex = lightTextureIndex.Id;
+                }
+
+                extension.castShadows = mr.shadowCastingMode == UnityEngine.Rendering.ShadowCastingMode.On;
+                extension.receiveShadows = mr.receiveShadows;
+            }
 
             AddExtension(extensions, extension);
         }

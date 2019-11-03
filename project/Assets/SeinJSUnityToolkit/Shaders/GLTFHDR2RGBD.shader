@@ -8,6 +8,7 @@
 Shader "GLTF/HDR2RGBD" {
     Properties{
 		[HDR] _HDRTexture("Texture", 2D) = "white" {}
+		_FlipY("FlipY", int) = 1
     }
 
     SubShader {
@@ -29,12 +30,18 @@ Shader "GLTF/HDR2RGBD" {
              };
 
              UNITY_DECLARE_TEX2D(_HDRTexture);
+			 int _FlipY;
 
              vertOutput vert(vertInput input) {
                  vertOutput o;
                  o.pos = UnityObjectToClipPos(input.pos);
                  o.texcoord.x = input.texcoord.x;
-                 o.texcoord.y = 1.0 - input.texcoord.y;
+				 if (_FlipY == 1) {
+					 o.texcoord.y = 1.0 - input.texcoord.y;
+				 }
+				 else {
+					 o.texcoord.y = input.texcoord.y;
+				 }
 
                  return o;
              }

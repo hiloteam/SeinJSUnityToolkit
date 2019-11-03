@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace SeinJS
 {
@@ -25,6 +26,18 @@ namespace SeinJS
             List<ExporterEntry> entries = new List<ExporterEntry>();
             Transform[] transforms = Selection.GetTransforms(SelectionMode.TopLevel);
 
+            if (transforms.Length == 0)
+            {
+                var scene = SceneManager.GetActiveScene();
+                List<GameObject> rootObjects = new List<GameObject>();
+                scene.GetRootGameObjects(rootObjects);
+                transforms = new Transform[rootObjects.Count];
+                for (int i = 0; i < rootObjects.Count; i += 1)
+                {
+                    transforms[i] = rootObjects[i].transform;
+                }
+            }
+
             foreach (Transform tr in transforms)
             {
                 var go = tr.gameObject;
@@ -36,12 +49,18 @@ namespace SeinJS
 
             if (!ExporterSettings.Export.splitChunks)
             {
+                List<Transform> allTrans = new List<Transform>();
+                foreach (var rootTrans in transforms)
+                {
+                    allTrans.AddRange(rootTrans.GetComponentsInChildren<Transform>());
+                }
+
                 entries.Add(new ExporterEntry
                 {
                         path = ExporterSettings.Export.GetExportPath(),
                         name = ExporterSettings.Export.name,
-                        transforms = Selection.GetTransforms(SelectionMode.Deep)
-				});
+                        transforms = allTrans.ToArray()
+                });
             }
             else
             {

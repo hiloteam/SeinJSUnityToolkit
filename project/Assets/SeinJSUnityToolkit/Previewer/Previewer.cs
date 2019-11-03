@@ -142,8 +142,10 @@ namespace SeinJS
                     {
                         if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         {
-                            //do what you want with the IP here... add it to a list, just get the first and break out. Whatever.
-                            return ip.Address.ToString();
+                            if (ip.IsDnsEligible)
+                            {
+                                return ip.Address.ToString();
+                            }
                         }
                     }
                 }

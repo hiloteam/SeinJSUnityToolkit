@@ -33,6 +33,11 @@ namespace SeinJS
             brdfLUT = AssetDatabase.LoadAssetAtPath<Texture2D>(brdfPath);
         }
 
+        public override void FinishExport()
+        {
+            _cache.Clear();
+        }
+
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
             var mat = component as UnityEngine.Material;
@@ -135,38 +140,13 @@ namespace SeinJS
 
             string origAssetPath = AssetDatabase.GetAssetPath(specMap);
             string ext = Path.GetExtension(origAssetPath);
-            var blurredSpecMap = GetSpecularCubeMap(specMap);
-            //@todo: use gpu to process it
+            var blurredSpecMaps = GetSpecularCubeMap(specMap);
             for (var i = 0; i < 6; i += 1)
             {
-                var tex2d = new Texture2D(blurredSpecMap.width, blurredSpecMap.height, TextureFormat.RGBAHalf, false);
-                UnityEngine.Color[] colors = null;
-                switch (i)
-                {
-                    case 0:
-                        colors = blurredSpecMap.GetPixels(CubemapFace.PositiveX);
-                        break;
-                    case 1:
-                        colors = blurredSpecMap.GetPixels(CubemapFace.NegativeX);
-                        break;
-                    case 2:
-                        colors = blurredSpecMap.GetPixels(CubemapFace.PositiveY);
-                        break;
-                    case 3:
-                        colors = blurredSpecMap.GetPixels(CubemapFace.NegativeY);
-                        break;
-                    case 4:
-                        colors = blurredSpecMap.GetPixels(CubemapFace.PositiveZ);
-                        break;
-                    case 5:
-                        colors = blurredSpecMap.GetPixels(CubemapFace.NegativeZ);
-                        break;
-                }
-                tex2d.SetPixels(colors);
-                tex2d.Apply();
+                var tex2d = blurredSpecMaps[i];
                 light.specMapFaces[i] = entry.SaveImageHDR(tex2d, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, origAssetPath.Replace(ext, "-" + i + ext)).Id;
+                UnityEngine.Object.DestroyImmediate(tex2d);
             }
-            DeleteTempMap(blurredSpecMap);
 
             globalExtension.lights.Add(light);
 
@@ -180,13 +160,18 @@ namespace SeinJS
             return new Sein_imageBasedLightingExtension();
         }
 
-        // https://forum.unity.com/threads/specular-convolution-when-calculating-mip-maps-for-cubemap-render-texture.617680/
-        private Cubemap GetSpecularCubeMap(Cubemap srcCubemap)
+        //https://forum.unity.com/threads/specular-convolution-when-calculating-mip-maps-for-cubemap-render-texture.617680/
+        private Texture2D[] GetSpecularCubeMap(Cubemap srcCubemap)
         {
+            var result = new Texture2D[6];
+            for (int i = 0; i < 6; i += 1)
+            {
+                result[i] = new Texture2D(srcCubemap.width, srcCubemap.height, TextureFormat.RGBAHalf, false);
+            }
             var convolutionMaterial = new UnityEngine.Material(Shader.Find("Hidden/CubeBlur"));
             GL.PushMatrix();
             GL.LoadOrtho();
-            RenderTexture dstCubemap = new RenderTexture(srcCubemap.width, srcCubemap.height, 0, RenderTextureFormat.ARGBHalf);
+            var dstCubemap = new RenderTexture(srcCubemap.width, srcCubemap.height, 0, RenderTextureFormat.ARGBHalf);
             dstCubemap.dimension = UnityEngine.Rendering.TextureDimension.Cube;
             dstCubemap.volumeDepth = 6;
             dstCubemap.wrapMode = TextureWrapMode.Clamp;
@@ -203,8 +188,6 @@ namespace SeinJS
 
             convolutionMaterial.SetPass(0);
 
-            Texture2D tex2d = new Texture2D(srcCubemap.width * 6, srcCubemap.height, TextureFormat.RGBAHalf, false);
-
             // Positive X
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveX);
             GL.Begin(GL.QUADS);
@@ -217,7 +200,7 @@ namespace SeinJS
             GL.TexCoord3(1, 1, -1);
             GL.Vertex3(1, 0, 1);
             GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 0, 0);
+            result[0].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
 
             // Negative X
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeX);
@@ -231,7 +214,7 @@ namespace SeinJS
             GL.TexCoord3(-1, 1, 1);
             GL.Vertex3(1, 0, 1);
             GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 1, 0);
+            result[1].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
 
             // Positive Y
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveY);
@@ -245,7 +228,7 @@ namespace SeinJS
             GL.TexCoord3(1, 1, -1);
             GL.Vertex3(1, 0, 1);
             GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 2, 0);
+            result[2].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
 
             // Negative Y
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeY);
@@ -259,7 +242,7 @@ namespace SeinJS
             GL.TexCoord3(1, -1, 1);
             GL.Vertex3(1, 0, 1);
             GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 3, 0);
+            result[3].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
 
             // Positive Z
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveZ);
@@ -273,7 +256,7 @@ namespace SeinJS
             GL.TexCoord3(-1, 1, -1);
             GL.Vertex3(1, 0, 1);
             GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 4, 0);
+            result[4].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
 
             // Negative Z
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeZ);
@@ -287,33 +270,19 @@ namespace SeinJS
             GL.TexCoord3(1, 1, 1);
             GL.Vertex3(1, 0, 1);
             GL.End();
-            tex2d.ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), srcCubemap.width * 5, 0);
+            result[5].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
 
             GL.PopMatrix();
 
-            tex2d.Apply();
-
-            for (int x = 0; x < tex2d.width; x++)
+            for (int i = 0; i < 6; i += 1)
             {
-                for (int y1 = 0, y2 = tex2d.height - 1; y1 < y2; y1++, y2--)
-                {
-                    var t1 = tex2d.GetPixel(x, y1);
-                    tex2d.SetPixel(x, y1, tex2d.GetPixel(x, y2));
-                    tex2d.SetPixel(x, y2, t1);
-                }
+                result[i].Apply();
             }
 
+            Graphics.SetRenderTarget(null);
             UnityEngine.Object.DestroyImmediate(dstCubemap);
 
-            var path = "Assets/temp" + DateTime.Now.ToBinary() + ".exr";
-            File.WriteAllBytes(path, tex2d.EncodeToEXR());
-            AssetDatabase.Refresh();
-            TextureImporter im = AssetImporter.GetAtPath(path) as TextureImporter;
-            im.isReadable = true;
-            im.textureShape = TextureImporterShape.TextureCube;
-            im.SaveAndReimport();
-
-            return AssetDatabase.LoadAssetAtPath<Cubemap>(path);
+            return result;
         }
 
         private void DeleteTempMap(Cubemap map)

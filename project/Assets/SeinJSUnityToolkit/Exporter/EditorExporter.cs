@@ -51,18 +51,16 @@ namespace SeinJS
             root.Scenes.Add(new Scene());
             root.Scene = new SceneId{ Id = 0, Root = root };
 
+            // gamma and hdr setting
+            entry.root.Extensions = new Dictionary<string, Extension>();
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_rendererExtensionFactory)), entry, entry.root.Extensions);
+
             // if ambientMode is not Flat, use sein_imageBaseLighting extension
             if (ExporterSettings.Lighting.ambient && RenderSettings.ambientMode == UnityEngine.Rendering.AmbientMode.Flat)
             {
-                var tmpGo = new GameObject();
-                tmpGo.name = "sein-ambient-light";
-                ExportNode(tmpGo.transform, entry);
-                entry.root.Scene.Value.Nodes = new List<NodeId> { new NodeId { Id = 0, Root = entry.root } };
-                var node = entry.tr2node[tmpGo.transform];
-                node.Extensions = new Dictionary<string, Extension>();
-                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_ambientLightExtensionFactory)), entry, node.Extensions);
-                UnityEngine.Object.DestroyImmediate(tmpGo);
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_ambientLightExtensionFactory)), entry, entry.root.Extensions);
             }
+
 
             foreach (Transform tr in entry.transforms)
             {
