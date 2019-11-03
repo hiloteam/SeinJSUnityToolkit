@@ -295,6 +295,7 @@ namespace SeinJS
         private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExporterEntry entry)
         {
             var material = new GLTF.Schema.Material();
+            material.Name = mat.name;
 
             bool isMetal = mat.GetInt("workflow") == 0;
             bool isUnlit = mat.GetInt("unlit") == 1;
@@ -464,6 +465,7 @@ namespace SeinJS
             }
             customMaterial.className = className;
             customMaterial.renderOrder = mat.renderQueue;
+            customMaterial.unityMaterialName = mat.name;
             var floatArray = new List<SeinMaterialUniformFloat>();
             var vector4Array = new List<SeinMaterialUniformFloatVec4>();
             var textureArray = new List<SeinMaterialUniformTexture>();
@@ -530,6 +532,7 @@ namespace SeinJS
         public static GLTF.Schema.Material ConvertMaterial(SeinCustomMaterial mat, ExporterEntry entry)
         {
             var material = new GLTF.Schema.Material();
+            material.Name = mat.unityMaterialName;
 
             if (mat.uniformsTexture.Length != 0)
             {
