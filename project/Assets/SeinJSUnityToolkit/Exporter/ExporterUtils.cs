@@ -360,7 +360,7 @@ namespace SeinJS
                     }
                 }
 
-                material.PbrMetallicRoughness.MetallicFactor = hasPBRMap ? 1.0f : mat.GetFloat("_metallic");
+                material.PbrMetallicRoughness.MetallicFactor = mat.GetFloat("_metallic");
                 material.PbrMetallicRoughness.RoughnessFactor = mat.GetFloat("_roughness");
             }
             else
