@@ -1,15 +1,15 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Config.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs">
     <Files>
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="1224" Column="40" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="363" Column="90" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" />
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="26" Column="59" />
-      <File FileName="Assets/SeinJSUnityToolkit/Shaders/SeinPBR.shader" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="53" Column="29" />
-      <File FileName="Assets/SeinJSUnityToolkit/Importer/UI.cs" Line="9" Column="2" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" Line="39" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="76" Column="11" />
+      <File FileName="Assets/SeinJSUnityToolkit/Shaders/SeinPBR.shader" Line="394" Column="47" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Importer/UI.cs" Line="22" Column="42" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" Line="44" Column="44" />
+      <File FileName="Assets/SeinJSUnityToolkit/Previewer/Previewer.cs" Line="32" Column="48" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,12 +17,12 @@
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="SeinJSUnityToolkit" expanded="True">
-                <Node name="Common" expanded="True">
-                  <Node name="Config.cs" selected="True" />
-                </Node>
+                <Node name="Common" expanded="True" />
                 <Node name="Exporter" expanded="True" />
                 <Node name="Extensions" expanded="True">
-                  <Node name="GLTFExtensions" expanded="True" />
+                  <Node name="GLTFExtensions" expanded="True">
+                    <Node name="Sein_imageBasedLightingExtension.cs" selected="True" />
+                  </Node>
                 </Node>
                 <Node name="Importer" expanded="True" />
                 <Node name="Previewer" expanded="True" />
@@ -36,7 +36,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="b6ad0e17-a252-4d40-8e5e-61b043c50350" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="01ac73dc-60ab-4c6a-88d6-23e88adb18ec" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

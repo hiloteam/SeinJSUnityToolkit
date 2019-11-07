@@ -23,12 +23,13 @@ namespace SeinJS
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global, EExtensionType.Material }; }
         private static Texture2D brdfLUT;
 
-        private Dictionary<Cubemap, int> _cache = new Dictionary<Cubemap, int>();
-        private int onlyLightingId = -1;
+        private Dictionary<ExporterEntry, Dictionary<Cubemap, int>> _cache = new Dictionary<ExporterEntry, Dictionary<Cubemap, int>>();
+        private Dictionary<ExporterEntry, int> _onlyLightingId = new Dictionary<ExporterEntry, int>();
 
         public override void BeforeExport()
         {
             _cache.Clear();
+            _onlyLightingId.Clear();
             var brdfPath = "Assets/SeinJSUnityToolkit/Shaders/brdfLUT.jpg";
             brdfLUT = AssetDatabase.LoadAssetAtPath<Texture2D>(brdfPath);
         }
@@ -36,6 +37,7 @@ namespace SeinJS
         public override void FinishExport()
         {
             _cache.Clear();
+            _onlyLightingId.Clear();
         }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
@@ -68,9 +70,9 @@ namespace SeinJS
 
             var extension = new Sein_imageBasedLightingExtension();
 
-            if (hasLighting && !hasReflection && onlyLightingId >= 0)
+            if (hasLighting && !hasReflection && _onlyLightingId.ContainsKey(entry))
             {
-                extension.iblIndex = onlyLightingId;
+                extension.iblIndex = _onlyLightingId[entry];
                 extension.iblType = 1;
                 AddExtension(extensions, extension);
                 return;
@@ -111,9 +113,10 @@ namespace SeinJS
             if (hasLighting && !(hasReflection && isCustomCubMap))
             {
                 globalExtension.lights.Add(light);
-                onlyLightingId = globalExtension.lights.Count - 1;
-                extension.iblIndex = onlyLightingId;
+                _onlyLightingId.Add(entry, globalExtension.lights.Count - 1);
+                extension.iblIndex = _onlyLightingId[entry];
                 extension.iblType = 1;
+                AddExtension(extensions, extension);
                 return;
             }
 
@@ -129,9 +132,9 @@ namespace SeinJS
                 //todo: support skybox cubemap
             }
 
-            if (_cache.ContainsKey(specMap))
+            if (_cache.ContainsKey(entry) && _cache[entry].ContainsKey(specMap))
             {
-                extension.iblIndex = _cache[specMap];
+                extension.iblIndex = _cache[entry][specMap];
                 AddExtension(extensions, extension);
                 return;
             }
@@ -150,7 +153,13 @@ namespace SeinJS
 
             globalExtension.lights.Add(light);
 
-            extension.iblIndex = globalExtension.lights.Count - 1;
+            if (!_cache.ContainsKey(entry))
+            {
+                _cache[entry] = new Dictionary<Cubemap, int>();
+            }
+
+            _cache[entry].Add(specMap, globalExtension.lights.Count - 1);
+            extension.iblIndex = _cache[entry][specMap];
             extension.iblType = 2;
             AddExtension(extensions, extension);
         }
@@ -178,7 +187,8 @@ namespace SeinJS
             dstCubemap.filterMode = FilterMode.Trilinear;
             dstCubemap.isPowerOfTwo = true;
             dstCubemap.Create();
-            var mip = .3f;
+            // not support texture lod now
+            var mip = 0;
             var dstMip = 0;
             var mipRes = srcCubemap.width;
 

@@ -66,10 +66,10 @@ Material:
     - _emissionUV: 0
     - _glossMapScale: 0
     - _glossiness: 1
-    - _metallic: 0.619
+    - _metallic: 0.8
     - _normalScale: 1
     - _occlusionStrength: 1
-    - _roughness: 0.227
+    - _roughness: 1
     - cloneForInst: 0
     - envDiffuseReflection: 0
     - envReflection: 1

@@ -29,7 +29,7 @@ namespace SeinJS
                 AddWebResource("/previewer", new PreviewerHandler());
                 AddWebResource("/heart-beat-and-update", new HeartBeatHandler());
 
-                _server = new WebServer(9999, 2, false);
+                _server = new WebServer(9999, 4, false);
                 _server.logRequests = false;
                 _server.HandleRequest += HandleRequest;
                 _server.Start();

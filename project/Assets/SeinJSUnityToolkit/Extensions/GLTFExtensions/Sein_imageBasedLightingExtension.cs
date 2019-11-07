@@ -59,12 +59,15 @@ namespace SeinJS
                         coefficients.Add(new JArray { cs[0], cs[1], cs[2] });
                     }
 
-                    l.Add("specular", new JObject(
-                        new JProperty("type", "CUBE"),
-                        new JProperty("intensity", light.specIntensity),
-                        new JProperty("brdfLUT", light.brdfLUT),
-                        new JProperty("faces", JArray.FromObject(light.specMapFaces))
-                    ));
+                    if (light.specMapFaces != null)
+                    {
+                        l.Add("specular", new JObject(
+                            new JProperty("type", "CUBE"),
+                            new JProperty("intensity", light.specIntensity),
+                            new JProperty("brdfLUT", light.brdfLUT),
+                            new JProperty("faces", JArray.FromObject(light.specMapFaces))
+                        ));
+                    }
 
                     eLights.Add(l);
                 }

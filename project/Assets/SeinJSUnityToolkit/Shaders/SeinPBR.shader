@@ -389,8 +389,9 @@ Shader "Sein/PBR" {
                     float3 worldView = mul(UNITY_MATRIX_I_V, pbr.V);
                     float3 R = -normalize(reflect(worldView, worldNormal));
                     float3 brdf = tex2D(_brdfLUT, float2(pbr.NdotV, 1.0 - pbr.roughness)).rgb;
-                    float lod = pbr.roughness * UNITY_SPECCUBE_LOD_STEPS;
-                    lod = clamp(lod, 0.0, UNITY_SPECCUBE_LOD_STEPS);
+                    // UNITY_SPECCUBE_LOD_STEPS is 6, but in webgl it's always 11(log2(1024))
+                    float lod = pbr.roughness * 11;
+                    lod = clamp(lod, 0.0, 11);
                     float3 specularLight = DecodeHDR(UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0, R, lod), unity_SpecCube0_HDR);
                     color.rgb += specularLight * (pbr.specularColor * brdf.x + brdf.y);
                 #endif
