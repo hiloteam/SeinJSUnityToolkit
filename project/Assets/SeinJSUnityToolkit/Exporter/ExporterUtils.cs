@@ -644,38 +644,7 @@ namespace SeinJS
 
         public static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
         {
-            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
-
-            if (!im)
-            {
-                action(tex);
-                return;
-            }
-
-            bool readable = im.isReadable;
-            TextureImporterCompression format = im.textureCompression;
-            TextureImporterType type = im.textureType;
-            bool isConvertedBump = im.convertToNormalmap;
-
-            if (!readable)
-                im.isReadable = true;
-            if (type != TextureImporterType.Default)
-                im.textureType = TextureImporterType.Default;
-
-            im.textureCompression = TextureImporterCompression.Uncompressed;
-            im.SaveAndReimport();
-
-            action(tex);
-
-            if (!readable)
-                im.isReadable = false;
-            if (type != TextureImporterType.Default)
-                im.textureType = type;
-            if (isConvertedBump)
-                im.convertToNormalmap = true;
-
-            im.textureCompression = format;
-            im.SaveAndReimport();
+            Utils.DoActionForTexture(ref tex, action);
         }
 
         private static Texture2D CreateOcclusionMetallicRoughnessTexture(

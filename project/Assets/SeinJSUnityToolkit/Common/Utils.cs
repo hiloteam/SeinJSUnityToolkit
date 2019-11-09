@@ -260,5 +260,106 @@ namespace SeinJS {
             // in unity, all color are in gamma space
             return color.gamma;
         }
+
+        public static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
+        {
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+
+            if (!im)
+            {
+                action(tex);
+                return;
+            }
+
+            bool readable = im.isReadable;
+            TextureImporterCompression format = im.textureCompression;
+            TextureImporterType type = im.textureType;
+            bool isConvertedBump = im.convertToNormalmap;
+
+            if (!readable)
+                im.isReadable = true;
+            if (type != TextureImporterType.Default)
+                im.textureType = TextureImporterType.Default;
+
+            im.textureCompression = TextureImporterCompression.Uncompressed;
+            im.SaveAndReimport();
+
+            action(tex);
+
+            if (!readable)
+                im.isReadable = false;
+            if (type != TextureImporterType.Default)
+                im.textureType = type;
+            if (isConvertedBump)
+                im.convertToNormalmap = true;
+
+            im.textureCompression = format;
+            im.SaveAndReimport();
+        }
+
+        public static void DoActionForTextures(ref Texture2D[] texs, Action<Texture2D[]> action)
+        {
+            bool[] readables = new bool[texs.Length];
+            TextureImporterType[] types = new TextureImporterType[texs.Length];
+            TextureImporterCompression[] formats = new TextureImporterCompression[texs.Length];
+            bool[] convertToNormalmaps = new bool[texs.Length];
+
+            int i = 0;
+            foreach (var tex in texs)
+            {
+                TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+                if (!im)
+                {
+                    continue;
+                }
+
+                readables[i] = im.isReadable;
+                formats[i] = im.textureCompression;
+                types[i] = im.textureType;
+                convertToNormalmaps[i] = im.convertToNormalmap;
+
+                if (!readables[i])
+                    im.isReadable = true;
+                if (types[i] != TextureImporterType.Default)
+                    im.textureType = TextureImporterType.Default;
+
+                im.textureCompression = TextureImporterCompression.Uncompressed;
+                im.SaveAndReimport();
+
+                i += 1;
+            }
+
+
+            action(texs);
+
+            i = 0;
+            foreach (var tex in texs)
+            {
+                TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
+                if (!readables[i])
+                    im.isReadable = false;
+                if (types[i] != TextureImporterType.Default)
+                    im.textureType = types[i];
+                if (convertToNormalmaps[i])
+                    im.convertToNormalmap = true;
+
+                im.textureCompression = formats[i];
+                im.SaveAndReimport();
+                i += 1;
+            }
+        }
+
+        public static void SaveJson(JToken json, string path)
+        {
+            var serializer = new JsonSerializer();
+            serializer.NullValueHandling = NullValueHandling.Ignore;
+            serializer.Formatting = Formatting.Indented;
+            using (var sw = new StreamWriter(path, false))
+            using (var writer = new JsonTextWriter(sw))
+            {
+                serializer.Serialize(writer, json);
+                sw.Flush();
+            }
+        }
     }
 }

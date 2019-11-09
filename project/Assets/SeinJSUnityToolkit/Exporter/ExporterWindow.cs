@@ -234,7 +234,7 @@ namespace SeinJS {
                 {
                     if (EditorUtility.DisplayDialog(
                         "This folder is not empty",
-                        "If your export gltf here, all files and sub directories will be deleted !",
+                        "If you export gltf here, all files and sub directories will be deleted !",
                         "Continue",
                         "Cancel"
                     ))

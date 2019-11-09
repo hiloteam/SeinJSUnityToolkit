@@ -24,7 +24,7 @@ namespace SeinJS
     public class Config
 	{
         public static Version Version = new Version("1.0.4");
-        public static string GeneratorName = "Sein.js Unity Toolkit";
+        public static string GeneratorName = "Sein.js Toolkit";
         public static string DefaultExportFolder = "../Output";
         public static string DefaultImportFolder = "./Resources";
         public static string AppDataPath;
@@ -128,14 +128,7 @@ namespace SeinJS
 		static void Save()
 		{
 			JObject config = new JObject(new JProperty("exportPath", exportPath), new JProperty("importPath", importPath));
-
-            var serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            using (var sw = new StreamWriter(configPath))
-            using (var writer = new JsonTextWriter(sw))
-            {
-                serializer.Serialize(writer, config);
-            }
+            Utils.SaveJson(config, configPath);
 		}
 	}
 }
