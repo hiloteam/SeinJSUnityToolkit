@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff1cc798c3566c341a9ba9672b7f96dc, type: 3}
   m_Name: 22
   m_EditorClassIdentifier: 
-  maxWidth: 1503
+  maxWidth: 1804
   maxHeight: 1804
   padding: 0
   images:
@@ -31,57 +31,57 @@ MonoBehaviour:
   rects:
   - serializedVersion: 2
     x: 0
-    y: 0
+    y: 1304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 450
-    y: 0
+    y: 1304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 900
-    y: 0
+    y: 1304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 1350
-    y: 0
+    y: 1304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 1350
-    y: 500
+    y: 804
     width: 450
     height: 500
   - serializedVersion: 2
     x: 1350
-    y: 1000
+    y: 304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 900
-    y: 500
+    y: 804
     width: 450
     height: 500
   - serializedVersion: 2
     x: 900
-    y: 1000
+    y: 304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 450
-    y: 500
+    y: 804
     width: 450
     height: 500
   - serializedVersion: 2
     x: 450
-    y: 1000
+    y: 304
     width: 450
     height: 500
   - serializedVersion: 2
     x: 0
-    y: 500
+    y: 804
     width: 450
     height: 500
   atlasPath: Assets/Resources/Sprite/Atlas/22/22.png

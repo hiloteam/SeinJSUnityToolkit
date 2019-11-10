@@ -19,12 +19,23 @@ public class SeinAtlas : ScriptableObject
     public int maxHeight = 1024;
     public int padding = 4;
     public Texture2D[] images;
-
     public Texture2D atlasTexture;
     public Rect[] rects;
-
     public string atlasPath;
     public string jsonPath;
+
+    public Texture2D Get(string frameName)
+    {
+        for (int i = 0; i < images.Length; i += 1)
+        {
+            if (Path.GetFileNameWithoutExtension(images[i].name) == frameName)
+            {
+                return images[i];
+            }
+        }
+
+        return null;
+    }
 
     public void Pack()
     {
@@ -156,6 +167,7 @@ public class SeinAtlas : ScriptableObject
         AssetDatabase.Refresh();
         var im = AssetImporter.GetAtPath(atlasPath) as TextureImporter;
         im.npotScale = TextureImporterNPOTScale.None;
+        im.alphaIsTransparency = true;
         im.SaveAndReimport();
         var rects = new List<Rect>();
         var images = new List<Texture2D>();
@@ -196,6 +208,7 @@ public class SeinAtlas : ScriptableObject
                 AssetDatabase.ImportAsset(fp, ImportAssetOptions.ForceUpdate);
                 im = AssetImporter.GetAtPath(fp) as TextureImporter;
                 im.npotScale = TextureImporterNPOTScale.None;
+                im.alphaIsTransparency = true;
                 im.SaveAndReimport();
 
                 images.Add(AssetDatabase.LoadAssetAtPath<Texture2D>(fp));

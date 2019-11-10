@@ -106,6 +106,7 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinNode.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinNodeClass.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinRigidBody.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinSprite.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_lights_punctualExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_lights_punctualExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_materials_unlitExtension.cs" />
@@ -148,6 +149,7 @@
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFLinear2sRGB.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFColorSpace.cginc" />
     <None Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBR.shader" />
+    <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinSprite.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFFlipTexture.shader" />
     <None Include="Assets\SeinCustomMaterials\Unlit\SeinUnlit.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBR.shader" />
