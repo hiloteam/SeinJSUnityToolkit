@@ -15,6 +15,8 @@ using System;
 [CreateAssetMenu(fileName = "SeinAtlas", menuName = "Sein/Atlas")]
 public class SeinAtlas : ScriptableObject
 {
+    private static Texture2D _PURE_WHITE;
+
     public int maxWidth = 1024;
     public int maxHeight = 1024;
     public int padding = 4;
@@ -48,6 +50,12 @@ public class SeinAtlas : ScriptableObject
         atlasPath = null;
         jsonPath = null;
 
+        //@todo
+        //if (_PURE_WHITE == null)
+        //{
+        //    _PURE_WHITE = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SeinJSUnityToolkit/Shaders/white.png");
+        //}
+
         if (atlasTexture != null && (atlasTexture.width != maxWidth || atlasTexture.height != maxHeight))
         {
             TextureScale.Bilinear(atlasTexture, maxWidth, maxHeight);
@@ -55,6 +63,7 @@ public class SeinAtlas : ScriptableObject
         else
         {
             atlasTexture = new Texture2D(maxWidth, maxHeight);
+            //Graphics.CopyTexture(_PURE_WHITE, 0, 0, 0, 0, maxWidth, maxHeight, atlasTexture, 0, 0, 0, 0);
         }
 
         Utils.DoActionForTextures(ref images, (texs) =>
@@ -267,7 +276,7 @@ public class SeinAtlasEditor : Editor
         GUILayout.FlexibleSpace();
         if (GUILayout.Button("Import", GUILayout.Width(80), GUILayout.Height(40)))
         {
-            if (atlas != null && atlas.images.Length != 0)
+            if (atlas != null && atlas.images != null && atlas.images.Length != 0)
             {
                 if (EditorUtility.DisplayDialog(
                         "This atlas is not empty",

@@ -14,25 +14,52 @@ namespace SeinJS
 {
     public class Sein_spriteExtension : Extension
     {
-        public float width;
-        public float height;
-        public int atlasId;
-        public string frameName;
-        public bool isBillboard;
-        public bool frustumTest;
+        public struct Sprite
+        {
+            public float width;
+            public float height;
+            public int atlasId;
+            public string frameName;
+            public bool isBillboard;
+            public bool frustumTest;
+        }
+
+        public bool isGlobal = false;
+
+        // global
+        public List<Sprite> sprites = new List<Sprite>();
+
+        // node
+        public int index = -1;
 
         public JProperty Serialize()
         {
-            var value = new JObject(
-                new JProperty("width", width),
-                new JProperty("height", height),
-                new JProperty("atlas", new JObject(
-                    new JProperty("index", atlasId),
-                    new JProperty("frameName", frameName)
-                )),
-                new JProperty("isBillboard", isBillboard),
-                new JProperty("frustumTest", frustumTest)
-            );
+            var value = new JObject();
+
+            if (!isGlobal)
+            {
+                value.Add("index", index);
+            }
+            else
+            {
+                var sps = new JArray();
+                value.Add("sprites", sps);
+                foreach (var sprite in sprites)
+                {
+                    sps.Add(
+                        new JObject(
+                            new JProperty("width", sprite.width),
+                            new JProperty("height", sprite.height),
+                            new JProperty("atlas", new JObject(
+                                new JProperty("index", sprite.atlasId),
+                                new JProperty("frameName", sprite.frameName)
+                            )),
+                            new JProperty("isBillboard", sprite.isBillboard),
+                            new JProperty("frustumTest", sprite.frustumTest)
+                        )
+                    );
+                }
+            }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_spriteExtensionFactory)), value);
         }

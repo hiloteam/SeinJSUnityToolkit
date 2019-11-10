@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
-      (factory((global.Sein.UMDCustomMaterials.UnlitMaterial = {}, e.SeinJS.UMDCustomMaterials.UnlitMaterial)));
+      (factory((global.SeinUMDCustomMaterials = global.SeinUMDCustomMaterials || {}, global.SeinUMDCustomMaterials.UnlitMaterial = {}, global.SeinUMDCustomMaterials.UnlitMaterial)));
 }(this, (function (exports) {
   "use strict";
   var __extends = (this && this.__extends) || (function () {
@@ -24,8 +24,7 @@
     return c > 3 && r && Object.defineProperty(target, key, r), r;
   };
   Object.defineProperty(exports, "__esModule", { value: true });
-  var Sein = require("seinjs");
-  exports.isMaterial = isMaterial;
+  var Sein = Sein || window.Sein;
   var Material = /** @class */ (function (_super) {
     __extends(Material, _super);
     function Material(options) {
@@ -36,8 +35,8 @@
           },
           uniforms: {
               u_modelViewProjectionMatrix: 'MODELVIEWPROJECTION',
-              u_color: { value: options.uniforms.u_color },
-              u_texture: { value: options.uniforms.u_texture }
+              u_color: options.uniforms.u_color,
+              u_texture: options.uniforms.u_texture
           },
           vs: "\nprecision HILO_MAX_VERTEX_PRECISION float;\nattribute vec3 a_position;\nattribute vec2 a_uv;\nuniform mat4 u_modelViewProjectionMatrix;\nuniform mat3 u_uvMatrix;\nvarying vec2 v_uv;\n\nvoid main() {\nv_uv = a_uv;\n\ngl_Position = u_modelViewProjectionMatrix * vec4(a_position, 1.0);\n}\n",
           fs: "\nprecision HILO_MAX_FRAGMENT_PRECISION float;\nuniform sampler2D u_texture;\nuniform vec4 u_color;\nvarying vec2 v_uv;\n\nvoid main() {\ngl_FragColor = texture2D(u_texture, v_uv) * u_color;\n}\n"

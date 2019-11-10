@@ -24,3 +24,6 @@ http://seinjs.com/cn/guide/unity
 15. Support IBL: SH and Reflection.
 16. Support ambient light.
 17. Support linear color space.
+18. Support SeinJS atlas.
+19. Support SeinJS Sprite.
+20. Support SeinJS Material Scripts.

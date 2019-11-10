@@ -161,7 +161,7 @@ namespace SeinJS
             return id;
         }
 
-        public Pair<MeshId, bool> SaveMesh(Transform tr, UnityEngine.Mesh mesh, Renderer renderer)
+        public Pair<MeshId, bool> SaveMesh(UnityEngine.Mesh mesh, Renderer renderer)
         {
             if (root.Meshes == null)
             {
@@ -170,55 +170,34 @@ namespace SeinJS
 
             var m = new GLTF.Schema.Mesh();
             string cacheId = "";
-            bool needProcessMat = false;
-
-            if (tr.GetComponent<SeinSprite>() != null)
+            foreach (var mat in renderer.sharedMaterials)
             {
-                var sp = tr.GetComponent<SeinSprite>();
-                cacheId = $"w{sp.width}-h{sp.height}-at{sp.atlas.GetInstanceID()}-fn{sp.frameName}-bb{sp.isBillboard}-ft{sp.frustumTest}";
-                if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(cacheId))
-                {
-                    return new Pair<MeshId, bool>(_mesh2Id[mesh][cacheId], false);
-                }
-
-                m.Name = sp.name;
-                // avoid exporter ignore "primitives"
-                m.Primitives = new List<MeshPrimitive> { new MeshPrimitive() };
-                m.Extensions = new Dictionary<string, Extension>();
-                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_spriteExtensionFactory)), this, m.Extensions, sp);
+                cacheId += mat.GetInstanceID();
             }
-            else
+
+            if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(cacheId))
             {
-                foreach (var mat in renderer.sharedMaterials)
+                return new Pair<MeshId, bool>(_mesh2Id[mesh][cacheId], false);
+            }
+
+            var attributes = GenerateAttributes(mesh);
+            var targets = GenerateMorphTargets(mesh, m);
+            m.Name = mesh.name;
+            m.Primitives = new List<MeshPrimitive>();
+
+            EntryBufferView indices = null;
+
+            for (int i = 0; i < mesh.subMeshCount; i += 1)
+            {
+                var primitive = new MeshPrimitive();
+                m.Primitives.Add(primitive);
+                primitive.Attributes = attributes;
+                primitive.Mode = DrawMode.Triangles;
+                if (targets.Count > 0)
                 {
-                    cacheId += mat.GetInstanceID();
+                    primitive.Targets = targets;
                 }
-
-                if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(cacheId))
-                {
-                    return new Pair<MeshId, bool>(_mesh2Id[mesh][cacheId], false);
-                }
-
-                var attributes = GenerateAttributes(mesh);
-                var targets = GenerateMorphTargets(mesh, m);
-                m.Name = mesh.name;
-                m.Primitives = new List<MeshPrimitive>();
-                needProcessMat = true;
-
-                EntryBufferView indices = null;
-
-                for (int i = 0; i < mesh.subMeshCount; i += 1)
-                {
-                    var primitive = new MeshPrimitive();
-                    m.Primitives.Add(primitive);
-                    primitive.Attributes = attributes;
-                    primitive.Mode = DrawMode.Triangles;
-                    if (targets.Count > 0)
-                    {
-                        primitive.Targets = targets;
-                    }
-                    SaveIndices(mesh, primitive, i, ref indices);
-                }
+                SaveIndices(mesh, primitive, i, ref indices);
             }
 
             root.Meshes.Add(m);
@@ -230,7 +209,7 @@ namespace SeinJS
             }
             _mesh2Id[mesh].Add(cacheId, id);
 
-            return new Pair<MeshId, bool>(id, needProcessMat);
+            return new Pair<MeshId, bool>(id, true);
         }
 
         private Dictionary<string, AccessorId> GenerateAttributes(UnityEngine.Mesh mesh)
@@ -517,7 +496,7 @@ namespace SeinJS
             return GenerateTexture(texture, imageId);
         }
 
-        public ImageId SaveImage(Texture2D texture, bool hasTransparency, string path = null)
+        public ImageId SaveImage(Texture2D texture, bool hasTransparency, string path = null, bool exportAsOrig = false)
         {
             if (_texture2d2ImageID.ContainsKey(texture))
             {
@@ -544,27 +523,43 @@ namespace SeinJS
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
 
-            var tex = TextureFlipY(
-                texture,
-                null,
-                newtex => {
-                    var maxSize = ExporterSettings.NormalTexture.maxSize;
-                    if (newtex.width > maxSize || newtex.height > maxSize)
-                    {
-                        TextureScale.Bilinear(newtex, maxSize, maxSize);
-                    }
-                }
-            );
-
             byte[] content = { };
-
-            if (format == ".png")
+            if (!exportAsOrig)
             {
-                content = tex.EncodeToPNG();
+                var tex = TextureFlipY(
+                    texture,
+                    null,
+                    newtex => {
+                        var maxSize = ExporterSettings.NormalTexture.maxSize;
+                        if (newtex.width > maxSize || newtex.height > maxSize)
+                        {
+                            TextureScale.Bilinear(newtex, maxSize, maxSize);
+                        }
+                    }
+                );
+
+                if (format == ".png")
+                {
+                    content = tex.EncodeToPNG();
+                }
+                else
+                {
+                    content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
+                }
             }
             else
             {
-                content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
+                Utils.DoActionForTexture(ref texture, tex =>
+                {
+                    if (format == ".png")
+                    {
+                        content = tex.EncodeToPNG();
+                    }
+                    else
+                    {
+                        content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
+                    }
+                });
             }
 
             return GenerateImage(content, exportPath, pathInGlTF);

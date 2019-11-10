@@ -74,7 +74,7 @@ namespace SeinJS
             {
                 throw new Exception("Atlas '" + atlas.name + "' is not saved!");
             }
-            var imageId = entry.SaveImage(tex, true);
+            var imageId = entry.SaveImage(tex, true, null, true);
             var json = atlas.ReadJson();
             json["meta"]["image"] = new JObject(new JProperty("index", imageId.Id));
 
@@ -92,7 +92,7 @@ namespace SeinJS
 
                 foreach (JObject json in atlasesToken)
                 {
-                    atlases.Add(new Sein_atlasExtension.Atlas{json = json});
+                    atlases.Add(new Sein_atlasExtension.Atlas { json = json });
                 }
             }
 
@@ -101,10 +101,10 @@ namespace SeinJS
 
         public override void Import(EditorImporter importer, Extension extension)
         {
-            importer.taskManager.addTask(LoadClips(importer, (Sein_atlasExtension)extension));
+            importer.taskManager.addTask(LoadAtlases(importer, (Sein_atlasExtension)extension));
         }
 
-        private IEnumerator LoadClips(EditorImporter importer, Sein_atlasExtension extension)
+        private IEnumerator LoadAtlases(EditorImporter importer, Sein_atlasExtension extension)
         {
             var atlases = extension.atlases;
             var basePath = Path.Combine(importer.importDirectoryPath, "atlases");
@@ -123,7 +123,7 @@ namespace SeinJS
 
         private void LoadAtlas(Sein_atlasExtension.Atlas clip, string gltfPath, string basePath, int i)
         {
-            
+
         }
     }
 }

@@ -159,8 +159,8 @@ module.exports = {
       template: './index.html'
     }),
     new MiniCssExtractPlugin({
-      filename: isDev ? '[name].css' : '[name].[hash].css',
-      chunkFilename: isDev ? '[id].css' : '[id].[hash].css',
+      filename: isDev ? '[name].css' : '[name].css',
+      chunkFilename: isDev ? '[id].css' : '[id].css',
     }),
   ].filter(s => !!s)
 };

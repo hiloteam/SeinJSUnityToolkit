@@ -47,7 +47,12 @@ namespace SeinJS
         {
             if (matScripts != null)
             {
-                var value = new JObject(new JProperty("scripts", JArray.FromObject(matScripts)));
+                var array = new JArray();
+                foreach (var script in matScripts)
+                {
+                    array.Add(new JObject(new JProperty("uri", script)));
+                }
+                var value = new JObject(new JProperty("scripts", array));
                 return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory)), value);
             }
 

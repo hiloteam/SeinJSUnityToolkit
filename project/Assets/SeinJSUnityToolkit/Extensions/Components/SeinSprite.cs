@@ -7,10 +7,13 @@
 using UnityEngine;
 using System.Collections;
 using UnityEditor;
+using System.IO;
 
 [AddComponentMenu("Sein/Core Components/Sein Sprite"), ExecuteInEditMode]
 public class SeinSprite : MonoBehaviour
 {
+    private static string SPRITE_DATA_DIR_PATH = "Assets/SeinSpriteData";
+
     public float width;
     public float height;
     public SeinAtlas atlas;
@@ -21,6 +24,8 @@ public class SeinSprite : MonoBehaviour
 
     private SeinAtlas _preAtlas;
     private string _preFrameName;
+    private Mesh _mesh;
+    private Material _material;
 
     public void Generate()
     {
@@ -32,9 +37,16 @@ public class SeinSprite : MonoBehaviour
 
         if (!GetComponent<MeshFilter>())
         {
-            gameObject.AddComponent<MeshFilter>().mesh = new Mesh();
+            _mesh = new Mesh();
+            if (!Directory.Exists(SPRITE_DATA_DIR_PATH))
+            {
+                Directory.CreateDirectory(SPRITE_DATA_DIR_PATH);
+            }
+            var meshPath = SPRITE_DATA_DIR_PATH + "/" + GetInstanceID().ToString() + ".asset";
+            AssetDatabase.CreateAsset(_mesh, meshPath);
+            _mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
+            gameObject.AddComponent<MeshFilter>().mesh = _mesh;
         }
-        var mesh = GetComponent<MeshFilter>().sharedMesh;
         var vs = new Vector3[] {
             new Vector3(-width / 2, height / 2, 0),
             new Vector3(width / 2, height / 2, 0),
@@ -49,17 +61,22 @@ public class SeinSprite : MonoBehaviour
         };
         var trs = new int[] { 0, 1, 2, 3, 0, 2 };
 
-        mesh.vertices = vs;
-        mesh.uv = uv;
-        mesh.triangles = trs;
+        _mesh.vertices = vs;
+        _mesh.uv = uv;
+        _mesh.triangles = trs;
 
         if (!GetComponent<MeshRenderer>())
         {
             var mr = gameObject.AddComponent<MeshRenderer>();
-            var mat = new Material(Shader.Find("Sein/Sprite"));
-            mr.sharedMaterial = mat;
+            _material = new Material(Shader.Find("Sein/Sprite"));
+            var matPath = SPRITE_DATA_DIR_PATH + "/" + GetInstanceID().ToString() + ".mat";
+            AssetDatabase.CreateAsset(_material, matPath);
+            _material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+            mr.sharedMaterial = _material;
             mr.sharedMaterial.hideFlags = HideFlags.HideInInspector;
         }
+
+        AssetDatabase.SaveAssets();
     }
 
     public void OnValidate()
@@ -71,9 +88,11 @@ public class SeinSprite : MonoBehaviour
 
         if (_preAtlas != atlas || _preFrameName != frameName)
         {
-            var tex = atlas.Get(frameName);
-            var mat = GetComponent<MeshRenderer>().sharedMaterial;
-            mat.SetTexture("_MainTex", tex);
+            if (_material)
+            {
+                var tex = atlas.Get(frameName);
+                _material.SetTexture("_MainTex", tex);
+            }
         }
 
         _preAtlas = atlas;

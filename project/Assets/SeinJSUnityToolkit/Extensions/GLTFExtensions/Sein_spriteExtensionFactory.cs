@@ -19,6 +19,14 @@ namespace SeinJS
     {
         public override string GetExtensionName() { return "Sein_sprite"; }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Mesh }; }
+        public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinSprite) }; }
+
+        private static Dictionary<ExporterEntry, Dictionary<string, int>> _CAHCE = new Dictionary<ExporterEntry, Dictionary<string, int>>();
+
+        public override void BeforeExport()
+        {
+            _CAHCE.Clear();
+        }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
         {
@@ -27,18 +35,47 @@ namespace SeinJS
                 entry.root.Extensions = new Dictionary<string, Extension>();
             }
 
+            Sein_spriteExtension globalExtension;
+            if (!entry.root.Extensions.ContainsKey(ExtensionName))
+            {
+                globalExtension = new Sein_spriteExtension { isGlobal = true };
+                entry.root.Extensions.Add(ExtensionName, globalExtension);
+            }
+            else
+            {
+                globalExtension = (Sein_spriteExtension)entry.root.Extensions[ExtensionName];
+            }
+
             var sprite = component as SeinSprite;
+            var extension = new Sein_spriteExtension { isGlobal = false };
+            var sp = sprite;
+            var cacheId = $"w{sp.width}-h{sp.height}-at{sp.atlas.GetInstanceID()}-fn{sp.frameName}-bb{sp.isBillboard}-ft{sp.frustumTest}";
+            if (!_CAHCE.ContainsKey(entry))
+            {
+                _CAHCE.Add(entry, new Dictionary<string, int>());
+            }
+
+            if (_CAHCE[entry].ContainsKey(cacheId))
+            {
+                extension.index = _CAHCE[entry][cacheId];
+                AddExtension(extensions, extension);
+                return;
+            }
+
             // process atlases at first
             ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_atlasExtensionFactory)), entry, entry.root.Extensions, sprite.atlas);
+            var s = new Sein_spriteExtension.Sprite();
+            s.width = sprite.width;
+            s.height = sprite.height;
+            s.isBillboard = sprite.isBillboard;
+            s.frustumTest = sprite.frustumTest;
+            s.atlasId = Sein_atlasExtensionFactory.GetAtlasIndex(entry, sprite.atlas);
+            s.frameName = sprite.frameName;
+            globalExtension.sprites.Add(s);
 
-            var extension = new Sein_spriteExtension();
-
-            extension.width = sprite.width;
-            extension.height = sprite.height;
-            extension.isBillboard = sprite.isBillboard;
-            extension.frustumTest = sprite.frustumTest;
-            extension.atlasId = Sein_atlasExtensionFactory.GetAtlasIndex(entry, sprite.atlas);
-            extension.frameName = sprite.frameName;
+            var index = globalExtension.sprites.Count - 1;
+            _CAHCE[entry].Add(cacheId, index);
+            extension.index = index;
 
             AddExtension(extensions, extension);
         }
@@ -49,12 +86,26 @@ namespace SeinJS
 
             if (extensionToken != null)
             {
-                extension.width = (float)extensionToken.Value["width"];
-                extension.height = (float)extensionToken.Value["height"];
-                extension.isBillboard = (bool)extensionToken.Value["isBillBoard"];
-                extension.frustumTest = (bool)extensionToken.Value["frustumTest"];
-                extension.frameName = (string)extensionToken.Value["frameName"];
-                extension.atlasId = (int)extensionToken.Value["atlas"]["index"];
+                if (extensionToken.Value["index"] != null)
+                {
+                    extension.isGlobal = false;
+                    extension.index = (int)extensionToken.Value["index"];
+                }
+                else
+                {
+                    foreach (JObject sprite in extensionToken["sprites"])
+                    {
+                        var sp = new Sein_spriteExtension.Sprite();
+                        sp.width = sprite.Value<float>("width");
+                        sp.height = sprite.Value<float>("height");
+                        sp.isBillboard = sprite.Value<bool>("isBillBoard");
+                        sp.frustumTest = sprite.Value<bool>("frustumTest");
+                        sp.frameName = sprite.Value<string>("frameName");
+                        sp.atlasId = sprite.Value<JObject>("atlas").Value<int>("index");
+
+                        extension.sprites.Add(sp);
+                    }
+                }
             }
 
             return extension;
@@ -62,13 +113,16 @@ namespace SeinJS
 
         public override void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension)
         {
+            var globalEx = (Sein_spriteExtension)gltfNode.Extensions[ExtensionName];
+            var sp = globalEx.sprites[((Sein_spriteExtension)extension).index];
+
             var ex = (Sein_spriteExtension)extension;
             var sprite = gameObject.AddComponent<SeinSprite>();
-            sprite.width = ex.width;
-            sprite.height = ex.height;
-            sprite.isBillboard = ex.isBillboard;
-            sprite.frustumTest = ex.frustumTest;
-            sprite.frameName = ex.frameName;
+            sprite.width = sp.width;
+            sprite.height = sp.height;
+            sprite.isBillboard = sp.isBillboard;
+            sprite.frustumTest = sp.frustumTest;
+            sprite.frameName = sp.frameName;
             //sprite.atlas = Sein_atlasExtensionFactory.IMPORTED_CLIPS[ex.atlasId];
         }
     }
