@@ -6,6 +6,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using GLTF.Schema;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
@@ -23,6 +24,36 @@ namespace SeinJS
         {
             var material = component as SeinCustomMaterial;
             var extension = new Sein_customMaterialExtension();
+
+            if (material.matScriptPath != null)
+            {
+                if (entry.root.Extensions == null)
+                {
+                    entry.root.Extensions = new Dictionary<string, Extension>();
+                }
+
+                Sein_customMaterialExtension globalExtension;
+                if (!entry.root.Extensions.ContainsKey(ExtensionName))
+                {
+                    globalExtension = new Sein_customMaterialExtension { matScripts = new List<string>() };
+                    AddExtension(entry.root.Extensions, globalExtension);
+                }
+                else
+                {
+                    globalExtension = (Sein_customMaterialExtension)entry.root.Extensions[ExtensionName];
+                }
+
+                var pathes = ExporterUtils.GetAssetOutPath(material.matScriptPath);
+                var exportPath = pathes[0];
+                var pathInGlTF = pathes[1];
+
+                if (!File.Exists(exportPath))
+                {
+                    FileUtil.CopyFileOrDirectory(material.matScriptPath, exportPath);
+                }
+
+                globalExtension.matScripts.Add(pathInGlTF);
+            }
 
             extension.className = material.className;
             extension.cloneForInst = material.cloneForInst;

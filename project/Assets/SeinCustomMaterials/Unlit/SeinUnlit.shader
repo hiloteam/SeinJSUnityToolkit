@@ -4,8 +4,8 @@
         _Mode("Rendering Mode", float) = 0.
         _Cutoff ("Alpha cutoff", Range(0., 1.)) = .5
 
-        _Color ("Color", Color) = (1., 1., 1., 1.)
-        _MainTex ("Texture", 2D) = "white" {}
+        u_color ("Color", Color) = (1., 1., 1., 1.)
+        u_texture ("Texture", 2D) = "white" {}
         
         [MaterialToggle] cloneForInst ("Clone For Inst", int) = 0
         
@@ -42,9 +42,9 @@
                 float4 vertex : SV_POSITION;
             };
             
-            float4 _MainTex_ST;
-            sampler2D _MainTex;
-            float4 _Color;
+            float4 u_texture_ST;
+            sampler2D u_texture;
+            float4 u_color;
             float _Cutoff;
             float _Mode;
             
@@ -53,14 +53,14 @@
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = TRANSFORM_TEX(v.uv, u_texture);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 color = tex2D(_MainTex, i.uv);
-                color *= _Color;
+                fixed4 color = tex2D(u_texture, i.uv);
+                color *= u_color;
                 if (_Mode == 1. && color.a <= _Cutoff) {
                     discard;
                 }

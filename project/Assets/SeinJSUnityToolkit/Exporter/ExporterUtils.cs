@@ -463,9 +463,30 @@ namespace SeinJS
             {
                 className += "Material";
             }
+
+            var shaderPath = AssetDatabase.GetAssetPath(mat.shader);
+            if (shaderPath != null)
+            {
+                var matScriptPath = Path.Combine(
+                    shaderPath.Replace(Path.GetFileName(shaderPath), ""),
+                    className + ".js"
+                );
+
+                if (File.Exists(matScriptPath))
+                {
+                    if (entry.root.Extensions == null)
+                    {
+                        entry.root.Extensions = new Dictionary<string, Extension>();
+                    }
+
+                    customMaterial.matScriptPath = matScriptPath;
+                }
+            }
+
             customMaterial.className = className;
             customMaterial.renderOrder = mat.renderQueue;
             customMaterial.unityMaterialName = mat.name;
+
             var floatArray = new List<SeinMaterialUniformFloat>();
             var vector4Array = new List<SeinMaterialUniformFloatVec4>();
             var textureArray = new List<SeinMaterialUniformTexture>();

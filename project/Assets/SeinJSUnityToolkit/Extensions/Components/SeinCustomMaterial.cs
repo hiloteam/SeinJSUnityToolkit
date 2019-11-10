@@ -98,6 +98,7 @@ public class SeinCustomMaterial : MonoBehaviour
 {
     public string className = "";
     public string unityMaterialName = "";
+    public string matScriptPath = null;
 
     [Header("Options")]
     public int renderOrder = 0;

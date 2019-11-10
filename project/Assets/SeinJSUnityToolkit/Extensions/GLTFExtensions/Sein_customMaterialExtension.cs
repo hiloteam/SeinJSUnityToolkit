@@ -6,6 +6,7 @@
  */
 using GLTF.Schema;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,6 +14,10 @@ namespace SeinJS
 {
     public class Sein_customMaterialExtension : Extension
     {
+        // global
+        public List<string> matScripts = null;
+
+        // material
         public bool isComponent = false;
         public UnityEngine.Material material = null;
 
@@ -40,6 +45,12 @@ namespace SeinJS
 
         public JProperty Serialize()
         {
+            if (matScripts != null)
+            {
+                var value = new JObject(new JProperty("scripts", JArray.FromObject(matScripts)));
+                return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_customMaterialExtensionFactory)), value);
+            }
+
             var res = new JObject();
             res.Add("className", className);
             res.Add("renderOrder", renderOrder);

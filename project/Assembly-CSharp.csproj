@@ -115,6 +115,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_ambientLightExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_animatorExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_animatorExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_atlasExtension.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_atlasExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioClipsExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioClipsExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioListenerExtension.cs" />
@@ -131,6 +133,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_physicBodyExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_rendererExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_rendererExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtension.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\AssetSerializer.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\AssetCache.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\MaterialCacheData.cs" />

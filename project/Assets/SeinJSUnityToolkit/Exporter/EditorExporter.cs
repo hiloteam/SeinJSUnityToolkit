@@ -165,7 +165,7 @@ namespace SeinJS
                 return;
             }
 
-            var result = entry.SaveMesh(mesh, renderer);
+            var result = entry.SaveMesh(tr, mesh, renderer);
             var id = result.key;
             var needProcessMatrials = result.value;
             var node = entry.tr2node[tr];

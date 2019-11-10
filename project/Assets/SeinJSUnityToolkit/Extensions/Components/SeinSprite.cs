@@ -15,7 +15,7 @@ public class SeinSprite : MonoBehaviour
     public float height;
     public SeinAtlas atlas;
     public string frameName;
-    public bool isBiilboard = false;
+    public bool isBillboard = false;
     public bool frustumTest = true;
     // materialOptions
 
@@ -88,9 +88,19 @@ public class SeinSprite : MonoBehaviour
             return;
         }
 
-        if (isBiilboard) {
+        if (isBillboard) {
             transform.rotation = cam.transform.rotation;
         }
+    }
+
+    [MenuItem("GameObject/SeinSprite", priority = 11)]
+    private static void CreateGO()
+    {
+        var go = new GameObject("SeinSprite");
+        var sprite = go.AddComponent<SeinSprite>();
+        sprite.width = 1;
+        sprite.height = 1;
+        sprite.Generate();
     }
 }
 
@@ -106,7 +116,7 @@ public class SeinSpriteEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("height"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("atlas"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("frameName"));
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("isBiilboard"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("isBillboard"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("frustumTest"));
 
         if (GUILayout.Button("Generate", GUILayout.Width(160), GUILayout.Height(32)))

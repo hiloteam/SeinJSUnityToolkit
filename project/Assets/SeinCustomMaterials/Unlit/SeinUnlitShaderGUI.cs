@@ -36,8 +36,8 @@ namespace UnityEditor
         {
             blendMode = FindProperty("_Mode", props);
             alphaCutoff = FindProperty("_Cutoff", props);
-            color = FindProperty("_Color", props);
-            texture = FindProperty("_MainTex", props);
+            color = FindProperty("u_color", props);
+            texture = FindProperty("u_texture", props);
             cloneForInst = FindProperty("cloneForInst", props);
         }
 

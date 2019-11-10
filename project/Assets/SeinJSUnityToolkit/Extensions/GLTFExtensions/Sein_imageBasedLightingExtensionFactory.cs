@@ -65,7 +65,7 @@ namespace SeinJS
             }
             else
             {
-                globalExtension = (Sein_imageBasedLightingExtension)extensions[ExtensionName];
+                globalExtension = (Sein_imageBasedLightingExtension)entry.root.Extensions[ExtensionName];
             }
 
             var extension = new Sein_imageBasedLightingExtension();
@@ -107,13 +107,16 @@ namespace SeinJS
             var isCustomCubMap = RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom;
             if (!isCustomCubMap)
             {
-                Debug.LogWarning("Exporting reflection is only supported in `custom` mode now, check your 'Environment Reflection' setting !");
+                throw new Exception("Not support skybox cubemap now !");
             }
 
             if (hasLighting && !(hasReflection && isCustomCubMap))
             {
-                globalExtension.lights.Add(light);
-                _onlyLightingId.Add(entry, globalExtension.lights.Count - 1);
+                if (!_onlyLightingId.ContainsKey(entry))
+                {
+                    globalExtension.lights.Add(light);
+                    _onlyLightingId.Add(entry, globalExtension.lights.Count - 1);
+                }
                 extension.iblIndex = _onlyLightingId[entry];
                 extension.iblType = 1;
                 AddExtension(extensions, extension);

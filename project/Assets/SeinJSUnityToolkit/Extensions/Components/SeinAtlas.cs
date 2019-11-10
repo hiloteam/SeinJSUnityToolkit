@@ -23,6 +23,7 @@ public class SeinAtlas : ScriptableObject
     public Rect[] rects;
     public string atlasPath;
     public string jsonPath;
+    public bool saveAfterPack = true;
 
     public Texture2D Get(string frameName)
     {
@@ -35,6 +36,11 @@ public class SeinAtlas : ScriptableObject
         }
 
         return null;
+    }
+
+    public JObject ReadJson()
+    {
+        return JObject.Parse(File.ReadAllText(jsonPath));
     }
 
     public void Pack()
@@ -62,6 +68,11 @@ public class SeinAtlas : ScriptableObject
             EditorUtility.DisplayDialog("Error!", "Pack failed, atlas' size may be too small !", "OK");
             return;
         }
+
+        if (saveAfterPack)
+        {
+            Save();
+        }
     }
 
     public void Save()
@@ -85,6 +96,7 @@ public class SeinAtlas : ScriptableObject
         var fullJsonPath = Path.GetFullPath(jsonPath);
         var frames = new JObject();
         var json = new JObject(
+            new JProperty("name", Path.GetFileNameWithoutExtension(name)),
             new JProperty("asset", new JObject(
                 new JProperty("generator", Config.GeneratorName),
                 new JProperty("version", Config.Version.ToString())
@@ -241,6 +253,7 @@ public class SeinAtlasEditor : Editor
         var option = EEditorListOption.ListLabel | EEditorListOption.Buttons;
         EditorList.Show(serializedObject.FindProperty("images"), option);
 
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("saveAfterPack"));
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Pack", GUILayout.Width(80), GUILayout.Height(40)))
         {

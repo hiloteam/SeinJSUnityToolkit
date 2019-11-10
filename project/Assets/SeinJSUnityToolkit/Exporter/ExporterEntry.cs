@@ -161,43 +161,64 @@ namespace SeinJS
             return id;
         }
 
-        public Pair<MeshId, bool> SaveMesh(UnityEngine.Mesh mesh, Renderer renderer)
+        public Pair<MeshId, bool> SaveMesh(Transform tr, UnityEngine.Mesh mesh, Renderer renderer)
         {
             if (root.Meshes == null)
             {
                 root.Meshes = new List<GLTF.Schema.Mesh>();
             }
 
-            string materialsId = "";
-            foreach (var mat in renderer.sharedMaterials)
-            {
-                materialsId += mat.GetInstanceID();
-            }
-
-            if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(materialsId))
-            {
-                return new Pair<MeshId, bool>(_mesh2Id[mesh][materialsId], false);
-            }
-
             var m = new GLTF.Schema.Mesh();
-            var attributes = GenerateAttributes(mesh);
-            var targets = GenerateMorphTargets(mesh, m);
-            m.Name = mesh.name;
-            m.Primitives = new List<MeshPrimitive>();
+            string cacheId = "";
+            bool needProcessMat = false;
 
-            EntryBufferView indices = null;
-
-            for (int i = 0; i < mesh.subMeshCount; i += 1)
+            if (tr.GetComponent<SeinSprite>() != null)
             {
-                var primitive = new MeshPrimitive();
-                m.Primitives.Add(primitive);
-                primitive.Attributes = attributes;
-                primitive.Mode = DrawMode.Triangles;
-                if (targets.Count > 0)
+                var sp = tr.GetComponent<SeinSprite>();
+                cacheId = $"w{sp.width}-h{sp.height}-at{sp.atlas.GetInstanceID()}-fn{sp.frameName}-bb{sp.isBillboard}-ft{sp.frustumTest}";
+                if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(cacheId))
                 {
-                    primitive.Targets = targets;
+                    return new Pair<MeshId, bool>(_mesh2Id[mesh][cacheId], false);
                 }
-                SaveIndices(mesh, primitive, i, ref indices);
+
+                m.Name = sp.name;
+                // avoid exporter ignore "primitives"
+                m.Primitives = new List<MeshPrimitive> { new MeshPrimitive() };
+                m.Extensions = new Dictionary<string, Extension>();
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_spriteExtensionFactory)), this, m.Extensions, sp);
+            }
+            else
+            {
+                foreach (var mat in renderer.sharedMaterials)
+                {
+                    cacheId += mat.GetInstanceID();
+                }
+
+                if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(cacheId))
+                {
+                    return new Pair<MeshId, bool>(_mesh2Id[mesh][cacheId], false);
+                }
+
+                var attributes = GenerateAttributes(mesh);
+                var targets = GenerateMorphTargets(mesh, m);
+                m.Name = mesh.name;
+                m.Primitives = new List<MeshPrimitive>();
+                needProcessMat = true;
+
+                EntryBufferView indices = null;
+
+                for (int i = 0; i < mesh.subMeshCount; i += 1)
+                {
+                    var primitive = new MeshPrimitive();
+                    m.Primitives.Add(primitive);
+                    primitive.Attributes = attributes;
+                    primitive.Mode = DrawMode.Triangles;
+                    if (targets.Count > 0)
+                    {
+                        primitive.Targets = targets;
+                    }
+                    SaveIndices(mesh, primitive, i, ref indices);
+                }
             }
 
             root.Meshes.Add(m);
@@ -207,9 +228,9 @@ namespace SeinJS
             {
                 _mesh2Id.Add(mesh, new Dictionary<string, MeshId>());
             }
-            _mesh2Id[mesh].Add(materialsId, id);
+            _mesh2Id[mesh].Add(cacheId, id);
 
-            return new Pair<MeshId, bool>(id, true);
+            return new Pair<MeshId, bool>(id, needProcessMat);
         }
 
         private Dictionary<string, AccessorId> GenerateAttributes(UnityEngine.Mesh mesh)
