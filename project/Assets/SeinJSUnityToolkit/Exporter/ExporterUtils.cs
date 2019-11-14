@@ -489,6 +489,7 @@ namespace SeinJS
 
             var floatArray = new List<SeinMaterialUniformFloat>();
             var vector4Array = new List<SeinMaterialUniformFloatVec4>();
+            var colorArray = new List<SeinMaterialUniformColor>();
             var textureArray = new List<SeinMaterialUniformTexture>();
 
             for (int i = 0; i < ShaderUtil.GetPropertyCount(mat.shader); i += 1)
@@ -508,10 +509,6 @@ namespace SeinJS
                 }
 
                 var n = propName;
-                //if (propName.Substring(0, 1) == "_")
-                //{
-                //    propName = propName.Substring(1);
-                //}
 
                 switch (propType)
                 {
@@ -520,7 +517,7 @@ namespace SeinJS
                         floatArray.Add(new SeinMaterialUniformFloat { name = propName, value = mat.GetFloat(n) });
                         break;
                     case ShaderUtil.ShaderPropertyType.Color:
-                        vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetColor(n) });
+                        colorArray.Add(new SeinMaterialUniformColor { name = propName, value = mat.GetColor(n) });
                         break;
                     case ShaderUtil.ShaderPropertyType.Vector:
                         vector4Array.Add(new SeinMaterialUniformFloatVec4 { name = propName, value = mat.GetVector(n) });
@@ -535,6 +532,7 @@ namespace SeinJS
 
                 customMaterial.uniformsFloat = floatArray.ToArray();
                 customMaterial.uniformsFloatVec4 = vector4Array.ToArray();
+                customMaterial.uniformsColor = colorArray.ToArray();
                 customMaterial.uniformsTexture = textureArray.ToArray();
             }
 

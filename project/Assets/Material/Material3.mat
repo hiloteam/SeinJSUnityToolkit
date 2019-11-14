@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Material3
   m_Shader: {fileID: 4800000, guid: 7328ca6c0382a4773ad835cbe189905b, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: ENV_SPECULAR_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -118,12 +118,12 @@ Material:
     - _emissionUV: 0
     - _glossMapScale: 0
     - _glossiness: 1
-    - _metallic: 0
+    - _metallic: 1
     - _normalScale: 1
     - _occlusionStrength: 1
-    - _roughness: 0.572
+    - _roughness: 0
     - cloneForInst: 0
-    - envReflection: 0
+    - envReflection: 1
     - unlit: 0
     - workflow: 0
     m_Colors:

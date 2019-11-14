@@ -148,6 +148,7 @@ namespace SeinJS
                         }
 
                         entry.transformsInSameActor[parent].Add(tr);
+                        break;
                     }
                 }
             }

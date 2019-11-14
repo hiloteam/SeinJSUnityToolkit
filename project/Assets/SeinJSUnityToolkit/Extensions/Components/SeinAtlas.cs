@@ -51,20 +51,22 @@ public class SeinAtlas : ScriptableObject
         jsonPath = null;
 
         //@todo
-        //if (_PURE_WHITE == null)
-        //{
-        //    _PURE_WHITE = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SeinJSUnityToolkit/Shaders/white.png");
-        //}
+        if (_PURE_WHITE == null)
+        {
+            _PURE_WHITE = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SeinJSUnityToolkit/Shaders/white.png");
+        }
 
-        if (atlasTexture != null && (atlasTexture.width != maxWidth || atlasTexture.height != maxHeight))
-        {
-            TextureScale.Bilinear(atlasTexture, maxWidth, maxHeight);
-        }
-        else
-        {
-            atlasTexture = new Texture2D(maxWidth, maxHeight);
-            //Graphics.CopyTexture(_PURE_WHITE, 0, 0, 0, 0, maxWidth, maxHeight, atlasTexture, 0, 0, 0, 0);
-        }
+        //if (atlasTexture != null && (atlasTexture.width != maxWidth || atlasTexture.height != maxHeight))
+        //{
+        //    TextureScale.Bilinear(atlasTexture, maxWidth, maxHeight);
+        //}
+        //else
+        //{
+        //    atlasTexture = new Texture2D(maxWidth, maxHeight);
+        //    Graphics.CopyTexture(_PURE_WHITE, 0, 0, 0, 0, maxWidth, maxHeight, atlasTexture, 0, 0, 0, 0);
+        //}
+        atlasTexture = new Texture2D(maxWidth, maxHeight);
+        Graphics.CopyTexture(_PURE_WHITE, 0, 0, 0, 0, maxWidth, maxHeight, atlasTexture, 0, 0, 0, 0);
 
         Utils.DoActionForTextures(ref images, (texs) =>
         {

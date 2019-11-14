@@ -122,13 +122,17 @@ namespace SeinJS
                         value.Add(new JProperty("value", new JArray { fv3.x, fv3.y, fv3.z }));
                         break;
                     case (ESeinMaterialUniformType.FLOAT_VEC4):
-                        var fv4 = (uniform as SeinMaterialUniformFloatVec4).value;
-                        if (uniform.GetType() == typeof(SeinMaterialUniformColor) && PlayerSettings.colorSpace == ColorSpace.Linear)
+                        if (uniform.GetType() == typeof(SeinMaterialUniformColor))
                         {
                             value.Add(new JProperty("isColor", true));
-                            fv4 = Utils.ExportColorVec4((uniform as SeinMaterialUniformColor).value);
+                            var fv4 = Utils.ExportColorVec4((uniform as SeinMaterialUniformColor).value);
+                            value.Add(new JProperty("value", new JArray { fv4.x, fv4.y, fv4.z, fv4.w }));
                         }
-                        value.Add(new JProperty("value", new JArray { fv4.x, fv4.y, fv4.z, fv4.w }));
+                        else
+                        {
+                            var fv4 = (uniform as SeinMaterialUniformFloatVec4).value;
+                            value.Add(new JProperty("value", new JArray { fv4.x, fv4.y, fv4.z, fv4.w }));
+                        }
                         break;
                     case (ESeinMaterialUniformType.FLOAT_MAT2):
                         var fm2 = (uniform as SeinMaterialUniformFloatMat2).value;

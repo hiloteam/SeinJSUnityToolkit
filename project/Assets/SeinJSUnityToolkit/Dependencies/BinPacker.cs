@@ -43,7 +43,7 @@ namespace SeinJS
 
             boxes.ForEach(x => x.volume = (x.height * x.width));
             boxes = boxes.OrderByDescending(x => x.volume).ToList();
-            var rootNode = new Node { height = atlas.width, width = atlas.width };
+            var rootNode = new Node { width = atlas.width, height = atlas.height };
 
             foreach (var box in boxes)
             {
