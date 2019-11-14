@@ -562,7 +562,24 @@ namespace SeinJS
                 });
             }
 
-            return GenerateImage(content, exportPath, pathInGlTF);
+            var id = GenerateImage(content, exportPath, pathInGlTF);
+
+            if (format == ".png")
+            {
+                //var quantizer = new PnnQuant.PnnQuantizer();
+                //using (var bitmap = new System.Drawing.Bitmap(exportPath))
+                //{
+                //    using (var dest = new System.Drawing.Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed))
+                //    {
+                //        if (quantizer.QuantizeImage(bitmap, dest, 256, true))
+                //        {
+                //            dest.Save(exportPath, System.Drawing.Imaging.ImageFormat.Png);
+                //        }
+                //    }
+                //}
+            }
+
+            return id;
         }
 
         public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
