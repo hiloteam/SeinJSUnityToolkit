@@ -73,7 +73,7 @@ namespace SeinJS
             AssetDatabase.Refresh();
         }
 
-        [MenuItem("GameObject/Materials to SeinPBR", priority = 11)]
+        [MenuItem("GameObject/Sein/Materials to SeinPBR", priority = 11)]
         private static void GOToSeinPBR()
         {
             HashSet<Material> materials = new HashSet<Material>();

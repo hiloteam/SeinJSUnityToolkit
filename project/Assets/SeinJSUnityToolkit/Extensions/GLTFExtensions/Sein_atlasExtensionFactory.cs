@@ -21,6 +21,7 @@ namespace SeinJS
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global }; }
 
         private static Dictionary<ExporterEntry, List<SeinAtlas>> ENTRY_ATLASES = new Dictionary<ExporterEntry, List<SeinAtlas>>();
+        public static SeinAtlas[] IMPORTED_ATLASES;
 
         public static int GetAtlasIndex(ExporterEntry entry, SeinAtlas atlas)
         {
@@ -34,12 +35,12 @@ namespace SeinJS
 
         public override void BeforeImport()
         {
-            ENTRY_ATLASES.Clear();
+            IMPORTED_ATLASES = null;
         }
 
         public override void FinishImport()
         {
-            ENTRY_ATLASES.Clear();
+            IMPORTED_ATLASES = null;
         }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
@@ -88,7 +89,7 @@ namespace SeinJS
 
             if (extensionToken != null)
             {
-                var atlasesToken = extensionToken.Value["atlas"];
+                var atlasesToken = extensionToken.Value["atlases"];
 
                 foreach (JObject json in atlasesToken)
                 {
@@ -109,11 +110,12 @@ namespace SeinJS
             var atlases = extension.atlases;
             var basePath = Path.Combine(importer.importDirectoryPath, "atlases");
             Directory.CreateDirectory(basePath);
+            IMPORTED_ATLASES = new SeinAtlas[atlases.Count];
             int i = 0;
 
             foreach (var atlas in atlases)
             {
-                LoadAtlas(atlas, importer.gltfDirectoryPath, basePath, i);
+                LoadAtlas(atlas, importer, basePath, i);
                 importer.SetProgress("ATLAS", (i + 1), atlases.Count);
                 i += 1;
 
@@ -121,9 +123,37 @@ namespace SeinJS
             }
         }
 
-        private void LoadAtlas(Sein_atlasExtension.Atlas clip, string gltfPath, string basePath, int i)
+        private void LoadAtlas(Sein_atlasExtension.Atlas atlas, EditorImporter importer, string basePath, int i)
         {
+            var json = JObject.FromObject(atlas.json);
+            var imageId = (int)json["meta"]["image"]["index"];
+            json["meta"]["image"] = importer.root.Images[imageId].Uri;
+            var dest = Path.Combine(basePath, (string)json["name"]);
 
+            if (Directory.Exists(dest))
+            {
+                int index = 1;
+                while (true)
+                {
+                    if (!Directory.Exists(dest + "-" + index))
+                    {
+                        dest += "-" + index;
+                        break;
+                    }
+
+                    index += 1;
+                }
+            }
+
+            Directory.CreateDirectory(dest);
+            AssetDatabase.Refresh();
+
+            var destInUnity = "Assets" + dest.Replace(Application.dataPath, "");
+            var seinAtlas = ScriptableObject.CreateInstance<SeinAtlas>();
+            AssetDatabase.CreateAsset(seinAtlas, Path.Combine(destInUnity, (string)json["name"] + ".asset"));
+            seinAtlas.Import(json, importer.gltfDirectoryPath);
+
+            IMPORTED_ATLASES[i] = seinAtlas;
         }
     }
 }

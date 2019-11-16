@@ -37,7 +37,7 @@ namespace SeinJS {
 
         // UI dimensions (to be cleaned)
         [SerializeField]
-	    Vector2 fullSize = new Vector2(520, 640);
+	    Vector2 fullSize = new Vector2(520, 660);
 
 	    // Exporter UI: static elements
 	    [SerializeField]
@@ -155,8 +155,8 @@ namespace SeinJS {
             GUILayout.Label("Texture jpg quality(JPG压缩率)");
             GUILayout.FlexibleSpace();
             ExporterSettings.NormalTexture.jpgQulity = EditorGUILayout.IntSlider(ExporterSettings.NormalTexture.jpgQulity, 0, 100);
-            GUILayout.Space(SPACE_SIZE);
             GUILayout.EndHorizontal();
+            ExporterSettings.NormalTexture.pngFormat = (EPNGTextureFormat)EditorGUILayout.EnumPopup("Texture png format(PNG内部格式)", ExporterSettings.NormalTexture.pngFormat);
 
             GUILayout.Space(12);
             GUILayout.Label("Lighting Settings(光照设置)", EditorStyles.boldLabel);

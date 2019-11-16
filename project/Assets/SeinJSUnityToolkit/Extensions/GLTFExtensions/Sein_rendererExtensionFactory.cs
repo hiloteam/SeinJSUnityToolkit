@@ -60,7 +60,13 @@ namespace SeinJS
         {
             var extension = new Sein_rendererExtension();
 
-            if (extensionToken != null)
+            if (extensionToken.Value["castShadows"] == null)
+            {
+                extension.gammaCorrection = (bool)extensionToken.Value["gammaCorrection"];
+                extension.useHDR = (bool)extensionToken.Value["useHDR"];
+                extension.exposure = (float)extensionToken.Value["exposure"];
+            }
+            else
             {
                 extension.castShadows = (bool)extensionToken.Value["castShadows"];
                 extension.receiveShadows = (bool)extensionToken.Value["receiveShadows"];

@@ -115,6 +115,14 @@ namespace SeinJS
             }
         }
 
+        public AssetCache assetCache
+        {
+            get
+            {
+                return _assetCache;
+            }
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -740,6 +748,11 @@ namespace SeinJS
 
 		private IEnumerator LoadMeshes()
 		{
+            if (_root.Meshes == null) 
+            {
+                yield break;
+            }
+
 			for(int i = 0; i < _root.Meshes.Count; ++i)
 			{
 				CreateMeshObject(_root.Meshes[i], i);

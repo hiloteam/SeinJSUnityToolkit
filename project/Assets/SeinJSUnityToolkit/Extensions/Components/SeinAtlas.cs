@@ -56,15 +56,6 @@ public class SeinAtlas : ScriptableObject
             _PURE_WHITE = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SeinJSUnityToolkit/Shaders/white.png");
         }
 
-        //if (atlasTexture != null && (atlasTexture.width != maxWidth || atlasTexture.height != maxHeight))
-        //{
-        //    TextureScale.Bilinear(atlasTexture, maxWidth, maxHeight);
-        //}
-        //else
-        //{
-        //    atlasTexture = new Texture2D(maxWidth, maxHeight);
-        //    Graphics.CopyTexture(_PURE_WHITE, 0, 0, 0, 0, maxWidth, maxHeight, atlasTexture, 0, 0, 0, 0);
-        //}
         atlasTexture = new Texture2D(maxWidth, maxHeight);
         Graphics.CopyTexture(_PURE_WHITE, 0, 0, 0, 0, maxWidth, maxHeight, atlasTexture, 0, 0, 0, 0);
 
@@ -102,7 +93,11 @@ public class SeinAtlas : ScriptableObject
         var fullAtlasPath = Path.GetFullPath(atlasPath);
         byte[] content = atlasTexture.EncodeToPNG();
         File.WriteAllBytes(fullAtlasPath, content);
-        AssetDatabase.ImportAsset(atlasPath, ImportAssetOptions.ForceUpdate);
+        AssetDatabase.Refresh();
+        var im = AssetImporter.GetAtPath(atlasPath) as TextureImporter;
+        im.npotScale = TextureImporterNPOTScale.None;
+        im.alphaIsTransparency = true;
+        im.SaveAndReimport();
 
         var fullJsonPath = Path.GetFullPath(jsonPath);
         var frames = new JObject();
@@ -147,10 +142,16 @@ public class SeinAtlas : ScriptableObject
     {
         var json = JObject.Parse(File.ReadAllText(importPath));
 
+        Import(json, importPath.Replace(Path.GetFileName(importPath), ""));
+    }
+
+    public void Import(JObject json, string srcPath)
+    {
         var meta = json.Value<JObject>("meta");
         var frames = json.Value<JObject>("frames");
 
-        if (meta == null || frames == null) {
+        if (meta == null || frames == null)
+        {
             EditorUtility.DisplayDialog("Error!", "Not an valid atlas json file !", "OK");
             return;
         }
@@ -163,7 +164,7 @@ public class SeinAtlas : ScriptableObject
             return;
         }
 
-        imagePath = Path.Combine(importPath.Replace(Path.GetFileName(importPath), ""), imagePath);
+        imagePath = Path.Combine(srcPath, imagePath);
 
         if (!File.Exists(imagePath))
         {
@@ -180,7 +181,7 @@ public class SeinAtlas : ScriptableObject
         try
         {
             File.Copy(imagePath, Path.GetFullPath(atlasPath));
-            File.Copy(importPath, Path.GetFullPath(jsonPath));
+            Utils.SaveJson(json, Path.GetFullPath(jsonPath));
         }
         catch (Exception error)
         {
@@ -192,12 +193,13 @@ public class SeinAtlas : ScriptableObject
         im.npotScale = TextureImporterNPOTScale.None;
         im.alphaIsTransparency = true;
         im.SaveAndReimport();
-        var rects = new List<Rect>();
-        var images = new List<Texture2D>();
         var atlasTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(atlasPath);
 
         Utils.DoActionForTexture(ref atlasTexture, (aTex) =>
         {
+            var rects = new List<Rect>();
+            var images = new List<Texture2D>();
+
             foreach (var pair in frames)
             {
                 var name = pair.Key;
@@ -237,13 +239,14 @@ public class SeinAtlas : ScriptableObject
                 images.Add(AssetDatabase.LoadAssetAtPath<Texture2D>(fp));
                 rects.Add(new Rect(x, y, w, h));
             }
+
+            maxWidth = atlasTexture.width;
+            maxHeight = atlasTexture.height;
+            this.atlasTexture = atlasTexture;
+            this.images = images.ToArray();
+            this.rects = rects.ToArray();
         });
 
-        maxWidth = atlasTexture.width;
-        maxHeight = atlasTexture.height;
-        this.atlasTexture = atlasTexture;
-        this.images = images.ToArray();
-        this.rects = rects.ToArray();
         this.atlasPath = atlasPath;
         this.jsonPath = jsonPath;
     }

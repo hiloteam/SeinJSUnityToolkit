@@ -93,14 +93,14 @@ namespace SeinJS
                 }
                 else
                 {
-                    foreach (JObject sprite in extensionToken["sprites"])
+                    foreach (JObject sprite in (JArray)extensionToken.Value["sprites"])
                     {
                         var sp = new Sein_spriteExtension.Sprite();
                         sp.width = sprite.Value<float>("width");
                         sp.height = sprite.Value<float>("height");
                         sp.isBillboard = sprite.Value<bool>("isBillBoard");
                         sp.frustumTest = sprite.Value<bool>("frustumTest");
-                        sp.frameName = sprite.Value<string>("frameName");
+                        sp.frameName = sprite.Value<JObject>("atlas").Value<string>("frameName");
                         sp.atlasId = sprite.Value<JObject>("atlas").Value<int>("index");
 
                         extension.sprites.Add(sp);
@@ -113,17 +113,20 @@ namespace SeinJS
 
         public override void Import(EditorImporter importer, GameObject gameObject, Node gltfNode, Extension extension)
         {
-            var globalEx = (Sein_spriteExtension)gltfNode.Extensions[ExtensionName];
+            var globalEx = (Sein_spriteExtension)importer.root.Extensions[ExtensionName];
             var sp = globalEx.sprites[((Sein_spriteExtension)extension).index];
 
             var ex = (Sein_spriteExtension)extension;
             var sprite = gameObject.AddComponent<SeinSprite>();
             sprite.width = sp.width;
             sprite.height = sp.height;
+            sprite.Generate();
+
             sprite.isBillboard = sp.isBillboard;
             sprite.frustumTest = sp.frustumTest;
             sprite.frameName = sp.frameName;
-            //sprite.atlas = Sein_atlasExtensionFactory.IMPORTED_CLIPS[ex.atlasId];
+            sprite.atlas = Sein_atlasExtensionFactory.IMPORTED_ATLASES[sp.atlasId];
+            sprite.SetFrame(sprite.atlas, sprite.frameName);
         }
     }
 }

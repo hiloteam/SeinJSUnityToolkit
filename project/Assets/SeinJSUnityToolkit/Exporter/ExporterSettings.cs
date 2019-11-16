@@ -17,7 +17,13 @@ namespace SeinJS
 		//KTX,
 	}
 
-	public enum EHDRTextureType
+    public enum EPNGTextureFormat
+    {
+        RGBA32 = TextureFormat.RGBA32,
+        RGBA4444 = TextureFormat.RGBA4444
+    }
+
+    public enum EHDRTextureType
 	{
 		RGBD,
 		HDR,
@@ -71,7 +77,8 @@ namespace SeinJS
 		{
 			public static int maxSize = 1024;
 			public static ENormalTextureType transparentType = ENormalTextureType.PNG;
-			public static ENormalTextureType opaqueType = ENormalTextureType.JPG;
+            public static ENormalTextureType opaqueType = ENormalTextureType.JPG;
+            public static EPNGTextureFormat pngFormat = EPNGTextureFormat.RGBA32;
 			public static int jpgQulity = 85;
 		}
 

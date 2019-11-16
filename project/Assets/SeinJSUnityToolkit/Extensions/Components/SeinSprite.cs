@@ -72,11 +72,17 @@ public class SeinSprite : MonoBehaviour
             var matPath = SPRITE_DATA_DIR_PATH + "/" + GetInstanceID().ToString() + ".mat";
             AssetDatabase.CreateAsset(_material, matPath);
             _material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+            _material.hideFlags = HideFlags.HideInInspector;
             mr.sharedMaterial = _material;
-            mr.sharedMaterial.hideFlags = HideFlags.HideInInspector;
         }
 
         AssetDatabase.SaveAssets();
+    }
+
+    public void SetFrame(SeinAtlas atlas, string frameName)
+    {
+        var tex = atlas.Get(frameName);
+        _material.SetTexture("_MainTex", tex);
     }
 
     public void OnValidate()
@@ -90,8 +96,7 @@ public class SeinSprite : MonoBehaviour
         {
             if (_material)
             {
-                var tex = atlas.Get(frameName);
-                _material.SetTexture("_MainTex", tex);
+                SetFrame(atlas, frameName);
             }
         }
 
@@ -112,7 +117,7 @@ public class SeinSprite : MonoBehaviour
         }
     }
 
-    [MenuItem("GameObject/SeinSprite", priority = 11)]
+    [MenuItem("GameObject/Sein/Create Sprite", priority = 11)]
     private static void CreateGO()
     {
         var go = new GameObject("SeinSprite");

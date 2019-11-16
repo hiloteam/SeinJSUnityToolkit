@@ -540,7 +540,7 @@ namespace SeinJS
 
                 if (format == ".png")
                 {
-                    content = tex.EncodeToPNG();
+                    content = GetPNGData(tex);
                 }
                 else
                 {
@@ -553,7 +553,7 @@ namespace SeinJS
                 {
                     if (format == ".png")
                     {
-                        content = tex.EncodeToPNG();
+                        content = GetPNGData(tex);
                     }
                     else
                     {
@@ -564,22 +564,19 @@ namespace SeinJS
 
             var id = GenerateImage(content, exportPath, pathInGlTF);
 
-            if (format == ".png")
+            return id;
+        }
+
+        private byte[] GetPNGData(Texture2D tex)
+        {
+            if (ExporterSettings.NormalTexture.pngFormat != EPNGTextureFormat.RGBA32)
             {
-                //var quantizer = new PnnQuant.PnnQuantizer();
-                //using (var bitmap = new System.Drawing.Bitmap(exportPath))
-                //{
-                //    using (var dest = new System.Drawing.Bitmap(bitmap.Width, bitmap.Height, System.Drawing.Imaging.PixelFormat.Format8bppIndexed))
-                //    {
-                //        if (quantizer.QuantizeImage(bitmap, dest, 256, true))
-                //        {
-                //            dest.Save(exportPath, System.Drawing.Imaging.ImageFormat.Png);
-                //        }
-                //    }
-                //}
+                EditorUtility.CompressTexture(tex, (TextureFormat)ExporterSettings.NormalTexture.pngFormat, UnityEditor.TextureCompressionQuality.Best);
             }
 
-            return id;
+            var data = tex.EncodeToPNG();
+
+            return data;
         }
 
         public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)

@@ -67,7 +67,7 @@ namespace SeinJS
                 var index = box.index;
                 var tex = texs[index];
                 var rect = rects[index] = new Rect(box.x, box.y, tex.width, tex.height);
-                Graphics.CopyTexture(texs[index], 0, 0, 0, 0, tex.width, tex.height, atlas, 0, 0, box.x, atlas.height - box.y - tex.height);
+                UnityEngine.Graphics.CopyTexture(texs[index], 0, 0, 0, 0, tex.width, tex.height, atlas, 0, 0, box.x, atlas.height - box.y - tex.height);
             }
 
             return rects;
