@@ -40,7 +40,7 @@ namespace SeinJS
             _onlyLightingId.Clear();
         }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var mat = component as UnityEngine.Material;
             var hasReflection = ExporterSettings.Lighting.reflection && mat.GetInt("envReflection") != (int)SeinPBRShaderGUI.EnvReflection.Off;
@@ -104,14 +104,7 @@ namespace SeinJS
             light.diffuseIntensity = diffuseIntensity;
             light.brdfLUT = entry.SaveTexture(brdfLUT, false).Id;
 
-            var isCustomCubMap = RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom;
-
-            if (!isCustomCubMap)
-            {
-                Debug.LogWarning("Not support skybox cubemap now, ignore... Check 'http://seinjs.com/cn/tutorial/artist/reflection'");
-            }
-
-            if (hasLighting && !(hasReflection && isCustomCubMap))
+            if (hasLighting && !hasReflection)
             {
                 if (!_onlyLightingId.ContainsKey(entry))
                 {
@@ -124,7 +117,8 @@ namespace SeinJS
                 return;
             }
 
-            Cubemap specMap = null;
+            var isCustomCubMap = RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom;
+            Cubemap specMap;
             //ReflectionProbe
             float specIntensity = RenderSettings.reflectionIntensity;
             if (isCustomCubMap)
@@ -133,8 +127,21 @@ namespace SeinJS
             }
             else
             {
-                //todo: support skybox cubemap
-                return;
+                var skybox = RenderSettings.skybox;
+
+                if (skybox == null)
+                {
+                    Debug.LogWarning("Use skybox as relfection source, but skybox is not defined, ignore... Check 'http://seinjs.com/cn/tutorial/artist/reflection'");
+                    return;
+                }
+
+                specMap = skybox.GetTexture("_Tex") as Cubemap;
+
+                if (specMap == null)
+                {
+                    Debug.LogWarning("Use skybox as relfection source, but cubemap not set to skybox material, ignore... Check 'http://seinjs.com/cn/tutorial/artist/reflection'");
+                    return;
+                }
             }
 
             if (_cache.ContainsKey(entry) && _cache[entry].ContainsKey(specMap))
@@ -144,17 +151,7 @@ namespace SeinJS
                 return;
             }
             light.specIntensity = specIntensity;
-            light.specMapFaces = new int[6];
-
-            string origAssetPath = AssetDatabase.GetAssetPath(specMap);
-            string ext = Path.GetExtension(origAssetPath);
-            var blurredSpecMaps = GetSpecularCubeMap(specMap);
-            for (var i = 0; i < 6; i += 1)
-            {
-                var tex2d = blurredSpecMaps[i];
-                light.specMapFaces[i] = entry.SaveImageHDR(tex2d, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, origAssetPath.Replace(ext, "-" + i + ext)).Id;
-                UnityEngine.Object.DestroyImmediate(tex2d);
-            }
+            light.specMap = entry.SaveCubeTextureHDR(specMap, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize).Id;
 
             globalExtension.lights.Add(light);
 
@@ -175,130 +172,113 @@ namespace SeinJS
         }
 
         //https://forum.unity.com/threads/specular-convolution-when-calculating-mip-maps-for-cubemap-render-texture.617680/
-        private Texture2D[] GetSpecularCubeMap(Cubemap srcCubemap)
-        {
-            var result = new Texture2D[6];
-            for (int i = 0; i < 6; i += 1)
-            {
-                result[i] = new Texture2D(srcCubemap.width, srcCubemap.height, TextureFormat.RGBAHalf, false);
-            }
-            var convolutionMaterial = new UnityEngine.Material(Shader.Find("Hidden/CubeBlur"));
-            GL.PushMatrix();
-            GL.LoadOrtho();
-            var dstCubemap = new RenderTexture(srcCubemap.width, srcCubemap.height, 0, RenderTextureFormat.ARGBHalf);
-            dstCubemap.dimension = UnityEngine.Rendering.TextureDimension.Cube;
-            dstCubemap.volumeDepth = 6;
-            dstCubemap.wrapMode = TextureWrapMode.Clamp;
-            dstCubemap.filterMode = FilterMode.Trilinear;
-            dstCubemap.isPowerOfTwo = true;
-            dstCubemap.Create();
-            // not support texture lod now
-            var mip = 0;
-            var dstMip = 0;
-            var mipRes = srcCubemap.width;
+        //private Cubemap GetSpecularCubeMap(Cubemap srcCubemap)
+        //{
+        //    var convolutionMaterial = new UnityEngine.Material(Shader.Find("Hidden/CubeBlur"));
+        //    GL.PushMatrix();
+        //    GL.LoadOrtho();
+        //    var dstCubemap = new RenderTexture(srcCubemap.width, srcCubemap.height, 0, RenderTextureFormat.ARGBHalf);
+        //    dstCubemap.dimension = UnityEngine.Rendering.TextureDimension.Cube;
+        //    dstCubemap.volumeDepth = 6;
+        //    dstCubemap.wrapMode = TextureWrapMode.Clamp;
+        //    dstCubemap.filterMode = FilterMode.Trilinear;
+        //    dstCubemap.isPowerOfTwo = true;
+        //    dstCubemap.Create();
+        //    // not support texture lod now
+        //    var mip = 0;
+        //    var dstMip = 0;
+        //    var mipRes = srcCubemap.width;
 
-            convolutionMaterial.SetTexture("_MainTex", srcCubemap);
-            convolutionMaterial.SetFloat("_Texel", 1f / mipRes);
-            convolutionMaterial.SetFloat("_Level", mip);
+        //    convolutionMaterial.SetTexture("_MainTex", srcCubemap);
+        //    convolutionMaterial.SetFloat("_Texel", 1f / mipRes);
+        //    convolutionMaterial.SetFloat("_Level", mip);
 
-            convolutionMaterial.SetPass(0);
+        //    convolutionMaterial.SetPass(0);
 
-            // Positive X
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveX);
-            GL.Begin(GL.QUADS);
-            GL.TexCoord3(1, 1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(1, -1, 1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, -1, -1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, -1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            result[0].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
+        //    // Positive X
+        //    Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveX);
+        //    GL.Begin(GL.QUADS);
+        //    GL.TexCoord3(1, 1, 1);
+        //    GL.Vertex3(0, 0, 1);
+        //    GL.TexCoord3(1, -1, 1);
+        //    GL.Vertex3(0, 1, 1);
+        //    GL.TexCoord3(1, -1, -1);
+        //    GL.Vertex3(1, 1, 1);
+        //    GL.TexCoord3(1, 1, -1);
+        //    GL.Vertex3(1, 0, 1);
+        //    GL.End();
 
-            // Negative X
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeX);
-            GL.Begin(GL.QUADS);
-            GL.TexCoord3(-1, 1, -1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, -1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(-1, 1, 1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            result[1].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
+        //    // Negative X
+        //    Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeX);
+        //    GL.Begin(GL.QUADS);
+        //    GL.TexCoord3(-1, 1, -1);
+        //    GL.Vertex3(0, 0, 1);
+        //    GL.TexCoord3(-1, -1, -1);
+        //    GL.Vertex3(0, 1, 1);
+        //    GL.TexCoord3(-1, -1, 1);
+        //    GL.Vertex3(1, 1, 1);
+        //    GL.TexCoord3(-1, 1, 1);
+        //    GL.Vertex3(1, 0, 1);
+        //    GL.End();
 
-            // Positive Y
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveY);
-            GL.Begin(GL.QUADS);
-            GL.TexCoord3(-1, 1, -1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, 1, 1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, 1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, -1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            result[2].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
+        //    // Positive Y
+        //    Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveY);
+        //    GL.Begin(GL.QUADS);
+        //    GL.TexCoord3(-1, 1, -1);
+        //    GL.Vertex3(0, 0, 1);
+        //    GL.TexCoord3(-1, 1, 1);
+        //    GL.Vertex3(0, 1, 1);
+        //    GL.TexCoord3(1, 1, 1);
+        //    GL.Vertex3(1, 1, 1);
+        //    GL.TexCoord3(1, 1, -1);
+        //    GL.Vertex3(1, 0, 1);
+        //    GL.End();
 
-            // Negative Y
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeY);
-            GL.Begin(GL.QUADS);
-            GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, -1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, -1, -1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, -1, 1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            result[3].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
+        //    // Negative Y
+        //    Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeY);
+        //    GL.Begin(GL.QUADS);
+        //    GL.TexCoord3(-1, -1, 1);
+        //    GL.Vertex3(0, 0, 1);
+        //    GL.TexCoord3(-1, -1, -1);
+        //    GL.Vertex3(0, 1, 1);
+        //    GL.TexCoord3(1, -1, -1);
+        //    GL.Vertex3(1, 1, 1);
+        //    GL.TexCoord3(1, -1, 1);
+        //    GL.Vertex3(1, 0, 1);
+        //    GL.End();
 
-            // Positive Z
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveZ);
-            GL.Begin(GL.QUADS);
-            GL.TexCoord3(1, 1, -1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(1, -1, -1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(-1, -1, -1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(-1, 1, -1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            result[4].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
+        //    // Positive Z
+        //    Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveZ);
+        //    GL.Begin(GL.QUADS);
+        //    GL.TexCoord3(1, 1, -1);
+        //    GL.Vertex3(0, 0, 1);
+        //    GL.TexCoord3(1, -1, -1);
+        //    GL.Vertex3(0, 1, 1);
+        //    GL.TexCoord3(-1, -1, -1);
+        //    GL.Vertex3(1, 1, 1);
+        //    GL.TexCoord3(-1, 1, -1);
+        //    GL.Vertex3(1, 0, 1);
+        //    GL.End();
 
-            // Negative Z
-            Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeZ);
-            GL.Begin(GL.QUADS);
-            GL.TexCoord3(-1, 1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, -1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, 1);
-            GL.Vertex3(1, 0, 1);
-            GL.End();
-            result[5].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
+        //    // Negative Z
+        //    Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeZ);
+        //    GL.Begin(GL.QUADS);
+        //    GL.TexCoord3(-1, 1, 1);
+        //    GL.Vertex3(0, 0, 1);
+        //    GL.TexCoord3(-1, -1, 1);
+        //    GL.Vertex3(0, 1, 1);
+        //    GL.TexCoord3(1, -1, 1);
+        //    GL.Vertex3(1, 1, 1);
+        //    GL.TexCoord3(1, 1, 1);
+        //    GL.Vertex3(1, 0, 1);
+        //    GL.End();
 
-            GL.PopMatrix();
+        //    GL.PopMatrix();
 
-            for (int i = 0; i < 6; i += 1)
-            {
-                result[i].Apply();
-            }
+        //    Graphics.SetRenderTarget(null);
 
-            Graphics.SetRenderTarget(null);
-            UnityEngine.Object.DestroyImmediate(dstCubemap);
-
-            return result;
-        }
+        //    return dstCubemap;
+        //}
 
         private void DeleteTempMap(Cubemap map)
         {

@@ -17,7 +17,7 @@ namespace SeinJS
         public override string GetExtensionName() { return "Sein_node"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinNode) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var extension = new Sein_nodeExtension();
             var node = component as SeinNode;

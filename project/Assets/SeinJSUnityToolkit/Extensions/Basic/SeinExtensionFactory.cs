@@ -74,7 +74,7 @@ namespace SeinJS
             extensions.Add(ExtensionName, extension);
         }
 
-        public virtual void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null) { }
+        public virtual void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null) { }
 
         /*
          * @todo: import entry

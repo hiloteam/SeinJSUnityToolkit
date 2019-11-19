@@ -36,7 +36,7 @@ namespace SeinJS
 		{
 			public static string folder = "";
 			public static string name = "";
-			public static bool splitChunks = false;
+            public static bool splitChunks = false;
 
             public static void UpdateFolder(string folder)
 			{
@@ -87,8 +87,9 @@ namespace SeinJS
 			public static bool lightMap = true;
 			public static int lightMapSize = 1024;
 			public static EHDRTextureType lightMapType = EHDRTextureType.RGBD;
-			public static bool reflection = true;
-			public static int reflectionSize = 1024;
+            public static bool skybox = true;
+            public static bool reflection = true;
+            public static int reflectionSize = 1024;
 			public static EHDRTextureType reflectionType = EHDRTextureType.RGBD;
 		}
 	}

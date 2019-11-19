@@ -20,7 +20,7 @@ namespace SeinJS
         public override string GetExtensionName() { return "Sein_audioSource"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinAudioSource) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             // process clips at first
             if (entry.root.Extensions == null)

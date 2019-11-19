@@ -100,20 +100,20 @@ namespace SeinJS
             return Class2Extensions[FactoryClass];
         }
 
-        public static void Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public static void Serialize(Type FactoryClass, ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var factory = Name2Extensions[Class2Extensions[FactoryClass]];
             factory.Awake(entry);
 
-            factory.Serialize(entry, extensions, component);
+            factory.Serialize(entry, extensions, component, options);
         }
 
-        public static void Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public static void Serialize(string extensionName, ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var factory = Name2Extensions[extensionName];
             factory.Awake(entry);
 
-            factory.Serialize(entry, extensions, component);
+            factory.Serialize(entry, extensions, component, options);
         }
 
         public static void Serialize(Component component, ExporterEntry entry, Dictionary<string, Extension> extensions)

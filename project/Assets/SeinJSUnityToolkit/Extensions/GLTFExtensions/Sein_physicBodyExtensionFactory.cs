@@ -20,7 +20,7 @@ namespace SeinJS
         public override string GetExtensionName() { return "Sein_physicBody"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinRigidBody), typeof(BoxCollider), typeof(SphereCollider) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             Sein_physicBodyExtension extension;
 

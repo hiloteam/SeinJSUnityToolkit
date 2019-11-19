@@ -28,7 +28,7 @@ namespace SeinJS
             _CAHCE.Clear();
         }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             if (entry.root.Extensions == null)
             {

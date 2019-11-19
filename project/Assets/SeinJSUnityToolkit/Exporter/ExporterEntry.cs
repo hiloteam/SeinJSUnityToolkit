@@ -58,6 +58,7 @@ namespace SeinJS
         // key: SeinCustomMaterial componenet or UnityMateiral InistanceID
         private Dictionary<int, MaterialId> _material2ID = new Dictionary<int, MaterialId>();
         private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
+        private Dictionary<Cubemap, TextureId> _cubemap2ID = new Dictionary<Cubemap, TextureId>();
         private Dictionary<Texture2D, ImageId> _texture2d2ImageID = new Dictionary<Texture2D, ImageId>();
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
         private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
@@ -496,6 +497,56 @@ namespace SeinJS
             return GenerateTexture(texture, imageId);
         }
 
+        public TextureId SaveCubeTexture(Cubemap texture)
+        {
+            if (_cubemap2ID.ContainsKey(texture))
+            {
+                return _cubemap2ID[texture];
+            }
+
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            var samplerId = GenerateSampler(texture);
+
+            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, texture, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize });
+
+            root.Textures.Add(gltfTexture);
+
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            _cubemap2ID[texture] = id;
+
+            return id;
+        }
+
+        public TextureId SaveCubeTexture(Texture2D[] textures)
+        {
+            if (_texture2d2ID.ContainsKey(textures[0]))
+            {
+                return _texture2d2ID[textures[0]];
+            }
+
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            var samplerId = GenerateSampler(textures[0]);
+
+            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, null, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize, textures = textures });
+
+            root.Textures.Add(gltfTexture);
+
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            _texture2d2ID[textures[0]] = id;
+
+            return id;
+        }
+
         public ImageId SaveImage(Texture2D texture, bool hasTransparency, string path = null, bool exportAsOrig = false)
         {
             if (_texture2d2ImageID.ContainsKey(texture))
@@ -586,13 +637,6 @@ namespace SeinJS
                 Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
             }
 
-            var isGammaSpace = PlayerSettings.colorSpace == ColorSpace.Gamma;
-            if (isGammaSpace)
-            {
-                // we need linear space lightmap in Sein
-                Debug.LogWarning("You are using lightmap in `Gamma ColorSpace`, it may have wrong result in Sein ! Please checkout 'http://seinjs.com/guide/baking' for details !");
-            }
-
             if (_texture2d2ID.ContainsKey(texture))
             {
                 return _texture2d2ID[texture];
@@ -601,6 +645,56 @@ namespace SeinJS
             var imageId = SaveImageHDR(texture, type, maxSize, path);
 
             return GenerateTexture(texture, imageId);
+        }
+
+        public TextureId SaveCubeTextureHDR(Cubemap texture, EHDRTextureType type, int maxSize = -1)
+        {
+            if (_cubemap2ID.ContainsKey(texture))
+            {
+                return _cubemap2ID[texture];
+            }
+
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            var samplerId = GenerateSampler(texture);
+
+            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, texture, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type});
+
+            root.Textures.Add(gltfTexture);
+
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            _cubemap2ID[texture] = id;
+
+            return id;
+        }
+
+        public TextureId SaveCubeTextureHDR(Texture2D[] textures, EHDRTextureType type, int maxSize = -1)
+        {
+            if (_texture2d2ID.ContainsKey(textures[0]))
+            {
+                return _texture2d2ID[textures[0]];
+            }
+
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            var samplerId = GenerateSampler(textures[0]);
+
+            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, null, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type, textures = textures});
+
+            root.Textures.Add(gltfTexture);
+
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            _texture2d2ID[textures[0]] = id;
+
+            return id;
         }
 
         public ImageId SaveImageHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
@@ -656,12 +750,34 @@ namespace SeinJS
                 root.Textures = new List<GLTF.Schema.Texture>();
             }
 
+            var samplerId = GenerateSampler(texture);
+
+            var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId };
+            root.Textures.Add(gltfTexture);
+
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            _texture2d2ID[texture] = id;
+
+            return id;
+        }
+
+        private SamplerId GenerateSampler(UnityEngine.Texture texture)
+        {
             if (root.Samplers == null)
             {
-                root.Samplers = new List<GLTF.Schema.Sampler>();
+                root.Samplers = new List<Sampler>();
             }
 
-            var hasMipMap = texture.mipmapCount > 0;
+            var hasMipMap = false;
+
+            if (texture is Texture2D)
+            {
+                hasMipMap = (texture as Texture2D).mipmapCount > 0;
+            } else if (texture is Cubemap)
+            {
+                hasMipMap = (texture as Cubemap).mipmapCount > 0;
+            }
+
             MagFilterMode magFilter = MagFilterMode.None;
             MinFilterMode minFilter = MinFilterMode.None;
             GLTF.Schema.WrapMode wrap = GLTF.Schema.WrapMode.None;
@@ -723,15 +839,8 @@ namespace SeinJS
                 WrapT = wrap
             };
             root.Samplers.Add(sampler);
-            var samplerId = new SamplerId { Id = root.Samplers.Count - 1, Root = root };
 
-            var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId };
-            root.Textures.Add(gltfTexture);
-
-            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
-            _texture2d2ID[texture] = id;
-
-            return id;
+            return new SamplerId { Id = root.Samplers.Count - 1, Root = root };
         }
 
         private Texture2D TextureFlipY(Texture2D texture, Func<Color, Color> convertColor = null, Action<Texture2D> processTexture = null)
@@ -831,6 +940,11 @@ namespace SeinJS
                     AspectRatio = camera.aspect,
                     YFov = camera.fieldOfView / 180 * Math.PI
                 };
+            }
+
+            if (ExporterSettings.Lighting.skybox) {
+                cam.Extensions = new Dictionary<string, Extension>();
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_skyboxExtensionFactory)), this, cam.Extensions, camera);
             }
 
             return cam;

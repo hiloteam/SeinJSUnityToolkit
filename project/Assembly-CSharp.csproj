@@ -123,6 +123,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioListenerExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioSourceExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioSourceExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_cubeTextureExtension.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_cubeTextureExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_customMaterialExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_customMaterialExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_imageBasedLightingExtension.cs" />
@@ -133,6 +135,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_physicBodyExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_rendererExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_rendererExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_skyboxExtension.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_skyboxExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\AssetSerializer.cs" />

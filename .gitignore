@@ -11,5 +11,7 @@ project/Assets/main
 project/.vs
 project/obj
 project/Assets/temp*
+project/Assets/Test
+project/Assets/Test.meta
 project/sein-previewer-temp-assets
 project/Assets/Resources/3d-museam

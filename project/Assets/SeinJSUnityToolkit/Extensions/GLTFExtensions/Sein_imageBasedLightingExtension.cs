@@ -19,7 +19,7 @@ namespace SeinJS
             public float[][] shCoefficients;
             public float diffuseIntensity;
             public int brdfLUT;
-            public int[] specMapFaces;
+            public int specMap;
             public float specIntensity;
         }
 
@@ -59,13 +59,13 @@ namespace SeinJS
                         coefficients.Add(new JArray { cs[0], cs[1], cs[2] });
                     }
 
-                    if (light.specMapFaces != null)
+                    if (light.specMap != -1)
                     {
                         l.Add("specular", new JObject(
                             new JProperty("type", "CUBE"),
                             new JProperty("intensity", light.specIntensity),
-                            new JProperty("brdfLUT", light.brdfLUT),
-                            new JProperty("faces", JArray.FromObject(light.specMapFaces))
+                            new JProperty("brdfLUT", new JObject(new JProperty("index", light.brdfLUT))),
+                            new JProperty("map", new JObject(new JProperty("index", light.specMap)))
                         ));
                     }
 

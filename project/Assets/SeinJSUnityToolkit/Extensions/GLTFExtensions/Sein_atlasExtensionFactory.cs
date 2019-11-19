@@ -43,7 +43,7 @@ namespace SeinJS
             IMPORTED_ATLASES = null;
         }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             if (!ENTRY_ATLASES.ContainsKey(entry))
             {

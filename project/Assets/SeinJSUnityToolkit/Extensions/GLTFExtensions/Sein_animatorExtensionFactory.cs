@@ -32,7 +32,7 @@ namespace SeinJS
             IMPORTED_CONTROLLERS.Clear();
         }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var animator = component as SeinAnimator;
             var extension = new Sein_animatorExtension();

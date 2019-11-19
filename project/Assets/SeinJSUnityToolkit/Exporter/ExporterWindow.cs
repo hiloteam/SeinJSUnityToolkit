@@ -37,7 +37,7 @@ namespace SeinJS {
 
         // UI dimensions (to be cleaned)
         [SerializeField]
-	    Vector2 fullSize = new Vector2(520, 660);
+	    Vector2 fullSize = new Vector2(520, 680);
 
 	    // Exporter UI: static elements
 	    [SerializeField]
@@ -172,6 +172,7 @@ namespace SeinJS {
             GUILayout.EndHorizontal();
 
             GUILayout.Space(8);
+            ExporterSettings.Lighting.skybox = EditorGUILayout.Toggle("Export skybox(输出天空盒)", ExporterSettings.Lighting.skybox);
             ExporterSettings.Lighting.reflection = EditorGUILayout.Toggle("Export reflection(输出全局反射)", ExporterSettings.Lighting.reflection);
             ExporterSettings.Lighting.reflectionType = (EHDRTextureType)EditorGUILayout.EnumPopup("Reflection map image type(编码类型)", ExporterSettings.Lighting.reflectionType);
             GUILayout.BeginHorizontal();

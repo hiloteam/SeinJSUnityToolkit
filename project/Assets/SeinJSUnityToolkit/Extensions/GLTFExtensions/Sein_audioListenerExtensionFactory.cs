@@ -20,7 +20,7 @@ namespace SeinJS
         public override string GetExtensionName() { return "Sein_audioListener"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinAudioListener) }; }
 
-        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null)
+        public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var extension = new Sein_audioListenerExtension();
             var listener = component as SeinAudioListener;
