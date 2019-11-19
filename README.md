@@ -2,6 +2,13 @@
 
 Export unity scene to gltf for "Sein.js", or import gltf to unity.
 
+**Preview:**
+
+![](./preview.gif)
+
+**Atlas and sprite:**
+
+![](./2d.gif)
 
 ## Usage
 
@@ -27,3 +34,4 @@ http://seinjs.com/cn/guide/unity
 18. Support SeinJS atlas.
 19. Support SeinJS Sprite.
 20. Support SeinJS Material Scripts.
+21. Support preview and inspector.

@@ -73,7 +73,7 @@ namespace SeinJS
             var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(atlas.atlasPath);
             if (tex == null)
             {
-                throw new Exception("Atlas '" + atlas.name + "' is not saved!");
+                Utils.ThrowExcption("Atlas '" + atlas.name + "' is not saved!");
             }
             var imageId = entry.SaveImage(tex, true, null, true);
             var json = atlas.ReadJson();

@@ -101,7 +101,7 @@ namespace SeinJS
         {
             float[] array = null;
             int[] intArray = null;
-            int size;
+            int size = 0;
             /**
              @todo: support int uint short byte ushort...
              */
@@ -168,7 +168,7 @@ namespace SeinJS
             }
             else
             {
-                throw new Exception("Only support packing float, int, Vector2, Vector3, Vector4, BoneWeight, Matrix4 and Color now !");
+                Utils.ThrowExcption("Only support packing float, int, Vector2, Vector3, Vector4, BoneWeight, Matrix4 and Color now !");
             }
 
             if (max == null)
@@ -275,7 +275,7 @@ namespace SeinJS
         {
             if (material.shader.name.Contains("Standard") || material.shader.name.Contains("Autodesk Interactive"))
             {
-                throw new Exception("Toolkit doesn't support Unity Standard Material anymore, please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/material-sein");
+                Utils.ThrowExcption("Toolkit doesn't support Unity Standard Material anymore, please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/material-sein");
             }
 
             if (material.shader.name == "Sein/PBR")
@@ -289,7 +289,8 @@ namespace SeinJS
             }
 
             //return ConvertKHRWebGLMaterial(material, entry);
-            throw new Exception("Only support Sein/PBR or Sein/XXX(CustomMaterial) now !");
+            Utils.ThrowExcption("Only support Sein/PBR or Sein/XXX(CustomMaterial) now !");
+            return null;
         }
 
         private static GLTF.Schema.Material ConvertSeinPBRMaterial(UnityEngine.Material mat, ExporterEntry entry)

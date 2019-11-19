@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Material4
-  m_Shader: {fileID: 4800000, guid: 48f6d95be68fa4621ba4f9adf30e275d, type: 3}
-  m_ShaderKeywords: UNLIT_ON _GLOSSYREFLECTIONS_OFF _SPECULARHIGHLIGHTS_OFF
+  m_Shader: {fileID: 4800000, guid: 7328ca6c0382a4773ad835cbe189905b, type: 3}
+  m_ShaderKeywords: ENV_SPECULAR_ON UNLIT_ON _GLOSSYREFLECTIONS_OFF _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -126,7 +126,7 @@ Material:
     - _occlusionStrength: 1
     - _roughness: 0.148
     - cloneForInst: 0
-    - envReflection: 0
+    - envReflection: 1
     - envSpecReflection: 0
     - unlit: 1
     - workflow: 0

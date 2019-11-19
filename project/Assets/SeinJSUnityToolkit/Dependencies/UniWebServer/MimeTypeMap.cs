@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SeinJS;
 
 namespace UniWebServer
 {
@@ -697,7 +698,7 @@ namespace UniWebServer
         {
             if (extension == null)
             {
-                throw new ArgumentNullException("extension");
+                Utils.ThrowExcption(new ArgumentNullException("extension"));
             }
 
             if (!extension.StartsWith("."))
@@ -719,12 +720,12 @@ namespace UniWebServer
         {
             if (mimeType == null)
             {
-                throw new ArgumentNullException("mimeType");
+                Utils.ThrowExcption(new ArgumentNullException("mimeType"));
             }
 
             if (mimeType.StartsWith("."))
             {
-                throw new ArgumentException("Requested mime type is not valid: " + mimeType);
+                Utils.ThrowExcption(new ArgumentNullException("Requested mime type is not valid: " + mimeType));
             }
 
             string extension;
@@ -735,7 +736,8 @@ namespace UniWebServer
             }
             if (throwErrorIfNotFound)
             {
-                throw new ArgumentException("Requested mime type is not registered: " + mimeType);
+                Utils.ThrowExcption(new ArgumentNullException("Requested mime type is not registered: " + mimeType));
+                return null;
             }
             else
             {

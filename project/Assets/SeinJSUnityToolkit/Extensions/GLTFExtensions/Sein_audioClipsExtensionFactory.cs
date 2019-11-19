@@ -81,7 +81,7 @@ namespace SeinJS
                 var clip = c.clip;
                 if (c.clip == null)
                 {
-                    throw new Exception("Clip '" + c.name + "' has no audio source!");
+                    Utils.ThrowExcption("Clip '" + c.name + "' has no audio source!");
                 }
 
                 if (list.Contains(clip))

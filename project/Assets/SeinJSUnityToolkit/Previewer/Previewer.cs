@@ -151,7 +151,8 @@ namespace SeinJS
                 }
             }
 
-            throw new System.Exception("No network adapters with an IPv4 address in the system!");
+            Utils.ThrowExcption("No network adapters with an IPv4 address in the system!");
+            return null;
         }
 
         void OnApplicationQuit()

@@ -583,7 +583,7 @@ namespace SeinJS
         {
             if (type != EHDRTextureType.RGBD)
             {
-                throw new Exception("HDR Texture can only be exported as 'RGBD' now !");
+                Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
             }
 
             var isGammaSpace = PlayerSettings.colorSpace == ColorSpace.Gamma;
@@ -860,7 +860,7 @@ namespace SeinJS
             {
                 if (!tr2node.ContainsKey(bone))
                 {
-                    throw new Exception("You are expoting a skinned mesh '" + node.Name + "', but not select bones!");
+                    Utils.ThrowExcption("You are expoting a skinned mesh '" + node.Name + "', but not select bones!");
                 }
 
                 skin.Joints.Add(new NodeId { Id = root.Nodes.IndexOf(tr2node[bone]) });
@@ -920,7 +920,7 @@ namespace SeinJS
             }
             else if (tr.GetComponent<UnityEngine.Animation>())
             {
-                throw new Exception("Never support Unity.Animation component now, use Unity.Animator to instead of it !");
+                Utils.ThrowExcption("Never support Unity.Animation component now, use Unity.Animator to instead of it !");
             }
 
             if (clips == null)

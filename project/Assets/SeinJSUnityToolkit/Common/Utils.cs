@@ -117,6 +117,22 @@ namespace SeinJS {
             }
         }
 
+        public static void ThrowExcption(string msg)
+        {
+            if (EditorUtility.DisplayDialog("Error!", msg, "OK"))
+            {
+                throw new Exception(msg);
+            }
+        }
+
+        public static void ThrowExcption(Exception exception)
+        {
+            if (EditorUtility.DisplayDialog("Error!", exception.Message, "OK"))
+            {
+                throw exception;
+            }
+        }
+
         public static string MakeRelativePath(string fromPath, string toPath)
         {
             if (string.IsNullOrEmpty(fromPath)) throw new ArgumentNullException(nameof(fromPath));

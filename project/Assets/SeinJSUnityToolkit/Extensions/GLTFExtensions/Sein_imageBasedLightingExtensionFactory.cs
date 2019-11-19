@@ -105,9 +105,10 @@ namespace SeinJS
             light.brdfLUT = entry.SaveTexture(brdfLUT, false).Id;
 
             var isCustomCubMap = RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom;
+
             if (!isCustomCubMap)
             {
-                throw new Exception("Not support skybox cubemap now !");
+                Debug.LogWarning("Not support skybox cubemap now, ignore... Check 'http://seinjs.com/cn/tutorial/artist/reflection'");
             }
 
             if (hasLighting && !(hasReflection && isCustomCubMap))
@@ -133,6 +134,7 @@ namespace SeinJS
             else
             {
                 //todo: support skybox cubemap
+                return;
             }
 
             if (_cache.ContainsKey(entry) && _cache[entry].ContainsKey(specMap))

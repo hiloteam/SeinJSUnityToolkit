@@ -44,7 +44,9 @@ namespace SeinJS
         public static Transform[] getSelectedTransforms()
         {
             if (Selection.transforms.Length <= 0)
-                throw new Exception("No objects selected, cannot export.");
+            {
+                Utils.ThrowExcption("No objects selected, cannot export.");
+            }
 
             return Selection.transforms;
         }
