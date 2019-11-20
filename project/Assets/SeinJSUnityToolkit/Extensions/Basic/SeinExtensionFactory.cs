@@ -22,6 +22,7 @@ namespace SeinJS
         Accessor,
         BufferView,
         Buffer,
+        Camera,
         Global
     }
 

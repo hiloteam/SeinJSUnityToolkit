@@ -23,7 +23,7 @@ namespace SeinJS
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global, EExtensionType.Material }; }
         private static Texture2D brdfLUT;
 
-        private Dictionary<ExporterEntry, Dictionary<Cubemap, int>> _cache = new Dictionary<ExporterEntry, Dictionary<Cubemap, int>>();
+        private Dictionary<ExporterEntry, Dictionary<int, int>> _cache = new Dictionary<ExporterEntry, Dictionary<int, int>>();
         private Dictionary<ExporterEntry, int> _onlyLightingId = new Dictionary<ExporterEntry, int>();
 
         public override void BeforeExport()
@@ -118,12 +118,17 @@ namespace SeinJS
             }
 
             var isCustomCubMap = RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Custom;
-            Cubemap specMap;
             //ReflectionProbe
             float specIntensity = RenderSettings.reflectionIntensity;
+            int textureId = -1;
+            int cacheId = 0;
+
+            light.specType = "Cube";
             if (isCustomCubMap)
             {
-                specMap = RenderSettings.customReflection;
+                var Id = entry.SaveCubeTextureHDR(RenderSettings.customReflection, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize);
+                cacheId = Id.GetHashCode();
+                textureId = Id.Id;
             }
             else
             {
@@ -135,33 +140,59 @@ namespace SeinJS
                     return;
                 }
 
-                specMap = skybox.GetTexture("_Tex") as Cubemap;
-
-                if (specMap == null)
+                if (skybox.shader.name == "Skybox/Cubemap")
                 {
-                    Debug.LogWarning("Use skybox as relfection source, but cubemap not set to skybox material, ignore... Check 'http://seinjs.com/cn/tutorial/artist/reflection'");
-                    return;
+                    var Id = entry.SaveCubeTextureHDR(skybox.GetTexture("_Tex") as Cubemap, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize);
+                    cacheId = Id.GetHashCode();
+                    textureId = Id.Id;
+                }
+                else if (skybox.shader.name == "Skybox/6 Sided")
+                {
+                    var Id = entry.SaveCubeTextureHDR(
+                        new Texture2D[] {
+                            skybox.GetTexture("_RightTex") as Texture2D,
+                            skybox.GetTexture("_LeftTex") as Texture2D,
+                            skybox.GetTexture("_UpTex") as Texture2D,
+                            skybox.GetTexture("_DownTex") as Texture2D,
+                            skybox.GetTexture("_FrontTex") as Texture2D,
+                            skybox.GetTexture("_BackTex") as Texture2D
+                        },
+                        ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize
+                    );
+                    cacheId = Id.GetHashCode();
+                    textureId = Id.Id;
+                }
+                else if (skybox.shader.name == "Skybox/Panoramic")
+                {
+                    var Id = entry.SaveTextureHDR(skybox.GetTexture("_MainTex") as Texture2D, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, null, false);
+                    textureId = Id.Id;
+                    cacheId = Id.GetHashCode();
+                    light.specType = "2D";
+                }
+                else
+                {
+                    Utils.ThrowExcption("Only support 'Skybox/Cubemap', 'Skybox/6 Side', 'Skybox/Panormic'");
                 }
             }
 
-            if (_cache.ContainsKey(entry) && _cache[entry].ContainsKey(specMap))
+            if (_cache.ContainsKey(entry) && _cache[entry].ContainsKey(cacheId))
             {
-                extension.iblIndex = _cache[entry][specMap];
+                extension.iblIndex = _cache[entry][cacheId];
                 AddExtension(extensions, extension);
                 return;
             }
             light.specIntensity = specIntensity;
-            light.specMap = entry.SaveCubeTextureHDR(specMap, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize).Id;
+            light.specMap = textureId;
 
             globalExtension.lights.Add(light);
 
             if (!_cache.ContainsKey(entry))
             {
-                _cache[entry] = new Dictionary<Cubemap, int>();
+                _cache[entry] = new Dictionary<int, int>();
             }
 
-            _cache[entry].Add(specMap, globalExtension.lights.Count - 1);
-            extension.iblIndex = _cache[entry][specMap];
+            _cache[entry].Add(cacheId, globalExtension.lights.Count - 1);
+            extension.iblIndex = _cache[entry][cacheId];
             extension.iblType = 2;
             AddExtension(extensions, extension);
         }

@@ -566,10 +566,7 @@ namespace SeinJS
             {
                 foreach (var uniform in mat.uniformsCubeTexture)
                 {
-                    // todo: support cubemap
-                    //int diffuseTextureIndex = processTexture(uniform.value, hasTransparency ? IMAGETYPE.RGBA : IMAGETYPE.RGBA_OPAQUE);
-                    //uniform.index = diffuseTextureIndex;
-                    //uniform.texCoord = 0;
+                    uniform.id = entry.SaveCubeTexture(uniform.value);
                 }
             }
 

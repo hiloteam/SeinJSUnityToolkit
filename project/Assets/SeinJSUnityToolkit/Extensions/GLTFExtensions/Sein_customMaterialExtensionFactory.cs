@@ -59,6 +59,7 @@ namespace SeinJS
             extension.cloneForInst = material.cloneForInst;
             extension.renderOrder = material.renderOrder;
             extension.transparent = material.transparent;
+            extension.customOptions = material.customOptions;
             extension.uniformsColor = material.uniformsColor;
             extension.uniformsTexture = material.uniformsTexture;
             extension.uniformsCubeTexture = material.uniformsCubeTexture;
@@ -91,6 +92,17 @@ namespace SeinJS
                 if (extensionToken.Value["cloneForInst"] != null)
                 {
                     extension.cloneForInst = (bool)extensionToken.Value["cloneForInst"];
+                }
+                if (extensionToken.Value["options"] != null)
+                {
+                    var opts = (JObject)extensionToken.Value["options"];
+                    var customOptions = new List<SeinMaterialCustomOption>();
+
+                    foreach (var pair in opts) {
+                        customOptions.Add(new SeinMaterialCustomOption { name = pair.Key, value = (string)pair.Value });
+                    }
+
+                    extension.customOptions = customOptions.ToArray();
                 }
 
                 if (extensionToken.Value["uniforms"] != null)
@@ -259,7 +271,6 @@ namespace SeinJS
             {
                 material.SetInt("cloneForInst", 1);
             }
-
             
             material.SetInt("_Mode", (int)alphaMode);
             material.SetFloat("_Cutoff", (float)gltfMat.AlphaCutoff);

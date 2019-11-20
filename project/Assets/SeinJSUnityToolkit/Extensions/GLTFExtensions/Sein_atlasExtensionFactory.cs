@@ -60,7 +60,7 @@ namespace SeinJS
             }
             else
             {
-                extension = (Sein_atlasExtension)extensions["Sein_atlas"];
+                extension = (Sein_atlasExtension)extensions[ExtensionName];
             }
 
             var list = ENTRY_ATLASES[entry];

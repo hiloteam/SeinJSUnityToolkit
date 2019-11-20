@@ -18,11 +18,27 @@ namespace SeinJS
     public class Sein_cubeTextureExtensionFactory : SeinExtensionFactory
     {
         public override string GetExtensionName() { return "Sein_cubeTexture"; }
-        public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Texture }; }
+        public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global }; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
-            Sein_cubeTextureExtension extension = new Sein_cubeTextureExtension { images = new ImageId[6] };
+            Sein_cubeTextureExtension extension;
+
+            if (entry.root.Extensions == null)
+            {
+                entry.root.Extensions = new Dictionary<string, Extension>();
+            }
+
+            if (!extensions.ContainsKey(ExtensionName))
+            {
+                extension = new Sein_cubeTextureExtension();
+                AddExtension(extensions, extension);
+            }
+            else
+            {
+                extension = (Sein_cubeTextureExtension)extensions[ExtensionName];
+            }
+
             var cubemap = component as Cubemap;
             var opts = options as CubeTextureSaveOptions;
 
@@ -34,17 +50,30 @@ namespace SeinJS
                 faces = opts.textures;
                 for (int j = 0; j < 6; j += 1)
                 {
-                    origAssetPathes[j] = faces[j].name;
+                    origAssetPathes[j] = AssetDatabase.GetAssetPath(faces[j]);
+                    var ext = Path.GetExtension(origAssetPathes[j]);
+                    origAssetPathes[j] = origAssetPathes[j].Replace(ext, "");
                 }
             }
             else
             {
+                if (cubemap == null)
+                {
+                    Utils.ThrowExcption("It seems that cubemap is not set to material!");
+                }
+
                 faces = GetCubeMapFaces(cubemap, origAssetPathes);
             }
 
             int i = 0;
+            var images = new ImageId[6];
             foreach (var face in faces)
             {
+                if (face.width != face.height)
+                {
+                    Utils.ThrowExcption("Cube texture face must have same width and height:" + origAssetPathes[i]);
+                }
+
                 ImageId id;
 
                 if (!opts.useHDR)
@@ -56,11 +85,11 @@ namespace SeinJS
                     id = entry.SaveImageHDR(face, opts.hdrType, opts.maxSize, origAssetPathes[i]);
                 }
 
-                extension.images[i] = id;
+                images[i] = id;
                 i += 1;
             }
 
-            AddExtension(extensions, extension);
+            extension.textures.Add(new CubeTexture { images = images, sampler = opts.sampler });
         }
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
@@ -125,13 +154,13 @@ namespace SeinJS
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeX);
             GL.Begin(GL.QUADS);
             GL.TexCoord3(-1, 1, -1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, -1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(-1, 1, 1);
             GL.Vertex3(1, 0, 1);
+            GL.TexCoord3(-1, -1, -1);
+            GL.Vertex3(1, 1, 1);
+            GL.TexCoord3(-1, -1, 1);
+            GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(-1, 1, 1);
+            GL.Vertex3(0, 0, 1);
             GL.End();
             result[1].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
             origAssetPathes[1] = origAssetPath + "-1";
@@ -140,13 +169,13 @@ namespace SeinJS
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveY);
             GL.Begin(GL.QUADS);
             GL.TexCoord3(-1, 1, -1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, 1, 1);
             GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(-1, 1, 1);
+            GL.Vertex3(0, 0, 1);
             GL.TexCoord3(1, 1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, -1);
             GL.Vertex3(1, 0, 1);
+            GL.TexCoord3(1, 1, -1);
+            GL.Vertex3(1, 1, 1);
             GL.End();
             result[2].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
             origAssetPathes[2] = origAssetPath + "-2";
@@ -155,13 +184,13 @@ namespace SeinJS
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeY);
             GL.Begin(GL.QUADS);
             GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, -1);
             GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(-1, -1, -1);
+            GL.Vertex3(0, 0, 1);
             GL.TexCoord3(1, -1, -1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, -1, 1);
             GL.Vertex3(1, 0, 1);
+            GL.TexCoord3(1, -1, 1);
+            GL.Vertex3(1, 1, 1);
             GL.End();
             result[3].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
             origAssetPathes[3] = origAssetPath + "-3";
@@ -170,13 +199,13 @@ namespace SeinJS
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveZ);
             GL.Begin(GL.QUADS);
             GL.TexCoord3(1, 1, -1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(1, -1, -1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(-1, -1, -1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(-1, 1, -1);
             GL.Vertex3(1, 0, 1);
+            GL.TexCoord3(1, -1, -1);
+            GL.Vertex3(1, 1, 1);
+            GL.TexCoord3(-1, -1, -1);
+            GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(-1, 1, -1);
+            GL.Vertex3(0, 0, 1);
             GL.End();
             result[4].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
             origAssetPathes[4] = origAssetPath + "-4";
@@ -185,13 +214,13 @@ namespace SeinJS
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.NegativeZ);
             GL.Begin(GL.QUADS);
             GL.TexCoord3(-1, 1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(-1, -1, 1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, -1, 1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, 1);
             GL.Vertex3(1, 0, 1);
+            GL.TexCoord3(-1, -1, 1);
+            GL.Vertex3(1, 1, 1);
+            GL.TexCoord3(1, -1, 1);
+            GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(1, 1, 1);
+            GL.Vertex3(0, 0, 1);
             GL.End();
             result[5].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
             origAssetPathes[5] = origAssetPath + "-5";

@@ -18,7 +18,7 @@ namespace SeinJS
     public class Sein_skyboxExtensionFactory : SeinExtensionFactory
     {
         public override string GetExtensionName() { return "Sein_skybox"; }
-        public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Texture }; }
+        public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Camera }; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
@@ -68,7 +68,7 @@ namespace SeinJS
                 {
                     extension.type = ESkyboxType.Panoramic;
                     extension.textureId = entry.SaveTextureHDR(mat.GetTexture("_MainTex") as Texture2D, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize).Id;
-                    extension.degrees = mat.GetFloat("_ImageType");
+                    extension.degrees = Math.Abs(mat.GetFloat("_ImageType")) < 0.01 ? 360 : 180;
                 }
                 else
                 {

@@ -31,6 +31,7 @@ export async function createNewModels(
     const {name, url} = sources[index];
     game.event.trigger(EModelEvents.Loading, {source: {name, url}});
     await game.resource.load({type: 'GlTF', name, url});
+    console.log(game.resource.get(name));
   }
 
   // Remove all old models

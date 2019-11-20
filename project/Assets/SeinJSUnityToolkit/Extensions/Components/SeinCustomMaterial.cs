@@ -2,6 +2,7 @@
 using UnityEditor;
 using System.Collections.Generic;
 using GLTF.Schema;
+using SeinJS;
 
 public enum ESeinMaterialUniformType
 {
@@ -35,7 +36,7 @@ public class SeinMaterialUniform<TValue>
 }
 [System.Serializable] public class SeinMaterialUniformCubeTexture : SeinMaterialUniform<Cubemap> {
     [System.NonSerialized]
-    public TextureId id;
+    public CubeTextureId id;
     public SeinMaterialUniformCubeTexture() { type = ESeinMaterialUniformType.SAMPLER_CUBE; }
 }
 [System.Serializable] public class SeinMaterialUniformFloat : SeinMaterialUniform<float> { public SeinMaterialUniformFloat() { type = ESeinMaterialUniformType.FLOAT; } }
@@ -50,6 +51,12 @@ public class SeinMaterialUniform<TValue>
 [System.Serializable] public class SeinMaterialUniformIntVec2 : SeinMaterialUniform<Vector2> { public SeinMaterialUniformIntVec2() { type = ESeinMaterialUniformType.INT_VEC2; } }
 [System.Serializable] public class SeinMaterialUniformIntVec3 : SeinMaterialUniform<Vector3> { public SeinMaterialUniformIntVec3() { type = ESeinMaterialUniformType.INT_VEC3; } }
 [System.Serializable] public class SeinMaterialUniformIntVec4 : SeinMaterialUniform<Vector4> { public SeinMaterialUniformIntVec4() { type = ESeinMaterialUniformType.INT_VEC4; } }
+
+[System.Serializable] public class SeinMaterialCustomOption
+{
+    public string name;
+    public string value;
+}
 
 [CustomEditor(typeof(SeinCustomMaterial))]
 public class SeinCustomMaterialInspector : Editor
@@ -83,6 +90,9 @@ public class SeinCustomMaterialInspector : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("transparent"));
 
         var option = EEditorListOption.ListLabel | EEditorListOption.Buttons | EEditorListOption.ElementLabels;
+
+        EditorList.Show(serializedObject.FindProperty("cutomOptions"), option);
+
         var activeUniforms = GetActiveUniforms();
         foreach (string key in activeUniforms)
         {
@@ -104,6 +114,7 @@ public class SeinCustomMaterial : MonoBehaviour
     public int renderOrder = 0;
     public bool cloneForInst = false;
     public bool transparent = false;
+    public SeinMaterialCustomOption[] customOptions = { };
 
     [Header("Uniforms")]
     public SeinMaterialUniformTexture[] uniformsTexture = { };

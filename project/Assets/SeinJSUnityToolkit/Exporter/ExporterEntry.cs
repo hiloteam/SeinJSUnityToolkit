@@ -36,7 +36,6 @@ namespace SeinJS
             public BufferView view = new BufferView();
             public byte[] byteBuffer;
             public MemoryStream streamBuffer;
-            // 记得最后算ByteLength
         }
 
         public string path;
@@ -58,7 +57,7 @@ namespace SeinJS
         // key: SeinCustomMaterial componenet or UnityMateiral InistanceID
         private Dictionary<int, MaterialId> _material2ID = new Dictionary<int, MaterialId>();
         private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
-        private Dictionary<Cubemap, TextureId> _cubemap2ID = new Dictionary<Cubemap, TextureId>();
+        private Dictionary<UnityEngine.Texture, CubeTextureId> _cubemap2ID = new Dictionary<UnityEngine.Texture, CubeTextureId>();
         private Dictionary<Texture2D, ImageId> _texture2d2ImageID = new Dictionary<Texture2D, ImageId>();
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
         private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
@@ -497,7 +496,7 @@ namespace SeinJS
             return GenerateTexture(texture, imageId);
         }
 
-        public TextureId SaveCubeTexture(Cubemap texture)
+        public CubeTextureId SaveCubeTexture(Cubemap texture)
         {
             if (_cubemap2ID.ContainsKey(texture))
             {
@@ -511,38 +510,29 @@ namespace SeinJS
 
             var samplerId = GenerateSampler(texture);
 
-            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
-            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, texture, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize });
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, texture, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize, sampler = samplerId });
 
-            root.Textures.Add(gltfTexture);
-
-            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
             _cubemap2ID[texture] = id;
 
             return id;
         }
 
-        public TextureId SaveCubeTexture(Texture2D[] textures)
+        public CubeTextureId SaveCubeTexture(Texture2D[] textures)
         {
-            if (_texture2d2ID.ContainsKey(textures[0]))
+            if (_cubemap2ID.ContainsKey(textures[0]))
             {
-                return _texture2d2ID[textures[0]];
-            }
-
-            if (root.Textures == null)
-            {
-                root.Textures = new List<GLTF.Schema.Texture>();
+                return _cubemap2ID[textures[0]];
             }
 
             var samplerId = GenerateSampler(textures[0]);
 
-            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
-            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, null, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize, textures = textures });
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, null, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize, textures = textures, sampler = samplerId });
 
-            root.Textures.Add(gltfTexture);
-
-            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
-            _texture2d2ID[textures[0]] = id;
+            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
+            _cubemap2ID[textures[0]] = id;
 
             return id;
         }
@@ -630,75 +620,61 @@ namespace SeinJS
             return data;
         }
 
-        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
+        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null, bool filpY = true)
         {
-            if (type != EHDRTextureType.RGBD)
-            {
-                Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
-            }
-
             if (_texture2d2ID.ContainsKey(texture))
             {
                 return _texture2d2ID[texture];
             }
 
-            var imageId = SaveImageHDR(texture, type, maxSize, path);
+            var imageId = SaveImageHDR(texture, type, maxSize, path, filpY);
 
             return GenerateTexture(texture, imageId);
         }
 
-        public TextureId SaveCubeTextureHDR(Cubemap texture, EHDRTextureType type, int maxSize = -1)
+        public CubeTextureId SaveCubeTextureHDR(Cubemap texture, EHDRTextureType type, int maxSize = -1)
         {
             if (_cubemap2ID.ContainsKey(texture))
             {
                 return _cubemap2ID[texture];
             }
 
-            if (root.Textures == null)
-            {
-                root.Textures = new List<GLTF.Schema.Texture>();
-            }
-
             var samplerId = GenerateSampler(texture);
 
-            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
-            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, texture, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type});
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(extName, this, root.Extensions, texture, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type, sampler = samplerId});
 
-            root.Textures.Add(gltfTexture);
-
-            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
             _cubemap2ID[texture] = id;
 
             return id;
         }
 
-        public TextureId SaveCubeTextureHDR(Texture2D[] textures, EHDRTextureType type, int maxSize = -1)
+        public CubeTextureId SaveCubeTextureHDR(Texture2D[] textures, EHDRTextureType type, int maxSize = -1)
         {
-            if (_texture2d2ID.ContainsKey(textures[0]))
+            if (_cubemap2ID.ContainsKey(textures[0]))
             {
-                return _texture2d2ID[textures[0]];
-            }
-
-            if (root.Textures == null)
-            {
-                root.Textures = new List<GLTF.Schema.Texture>();
+                return _cubemap2ID[textures[0]];
             }
 
             var samplerId = GenerateSampler(textures[0]);
 
-            var gltfTexture = new GLTF.Schema.Texture { Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
-            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, gltfTexture.Extensions, null, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type, textures = textures});
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(extName, this, root.Extensions, null, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type, textures = textures, sampler = samplerId });
 
-            root.Textures.Add(gltfTexture);
-
-            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
-            _texture2d2ID[textures[0]] = id;
+            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
+            _cubemap2ID[textures[0]] = id;
 
             return id;
         }
 
-        public ImageId SaveImageHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null)
+        public ImageId SaveImageHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null, bool flipY = true)
         {
+            if (type != EHDRTextureType.RGBD)
+            {
+                Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
+            }
+
             if (_texture2d2ImageID.ContainsKey(texture))
             {
                 return _texture2d2ImageID[texture];
@@ -717,7 +693,7 @@ namespace SeinJS
             var exportPath = pathes[0];
             var pathInGlTF = pathes[1];
 
-            var newtex = GLTFTextureUtils.HDR2RGBD(texture);
+            var newtex = GLTFTextureUtils.HDR2RGBD(texture, flipY);
 
             if (maxSize > 0 && (newtex.width > maxSize || newtex.height > maxSize))
             {

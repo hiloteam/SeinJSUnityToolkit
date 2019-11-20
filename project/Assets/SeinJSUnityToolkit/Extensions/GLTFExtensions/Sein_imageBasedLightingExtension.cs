@@ -21,6 +21,7 @@ namespace SeinJS
             public int brdfLUT;
             public int specMap;
             public float specIntensity;
+            public string specType;
         }
 
         public bool isGlobal = false;
@@ -62,7 +63,7 @@ namespace SeinJS
                     if (light.specMap != -1)
                     {
                         l.Add("specular", new JObject(
-                            new JProperty("type", "CUBE"),
+                            new JProperty("type", light.specType),
                             new JProperty("intensity", light.specIntensity),
                             new JProperty("brdfLUT", new JObject(new JProperty("index", light.brdfLUT))),
                             new JProperty("map", new JObject(new JProperty("index", light.specMap)))

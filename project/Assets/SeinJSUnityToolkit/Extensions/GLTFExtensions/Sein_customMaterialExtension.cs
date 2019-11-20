@@ -28,6 +28,8 @@ namespace SeinJS
         public bool cloneForInst = false;
         public bool transparent = false;
 
+        public SeinMaterialCustomOption[] customOptions = { };
+
         public SeinMaterialUniformTexture[] uniformsTexture = { };
         public SeinMaterialUniformCubeTexture[] uniformsCubeTexture = { };
         public SeinMaterialUniformFloat[] uniformsFloat = { };
@@ -60,6 +62,13 @@ namespace SeinJS
             res.Add("className", className);
             res.Add("renderOrder", renderOrder);
             res.Add("cloneForInst", cloneForInst);
+
+            var options = new JObject();
+            res.Add("options", options);
+            foreach(SeinMaterialCustomOption option in customOptions)
+            {
+                options.Add(option.name, option.value);
+            }
 
             var uniforms = new JObject();
             res.Add("uniforms", uniforms);
@@ -170,6 +179,7 @@ namespace SeinJS
             mat.cloneForInst = cloneForInst;
             mat.renderOrder = renderOrder;
             mat.transparent = transparent;
+            mat.customOptions = customOptions;
             mat.uniformsColor = uniformsColor;
             mat.uniformsTexture = uniformsTexture;
             mat.uniformsCubeTexture = uniformsCubeTexture;

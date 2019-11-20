@@ -13,6 +13,18 @@ using UnityEngine;
 
 namespace SeinJS
 {
+    public class CubeTextureId : GLTF.Schema.GLTFId<CubeTexture>
+    {
+        public override CubeTexture Value
+        {
+            get
+            {
+                var ext = (Sein_cubeTextureExtension)Root.Extensions[ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory))];
+                return ext.textures[Id];
+            }
+        }
+    }
+
     public class CubeTextureSaveOptions
     {
         public int maxSize = -1;
@@ -20,24 +32,38 @@ namespace SeinJS
         public EHDRTextureType hdrType = EHDRTextureType.RGBD;
         // 6 side
         public Texture2D[] textures = null;
+        public SamplerId sampler;
+    }
+
+    public class CubeTexture
+    {
+        public ImageId[] images;
+        public SamplerId sampler;
     }
 
     public class Sein_cubeTextureExtension : Extension
     {
-        
-        public ImageId[] images;
+        public List<CubeTexture> textures = new List<CubeTexture>();
 
         public JProperty Serialize()
         {
             var value = new JArray();
 
-            foreach (var image in images)
+            foreach (var tex in textures)
             {
-                value.Add(image.Id);
+                var images = new int[6];
+                for (var i = 0; i < 6; i += 1)
+                {
+                    images[i] = tex.images[i].Id;
+                }
+                value.Add(new JObject(
+                    new JProperty("images", JArray.FromObject(images)),
+                    new JProperty("sampler", tex.sampler.Id)
+                ));
             }
 
             return new JProperty(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), new JObject(
-                new JProperty("images", value)
+                new JProperty("textures", value)
             ));
         }
     }

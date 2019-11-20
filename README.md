@@ -35,3 +35,5 @@ http://seinjs.com/cn/guide/unity
 19. Support SeinJS Sprite.
 20. Support SeinJS Material Scripts.
 21. Support preview and inspector.
+22. Support cubmap.
+23. Support skybox.

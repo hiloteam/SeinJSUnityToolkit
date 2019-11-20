@@ -32,7 +32,7 @@ namespace SeinJS
         public float exposure;
 
         // panoramic
-        public float degrees;
+        public int degrees;
 
         //@todo: procedural
 
@@ -57,13 +57,12 @@ namespace SeinJS
             }
             else if (type == ESkyboxType.Cube)
             {
-                value.Add("textureId", new JObject(new JProperty("index", textureId)));
+                value.Add("texture", new JObject(new JProperty("index", textureId)));
                 value.Add("rotation", rotation);
                 value.Add("exposure", exposure);
             } else if (type == ESkyboxType.Panoramic)
             {
-                value.Add("color", JObject.FromObject(color));
-                value.Add("textureId", new JObject(new JProperty("index", textureId)));
+                value.Add("texture", new JObject(new JProperty("index", textureId)));
                 value.Add("rotation", rotation);
                 value.Add("exposure", exposure);
                 value.Add("degrees", degrees);
