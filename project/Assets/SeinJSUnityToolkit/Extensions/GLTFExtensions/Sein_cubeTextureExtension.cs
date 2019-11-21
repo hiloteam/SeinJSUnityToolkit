@@ -28,8 +28,9 @@ namespace SeinJS
     public class CubeTextureSaveOptions
     {
         public int maxSize = -1;
-        public bool useHDR = false;
-        public EHDRTextureType hdrType = EHDRTextureType.RGBD;
+        public bool hasTransparency = false;
+        public string path = null;
+        public EHDRTextureType hdrType = EHDRTextureType.DEFAULT;
         // 6 side
         public Texture2D[] textures = null;
         public SamplerId sampler;

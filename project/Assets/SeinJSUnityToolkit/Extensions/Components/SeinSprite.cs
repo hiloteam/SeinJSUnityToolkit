@@ -45,8 +45,12 @@ public class SeinSprite : MonoBehaviour
             var meshPath = SPRITE_DATA_DIR_PATH + "/" + GetInstanceID().ToString() + ".asset";
             AssetDatabase.CreateAsset(_mesh, meshPath);
             _mesh = AssetDatabase.LoadAssetAtPath<Mesh>(meshPath);
-            gameObject.AddComponent<MeshFilter>().mesh = _mesh;
+            gameObject.AddComponent<MeshFilter>().sharedMesh = _mesh;
+        } else if (_mesh == null)
+        {
+            _mesh = GetComponent<MeshFilter>().sharedMesh;
         }
+
         var vs = new Vector3[] {
             new Vector3(-width / 2, height / 2, 0),
             new Vector3(width / 2, height / 2, 0),
@@ -83,6 +87,19 @@ public class SeinSprite : MonoBehaviour
     {
         var tex = atlas.Get(frameName);
         _material.SetTexture("_MainTex", tex);
+    }
+
+    public void Awake()
+    {
+        if (_mesh == null && GetComponent<MeshFilter>())
+        {
+            _mesh = GetComponent<MeshFilter>().sharedMesh;
+
+            if (GetComponent<MeshRenderer>())
+            {
+                _material = GetComponent<MeshRenderer>().sharedMaterial;
+            }
+        }
     }
 
     public void OnValidate()

@@ -37,7 +37,7 @@ namespace SeinJS {
 
         // UI dimensions (to be cleaned)
         [SerializeField]
-	    Vector2 fullSize = new Vector2(520, 680);
+	    Vector2 fullSize = new Vector2(520, 730);
 
 	    // Exporter UI: static elements
 	    [SerializeField]
@@ -140,6 +140,7 @@ namespace SeinJS {
             GUILayout.EndHorizontal();
 
             ExporterSettings.Export.splitChunks = EditorGUILayout.Toggle("Split chunks(分割物体)", ExporterSettings.Export.splitChunks);
+            ExporterSettings.Export.skybox = EditorGUILayout.Toggle("Export skybox(输出天空盒)", ExporterSettings.Export.skybox);
 
             GUILayout.Space(12);
             GUILayout.Label("Normal Texture Settings(一般纹理设置)", EditorStyles.boldLabel);
@@ -147,7 +148,7 @@ namespace SeinJS {
             ExporterSettings.NormalTexture.opaqueType = (ENormalTextureType)EditorGUILayout.EnumPopup("Opaque image type(不透明纹理)", ExporterSettings.NormalTexture.opaqueType);
             ExporterSettings.NormalTexture.transparentType = (ENormalTextureType)EditorGUILayout.EnumPopup("Transparent image type(透明纹理)", ExporterSettings.NormalTexture.transparentType);
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Texture max size(纹理尺寸限制)");
+            GUILayout.Label("Texture max size(默认纹理尺寸限制)");
             GUILayout.FlexibleSpace();
             ExporterSettings.NormalTexture.maxSize = EditorGUILayout.IntField(ExporterSettings.NormalTexture.maxSize);
             GUILayout.EndHorizontal();
@@ -159,22 +160,29 @@ namespace SeinJS {
             ExporterSettings.NormalTexture.pngFormat = (EPNGTextureFormat)EditorGUILayout.EnumPopup("Texture png format(PNG内部格式)", ExporterSettings.NormalTexture.pngFormat);
 
             GUILayout.Space(12);
+            GUILayout.Label("HDR Settings(HDR设置)", EditorStyles.boldLabel);
+            ExporterSettings.HDR.type = (EHDRTextureType)EditorGUILayout.EnumPopup("HDR纹理编码类型", ExporterSettings.HDR.type);
+
+            GUILayout.Space(12);
+            GUILayout.Label("CubeTexture Settings(立方体纹理设置)", EditorStyles.boldLabel);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Texture max size(默认纹理尺寸限制)");
+            GUILayout.FlexibleSpace();
+            ExporterSettings.CubeTexture.maxSize = EditorGUILayout.IntField(ExporterSettings.CubeTexture.maxSize);
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(12);
             GUILayout.Label("Lighting Settings(光照设置)", EditorStyles.boldLabel);
             ExporterSettings.Lighting.ambient = EditorGUILayout.Toggle("Export ambient light(输出环境光)", ExporterSettings.Lighting.ambient);
 
-            GUILayout.Space(8);
             ExporterSettings.Lighting.lightMap = EditorGUILayout.Toggle("Export light map(输出光照贴图)", ExporterSettings.Lighting.lightMap);
-            ExporterSettings.Lighting.lightMapType = (EHDRTextureType)EditorGUILayout.EnumPopup("Light map image type(编码类型)", ExporterSettings.Lighting.lightMapType);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Light map max size(贴图尺寸限制)");
             GUILayout.FlexibleSpace();
             ExporterSettings.Lighting.lightMapSize = EditorGUILayout.IntField(ExporterSettings.Lighting.lightMapSize);
             GUILayout.EndHorizontal();
 
-            GUILayout.Space(8);
-            ExporterSettings.Lighting.skybox = EditorGUILayout.Toggle("Export skybox(输出天空盒)", ExporterSettings.Lighting.skybox);
             ExporterSettings.Lighting.reflection = EditorGUILayout.Toggle("Export reflection(输出全局反射)", ExporterSettings.Lighting.reflection);
-            ExporterSettings.Lighting.reflectionType = (EHDRTextureType)EditorGUILayout.EnumPopup("Reflection map image type(编码类型)", ExporterSettings.Lighting.reflectionType);
             GUILayout.BeginHorizontal();
             GUILayout.Label("Reflection map max size(贴图尺寸限制)");
             GUILayout.FlexibleSpace();

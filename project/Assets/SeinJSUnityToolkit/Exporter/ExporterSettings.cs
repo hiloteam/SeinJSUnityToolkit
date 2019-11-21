@@ -25,6 +25,7 @@ namespace SeinJS
 
     public enum EHDRTextureType
 	{
+        DEFAULT,
 		RGBD,
 		HDR,
 		EXR
@@ -37,6 +38,7 @@ namespace SeinJS
 			public static string folder = "";
 			public static string name = "";
             public static bool splitChunks = false;
+            public static bool skybox = true;
 
             public static void UpdateFolder(string folder)
 			{
@@ -82,15 +84,22 @@ namespace SeinJS
 			public static int jpgQulity = 85;
 		}
 
-		public class Lighting {
+        public class HDR
+        {
+            public static EHDRTextureType type = EHDRTextureType.RGBD;
+        }
+
+        public class CubeTexture
+        {
+            public static int maxSize = 512;
+        }
+
+        public class Lighting {
             public static bool ambient = true;
 			public static bool lightMap = true;
 			public static int lightMapSize = 1024;
-			public static EHDRTextureType lightMapType = EHDRTextureType.RGBD;
-            public static bool skybox = true;
             public static bool reflection = true;
             public static int reflectionSize = 1024;
-			public static EHDRTextureType reflectionType = EHDRTextureType.RGBD;
-		}
+        }
 	}
 }

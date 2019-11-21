@@ -1978,7 +1978,6 @@ function generateActorOrComponentFromNode(node, parentActor, parent, isComponent
             if (!mesh.isSkinedMesh) {
                 break;
             }
-            mesh.material.gammaCorrection = false;
             meshes.push(mesh);
             node.childrenOffset += 1;
         }
@@ -2002,7 +2001,6 @@ function generateActorOrComponentFromNode(node, parentActor, parent, isComponent
             if (!mesh.isMesh) {
                 break;
             }
-            mesh.material.gammaCorrection = false;
             meshes.push(mesh);
             node.childrenOffset += 1;
         }

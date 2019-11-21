@@ -484,19 +484,24 @@ namespace SeinJS
             return id;
         }
 
-        public TextureId SaveTexture(Texture2D texture, bool hasTransparency, string path = null)
+        public TextureId SaveTexture(Texture2D texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.RGBD, bool flipY = true)
         {
             if (_texture2d2ID.ContainsKey(texture))
             {
                 return _texture2d2ID[texture];
             }
 
-            var imageId = SaveImage(texture, hasTransparency, path);
+            if (maxSize == -1)
+            {
+                maxSize = ExporterSettings.NormalTexture.maxSize;
+            }
+
+            var imageId = SaveImage(texture, hasTransparency, path, maxSize, hdrType, flipY);
 
             return GenerateTexture(texture, imageId);
         }
 
-        public CubeTextureId SaveCubeTexture(Cubemap texture)
+        public CubeTextureId SaveCubeTexture(Cubemap texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT)
         {
             if (_cubemap2ID.ContainsKey(texture))
             {
@@ -508,10 +513,17 @@ namespace SeinJS
                 root.Textures = new List<GLTF.Schema.Texture>();
             }
 
+            if (maxSize == -1)
+            {
+                maxSize = ExporterSettings.CubeTexture.maxSize;
+            }
+
             var samplerId = GenerateSampler(texture);
 
             var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
-            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, texture, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize, sampler = samplerId });
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, texture, new CubeTextureSaveOptions{
+                maxSize = maxSize, sampler = samplerId, hasTransparency = hasTransparency, path = path, hdrType = hdrType
+            });
 
             var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
             _cubemap2ID[texture] = id;
@@ -519,7 +531,7 @@ namespace SeinJS
             return id;
         }
 
-        public CubeTextureId SaveCubeTexture(Texture2D[] textures)
+        public CubeTextureId SaveCubeTexture(Texture2D[] textures, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT)
         {
             if (_cubemap2ID.ContainsKey(textures[0]))
             {
@@ -528,23 +540,47 @@ namespace SeinJS
 
             var samplerId = GenerateSampler(textures[0]);
 
-            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
-            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, null, new CubeTextureSaveOptions{ useHDR = false, maxSize = ExporterSettings.NormalTexture.maxSize, textures = textures, sampler = samplerId });
+            if (maxSize == -1)
+            {
+                maxSize = ExporterSettings.CubeTexture.maxSize;
+            }
 
-            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, null, new CubeTextureSaveOptions{
+                maxSize = maxSize, textures = textures, sampler = samplerId, hasTransparency = hasTransparency, path = path, hdrType = hdrType
+            });
+
+             var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
             _cubemap2ID[textures[0]] = id;
 
             return id;
         }
 
-        public ImageId SaveImage(Texture2D texture, bool hasTransparency, string path = null, bool exportAsOrig = false)
+        public ImageId SaveImage(Texture2D texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT, bool flipY = true)
         {
             if (_texture2d2ImageID.ContainsKey(texture))
             {
                 return _texture2d2ImageID[texture];
             }
 
+            bool isHDR = texture.format == TextureFormat.RGBAHalf || texture.format == TextureFormat.RGBAFloat;
             string format = ".png";
+
+            if (isHDR)
+            {
+                if (hdrType == EHDRTextureType.DEFAULT)
+                {
+                    hdrType = ExporterSettings.HDR.type;
+                }
+
+                if (hdrType != EHDRTextureType.RGBD)
+                {
+                    Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
+                }
+
+                texture = GLTFTextureUtils.HDR2RGBD(texture);
+                format = ".png";
+            }
             if (!hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
             {
                 format = ".jpg";
@@ -565,13 +601,12 @@ namespace SeinJS
             var pathInGlTF = pathes[1];
 
             byte[] content = { };
-            if (!exportAsOrig)
+            if (flipY)
             {
                 var tex = TextureFlipY(
                     texture,
                     null,
                     newtex => {
-                        var maxSize = ExporterSettings.NormalTexture.maxSize;
                         if (newtex.width > maxSize || newtex.height > maxSize)
                         {
                             TextureScale.Bilinear(newtex, maxSize, maxSize);
@@ -592,6 +627,11 @@ namespace SeinJS
             {
                 Utils.DoActionForTexture(ref texture, tex =>
                 {
+                    if (tex.width > maxSize || tex.height > maxSize)
+                    {
+                        TextureScale.Bilinear(tex, maxSize, maxSize);
+                    }
+
                     if (format == ".png")
                     {
                         content = GetPNGData(tex);
@@ -618,91 +658,6 @@ namespace SeinJS
             var data = tex.EncodeToPNG();
 
             return data;
-        }
-
-        public TextureId SaveTextureHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null, bool filpY = true)
-        {
-            if (_texture2d2ID.ContainsKey(texture))
-            {
-                return _texture2d2ID[texture];
-            }
-
-            var imageId = SaveImageHDR(texture, type, maxSize, path, filpY);
-
-            return GenerateTexture(texture, imageId);
-        }
-
-        public CubeTextureId SaveCubeTextureHDR(Cubemap texture, EHDRTextureType type, int maxSize = -1)
-        {
-            if (_cubemap2ID.ContainsKey(texture))
-            {
-                return _cubemap2ID[texture];
-            }
-
-            var samplerId = GenerateSampler(texture);
-
-            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
-            ExtensionManager.Serialize(extName, this, root.Extensions, texture, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type, sampler = samplerId});
-
-            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
-            _cubemap2ID[texture] = id;
-
-            return id;
-        }
-
-        public CubeTextureId SaveCubeTextureHDR(Texture2D[] textures, EHDRTextureType type, int maxSize = -1)
-        {
-            if (_cubemap2ID.ContainsKey(textures[0]))
-            {
-                return _cubemap2ID[textures[0]];
-            }
-
-            var samplerId = GenerateSampler(textures[0]);
-
-            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
-            ExtensionManager.Serialize(extName, this, root.Extensions, null, new CubeTextureSaveOptions { useHDR = true, maxSize = maxSize, hdrType = type, textures = textures, sampler = samplerId });
-
-            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
-            _cubemap2ID[textures[0]] = id;
-
-            return id;
-        }
-
-        public ImageId SaveImageHDR(Texture2D texture, EHDRTextureType type, int maxSize = -1, string path = null, bool flipY = true)
-        {
-            if (type != EHDRTextureType.RGBD)
-            {
-                Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
-            }
-
-            if (_texture2d2ImageID.ContainsKey(texture))
-            {
-                return _texture2d2ImageID[texture];
-            }
-
-            string format = ".png";
-            string[] pathes;
-            if (path == null)
-            {
-                pathes = GetTextureOutPath(texture, format);
-            }
-            else
-            {
-                pathes = ExporterUtils.GetAssetOutPath(path, format);
-            }
-            var exportPath = pathes[0];
-            var pathInGlTF = pathes[1];
-
-            var newtex = GLTFTextureUtils.HDR2RGBD(texture, flipY);
-
-            if (maxSize > 0 && (newtex.width > maxSize || newtex.height > maxSize))
-            {
-                TextureScale.Bilinear(newtex, maxSize, maxSize);
-            }
-
-            byte[] content = newtex.EncodeToPNG();
-
-            return GenerateImage(content, exportPath, pathInGlTF);
         }
 
         private ImageId GenerateImage(byte[] content, string exportPath, string pathInGltf)
@@ -918,7 +873,7 @@ namespace SeinJS
                 };
             }
 
-            if (ExporterSettings.Lighting.skybox) {
+            if (ExporterSettings.Export.skybox) {
                 cam.Extensions = new Dictionary<string, Extension>();
                 ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_skyboxExtensionFactory)), this, cam.Extensions, camera);
             }

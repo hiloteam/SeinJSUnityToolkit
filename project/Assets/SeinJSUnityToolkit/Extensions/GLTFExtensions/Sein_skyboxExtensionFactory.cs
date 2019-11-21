@@ -28,7 +28,7 @@ namespace SeinJS
             if (camera.clearFlags == CameraClearFlags.SolidColor)
             {
                 extension.type = ESkyboxType.Color;
-                extension.color = Utils.ExportColor(camera.backgroundColor);
+                extension.color = Utils.ExportColor(camera.backgroundColor, true);
             }
             else if (camera.clearFlags == CameraClearFlags.Skybox)
             {
@@ -41,33 +41,34 @@ namespace SeinJS
                 }
 
                 extension.color = Utils.ExportColor(mat.GetColor("_Tint"));
-                extension.rotation = mat.GetFloat("_Rotation") / 180 * (float)Math.PI;
-                extension.exposure = mat.GetFloat("_Exposure") / 180 * (float)Math.PI;
+                extension.rotation = mat.GetFloat("_Rotation") / 360 * (float)Math.PI;
+                extension.exposure = mat.GetFloat("_Exposure");
+                extension.factor = PlayerSettings.colorSpace == ColorSpace.Gamma ? 2f : 4.549f;
 
                 if (mat.shader.name == "Skybox/Cubemap")
                 {
                     extension.type = ESkyboxType.Cube;
-                    extension.textureId = entry.SaveCubeTextureHDR(mat.GetTexture("_Tex") as Cubemap, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize).Id;
+                    var cubemap = mat.GetTexture("_Tex") as Cubemap;
+                    extension.textureId = entry.SaveCubeTexture(cubemap).Id;
                 }
                 else if (mat.shader.name == "Skybox/6 Sided")
                 {
                     extension.type = ESkyboxType.Cube;
-                    extension.textureId = entry.SaveCubeTextureHDR(
-                        new Texture2D[] {
-                            mat.GetTexture("_RightTex") as Texture2D,
-                            mat.GetTexture("_LeftTex") as Texture2D,
-                            mat.GetTexture("_UpTex") as Texture2D,
-                            mat.GetTexture("_DownTex") as Texture2D,
-                            mat.GetTexture("_FrontTex") as Texture2D,
-                            mat.GetTexture("_BackTex") as Texture2D
-                        },
-                        ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize
-                    ).Id;
+                    var texes = new Texture2D[] {
+                        mat.GetTexture("_RightTex") as Texture2D,
+                        mat.GetTexture("_LeftTex") as Texture2D,
+                        mat.GetTexture("_UpTex") as Texture2D,
+                        mat.GetTexture("_DownTex") as Texture2D,
+                        mat.GetTexture("_FrontTex") as Texture2D,
+                        mat.GetTexture("_BackTex") as Texture2D
+                    };
+                    extension.textureId = entry.SaveCubeTexture(texes).Id;
                 }
                 else if (mat.shader.name == "Skybox/Panoramic")
                 {
                     extension.type = ESkyboxType.Panoramic;
-                    extension.textureId = entry.SaveTextureHDR(mat.GetTexture("_MainTex") as Texture2D, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize).Id;
+                    var map = mat.GetTexture("_MainTex") as Texture2D;
+                    extension.textureId = entry.SaveTexture(map, false).Id;
                     extension.degrees = Math.Abs(mat.GetFloat("_ImageType")) < 0.01 ? 360 : 180;
                 }
                 else

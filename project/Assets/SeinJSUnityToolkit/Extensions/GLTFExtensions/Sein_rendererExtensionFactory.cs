@@ -43,7 +43,7 @@ namespace SeinJS
                     Vector4 lightmapScaleOffset = mr.lightmapScaleOffset;
                     var lightData = LightmapSettings.lightmaps[lightmapIndex];
                     var lightTexture = lightData.lightmapColor;
-                    var lightTextureIndex = entry.SaveTextureHDR(lightTexture, ExporterSettings.Lighting.lightMapType, ExporterSettings.Lighting.lightMapSize);
+                    var lightTextureIndex = entry.SaveTexture(lightTexture, maxSize: ExporterSettings.Lighting.lightMapSize);
                     extension.uvScale = new Vector2(lightmapScaleOffset.x, lightmapScaleOffset.y);
                     extension.uvOffset = new Vector2(lightmapScaleOffset.z, lightmapScaleOffset.w);
                     extension.lightMapIndex = lightTextureIndex.Id;

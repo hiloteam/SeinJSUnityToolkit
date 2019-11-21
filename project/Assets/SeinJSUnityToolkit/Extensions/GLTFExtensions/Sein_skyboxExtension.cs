@@ -24,6 +24,7 @@ namespace SeinJS
         public ESkyboxType type;
 
         // color, panoramic, cubemap
+        public float factor;
         public GLTF.Math.Color color;
 
         // cubemap, panoramic
@@ -39,7 +40,8 @@ namespace SeinJS
         public JProperty Serialize()
         {
             var value = new JObject(
-                new JProperty("type", type.ToString())
+                new JProperty("type", type.ToString()),
+                new JProperty("factor", factor)
             );
 
             if (color != null)

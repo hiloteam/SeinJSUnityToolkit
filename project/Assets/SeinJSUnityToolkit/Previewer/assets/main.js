@@ -164,7 +164,7 @@
 
 
 /**
- * Hilo3d 1.13.33
+ * Hilo3d 1.13.36
  * Copyright (c) 2017-present Alibaba Group Holding Ltd.
  * @license MIT
  */
@@ -14996,6 +14996,39 @@ var GeometryData = core_Class.create(
   },
 
   /**
+   * 更新部分数据
+   * @param {Number} offset 偏移index
+   * @param {TypedArray} data 数据
+   */
+  setSubData: function setSubData(offset, data) {
+    var _this = this;
+
+    this.isDirty = true;
+    var byteOffset = data.BYTES_PER_ELEMENT * offset;
+    data.forEach(function (value, index) {
+      _this.data[index + offset] = value;
+    });
+
+    if (!this.subDataList) {
+      this.subDataList = [];
+    }
+
+    this.subDataList.push({
+      byteOffset: byteOffset,
+      data: data
+    });
+  },
+
+  /**
+   * 清除 subData
+   */
+  clearSubData: function clearSubData() {
+    if (this.subDataList) {
+      this.subDataList.length = 0;
+    }
+  },
+
+  /**
    * clone
    * @return {GeometryData}
    */
@@ -17911,7 +17944,7 @@ var Buffer = core_Class.create(
     this.buffer = gl.createBuffer();
 
     if (data) {
-      this.upload(data);
+      this.bufferData(data);
     }
   },
 
@@ -17927,23 +17960,51 @@ var Buffer = core_Class.create(
   /**
    * 上传数据
    * @param  {TypedArray} data
-   * @param  {Number} [offset=0] 偏移值
    * @return {Buffer} this
    */
-  upload: function upload(data) {
-    var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+  bufferData: function bufferData(data) {
     var gl = this.gl,
         target = this.target,
         usage = this.usage;
     this.bind();
+    gl.bufferData(target, data, usage);
+    this.data = data;
+    return this;
+  },
 
-    if (!this.data || this.data.byteLength < data.byteLength) {
-      gl.bufferData(target, data, usage);
+  /**
+   * 上传部分数据
+   * @param  {Number} byteOffset
+   * @param  {TypedArray} data
+   * @return {Buffer} this
+   */
+  bufferSubData: function bufferSubData(byteOffset, data) {
+    var gl = this.gl,
+        target = this.target;
+    this.bind();
+    gl.bufferSubData(target, byteOffset, data);
+    return this;
+  },
+
+  /**
+   * @param  {GeometryData} geometryData
+   * @return {Buffer} this
+   */
+  uploadGeometryData: function uploadGeometryData(geometryData) {
+    var _this = this;
+
+    geometryData.isDirty = false;
+    var subDataList = geometryData.subDataList;
+
+    if (subDataList && subDataList.length) {
+      subDataList.forEach(function (subData) {
+        _this.bufferSubData(subData.byteOffset, subData.data);
+      });
+      geometryData.clearSubData();
     } else {
-      gl.bufferSubData(target, offset, data);
+      this.bufferData(geometryData.data);
     }
 
-    this.data = data;
     return this;
   },
 
@@ -18299,7 +18360,7 @@ var VertexArrayObject = core_Class.create(
       geometryData.isDirty = false;
     } else if (geometryData.isDirty) {
       geometryData.isDirty = false;
-      buffer.upload(geometryData.data);
+      buffer.uploadGeometryData(geometryData);
       this.vertexCount = geometryData.length;
     }
 
@@ -18340,7 +18401,7 @@ var VertexArrayObject = core_Class.create(
       }
     } else if (geometryData.isDirty) {
       geometryData.isDirty = false;
-      attributeObject.buffer.upload(geometryData.data);
+      attributeObject.buffer.uploadGeometryData(geometryData);
     }
 
     return attributeObject;
@@ -23294,6 +23355,68 @@ var AliAMCExtension = {
 
 var SAMPLER_2D = src_constants.SAMPLER_2D;
 
+/**
+ * GLTFExtension Handler 接口
+ * @class
+ */
+
+function IGLTFExtensionHandler() {}
+/*eslint-disable */
+
+
+IGLTFExtensionHandler.prototype =
+/** @lends IGLTFExtensionHandler.prototype */
+{
+  /**
+   * 解析元素扩展
+   * @param  extensionData {Object} 扩展数据
+   * @param  parser {GLTFParser} parser
+   * @param  element {Object} parse的元素，e.g. material, mesh, geometry
+   * @param  options {Object}
+   * @return {Object} 一般需要返回原始元素或者替换的新的元素
+   */
+  parse: function parse(extensionData, parser, element, options) {},
+
+  /**
+   * 解析全局扩展，在资源加载后执行
+   * @param  extensionData {Object} 扩展数据
+   * @param  parser {GLTFParser} parser
+   * @param  element {Object} parse的元素，这里为 null
+   * @param  options {Object}
+   */
+  parseOnLoad: function parseOnLoad(extensionData, parser, element, options) {},
+
+  /**
+   * 解析全局扩展，在所有元素解析结束后执行
+   * @param  extensionData {Object} 扩展数据
+   * @param  parser {GLTFParser} parser
+   * @param  element {Model} parse的元素，这里为加载后的model，{node, scene, meshes, json, cameras, lights, textures, materials}
+   * @param  options {Object}
+   */
+  parseOnEnd: function parseOnEnd(extensionData, parser, element, options) {},
+
+  /**
+   * 初始化全局扩展，在加载前执行，可进行添加需要加载的资源
+   * @param {GLTFLoader} gltfLoader
+   * @param {GLTFParser} parser
+   */
+  init: function init(loader, parser) {},
+
+  /**
+   * 获取扩展用到的贴图信息, parser.isLoadAllTextures 为 false 时生效
+   * @param  extensionData {Object} 扩展数据
+   * @param  map {Object} used texture map
+   * @example
+   * getUsedTextureNameMap(extension, map) {
+   *     if (extension.diffuseTexture) {
+   *         map[extension.diffuseTexture.index] = true;
+   *     }
+   * }
+   */
+  getUsedTextureNameMap: function getUsedTextureNameMap(extensionData, map) {}
+};
+/* eslint-enable */
+
 var WEB3D_quantized_attributes = {
   unQuantizeData: function unQuantizeData(data, decodeMat) {
     if (!decodeMat) {
@@ -24351,7 +24474,7 @@ var SkinedMesh = core_Class.create(
 /* harmony default export */ var core_SkinedMesh = (SkinedMesh);
 // CONCATENATED MODULE: ./src/core/version.js
 /* global HILO3D_VERSION */
-/* harmony default export */ var core_version = ("1.13.33");
+/* harmony default export */ var core_version = ("1.13.36");
 // CONCATENATED MODULE: ./src/renderer/RenderInfo.js
 
 /**
@@ -29234,7 +29357,9 @@ var GLTFParser = core_Class.create(
    * @type {string}
    */
   className: 'GLTFParser',
-  Statics: {
+  Statics:
+  /** @lends GLTFParser */
+  {
     MAGIC: 'glTF',
 
     /**
@@ -29246,7 +29371,7 @@ var GLTFParser = core_Class.create(
     /**
      * 注册扩展接口
      * @param  {String} extensionName 接口名称
-     * @param  {Object} handler
+     * @param  {IGLTFExtensionHandler} handler 接口
      */
     registerExtensionHandler: function registerExtensionHandler(extensionName, handler) {
       this.extensionHandlers[extensionName] = handler;
@@ -35765,16 +35890,6 @@ var CameraComponent = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(CameraComponent.prototype, "radius", {
-        /**
-         * 相机渲染范围。
-         */
-        get: function () {
-            throw new Error('Not implemented !');
-        },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * 修改天空盒材质。
      */
@@ -35799,7 +35914,7 @@ var CameraComponent = /** @class */ (function (_super) {
     };
     CameraComponent.prototype.generateSkybox = function (mat) {
         if (this._background) {
-            this._node.removeChild(this._background);
+            this.getGame().hiloStage.removeChild(this._background);
             this._background = null;
         }
         if (!mat) {
@@ -35812,20 +35927,19 @@ var CameraComponent = /** @class */ (function (_super) {
             return;
         }
         this._backgroundMat = mat;
-        var radius = this.radius;
         if (mat.type === 'Panoramic') {
             this._background = new Mesh_1.default({
-                geometry: new SphereGeometry_1.default({ radius: radius }),
+                geometry: new SphereGeometry_1.default({ radius: 1 }),
                 material: this._backgroundMat
             });
         }
         else {
             this._background = new Mesh_1.default({
-                geometry: new BoxGeometry_1.default({ width: radius, height: radius, depth: radius }),
+                geometry: new BoxGeometry_1.default({ width: 2, height: 2, depth: 2 }),
                 material: this._backgroundMat
             });
         }
-        this._node.addChild(this._background);
+        this.getGame().hiloStage.addChild(this._background);
     };
     CameraComponent.prototype.onCreateCamera = function (initState) {
         return null;
@@ -35856,15 +35970,30 @@ var CameraComponent = /** @class */ (function (_super) {
      * 每一帧更新，继承请先`super.onUpdate()`。
      */
     CameraComponent.prototype.onUpdate = function () {
+        var _this = this;
         this._rendererAlive = false;
         if (this._background) {
-            this._background.quaternion.copy(this.quaternion).invert();
+            this._backgroundMat.changeUniform('u_viewProjectionMatrix', function (mat) {
+                mat.copy(_this.viewMatrix);
+                var rotation = _this._backgroundMat.getUniform('u_rotation');
+                if (rotation && rotation.value !== 0) {
+                    mat.rotateY(-rotation.value);
+                }
+                mat.elements[12] = 0;
+                mat.elements[13] = 0;
+                mat.elements[14] = 0;
+                mat.premultiply(_this.projectionMatrix);
+                return mat;
+            });
         }
     };
     /**
      * 销毁，继承请先`super.onDestroy()`。
      */
     CameraComponent.prototype.onDestroy = function () {
+        if (this._background) {
+            this.getGame().hiloStage.removeChild(this._background);
+        }
         this.onAsMainCamera(false);
         if (this.getWorld().mainCamera === this) {
             this.getWorld().removeMainCamera();
@@ -36186,13 +36315,6 @@ var OrthographicCameraComponent = /** @class */ (function (_super) {
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(OrthographicCameraComponent.prototype, "radius", {
-        get: function () {
-            return Math.max(this.right - this.left, this.top - this.bottom) / 2;
-        },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * 根据容器上的一个点`(x, y)`以及容器的宽度`width`和高度`height`，还有射线长度`rayLength`生成世界空间的一条射线。
      * 射线起点和终点将会被存储到传入的`outFrom`和`outTo`中。
@@ -36412,13 +36534,6 @@ var PerspectiveCameraComponent = /** @class */ (function (_super) {
          */
         set: function (aspect) {
             this._camera.aspect = aspect;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(PerspectiveCameraComponent.prototype, "radius", {
-        get: function () {
-            return this.far;
         },
         enumerable: true,
         configurable: true
@@ -44937,6 +45052,12 @@ var RawShaderMaterial = /** @class */ (function (_super) {
     };
     RawShaderMaterial.prototype.initUniforms = function (options) {
         var uniforms = options.uniforms;
+        if (!uniforms['u_gammaFactor']) {
+            uniforms['u_gammaFactor'] = 'GAMMAFACTOR';
+        }
+        if (!uniforms['u_exposure']) {
+            uniforms['u_exposure'] = 'EXPOSURE';
+        }
         for (var key in uniforms) {
             var uniform = uniforms[key];
             if (!isIMaterialUniform(uniform)) {
@@ -45298,8 +45419,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var RawShaderMaterial_1 = __webpack_require__(/*! ../Material/RawShaderMaterial */ "../../../Sein.js/src/Material/RawShaderMaterial.ts");
+var Math_1 = __webpack_require__(/*! ../Core/Math */ "../../../Sein.js/src/Core/Math.ts");
 var Decorator_1 = __webpack_require__(/*! ../Core/Decorator */ "../../../Sein.js/src/Core/Decorator.ts");
 var Constants_1 = __webpack_require__(/*! ../Core/Constants */ "../../../Sein.js/src/Core/Constants.ts");
+var Shader_1 = __webpack_require__(/*! ../Renderer/Shader */ "../../../Sein.js/src/Renderer/Shader.ts");
 function isEarthEdgeMaterial(value) {
     return value.isSkyboxMaterial;
 }
@@ -45308,23 +45431,25 @@ var SkyboxMaterial = /** @class */ (function (_super) {
     __extends(SkyboxMaterial, _super);
     function SkyboxMaterial(options) {
         var _this = _super.call(this, {
-            depthTest: false,
             depthMask: true,
+            // 渲染非透明物体的队列中，最后渲染天空盒来保证良好的性能
+            renderOrder: 9999,
             side: Constants_1.default.BACK,
             attributes: {
                 a_position: 'POSITION',
                 a_uv: 'TEXCOORD_0'
             },
             uniforms: {
-                u_modelViewProjectionMatrix: 'MODELVIEWPROJECTION',
+                u_viewProjectionMatrix: { value: new Math_1.Matrix4() },
                 u_texture: options.uniforms.u_texture,
                 u_color: options.uniforms.u_color,
-                u_exposure: options.uniforms.u_exposure,
                 u_rotation: options.uniforms.u_rotation,
+                u_factor: options.uniforms.u_factor || { value: 1 },
+                u_exposure: options.uniforms.u_exposure,
                 u_degrees: options.uniforms.u_degrees
             },
-            vs: "\nprecision highp float;\n\nattribute vec3 a_position;\nattribute vec2 a_uv;\n\nuniform mat4 u_modelViewProjectionMatrix;\n\nvarying vec2 v_uv;\nvarying vec3 v_position;\n\nvoid main()\n{\n  v_position = a_position.xyz;\n  gl_Position = u_modelViewProjectionMatrix * vec4(a_position, 1.0);\n  v_uv = a_uv;\n}\n      ",
-            fs: "\nprecision mediump float;\n\nuniform vec4 u_color;\n\n#ifdef SKYBOX_CUBE\nuniform samplerCube u_texture;\nuniform float u_rotation;\nuniform float u_exposure;\n#endif\n\n#ifdef SKYBOX_PANORAMIC\nuniform sampler2D u_texture;\nuniform float u_rotation;\nuniform float u_exposure;\n#endif\n\nvarying vec2 v_uv;\nvarying vec3 v_position;\n\nvec3 decodeRGBD(vec4 color) {\n  return color.rgb / color.a;\n}\n\nvoid main()\n{\n  vec4 color = vec4(1., 1., 1., 1.);\n\n  #ifdef SKYBOX_CUBE\n  color.rgb = decodeRGBD(textureCube(u_texture, v_position)) * u_color.rgb * u_exposure;\n  #endif\n\n  // #ifdef SKYBOX_PANORAMIC\n  // gl_FragColor = texture2D(u_map, v_uv) * u_color;\n  // #endif\n\n  gl_FragColor = color;\n}     \n      "
+            vs: "\nprecision highp float;\n\nattribute vec3 a_position;\nattribute vec2 a_uv;\n\nuniform mat4 u_viewProjectionMatrix;\n\nvarying vec2 v_uv;\n\n#ifdef SKYBOX_CUBE\nvarying vec3 v_position;\n#endif\n\nvoid main()\n{\n  #ifdef SKYBOX_CUBE\n  v_position = a_position.xyz;\n  #endif\n  vec4 pos = u_viewProjectionMatrix * vec4(a_position, 1.0);\n  gl_Position = pos.xyww;\n  v_uv = a_uv;\n}\n      ",
+            fs: "\nprecision mediump float;\n\nuniform float u_factor;\nuniform vec4 u_color;\n\n" + Shader_1.default.shaders['chunk/color.frag'] + "\n" + Shader_1.default.shaders['method/encoding.glsl'] + "\n\n#ifdef SKYBOX_CUBE\nuniform samplerCube u_texture;\nuniform float u_exposure;\nvarying vec3 v_position;\n#endif\n\n#ifdef SKYBOX_PANORAMIC\nuniform sampler2D u_texture;\nuniform float u_exposure;\n#endif\n\nvarying vec2 v_uv;\n\nvec3 decodeRGBD(vec4 color) {\n  return color.rgb / color.a;\n}\n\nvoid main()\n{\n  vec4 color = vec4(1., 1., 1., 1.);\n\n  #ifdef SKYBOX_CUBE\n  vec3 tex = decodeRGBD(textureCube(u_texture, v_position));\n  #endif\n\n  #ifdef SKYBOX_PANORAMIC\n  vec3 tex = decodeRGBD(texture2D(u_texture, v_uv));\n  #endif\n\n  #ifdef HILO_GAMMA_CORRECTION\n  tex = sRGBToLinear(tex);\n  #endif\n  color.rgb = tex * u_color.rgb * u_exposure * u_factor;\n\n  " + Shader_1.default.shaders['chunk/frag_color.frag'] + "\n}     \n      "
         }) || this;
         _this.isSkyboxMaterial = true;
         _this.type = 'Color';
@@ -51546,8 +51671,11 @@ exports.SeinAnimatorExtension = {
  */
 exports.SeinRendererExtension = {
     name: 'Sein_renderer',
+    parseOnLoad: function (info, parser) {
+        parser['renderer'] = parser.json.extensions.Sein_renderer || {};
+    },
     parseOnEnd: function (info, parser, model) {
-        model['renderer'] = parser.json.extensions.Sein_renderer || {};
+        model['renderer'] = parser['renderer'];
         return model;
     },
     instantiate: function (entity, info, _, __, resource) {
@@ -51883,16 +52011,24 @@ exports.SeinSkyboxExtension = {
     name: 'Sein_skybox',
     parse: function (info, parser, entity) {
         var camera = entity;
-        camera.backgroundMat = new SkyboxMaterial_1.default({
+        var material = new SkyboxMaterial_1.default({
             type: info.type,
             uniforms: {
                 u_color: { value: new Math_1.Color().fromArray(info.color) },
+                u_factor: { value: info.factor },
                 u_texture: info.texture && { value: info.type === 'Panoramic' ? parser.textures[info.texture.index] : parser.cubeTextures[info.texture.index] },
                 u_rotation: info.rotation !== undefined && { value: info.rotation },
                 u_exposure: info.exposure !== undefined && { value: info.exposure },
                 u_degrees: info.degrees !== undefined && { value: info.degrees },
             }
         });
+        var globalSetting = parser.renderer;
+        if (globalSetting) {
+            material.gammaCorrection = globalSetting.gammaCorrection || false;
+            material.useHDR = globalSetting.useHDR || false;
+            material.exposure = globalSetting.exposure ? material.exposure : globalSetting.exposure;
+        }
+        camera.backgroundMat = material;
         return camera;
     }
 };

@@ -235,12 +235,12 @@ namespace SeinJS {
             return mat;
         }
 
-        public static GLTF.Math.Color ExportColor(Color color)
+        public static GLTF.Math.Color ExportColor(Color color, bool asOrig = false)
         {
             var c = color;
 
             // in unity, all color are in gamma space
-            if (PlayerSettings.colorSpace == ColorSpace.Linear)
+            if (PlayerSettings.colorSpace == ColorSpace.Linear && !asOrig)
             {
                 c = color.linear;
             }

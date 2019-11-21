@@ -75,15 +75,7 @@ namespace SeinJS
                 }
 
                 ImageId id;
-
-                if (!opts.useHDR)
-                {
-                    id = entry.SaveImage(face, false, origAssetPathes[i]);
-                }
-                else
-                {
-                    id = entry.SaveImageHDR(face, opts.hdrType, opts.maxSize, origAssetPathes[i]);
-                }
+                id = entry.SaveImage(face, opts.hasTransparency, origAssetPathes[i], opts.maxSize, opts.hdrType, false);
 
                 images[i] = id;
                 i += 1;

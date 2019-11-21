@@ -23,9 +23,16 @@ namespace SeinJS
 
         public static void StartPreview()
         {
+            var currentIp = LocalIPAddress();
+
+            if (currentIp != _localIP)
+            {
+                Clear();
+            }
+
             if (_server == null)
             {
-                _localIP = LocalIPAddress();
+                _localIP = currentIp;
                 AddWebResource("/previewer", new PreviewerHandler());
                 AddWebResource("/heart-beat-and-update", new HeartBeatHandler());
 

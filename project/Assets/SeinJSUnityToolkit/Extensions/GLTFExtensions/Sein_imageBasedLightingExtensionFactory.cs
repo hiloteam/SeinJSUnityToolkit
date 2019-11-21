@@ -102,7 +102,6 @@ namespace SeinJS
 
             light.shCoefficients = coefficients;
             light.diffuseIntensity = diffuseIntensity;
-            light.brdfLUT = entry.SaveTexture(brdfLUT, false).Id;
 
             if (hasLighting && !hasReflection)
             {
@@ -126,7 +125,7 @@ namespace SeinJS
             light.specType = "Cube";
             if (isCustomCubMap)
             {
-                var Id = entry.SaveCubeTextureHDR(RenderSettings.customReflection, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize);
+                var Id = entry.SaveCubeTexture(RenderSettings.customReflection, maxSize: ExporterSettings.Lighting.reflectionSize);
                 cacheId = Id.GetHashCode();
                 textureId = Id.Id;
             }
@@ -142,29 +141,29 @@ namespace SeinJS
 
                 if (skybox.shader.name == "Skybox/Cubemap")
                 {
-                    var Id = entry.SaveCubeTextureHDR(skybox.GetTexture("_Tex") as Cubemap, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize);
+                    var cubemap = mat.GetTexture("_Tex") as Cubemap;
+                    var Id = entry.SaveCubeTexture(cubemap, maxSize: ExporterSettings.Lighting.reflectionSize);
                     cacheId = Id.GetHashCode();
                     textureId = Id.Id;
                 }
                 else if (skybox.shader.name == "Skybox/6 Sided")
                 {
-                    var Id = entry.SaveCubeTextureHDR(
-                        new Texture2D[] {
-                            skybox.GetTexture("_RightTex") as Texture2D,
-                            skybox.GetTexture("_LeftTex") as Texture2D,
-                            skybox.GetTexture("_UpTex") as Texture2D,
-                            skybox.GetTexture("_DownTex") as Texture2D,
-                            skybox.GetTexture("_FrontTex") as Texture2D,
-                            skybox.GetTexture("_BackTex") as Texture2D
-                        },
-                        ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize
-                    );
+                    var texes = new Texture2D[] {
+                        mat.GetTexture("_RightTex") as Texture2D,
+                        mat.GetTexture("_LeftTex") as Texture2D,
+                        mat.GetTexture("_UpTex") as Texture2D,
+                        mat.GetTexture("_DownTex") as Texture2D,
+                        mat.GetTexture("_FrontTex") as Texture2D,
+                        mat.GetTexture("_BackTex") as Texture2D
+                    };
+                    var Id = entry.SaveCubeTexture(texes, maxSize: ExporterSettings.Lighting.reflectionSize);
                     cacheId = Id.GetHashCode();
                     textureId = Id.Id;
                 }
                 else if (skybox.shader.name == "Skybox/Panoramic")
                 {
-                    var Id = entry.SaveTextureHDR(skybox.GetTexture("_MainTex") as Texture2D, ExporterSettings.Lighting.reflectionType, ExporterSettings.Lighting.reflectionSize, null, false);
+                    var map = mat.GetTexture("_MainTex") as Texture2D;
+                    var Id = entry.SaveTexture(map, false, maxSize: ExporterSettings.Lighting.reflectionSize);
                     textureId = Id.Id;
                     cacheId = Id.GetHashCode();
                     light.specType = "2D";
@@ -183,6 +182,7 @@ namespace SeinJS
             }
             light.specIntensity = specIntensity;
             light.specMap = textureId;
+            light.brdfLUT = entry.SaveTexture(brdfLUT, false).Id;
 
             globalExtension.lights.Add(light);
 

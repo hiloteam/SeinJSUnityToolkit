@@ -75,7 +75,7 @@ namespace SeinJS
             {
                 Utils.ThrowExcption("Atlas '" + atlas.name + "' is not saved!");
             }
-            var imageId = entry.SaveImage(tex, true, null, true);
+            var imageId = entry.SaveImage(tex, true, null, maxSize: Math.Max(tex.width, tex.height), flipY: false);
             var json = atlas.ReadJson();
             json["meta"]["image"] = new JObject(new JProperty("index", imageId.Id));
 
