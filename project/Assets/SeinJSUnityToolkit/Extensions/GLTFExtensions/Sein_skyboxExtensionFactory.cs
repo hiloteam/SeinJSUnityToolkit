@@ -68,7 +68,7 @@ namespace SeinJS
                 {
                     extension.type = ESkyboxType.Panoramic;
                     var map = mat.GetTexture("_MainTex") as Texture2D;
-                    extension.textureId = entry.SaveTexture(map, false).Id;
+                    extension.textureId = entry.SaveTexture(map, false, flipY: false).Id;
                     extension.degrees = Math.Abs(mat.GetFloat("_ImageType")) < 0.01 ? 360 : 180;
                 }
                 else

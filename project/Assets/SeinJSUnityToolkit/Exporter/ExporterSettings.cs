@@ -91,7 +91,7 @@ namespace SeinJS
 
         public class CubeTexture
         {
-            public static int maxSize = 512;
+            public static int maxSize = 1024;
         }
 
         public class Lighting {

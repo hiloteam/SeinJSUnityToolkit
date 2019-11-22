@@ -563,8 +563,9 @@ namespace SeinJS
                 return _texture2d2ImageID[texture];
             }
 
-            bool isHDR = texture.format == TextureFormat.RGBAHalf || texture.format == TextureFormat.RGBAFloat;
+            bool isHDR = texture.format == TextureFormat.RGBAHalf || texture.format == TextureFormat.RGBAFloat || texture.format == TextureFormat.BC6H || texture.format == TextureFormat.RGB9e5Float;
             string format = ".png";
+            var newTex = texture;
 
             if (isHDR)
             {
@@ -578,10 +579,15 @@ namespace SeinJS
                     Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
                 }
 
-                texture = GLTFTextureUtils.HDR2RGBD(texture);
+                newTex = GLTFTextureUtils.HDR2RGBD(texture, flipY);
                 format = ".png";
             }
-            if (!hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
+            else if (flipY)
+            {
+                newTex = TextureFlipY(texture);
+            }
+
+            if (!isHDR && !hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
             {
                 format = ".jpg";
             }
@@ -601,18 +607,12 @@ namespace SeinJS
             var pathInGlTF = pathes[1];
 
             byte[] content = { };
-            if (flipY)
+            Utils.DoActionForTexture(ref newTex, tex =>
             {
-                var tex = TextureFlipY(
-                    texture,
-                    null,
-                    newtex => {
-                        if (newtex.width > maxSize || newtex.height > maxSize)
-                        {
-                            TextureScale.Bilinear(newtex, maxSize, maxSize);
-                        }
-                    }
-                );
+                if (tex.width > maxSize || tex.height > maxSize)
+                {
+                    TextureScale.Bilinear(tex, maxSize, maxSize);
+                }
 
                 if (format == ".png")
                 {
@@ -622,26 +622,7 @@ namespace SeinJS
                 {
                     content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
                 }
-            }
-            else
-            {
-                Utils.DoActionForTexture(ref texture, tex =>
-                {
-                    if (tex.width > maxSize || tex.height > maxSize)
-                    {
-                        TextureScale.Bilinear(tex, maxSize, maxSize);
-                    }
-
-                    if (format == ".png")
-                    {
-                        content = GetPNGData(tex);
-                    }
-                    else
-                    {
-                        content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
-                    }
-                });
-            }
+            });
 
             var id = GenerateImage(content, exportPath, pathInGlTF);
 

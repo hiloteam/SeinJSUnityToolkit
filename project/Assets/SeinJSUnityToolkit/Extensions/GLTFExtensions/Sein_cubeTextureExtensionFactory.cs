@@ -75,7 +75,7 @@ namespace SeinJS
                 }
 
                 ImageId id;
-                id = entry.SaveImage(face, opts.hasTransparency, origAssetPathes[i], opts.maxSize, opts.hdrType, false);
+                id = entry.SaveImage(face, opts.hasTransparency, origAssetPathes[i], opts.maxSize, opts.hdrType, true);
 
                 images[i] = id;
                 i += 1;
@@ -106,7 +106,7 @@ namespace SeinJS
             var origAssetPath = AssetDatabase.GetAssetPath(srcCubemap);
             var ext = Path.GetExtension(origAssetPath);
             origAssetPath = origAssetPath.Replace(ext, "");
-            var convolutionMaterial = new UnityEngine.Material(Shader.Find("Hidden/CubeBlur"));
+            var convolutionMaterial = new UnityEngine.Material(Shader.Find("Hidden/CubeCopy"));
             GL.PushMatrix();
             GL.LoadOrtho();
             var dstCubemap = new RenderTexture(srcCubemap.width, srcCubemap.height, 0, RenderTextureFormat.ARGBHalf);
@@ -117,12 +117,11 @@ namespace SeinJS
             dstCubemap.isPowerOfTwo = true;
             dstCubemap.Create();
             // not support texture lod now
-            var mip = 0;
+            var mip = -1;
             var dstMip = 0;
             var mipRes = srcCubemap.width;
 
             convolutionMaterial.SetTexture("_MainTex", srcCubemap);
-            convolutionMaterial.SetFloat("_Texel", 1f / mipRes);
             convolutionMaterial.SetFloat("_Level", mip);
 
             convolutionMaterial.SetPass(0);
@@ -131,13 +130,13 @@ namespace SeinJS
             Graphics.SetRenderTarget(dstCubemap, dstMip, CubemapFace.PositiveX);
             GL.Begin(GL.QUADS);
             GL.TexCoord3(1, 1, 1);
-            GL.Vertex3(0, 0, 1);
-            GL.TexCoord3(1, -1, 1);
-            GL.Vertex3(0, 1, 1);
-            GL.TexCoord3(1, -1, -1);
-            GL.Vertex3(1, 1, 1);
-            GL.TexCoord3(1, 1, -1);
             GL.Vertex3(1, 0, 1);
+            GL.TexCoord3(1, -1, 1);
+            GL.Vertex3(1, 1, 1);
+            GL.TexCoord3(1, -1, -1);
+            GL.Vertex3(0, 1, 1);
+            GL.TexCoord3(1, 1, -1);
+            GL.Vertex3(0, 0, 1);
             GL.End();
             result[0].ReadPixels(new Rect(0, 0, srcCubemap.width, srcCubemap.height), 0, 0);
             origAssetPathes[0] = origAssetPath + "-0";

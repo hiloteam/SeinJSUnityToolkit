@@ -686,34 +686,7 @@ namespace SeinJS
             int width = metalRoughnessTexture.width;
 			int height = metalRoughnessTexture.height;
 
-			Color[] orm = new Color[width * height];
-            Color[] metalRoughnessColors = new Color[width * height];
-            Color[] occlusionColors = new Color[width * height];
-
-            if (width != occlusionTexture.width || height != occlusionTexture.height)
-            {
-                TextureScale.Bilinear(occlusionTexture, width, height);
-            }
-
-            GLTFUtils.getPixelsFromTexture(ref metalRoughnessTexture, out metalRoughnessColors);
-            GLTFUtils.getPixelsFromTexture(ref occlusionTexture, out occlusionColors);
-
-            for (int i = 0; i < height; ++i)
-			{
-				for (int j = 0; j < width; ++j)
-				{
-					float occ = occlusionColors[i * width + j].r;
-					float rough = metalRoughnessColors[i * width + j].g;
-					float met = metalRoughnessColors[i * width + j].b;
-
-                    orm[i * width + j] = new Color(occ, rough, met, 1.0f);
-				}
-			}
-
-			Texture2D ormTexture = new Texture2D(width, height, TextureFormat.RGB24, true);
-            ormTexture.name = Path.GetFileNameWithoutExtension(metalRoughnessTexturePath);
-            ormTexture.SetPixels(orm);
-            ormTexture.Apply();
+            var ormTexture = GLTFTextureUtils.packOcclusionMetalRough(metalRoughnessTexture, metalRoughnessTexture, occlusionTexture, Path.GetFileNameWithoutExtension(metalRoughnessTexturePath));
             ormTexture = _assetManager.saveTexture(ormTexture);
 
             // Delete original texture
@@ -1477,13 +1450,23 @@ namespace SeinJS
 
 		private void finishImport()
 		{
-			GameObject prefab = _assetManager.savePrefab(_sceneObject, _projectDirectoryPath, _addToCurrentScene);
+            GameObject prefab = null;
+
+            try
+            {
+                prefab = _assetManager.savePrefab(_sceneObject, _projectDirectoryPath, _addToCurrentScene);
+            }
+            catch (Exception error)
+            {
+                Debug.LogError(error);
+            }
+
 			if (_finishCallback != null)
 				_finishCallback();
 
 			Clear();
 
-			if (_addToCurrentScene == true)
+			if (_addToCurrentScene == true && prefab != null)
 			{
 				// Select and focus imported object
 				_sceneObject = PrefabUtility.InstantiatePrefab(prefab) as GameObject;

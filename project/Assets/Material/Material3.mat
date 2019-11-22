@@ -118,10 +118,10 @@ Material:
     - _emissionUV: 0
     - _glossMapScale: 0
     - _glossiness: 1
-    - _metallic: 1
+    - _metallic: 0
     - _normalScale: 1
     - _occlusionStrength: 1
-    - _roughness: 0
+    - _roughness: 1
     - cloneForInst: 0
     - envReflection: 1
     - unlit: 0

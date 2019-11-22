@@ -302,6 +302,14 @@ namespace UnityEditor
         {
             SetupMaterialWithBlendMode(material, (BlendMode)material.GetFloat("_Mode"));
             SetupMaterialWithEnvMode(material, (EnvReflection)material.GetFloat("envReflection"));
+
+            if (material.GetTexture("_emissionMap") != null)
+            {
+                material.EnableKeyword("EMISSION_MAP_MODE");
+            } else
+            {
+                material.DisableKeyword("EMISSION_MAP_MODE");
+            }
         }
     }
 }

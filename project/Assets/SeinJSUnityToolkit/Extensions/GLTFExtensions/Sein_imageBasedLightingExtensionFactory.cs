@@ -78,7 +78,7 @@ namespace SeinJS
                 return;
             }
 
-            var light = new Sein_imageBasedLightingExtension.Light();
+            var light = new Sein_imageBasedLightingExtension.Light { specMap = -1 };
 
             var coefficients = new float[9][];
             UnityEngine.Rendering.SphericalHarmonicsL2 shs;
@@ -99,6 +99,8 @@ namespace SeinJS
             {
                 Debug.LogWarning("There is no baked light probe.");
             }
+
+            SHToRightHand(coefficients);
 
             light.shCoefficients = coefficients;
             light.diffuseIntensity = diffuseIntensity;
@@ -141,7 +143,7 @@ namespace SeinJS
 
                 if (skybox.shader.name == "Skybox/Cubemap")
                 {
-                    var cubemap = mat.GetTexture("_Tex") as Cubemap;
+                    var cubemap = skybox.GetTexture("_Tex") as Cubemap;
                     var Id = entry.SaveCubeTexture(cubemap, maxSize: ExporterSettings.Lighting.reflectionSize);
                     cacheId = Id.GetHashCode();
                     textureId = Id.Id;
@@ -149,12 +151,12 @@ namespace SeinJS
                 else if (skybox.shader.name == "Skybox/6 Sided")
                 {
                     var texes = new Texture2D[] {
-                        mat.GetTexture("_RightTex") as Texture2D,
-                        mat.GetTexture("_LeftTex") as Texture2D,
-                        mat.GetTexture("_UpTex") as Texture2D,
-                        mat.GetTexture("_DownTex") as Texture2D,
-                        mat.GetTexture("_FrontTex") as Texture2D,
-                        mat.GetTexture("_BackTex") as Texture2D
+                        skybox.GetTexture("_RightTex") as Texture2D,
+                        skybox.GetTexture("_LeftTex") as Texture2D,
+                        skybox.GetTexture("_UpTex") as Texture2D,
+                        skybox.GetTexture("_DownTex") as Texture2D,
+                        skybox.GetTexture("_FrontTex") as Texture2D,
+                        skybox.GetTexture("_BackTex") as Texture2D
                     };
                     var Id = entry.SaveCubeTexture(texes, maxSize: ExporterSettings.Lighting.reflectionSize);
                     cacheId = Id.GetHashCode();
@@ -162,8 +164,8 @@ namespace SeinJS
                 }
                 else if (skybox.shader.name == "Skybox/Panoramic")
                 {
-                    var map = mat.GetTexture("_MainTex") as Texture2D;
-                    var Id = entry.SaveTexture(map, false, maxSize: ExporterSettings.Lighting.reflectionSize);
+                    var map = skybox.GetTexture("_MainTex") as Texture2D;
+                    var Id = entry.SaveTexture(map, false, maxSize: ExporterSettings.Lighting.reflectionSize, flipY: false);
                     textureId = Id.Id;
                     cacheId = Id.GetHashCode();
                     light.specType = "2D";
@@ -200,6 +202,33 @@ namespace SeinJS
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
         {
             return new Sein_imageBasedLightingExtension();
+        }
+
+        /*
+         * https://zhuanlan.zhihu.com/p/51267461
+         * 
+         * sh[9]r, g, b]
+         *
+         * l00
+         *
+         * l1-1 l10 l11
+         *
+         * l2-2 l2-1 l20 l21 l22
+         */
+        private void SHToRightHand(float[][] shs)
+        {
+            // l0
+            shs[0] = shs[0];
+
+            for (int i = 0; i < 3; i += 1)
+            {
+                // l1
+                shs[2][i] *= -1;
+
+                // l2
+                shs[5][i] *= -1;
+                shs[7][i] *= -1;
+            }
         }
 
         //https://forum.unity.com/threads/specular-convolution-when-calculating-mip-maps-for-cubemap-render-texture.617680/

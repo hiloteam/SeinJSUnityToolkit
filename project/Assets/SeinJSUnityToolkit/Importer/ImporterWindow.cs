@@ -8,6 +8,7 @@ using System.IO;
 using UnityEngine;
 using UnityEditor;
 using Ionic.Zip;
+using System;
 
 namespace SeinJS
 {
@@ -313,7 +314,7 @@ namespace SeinJS
             }
 
             _importer.configure(_importDirectory, _currentSampleName, _addToCurrentScene, _generateLightMapUvs);
-			_importer.loadFromFile(_importFilePath);
+		    _importer.loadFromFile(_importFilePath);
 		}
 
 		public void UpdateProgress(string step, int current, int total)

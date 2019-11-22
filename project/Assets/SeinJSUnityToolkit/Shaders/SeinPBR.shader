@@ -378,6 +378,7 @@ Shader "Sein/PBR" {
             #pragma multi_compile LIGHTMAP_OFF LIGHTMAP_ON
             #pragma multi_compile_fwdbase
             #pragma shader_feature ENV_SPECULAR_ON
+            #pragma shader_feature EMISSION_MAP_MODE
             
             fixed3 getIBLContribution(pbrdata pbr) {
                 fixed3 color = fixed3(.0, .0, .0);
@@ -418,7 +419,12 @@ Shader "Sein/PBR" {
                 #endif
 
                 color.rgb += getIBLContribution(pbr);
-                color.rgb += (_emission * sampleTexture(_emissionMap, i.uv)).rgb;
+
+                #ifdef EMISSION_MAP_MODE
+                    color.rgb += sampleTexture(_emissionMap, i.uv).rgb;
+                #else
+                    color.rgb += _emission.rgb;
+                #endif
                 
                 return color;
             }

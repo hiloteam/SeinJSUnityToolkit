@@ -37,3 +37,4 @@ http://seinjs.com/cn/guide/unity
 21. Support preview and inspector.
 22. Support cubmap.
 23. Support skybox.
+24. Support HDR texture.
