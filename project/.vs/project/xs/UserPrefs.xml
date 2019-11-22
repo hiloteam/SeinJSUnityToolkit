@@ -1,9 +1,11 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="156" Column="60" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="590" Column="26" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="189" Column="100" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="103" Column="41" />
+      <File FileName="Assets/SeinJSUnityToolkit/Previewer/Previewer.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="83" Column="82" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -14,14 +16,10 @@
               <Node name="SeinCustomMaterials" expanded="True" />
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
-                <Node name="Exporter" expanded="True" />
-                <Node name="Extensions" expanded="True">
-                  <Node name="Basic" expanded="True" />
-                  <Node name="Components" expanded="True" />
-                  <Node name="GLTFExtensions" expanded="True">
-                    <Node name="Sein_imageBasedLightingExtensionFactory.cs" selected="True" />
-                  </Node>
+                <Node name="Exporter" expanded="True">
+                  <Node name="ExporterSettings.cs" selected="True" />
                 </Node>
+                <Node name="Extensions" expanded="True" />
                 <Node name="Importer" expanded="True" />
                 <Node name="Previewer" expanded="True" />
                 <Node name="Shaders" expanded="True" />
@@ -35,7 +33,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="6d4ff17e-a2cf-42db-8112-8fed12ba62a7" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4cbe9557-ad79-496e-a67a-9f3cb02f837f" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

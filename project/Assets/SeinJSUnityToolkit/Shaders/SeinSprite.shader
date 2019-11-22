@@ -14,6 +14,7 @@ Shader "Sein/Sprite"
     {
         Tags { "RenderType"="Transparent" }
 		Blend SrcAlpha OneMinusSrcAlpha
+        Cull Off
 
         Pass
         {
