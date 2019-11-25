@@ -1,11 +1,10 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs">
     <Files>
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="189" Column="100" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="103" Column="41" />
-      <File FileName="Assets/SeinJSUnityToolkit/Previewer/Previewer.cs" Line="1" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="83" Column="82" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="189" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="635" Column="61" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Previewer/Previewer.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,7 +16,7 @@
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True" />
                 <Node name="Exporter" expanded="True">
-                  <Node name="ExporterSettings.cs" selected="True" />
+                  <Node name="ExporterEntry.cs" selected="True" />
                 </Node>
                 <Node name="Extensions" expanded="True" />
                 <Node name="Importer" expanded="True" />
@@ -33,7 +32,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4cbe9557-ad79-496e-a67a-9f3cb02f837f" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="8a6872a7-cfac-4905-a5df-891a18832854" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

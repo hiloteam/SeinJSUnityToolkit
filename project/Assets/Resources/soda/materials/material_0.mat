@@ -65,7 +65,7 @@ Material:
     - _metallic: 0.577
     - _normalScale: 1
     - _occlusionStrength: 1
-    - _roughness: 0.967
+    - _roughness: 0.881
     - cloneForInst: 0
     - envReflection: 1
     - unlit: 0

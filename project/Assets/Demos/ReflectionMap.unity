@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 0.83
+  m_AmbientIntensity: 1.19
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 0c2908e9eff6e4643828c65aeb0a7b6e, type: 2}
@@ -518,13 +518,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1611674952}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -4.58}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: -0.99, y: 0, z: 4.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &1611674956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -547,3 +547,96 @@ MonoBehaviour:
   updateOnEverTick: 1
   isStatic: 0
   skipThisNode: 0
+--- !u!1001 &1915996854
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3223536613610914768, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_Name
+      value: fav_pig
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.023
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.924
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.203
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8089206980685369011, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7f7900a88eabe43d8b2e082f4e0aecc8, type: 3}
+--- !u!1 &1915996855 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3223536613610914768, guid: 7f7900a88eabe43d8b2e082f4e0aecc8,
+    type: 3}
+  m_PrefabInstance: {fileID: 1915996854}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1915996856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1915996855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 579c29830ece94d37a6a5d94c47bfb8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  name: Controller
+  modelAnimations:
+  - idle_nomal_60f
+  defaultAnimation: idle_nomal_60f
+  prefixes:
+  - 11394

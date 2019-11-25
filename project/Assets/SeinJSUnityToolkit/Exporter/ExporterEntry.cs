@@ -626,6 +626,17 @@ namespace SeinJS
 
             var id = GenerateImage(content, exportPath, pathInGlTF);
 
+            var extras = (id.Value.Extras as JProperty).Value as JObject;
+            extras.Add("type", isHDR ? "HDR" : "LDR");
+
+            if (isHDR && hdrType == EHDRTextureType.RGBD)
+            {
+                extras.Add("format", "RGBD");
+            } else if (!hasTransparency && format == ".png")
+            {
+                extras.Add("format", "RGB");
+            }
+
             return id;
         }
 
@@ -650,7 +661,7 @@ namespace SeinJS
                 root.Images = new List<GLTF.Schema.Image>();
             }
 
-            root.Images.Add(new Image { Uri = pathInGltf });
+            root.Images.Add(new Image { Uri = pathInGltf, Extras = new JProperty("extras", new JObject()) });
 
             return new ImageId { Id = root.Images.Count - 1, Root = root };
         }
