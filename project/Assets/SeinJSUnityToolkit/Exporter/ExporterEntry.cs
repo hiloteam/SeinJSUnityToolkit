@@ -637,6 +637,21 @@ namespace SeinJS
                 extras.Add("format", "RGB");
             }
 
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
+
+            if (im)
+            {
+                if (!im.mipmapEnabled)
+                {
+                    extras.Add("useMipmaps", false);
+                }
+
+                if (im.textureType == TextureImporterType.NormalMap)
+                {
+                    extras.Add("isNormalMap", true);
+                }
+            }
+
             return id;
         }
 

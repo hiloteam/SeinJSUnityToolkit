@@ -97,6 +97,7 @@ public class SeinAtlas : ScriptableObject
         var im = AssetImporter.GetAtPath(atlasPath) as TextureImporter;
         im.npotScale = TextureImporterNPOTScale.None;
         im.alphaIsTransparency = true;
+        im.mipmapEnabled = false;
         im.SaveAndReimport();
 
         var fullJsonPath = Path.GetFullPath(jsonPath);
@@ -192,6 +193,7 @@ public class SeinAtlas : ScriptableObject
         var im = AssetImporter.GetAtPath(atlasPath) as TextureImporter;
         im.npotScale = TextureImporterNPOTScale.None;
         im.alphaIsTransparency = true;
+        im.mipmapEnabled = false;
         im.SaveAndReimport();
         var atlasTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(atlasPath);
 
