@@ -1,380 +1,1326 @@
 ﻿/**
- * @File   : Utils.cs
+ * @File   : ExportorEntry.cs
  * @Author : dtysky (dtysky@outlook.com)
  * @Link   : dtysky.moe
  * @Date   : 2019/09/09 0:00:00PM
  */
-using System;
-using UnityEditor;
 using UnityEngine;
-using System.Collections;
-using UnityEngine.Networking;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.IO;
-using GLTF;
+using UnityEditor;
 using GLTF.Schema;
+using Newtonsoft.Json.Linq;
+using GLTF;
+using System.Collections.Generic;
+using System.IO;
+using System;
+using Newtonsoft.Json;
+using System.Text;
 
-namespace SeinJS {
-    public class Utils: Editor
+namespace SeinJS
+{
+    public class ExporterEntry
     {
-        public static bool inited = false;
-        static System.Version newVersion = null;
-
-        static string checlUrl = "https://api.github.com/repos/SeinJS/SeinUnityToolkit/git/refs/tags";
-        static string url = "https://github.com/SeinJS/SeinUnityToolkit/tree/master/bin";
-
-        static IEnumerator coroutine = null;
-
-        public static IEnumerator CheckForUpdate()
+        public class Pair<Key, Value>
         {
-            using (UnityWebRequest www = UnityWebRequest.Get(checlUrl))
-            {
-                yield return www.SendWebRequest();
+            public Key key;
+            public Value value;
 
-                while (!www.isDone)
-                {
-                    yield return 1;
-                }
-
-                if (www.isNetworkError || www.isHttpError)
-                {
-                    EditorUtility.DisplayDialog(
-                        "Error occured while checking for update!",
-                        www.error,
-                        "OK"
-                    );
-                    coroutine = null;
-                    yield break;
-                }
-
-                string response = www.downloadHandler.text;
-
-                if (response == "")
-                {
-                    coroutine = null;
-                    yield break;
-                }
-
-                var json = JsonConvert.DeserializeObject<JArray>(response);
-
-                if (json.Count < 1)
-                {
-                    coroutine = null;
-                    yield break;
-                }
-
-                var tags = ((string)json[json.Count - 1]["ref"]).Split('/');
-                string tag = tags[tags.Length - 1].Replace("v", "");
-                newVersion = new System.Version(tag);
-
-                if (newVersion <= Config.Version)
-                {
-                    coroutine = null;
-                    yield break;
-                }
-
-                if (EditorUtility.DisplayDialog(
-                        "A new version 'v" + newVersion + "' is available",
-                        "Download the last version to esure the best experience",
-                        "Download",
-                        "Cancel"
-                    ))
-                {
-                    coroutine = null;
-                    Application.OpenURL(url);
-                }
+            public Pair(Key key, Value value) {
+                this.key = key;
+                this.value = value;
             }
         }
 
-        [MenuItem("SeinJS/Check for update", priority = 2)]
+        public class EntryBufferView
+        {
+            public BufferViewId id;
+            public BufferView view = new BufferView();
+            public byte[] byteBuffer;
+            public MemoryStream streamBuffer;
+        }
+
+        public string path;
+        public string name;
+        public Transform[] transforms;
+        public GLTFRoot root = new GLTFRoot();
+        public Dictionary<Transform, List<Transform>> transformsInSameActor = new Dictionary<Transform, List<Transform>>();
+        public List<Transform> bones = new List<Transform>();
+        public Dictionary<Transform, Node> tr2node = new Dictionary<Transform, Node>();
+        public Dictionary<Transform, NodeId> tr2nodeId = new Dictionary<Transform, NodeId>();
+        public Dictionary<Node, Transform> node2tr = new Dictionary<Node, Transform>();
+
+        private List<EntryBufferView> _bufferViews = new List<EntryBufferView>();
+		// for each mesh
+		private Dictionary<UnityEngine.Mesh, Dictionary<string, AccessorId>> _mesh2attrs= new Dictionary<UnityEngine.Mesh, Dictionary<string, AccessorId>>();
+        private Dictionary<UnityEngine.Mesh, List<Dictionary<string, AccessorId>>> _mesh2targets = new Dictionary<UnityEngine.Mesh, List<Dictionary<string, AccessorId>>>();
+        private Dictionary<UnityEngine.Mesh, Dictionary<int, AccessorId>> _mesh2indices = new Dictionary<UnityEngine.Mesh, Dictionary<int, AccessorId>>();
+        private Dictionary<UnityEngine.Mesh, Dictionary<string, MeshId>> _mesh2Id = new Dictionary<UnityEngine.Mesh, Dictionary<string, MeshId>>();
+        // key: SeinCustomMaterial componenet or UnityMateiral InistanceID
+        private Dictionary<int, MaterialId> _material2ID = new Dictionary<int, MaterialId>();
+        private Dictionary<Texture2D, TextureId> _texture2d2ID = new Dictionary<Texture2D, TextureId>();
+        private Dictionary<UnityEngine.Texture, CubeTextureId> _cubemap2ID = new Dictionary<UnityEngine.Texture, CubeTextureId>();
+        private Dictionary<Texture2D, ImageId> _texture2d2ImageID = new Dictionary<Texture2D, ImageId>();
+        private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
+        private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
+        private Dictionary<AnimationClip, GLTF.Schema.Animation> _animClip2anim = new Dictionary<AnimationClip, GLTF.Schema.Animation>();
+        private Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>> _animClip2Accessors = new Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>>();
+        private Dictionary<UnityEngine.Camera, CameraId> _camera2ID = new Dictionary<UnityEngine.Camera, CameraId>();
+
+        // key: instanceId
+        public static Dictionary<string, Texture2D> composedTextures = new Dictionary<string, Texture2D>();
+
         public static void Init()
+		{
+            composedTextures.Clear();
+        }
+
+        public EntryBufferView CreateByteBufferView(string name, int size, int stride)
         {
-            if (!inited)
+            if (root.BufferViews == null)
             {
-                EditorApplication.update += EditorUpdate;
+                root.BufferViews = new List<BufferView>();
             }
 
-            if (coroutine == null)
+            var bufferView = new EntryBufferView();
+            bufferView.byteBuffer = new byte[size];
+            bufferView.view.Name = name;
+            bufferView.view.ByteStride = stride;
+            _bufferViews.Add(bufferView);
+            root.BufferViews.Add(bufferView.view);
+            bufferView.id = new BufferViewId { Id = root.BufferViews.Count - 1, Root = root };
+
+            return bufferView;
+        }
+
+        public EntryBufferView CreateStreamBufferView(string name)
+        {
+            if (root.BufferViews == null)
             {
-                coroutine = CheckForUpdate();
+                root.BufferViews = new List<BufferView>();
             }
 
-            inited = true;
+            var bufferView = new EntryBufferView();
+            bufferView.streamBuffer = new MemoryStream();
+            bufferView.view.Name = name;
+            _bufferViews.Add(bufferView);
+            root.BufferViews.Add(bufferView.view);
+            bufferView.id = new BufferViewId { Id = root.BufferViews.Count - 1, Root = root };
+
+            return bufferView;
         }
 
-        [MenuItem("SeinJS/Help", priority = 3)]
-        public static void Help()
+        public void AddExtension(string extension)
         {
-            Application.OpenURL("http://seinjs.com/cn/guide/unity");
-        }
-
-        static void EditorUpdate()
-        {
-            if (coroutine != null)
+            if (root.ExtensionsRequired == null)
             {
-                coroutine.MoveNext();
+                root.ExtensionsRequired = new List<string>();
+                root.ExtensionsUsed = new List<string>();
+            }
+
+            if (!root.ExtensionsUsed.Contains(extension))
+            {
+                root.ExtensionsUsed.Add(extension);
+                root.ExtensionsRequired.Add(extension);
             }
         }
 
-        public static void ThrowExcption(string msg)
+        public NodeId SaveNode(Transform tr)
         {
-            if (EditorUtility.DisplayDialog("Error!", msg, "OK"))
+            if (root.Nodes == null)
             {
-                throw new Exception(msg);
-            }
-        }
-
-        public static void ThrowExcption(Exception exception)
-        {
-            if (EditorUtility.DisplayDialog("Error!", exception.Message, "OK"))
-            {
-                throw exception;
-            }
-        }
-
-        public static string MakeRelativePath(string fromPath, string toPath)
-        {
-            if (string.IsNullOrEmpty(fromPath)) throw new ArgumentNullException(nameof(fromPath));
-            if (string.IsNullOrEmpty(toPath)) throw new ArgumentNullException(nameof(toPath));
-
-            Uri fromUri = new Uri(fromPath + "/a.txt");
-            Uri toUri = new Uri(toPath);
-
-            if (fromUri.Scheme != toUri.Scheme) { return toPath; } // path can't be made relative.
-
-            Uri relativeUri = fromUri.MakeRelativeUri(toUri);
-            string relativePath = Uri.UnescapeDataString(relativeUri.ToString()).Replace("/a.txt", "");
-
-            if (toUri.Scheme.Equals("file", StringComparison.InvariantCultureIgnoreCase))
-            {
-                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                root.Nodes = new List<Node>();
             }
 
-            return relativePath;
-        }
+            var isBone = bones.Contains(tr);
 
-        public static GLTF.Math.Vector3 ConvertVector3LeftToRightHandedness(Vector3 v)
-        {
-            return new GLTF.Math.Vector3(v.x, v.y, -v.z);
-        }
-
-        public static GLTF.Math.Vector4 ConvertVector4LeftToRightHandedness(Vector4 v)
-        {
-            return new GLTF.Math.Vector4(v.x, v.y, -v.z, -v.w);
-        }
-
-        public static GLTF.Math.Quaternion ConvertQuatLeftToRightHandedness(Quaternion q)
-        {
-            return new GLTF.Math.Quaternion(q.x, q.y, -q.z, -q.w);
-        }
-
-        public static Vector3 ConvertVector3LeftToRightHandedness(ref Vector3 v)
-        {
-            v.z = -v.z;
-
-            return v;
-        }
-
-        public static Vector4 ConvertVector4LeftToRightHandedness(ref Vector4 v)
-        {
-            v.z = -v.z;
-            v.w = -v.w;
-
-            return v;
-        }
-
-        public static Quaternion ConvertQuatLeftToRightHandedness(ref Quaternion q)
-        {
-            q.z = -q.z;
-            q.w = -q.w;
-
-            return q;
-        }
-
-        public static GLTF.Math.Matrix4x4 ConvertMat4LeftToRightHandedness(Matrix4x4 mat)
-        {
-            ConvertMat4LeftToRightHandedness(ref mat);
-
-            return new GLTF.Math.Matrix4x4 (
-                mat.m00, mat.m01, mat.m02, mat.m03,
-                mat.m10, mat.m11, mat.m12, mat.m13,
-                mat.m20, mat.m21, mat.m22, mat.m23,
-                mat.m30, mat.m31, mat.m32, mat.m33
-            );
-        }
-
-        public static Matrix4x4 ConvertMat4LeftToRightHandedness(ref Matrix4x4 mat)
-        {
-            Vector3 position = mat.GetColumn(3);
-            ConvertVector3LeftToRightHandedness(ref position);
-            Quaternion rotation = Quaternion.LookRotation(mat.GetColumn(2), mat.GetColumn(1));
-            ConvertQuatLeftToRightHandedness(ref rotation);
-
-            Vector3 scale = new Vector3(mat.GetColumn(0).magnitude, mat.GetColumn(1).magnitude, mat.GetColumn(2).magnitude);
-            float epsilon = 0.00001f;
-
-            // Some issues can occurs with non uniform scales
-            if (Mathf.Abs(scale.x - scale.y) > epsilon || Mathf.Abs(scale.y - scale.z) > epsilon || Mathf.Abs(scale.x - scale.z) > epsilon)
+            var node = new Node
             {
-                Debug.LogWarning("A matrix with non uniform scale is being converted from left to right handed system. This code is not working correctly in this case");
+                Name = tr.name,
+                UseTRS = isBone
+            };
+
+            if (!isBone)
+            {
+                var matrix = new UnityEngine.Matrix4x4();
+                matrix.SetTRS(tr.localPosition, tr.localRotation, tr.localScale);
+                node.Matrix = Utils.ConvertMat4LeftToRightHandedness(matrix);
+            }
+            else
+            {
+                node.Translation = Utils.ConvertVector3LeftToRightHandedness(tr.localPosition);
+                node.Rotation = Utils.ConvertQuatLeftToRightHandedness(tr.localRotation);
+                node.Scale = new GLTF.Math.Vector3(tr.localScale.x, tr.localScale.y, tr.localScale.z);
             }
 
-            // Handle negative scale component in matrix decomposition
-            if (Matrix4x4.Determinant(mat) < 0)
+            root.Nodes.Add(node);
+            tr2node.Add(tr, node);
+            node2tr.Add(node, tr);
+
+            var id = new NodeId { Id = root.Nodes.Count - 1, Root = root };
+            tr2nodeId.Add(tr, id);
+
+            return id;
+        }
+
+        public Pair<MeshId, bool> SaveMesh(UnityEngine.Mesh mesh, Renderer renderer)
+        {
+            if (root.Meshes == null)
             {
-                Quaternion rot = Quaternion.LookRotation(mat.GetColumn(2), mat.GetColumn(1));
-                Matrix4x4 corr = Matrix4x4.TRS(mat.GetColumn(3), rot, Vector3.one).inverse;
-                Matrix4x4 extractedScale = corr * mat;
-                scale = new Vector3(extractedScale.m00, extractedScale.m11, extractedScale.m22);
+                root.Meshes = new List<GLTF.Schema.Mesh>();
             }
 
-            // convert transform values from left handed to right handed
-            mat.SetTRS(position, rotation, scale);
-
-            return mat;
-        }
-
-        public static GLTF.Math.Color ExportColor(Color color, bool asOrig = false)
-        {
-            var c = color;
-
-            // in unity, all color are in gamma space
-            if (PlayerSettings.colorSpace == ColorSpace.Linear && !asOrig)
+            var m = new GLTF.Schema.Mesh();
+            string cacheId = "";
+            foreach (var mat in renderer.sharedMaterials)
             {
-                c = color.linear;
+                cacheId += mat.GetInstanceID();
             }
 
-            return new GLTF.Math.Color(c.r, c.g, c.b, c.a);
-        }
-
-        public static Vector4 ExportColorVec4(Color color)
-        {
-            var c = color;
-
-            // in unity, all color are in gamma space
-            if (PlayerSettings.colorSpace == ColorSpace.Linear)
+            if (_mesh2Id.ContainsKey(mesh) && _mesh2Id[mesh].ContainsKey(cacheId))
             {
-                c = color.linear;
+                return new Pair<MeshId, bool>(_mesh2Id[mesh][cacheId], false);
             }
 
-            return c;
-        }
+            var attributes = GenerateAttributes(mesh);
+            var targets = GenerateMorphTargets(mesh, m);
+            m.Name = mesh.name;
+            m.Primitives = new List<MeshPrimitive>();
 
-        public static Color ImportColor(GLTF.Math.Color color)
-        {
-            return ImportColor(new Color(color.R, color.G, color.B, color.A));
-        }
+            EntryBufferView indices = null;
 
-        public static Color ImportColor(Color color)
-        {
-            if (PlayerSettings.colorSpace == ColorSpace.Gamma)
+            for (int i = 0; i < mesh.subMeshCount; i += 1)
             {
-                return color;
+                var primitive = new MeshPrimitive();
+                m.Primitives.Add(primitive);
+                primitive.Attributes = attributes;
+                primitive.Mode = DrawMode.Triangles;
+                if (targets.Count > 0)
+                {
+                    primitive.Targets = targets;
+                }
+                SaveIndices(mesh, primitive, i, ref indices);
             }
 
-            // in unity, all color are in gamma space
-            return color.gamma;
+            root.Meshes.Add(m);
+            var id = new MeshId { Id = root.Meshes.Count - 1, Root = root };
+
+            if (!_mesh2Id.ContainsKey(mesh))
+            {
+                _mesh2Id.Add(mesh, new Dictionary<string, MeshId>());
+            }
+            _mesh2Id[mesh].Add(cacheId, id);
+
+            return new Pair<MeshId, bool>(id, true);
         }
 
-        public static void DoActionForTexture(ref Texture2D tex, Action<Texture2D> action)
+        private Dictionary<string, AccessorId> GenerateAttributes(UnityEngine.Mesh mesh)
         {
-            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
-
-            if (!im)
+            if (_mesh2attrs.ContainsKey(mesh))
             {
-                action(tex);
+                return _mesh2attrs[mesh];
+            }
+
+            var attrs= new Dictionary<string, AccessorId>();
+
+            int stride = GetBufferLength(mesh);
+            var bufferView = CreateByteBufferView(mesh.name + "-primitives", stride * mesh.vertexCount, stride);
+
+            int offset = 0;
+            attrs.Add("POSITION", PackAttrToBuffer(bufferView, mesh.vertices, offset, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }));
+            offset += 3 * 4;
+
+            if (mesh.normals.Length > 0)
+            {
+                attrs.Add("NORMAL", PackAttrToBuffer(bufferView, mesh.normals, offset, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }));
+                offset += 3 * 4;
+            }
+
+            if (mesh.colors.Length > 0)
+            {
+                attrs.Add("COLOR_0", PackAttrToBuffer(bufferView, mesh.colors, offset));
+                offset += 4 * 4;
+            }
+
+            if (mesh.uv.Length > 0)
+            {
+                attrs.Add("TEXCOORD_0", PackAttrToBuffer(bufferView, mesh.uv, offset));
+                offset += 2 * 4;
+            }
+
+            if (mesh.uv2.Length > 0)
+            {
+                attrs.Add("TEXCOORD_1", PackAttrToBuffer(bufferView, mesh.uv2, offset));
+                offset += 2 * 4;
+            }
+
+            if (mesh.tangents.Length > 0)
+            {
+                attrs.Add("TANGENT", PackAttrToBuffer(bufferView, mesh.tangents, offset, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }));
+                offset += 4 * 4;
+            }
+
+            if (mesh.boneWeights.Length > 0)
+            {
+                attrs.Add("JOINTS_0", PackAttrToBufferShort(bufferView, mesh.boneWeights, offset));
+                offset += 2 * 4;
+                attrs.Add("WEIGHTS_0", PackAttrToBuffer(bufferView, ExporterUtils.BoneWeightToWeightVec4(mesh.boneWeights), offset));
+                offset += 4 * 4;
+            }
+
+            foreach(var attr in attrs)
+            {
+                attr.Value.Value.Name += "-" + attr.Key;
+            }
+
+            _mesh2attrs.Add(mesh, attrs);
+
+            return attrs;
+        }
+
+        private List<Dictionary<string, AccessorId>> GenerateMorphTargets(UnityEngine.Mesh mesh, GLTF.Schema.Mesh m)
+        {
+            if (mesh.blendShapeCount <= 0)
+            {
+                return new List<Dictionary<string, AccessorId>>();
+            }
+
+            if (_mesh2targets.ContainsKey(mesh))
+            {
+                return _mesh2targets[mesh];
+            }
+
+            var targets = new List<Dictionary<string, AccessorId>>();
+            var targetNames = new JArray();
+            m.Extras = new JProperty("extras", new JObject(new JProperty("targetNames", targetNames)));
+
+            int stride = 0;
+            for (int i = 0; i < mesh.blendShapeCount; i += 1)
+            {
+                stride += 3 * 4;
+                if (mesh.normals.Length > 0)
+                {
+                    stride += 3 * 4;
+                }
+                if (mesh.tangents.Length > 0)
+                {
+                    stride += 4 * 4;
+                }
+            }
+            var bufferView = CreateByteBufferView(mesh.name + "-targets", stride * mesh.vertexCount, stride);
+
+            Vector3[] vertices = new Vector3[mesh.vertexCount];
+            Vector3[] normals = new Vector3[mesh.normals.Length];
+            Vector3[] tangents = new Vector3[mesh.tangents.Length];
+            int offset = 0;
+
+            m.Weights = new List<double>();
+
+            for (int i = 0; i < mesh.blendShapeCount; i += 1)
+            {
+                var name = mesh.GetBlendShapeName(i);
+                var target = new Dictionary<string, AccessorId>();
+                targets.Add(target);
+
+                targetNames.Add(name);
+                m.Weights.Add(mesh.GetBlendShapeFrameWeight(i, 0));
+
+                mesh.GetBlendShapeFrameVertices(i, 0, vertices, normals, tangents);
+
+                target.Add("POSITION", PackAttrToBuffer(bufferView, vertices, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
+                target["POSITION"].Value.Name += "-" + name + "-POSITION";
+                offset += 3 * 4;
+
+                if (mesh.normals.Length > 0)
+                {
+                    target.Add("NORMAL", PackAttrToBuffer(bufferView, normals, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
+                    target["NORMAL"].Value.Name += "-" + name + "-NORMAL";
+                    offset += 3 * 4;
+                }
+
+                if (mesh.tangents.Length > 0)
+                {
+                    target.Add("TANGENT", PackAttrToBuffer(bufferView, tangents, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
+                    target["TANGENT"].Value.Name += "-" + name + "-TANGENT";
+                    offset += 4 * 3;
+                }
+            }
+
+            _mesh2targets.Add(mesh, targets);
+
+            return targets;
+        }
+
+        private void SaveIndices(UnityEngine.Mesh mesh, MeshPrimitive primitive, int i, ref EntryBufferView bufferView)
+        {
+            primitive.Mode = DrawMode.Triangles;
+
+            if (_mesh2indices.ContainsKey(mesh) && _mesh2indices[mesh].ContainsKey(i))
+            {
+                primitive.Indices = _mesh2indices[mesh][i];
                 return;
             }
 
-            bool readable = im.isReadable;
-            TextureImporterCompression format = im.textureCompression;
-            TextureImporterType type = im.textureType;
-            bool isConvertedBump = im.convertToNormalmap;
+            if (bufferView == null)
+            {
+                bufferView = CreateStreamBufferView(mesh.name + "-indices");
+            }
 
-            if (!readable)
-                im.isReadable = true;
-            if (type != TextureImporterType.Default)
-                im.textureType = TextureImporterType.Default;
+            primitive.Indices = AccessorToId(
+                ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort, (int[] data, int index) => {
+                    var offset = index % 3;
 
-            im.textureCompression = TextureImporterCompression.Uncompressed;
-            im.SaveAndReimport();
+                    return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
+                }),
+                bufferView
+            );
+            primitive.Indices.Value.Name += "-" + i;
 
-            action(tex);
+            if (!_mesh2indices.ContainsKey(mesh))
+            {
+                _mesh2indices.Add(mesh, new Dictionary<int, AccessorId>());
+            }
 
-            if (!readable)
-                im.isReadable = false;
-            if (type != TextureImporterType.Default)
-                im.textureType = type;
-            if (isConvertedBump)
-                im.convertToNormalmap = true;
-
-            im.textureCompression = format;
-            im.SaveAndReimport();
+            _mesh2indices[mesh].Add(i, primitive.Indices);
         }
 
-        public static void DoActionForTextures(ref Texture2D[] texs, Action<Texture2D[]> action)
+        private int GetBufferLength(UnityEngine.Mesh mesh)
         {
-            bool[] readables = new bool[texs.Length];
-            TextureImporterType[] types = new TextureImporterType[texs.Length];
-            TextureImporterCompression[] formats = new TextureImporterCompression[texs.Length];
-            bool[] convertToNormalmaps = new bool[texs.Length];
+            int stride = 3 * 4; 
 
-            int i = 0;
-            foreach (var tex in texs)
+            if (mesh.normals.Length > 0)
             {
-                TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
-                if (!im)
+                stride += 3 * 4;
+            }
+
+            if (mesh.colors.Length > 0)
+            {
+                stride += 4 * 4;
+            }
+
+            if (mesh.uv.Length > 0)
+            {
+                stride += 2 * 4;
+            }
+
+            if (mesh.uv2.Length > 0)
+            {
+                stride += 2 * 4;
+            }
+
+            if (mesh.tangents.Length > 0)
+            {
+                stride += 4 * 4;
+            }
+
+            if (mesh.boneWeights.Length > 0)
+            {
+                stride += 2 * 4;
+                stride += 4 * 4;
+            }
+
+            return stride;
+        }
+
+        private AccessorId PackAttrToBuffer<DataType>(EntryBufferView bufferView, DataType[] data, int offset, Func<DataType[], int, DataType> getValueByIndex = null)
+        {
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.Float, offset, bufferView.view.ByteStride, getValueByIndex);
+
+            return AccessorToId(accessor, bufferView);
+        }
+
+        private AccessorId PackAttrToBufferShort<DataType>(EntryBufferView bufferView, DataType[] data, int offset, Func<DataType[], int, DataType> getValueByIndex = null)
+        {
+            var accessor = ExporterUtils.PackToBuffer(bufferView.byteBuffer, data, GLTFComponentType.UnsignedShort, offset, bufferView.view.ByteStride, getValueByIndex);
+
+            return AccessorToId(accessor, bufferView);
+        }
+
+        private AccessorId AccessorToId(Accessor accessor, EntryBufferView bufferView)
+        {
+            if (root.Accessors == null)
+            {
+                root.Accessors = new List<Accessor>();
+            }
+
+            accessor.BufferView = bufferView.id;
+            accessor.Name = bufferView.view.Name;
+            root.Accessors.Add(accessor);
+
+            return new AccessorId { Id = root.Accessors.Count - 1, Root = root };
+        }
+
+        public MaterialId SaveNormalMaterial(UnityEngine.Material material)
+        {
+            if (root.Materials == null)
+            {
+                root.Materials = new List<GLTF.Schema.Material>();
+            }
+
+            var mid = material.GetInstanceID();
+            if (_material2ID.ContainsKey(mid))
+            {
+                return _material2ID[mid];
+            }
+
+			var mat = ExporterUtils.ConvertMaterial(material, this);
+			root.Materials.Add(mat);
+
+			var id = new MaterialId { Id = root.Materials.Count - 1, Root = root };
+            _material2ID.Add(mid, id);
+
+			return id;
+		}
+
+		public MaterialId SaveComponentMaterial(SeinCustomMaterial material)
+        {
+            if (root.Materials == null)
+            {
+                root.Materials = new List<GLTF.Schema.Material>();
+            }
+
+            var mat = ExporterUtils.ConvertMaterial(material, this);
+            root.Materials.Add(mat);
+
+            var id = new MaterialId { Id = root.Materials.Count - 1, Root = root };
+            return id;
+        }
+
+        public TextureId SaveTexture(Texture2D texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.RGBD, bool flipY = true)
+        {
+            if (_texture2d2ID.ContainsKey(texture))
+            {
+                return _texture2d2ID[texture];
+            }
+
+            if (maxSize == -1)
+            {
+                maxSize = ExporterSettings.NormalTexture.maxSize;
+            }
+
+            var imageId = SaveImage(texture, hasTransparency, path, maxSize, hdrType, flipY);
+
+            return GenerateTexture(texture, imageId);
+        }
+
+        public CubeTextureId SaveCubeTexture(Cubemap texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT)
+        {
+            if (_cubemap2ID.ContainsKey(texture))
+            {
+                return _cubemap2ID[texture];
+            }
+
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            if (maxSize == -1)
+            {
+                maxSize = ExporterSettings.CubeTexture.maxSize;
+            }
+
+            var samplerId = GenerateSampler(texture);
+
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, texture, new CubeTextureSaveOptions{
+                maxSize = maxSize, sampler = samplerId, hasTransparency = hasTransparency, path = path, hdrType = hdrType
+            });
+
+            var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
+            _cubemap2ID[texture] = id;
+
+            return id;
+        }
+
+        public CubeTextureId SaveCubeTexture(Texture2D[] textures, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT)
+        {
+            if (_cubemap2ID.ContainsKey(textures[0]))
+            {
+                return _cubemap2ID[textures[0]];
+            }
+
+            var samplerId = GenerateSampler(textures[0]);
+
+            if (maxSize == -1)
+            {
+                maxSize = ExporterSettings.CubeTexture.maxSize;
+            }
+
+            var extName = ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory));
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_cubeTextureExtensionFactory)), this, root.Extensions, null, new CubeTextureSaveOptions{
+                maxSize = maxSize, textures = textures, sampler = samplerId, hasTransparency = hasTransparency, path = path, hdrType = hdrType
+            });
+
+             var id = new CubeTextureId { Id = ((Sein_cubeTextureExtension)root.Extensions[extName]).textures.Count - 1, Root = root };
+            _cubemap2ID[textures[0]] = id;
+
+            return id;
+        }
+
+        public ImageId SaveImage(Texture2D texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT, bool flipY = true)
+        {
+            if (_texture2d2ImageID.ContainsKey(texture))
+            {
+                return _texture2d2ImageID[texture];
+            }
+
+            bool isHDR = texture.format == TextureFormat.RGBAHalf || texture.format == TextureFormat.RGBAFloat || texture.format == TextureFormat.BC6H || texture.format == TextureFormat.RGB9e5Float;
+            string format = ".png";
+            var newTex = texture;
+
+            if (isHDR)
+            {
+                if (hdrType == EHDRTextureType.DEFAULT)
+                {
+                    hdrType = ExporterSettings.HDR.type;
+                }
+
+                if (hdrType != EHDRTextureType.RGBD)
+                {
+                    Utils.ThrowExcption("HDR Texture can only be exported as 'RGBD' now !");
+                }
+
+                newTex = GLTFTextureUtils.HDR2RGBD(texture, flipY);
+                format = ".png";
+            }
+            else if (flipY)
+            {
+                newTex = TextureFlipY(texture);
+            }
+
+            if (!isHDR && !hasTransparency && ExporterSettings.NormalTexture.opaqueType == ENormalTextureType.JPG)
+            {
+                format = ".jpg";
+            }
+
+            string[] pathes;
+
+            if (path == null)
+            {
+                pathes = GetTextureOutPath(texture, format);
+            }
+            else
+            {
+                pathes = ExporterUtils.GetAssetOutPath(path, format);
+            }
+
+            var exportPath = pathes[0];
+            var pathInGlTF = pathes[1];
+
+            byte[] content = { };
+            Utils.DoActionForTexture(ref newTex, tex =>
+            {
+                if (tex.width > maxSize || tex.height > maxSize)
+                {
+                    var newW = tex.width;
+                    var newH = tex.height;
+                    if (tex.width > tex.height) {
+                        newW = maxSize;
+                        newH = maxSize * tex.height / tex.width;
+                    }
+                    else
+                    {
+                        newH = maxSize;
+                        newW = maxSize * tex.width / tex.height;
+                    }
+                    TextureScale.Bilinear(tex, newW, newH);
+                }
+
+                if (format == ".png")
+                {
+                    content = GetPNGData(tex);
+                }
+                else
+                {
+                    content = tex.EncodeToJPG(ExporterSettings.NormalTexture.jpgQulity);
+                }
+            });
+
+            var id = GenerateImage(content, exportPath, pathInGlTF);
+
+            var extras = (id.Value.Extras as JProperty).Value as JObject;
+            extras.Add("type", isHDR ? "HDR" : "LDR");
+
+            if (isHDR && hdrType == EHDRTextureType.RGBD)
+            {
+                extras.Add("format", "RGBD");
+            } else if (!hasTransparency && format == ".png")
+            {
+                extras.Add("format", "RGB");
+            }
+
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
+
+            if (im)
+            {
+                if (!im.mipmapEnabled)
+                {
+                    extras.Add("useMipmaps", false);
+                }
+
+                if (im.textureType == TextureImporterType.NormalMap)
+                {
+                    extras.Add("isNormalMap", true);
+                }
+            }
+
+            return id;
+        }
+
+        private byte[] GetPNGData(Texture2D tex)
+        {
+            if (ExporterSettings.NormalTexture.pngFormat != EPNGTextureFormat.RGBA32)
+            {
+                EditorUtility.CompressTexture(tex, (TextureFormat)ExporterSettings.NormalTexture.pngFormat, UnityEditor.TextureCompressionQuality.Best);
+            }
+
+            var data = tex.EncodeToPNG();
+
+            return data;
+        }
+
+        private ImageId GenerateImage(byte[] content, string exportPath, string pathInGltf)
+        {
+            File.WriteAllBytes(exportPath, content);
+
+            if (root.Images == null)
+            {
+                root.Images = new List<GLTF.Schema.Image>();
+            }
+
+            root.Images.Add(new Image { Uri = pathInGltf, Extras = new JProperty("extras", new JObject()) });
+
+            return new ImageId { Id = root.Images.Count - 1, Root = root };
+        }
+
+        private TextureId GenerateTexture(Texture2D texture, ImageId imageId)
+        {
+            if (root.Textures == null)
+            {
+                root.Textures = new List<GLTF.Schema.Texture>();
+            }
+
+            var samplerId = GenerateSampler(texture);
+
+            var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId };
+            root.Textures.Add(gltfTexture);
+
+            var id = new TextureId { Id = root.Textures.Count - 1, Root = root };
+            _texture2d2ID[texture] = id;
+
+            return id;
+        }
+
+        private SamplerId GenerateSampler(UnityEngine.Texture texture)
+        {
+            if (root.Samplers == null)
+            {
+                root.Samplers = new List<Sampler>();
+            }
+
+            var hasMipMap = false;
+
+            if (texture is Texture2D)
+            {
+                hasMipMap = (texture as Texture2D).mipmapCount > 0;
+            } else if (texture is Cubemap)
+            {
+                hasMipMap = (texture as Cubemap).mipmapCount > 0;
+            }
+
+            MagFilterMode magFilter = MagFilterMode.None;
+            MinFilterMode minFilter = MinFilterMode.None;
+            GLTF.Schema.WrapMode wrap = GLTF.Schema.WrapMode.None;
+
+            switch (texture.filterMode)
+            {
+                case FilterMode.Point:
+                    magFilter = MagFilterMode.Nearest;
+                    if (hasMipMap)
+                    {
+                        minFilter = MinFilterMode.NearestMipmapNearest;
+                    }
+                    else
+                    {
+                        minFilter = MinFilterMode.Nearest;
+                    }
+                    break;
+
+                case FilterMode.Bilinear:
+                    magFilter = MagFilterMode.Linear;
+                    if (hasMipMap)
+                    {
+                        minFilter = MinFilterMode.LinearMipmapNearest;
+                    }
+                    else
+                    {
+                        minFilter = MinFilterMode.Linear;
+                    }
+                    break;
+
+                case FilterMode.Trilinear:
+                    magFilter = MagFilterMode.Linear;
+                    if (hasMipMap)
+                    {
+                        minFilter = MinFilterMode.Linear;
+                    }
+                    else
+                    {
+                        minFilter = MinFilterMode.LinearMipmapLinear;
+                    }
+                    break;
+            }
+
+            switch (texture.wrapMode)
+            {
+                case TextureWrapMode.Clamp:
+                    wrap = GLTF.Schema.WrapMode.ClampToEdge;
+                    break;
+                case TextureWrapMode.Repeat:
+                    wrap = GLTF.Schema.WrapMode.Repeat;
+                    break;
+            }
+
+            var sampler = new Sampler
+            {
+                MagFilter = magFilter,
+                MinFilter = minFilter,
+                WrapS = wrap,
+                WrapT = wrap
+            };
+            root.Samplers.Add(sampler);
+
+            return new SamplerId { Id = root.Samplers.Count - 1, Root = root };
+        }
+
+        private Texture2D TextureFlipY(Texture2D texture, Func<Color, Color> convertColor = null, Action<Texture2D> processTexture = null)
+        {
+            Texture2D newTex;
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
+
+            if (convertColor == null && (im == null || im.textureType != TextureImporterType.NormalMap))
+            {
+                // use gpu to speed up
+                newTex = GLTFTextureUtils.flipTexture(texture);
+            }
+            else
+            {
+                int height = texture.height;
+                int width = texture.width;
+                Color[] newTextureColors = new Color[height * width];
+
+                ExporterUtils.DoActionForTexture(ref texture, tex =>
+                {
+                    Color[] textureColors = tex.GetPixels();
+                    for (int i = 0; i < height; ++i)
+                    {
+                        for (int j = 0; j < width; ++j)
+                        {
+                            var c = textureColors[(height - i - 1) * width + j];
+
+                            newTextureColors[i * width + j] = convertColor != null ? convertColor(c) : c;
+                        }
+                    }
+                }
+                );
+
+                newTex = new Texture2D(width, height);
+                newTex.SetPixels(newTextureColors);
+                newTex.Apply();
+            }
+
+            if (processTexture != null)
+            {
+                processTexture(newTex);
+            }
+
+            return newTex;
+        }
+
+        private string[] GetTextureOutPath(Texture2D texture, string format)
+        {
+            return ExporterUtils.GetAssetOutPath(texture, format);
+        }
+
+        public CameraId SaveCamera(UnityEngine.Camera camera)
+        {
+            if (root.Cameras == null)
+            {
+                root.Cameras = new List<GLTF.Schema.Camera>();
+            }
+
+            if (_camera2ID.ContainsKey(camera))
+            {
+                return _camera2ID[camera];
+            }
+
+            var c = ProcessCamera(camera);
+            root.Cameras.Add(c);
+
+            var cameraId = new CameraId { Id = root.Cameras.Count - 1, Root = root };
+            _camera2ID.Add(camera, cameraId);
+
+            return cameraId;
+        }
+
+        private GLTF.Schema.Camera ProcessCamera(UnityEngine.Camera camera)
+        {
+            var cam = new GLTF.Schema.Camera();
+            cam.Name = camera.name;
+
+            if (camera.orthographic)
+            {
+                var matrix = camera.projectionMatrix;
+                cam.Type = GLTF.Schema.CameraType.orthographic;
+                cam.Orthographic = new CameraOrthographic
+                {
+                    ZFar = (matrix[2, 3] / matrix[2, 2]) - (1 / matrix[2, 2]),
+                    XMag = 1 / matrix[0, 0],
+                    YMag = 1 / matrix[1, 1]
+                };
+                cam.Orthographic.ZNear = cam.Orthographic.ZFar + (2 / matrix[2, 2]);
+            }
+            else
+            {
+                cam.Type = GLTF.Schema.CameraType.perspective;
+                cam.Perspective = new CameraPerspective
+                {
+                    ZFar = camera.farClipPlane,
+                    ZNear = camera.nearClipPlane,
+                    AspectRatio = camera.aspect,
+                    YFov = camera.fieldOfView / 180 * Math.PI
+                };
+            }
+
+            if (ExporterSettings.Export.skybox) {
+                cam.Extensions = new Dictionary<string, Extension>();
+                ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_skyboxExtensionFactory)), this, cam.Extensions, camera);
+            }
+
+            return cam;
+        }
+
+        public SkinId SaveSkin(Transform tr)
+        {
+            if (root.Skins == null)
+            {
+                root.Skins = new List<GLTF.Schema.Skin>();
+            }
+
+            var skinMesh = tr.GetComponent<SkinnedMeshRenderer>();
+
+            if (_skin2ID.ContainsKey(skinMesh))
+            {
+                return _skin2ID[skinMesh];
+            }
+
+            var node = tr2node[tr];
+            var skin = new Skin();
+            skin.Name = "skeleton-" + skinMesh.rootBone.name + "-" + tr.name;
+            skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(node), Root = root };
+            skin.Joints = new List<NodeId>();
+
+            foreach (var bone in skinMesh.bones)
+            {
+                if (!tr2node.ContainsKey(bone))
+                {
+                    Utils.ThrowExcption("You are expoting a skinned mesh '" + node.Name + "', but not select bones!");
+                }
+
+                skin.Joints.Add(new NodeId { Id = root.Nodes.IndexOf(tr2node[bone]) });
+            }
+
+            // Create invBindMatrices accessor
+            var bufferView = CreateStreamBufferView("invBind-" + skinMesh.rootBone.name + "-" + tr.name);
+
+            Matrix4x4[] invBindMatrices = new Matrix4x4[skin.Joints.Count];
+            for (int i = 0; i < skinMesh.bones.Length; ++i)
+            {
+                // Generates inverseWorldMatrix in right-handed coordinate system
+                Matrix4x4 invBind = skinMesh.sharedMesh.bindposes[i];
+                invBindMatrices[i] = Utils.ConvertMat4LeftToRightHandedness(ref invBind);
+            }
+
+            skin.InverseBindMatrices = AccessorToId(
+                ExporterUtils.PackToBuffer(bufferView.streamBuffer, invBindMatrices, GLTFComponentType.Float),
+                bufferView
+            );
+
+            root.Skins.Add(skin);
+
+            var id = new SkinId { Id = root.Skins.Count - 1, Root = root };
+            _skin2ID.Add(skinMesh, id);
+
+            return id;
+        }
+
+        public void SaveAnimations(Transform tr)
+        {
+            if (root.Animations == null)
+            {
+                root.Animations = new List<GLTF.Schema.Animation>();
+            }
+
+            AnimationClip[] clips = null;
+            string defaultClip = null;
+            var a = tr.GetComponent<Animator>();
+
+            if (a != null && a.runtimeAnimatorController != null)
+            {
+                clips = AnimationUtility.GetAnimationClips(tr.gameObject);
+                
+                var current = a.GetCurrentAnimatorClipInfo(0);
+                if (current.Length == 0)
+                {
+                    if (a.runtimeAnimatorController.animationClips.Length > 0)
+                    {
+                        defaultClip = a.runtimeAnimatorController.animationClips[0].name;
+                    }
+                }
+                else
+                {
+                    defaultClip = current[0].clip.name;
+                }
+            }
+            else if (tr.GetComponent<UnityEngine.Animation>())
+            {
+                Utils.ThrowExcption("Never support Unity.Animation component now, use Unity.Animator to instead of it !");
+            }
+
+            if (clips == null)
+            {
+                return;
+            }
+
+            SeinAnimator animator = tr.GetComponent<SeinAnimator>();
+            if (animator == null)
+            {
+                animator = tr.gameObject.AddComponent<SeinAnimator>();
+            }
+            animator.modelAnimations = new string[clips.Length];
+            animator.prefixes = new string[clips.Length];
+            animator.name = tr.GetComponent<Animator>().runtimeAnimatorController.name;
+            animator.defaultAnimation = defaultClip;
+
+            for (int i = 0; i < clips.Length; i++)
+            {
+                var clip = clips[i];
+                var prefix = clip.GetHashCode().ToString();
+                var clipName = clip.name;
+
+                if (clipName.Contains(tr.name + "@"))
+                {
+                    clipName = clipName.Replace(tr.name + "@", "");
+                }
+
+                SaveAnimationClip(tr, clip, prefix, clipName);
+
+                animator.modelAnimations[i] = clipName;
+
+                animator.prefixes[i] = prefix;
+            }
+        }
+
+        private GLTF.Schema.Animation SaveAnimationClip(Transform tr, AnimationClip clip, string prefix, string clipName)
+        {
+            if (_animClip2anim.ContainsKey(clip))
+            {
+                return _animClip2anim[clip];
+            }
+
+            var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clipName };
+            var targets = BakeAnimationClip(anim, tr, clip);
+            var accessors = _animClip2Accessors[clip];
+            var timeAccessorId = _animClip2TimeAccessor[clip];
+
+            int targetId = 0;
+            int accessorId = 0;
+            foreach (var target in targets)
+            {
+                var targetTr = tr.Find(targets[targetId]);
+                var targetNode = tr2node[targetTr];
+
+                foreach (var accessor in accessors[targetId])
+                {
+                    var path = accessor.Key;
+
+                    anim.Channels.Add(
+                        new AnimationChannel
+                        {
+                            Sampler = new AnimationSamplerId { Id = accessorId },
+                            Target = new AnimationChannelTarget { Path = path, Node = new NodeId { Id = root.Nodes.IndexOf(targetNode) } }
+                        }
+                    );
+
+                    anim.Samplers.Add(
+                        new AnimationSampler {
+                            Input = timeAccessorId,
+                            Output = accessor.Value,
+                            Interpolation = InterpolationType.LINEAR
+                        }
+                    );
+
+                    accessorId += 1;
+                }
+
+                targetId += 1;
+            }
+
+            root.Animations.Add(anim);
+            _animClip2anim.Add(clip, anim);
+
+            return anim;
+        }
+
+        private List<string> BakeAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
+        {
+            var needGenerate = !_animClip2Accessors.ContainsKey(clip);
+            Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>> curves = null;
+            Dictionary<string, bool> rotationIsEuler = null;
+
+            if (needGenerate)
+            {
+                curves = new Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>>();
+                rotationIsEuler = new Dictionary<string, bool>();
+            }
+
+            List<string> targets = new List<string>();
+
+            foreach (var binding in AnimationUtility.GetCurveBindings(clip))
+            {
+                var path = binding.path;
+                var curve = AnimationUtility.GetEditorCurve(clip, binding);
+
+                if (!curves.ContainsKey(path))
+                {
+                    targets.Add(path);
+                    if (needGenerate)
+                    {
+                        curves.Add(path, new Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>());
+                        rotationIsEuler.Add(path, false);
+                    }
+                }
+
+                if (!needGenerate)
                 {
                     continue;
                 }
 
-                readables[i] = im.isReadable;
-                formats[i] = im.textureCompression;
-                types[i] = im.textureType;
-                convertToNormalmaps[i] = im.convertToNormalmap;
-
-                if (!readables[i])
-                    im.isReadable = true;
-                if (types[i] != TextureImporterType.Default)
-                    im.textureType = TextureImporterType.Default;
-
-                im.textureCompression = TextureImporterCompression.Uncompressed;
-                im.SaveAndReimport();
-
-                i += 1;
+                var current = curves[path];
+                if (binding.propertyName.Contains("m_LocalPosition"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.translation))
+                    {
+                        current.Add(GLTFAnimationChannelPath.translation, new AnimationCurve[3]);
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.translation][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.translation][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.translation][2] = curve;
+                }
+                else if (binding.propertyName.Contains("m_LocalScale"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.scale))
+                    {
+                        current.Add(GLTFAnimationChannelPath.scale, new AnimationCurve[3]);
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.scale][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.scale][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.scale][2] = curve;
+                }
+                else if (binding.propertyName.ToLower().Contains("localrotation"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.rotation))
+                    {
+                        current.Add(GLTFAnimationChannelPath.rotation, new AnimationCurve[4]);
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.rotation][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.rotation][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.rotation][2] = curve;
+                    else if (binding.propertyName.Contains(".w"))
+                        current[GLTFAnimationChannelPath.rotation][3] = curve;
+                }
+                // Takes into account 'localEuler', 'localEulerAnglesBaked' and 'localEulerAnglesRaw'
+                else if (binding.propertyName.ToLower().Contains("localeuler"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.rotation))
+                    {
+                        current.Add(GLTFAnimationChannelPath.rotation, new AnimationCurve[3]);
+                        rotationIsEuler[path] = true;
+                    }
+                    if (binding.propertyName.Contains(".x"))
+                        current[GLTFAnimationChannelPath.rotation][0] = curve;
+                    else if (binding.propertyName.Contains(".y"))
+                        current[GLTFAnimationChannelPath.rotation][1] = curve;
+                    else if (binding.propertyName.Contains(".z"))
+                        current[GLTFAnimationChannelPath.rotation][2] = curve;
+                }
+                //todo: weights
             }
 
-
-            action(texs);
-
-            i = 0;
-            foreach (var tex in texs)
+            if (!needGenerate)
             {
-                TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
-                if (!readables[i])
-                    im.isReadable = false;
-                if (types[i] != TextureImporterType.Default)
-                    im.textureType = types[i];
-                if (convertToNormalmaps[i])
-                    im.convertToNormalmap = true;
-
-                im.textureCompression = formats[i];
-                im.SaveAndReimport();
-                i += 1;
+                return targets;
             }
+
+            
+            var bufferView = CreateStreamBufferView("animation-" + anim.Name);
+            int nbSamples = (int)(clip.length * 30);
+            float deltaTime = clip.length / nbSamples;
+            var accessors = new List<Dictionary<GLTFAnimationChannelPath, AccessorId>>();
+            _animClip2Accessors.Add(clip, accessors);
+
+            foreach (var path in curves.Keys)
+            {
+                var accessor = new Dictionary<GLTFAnimationChannelPath, AccessorId>();
+                accessors.Add(accessor);
+                float[] times = new float[nbSamples];
+                Vector3[] translations = null;
+                Vector3[] scales = null;
+                Vector4[] rotations = null;
+                foreach (var curve in curves[path])
+                {
+                    if (curve.Key == GLTFAnimationChannelPath.translation)
+                    {
+                        translations = new Vector3[nbSamples];
+                    }
+                    else if (curve.Key == GLTFAnimationChannelPath.scale)
+                    {
+                        scales = new Vector3[nbSamples];
+                    }
+                    else if (curve.Key == GLTFAnimationChannelPath.rotation)
+                    {
+                        rotations = new Vector4[nbSamples];
+                    }
+                }
+
+                for (int i = 0; i < nbSamples; i += 1)
+                {
+                    var currentTime = i * deltaTime;
+                    times[i] = currentTime;
+
+                    if (translations != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.translation];
+                        translations[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                    }
+
+                    if (scales != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.scale];
+                        scales[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                    }
+
+                    if (rotations != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.rotation];
+                        if (rotationIsEuler[path])
+                        {
+                            var q = Quaternion.Euler(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
+                            rotations[i] = new Vector4(q.x, q.y, q.z, q.w);
+                        } else
+                        {
+                            rotations[i] = new Vector4(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime), curve[3].Evaluate(currentTime));
+                        }
+                    }
+                }
+
+                if (!_animClip2TimeAccessor.ContainsKey(clip))
+                {
+                    var timeView = ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float);
+                    _animClip2TimeAccessor.Add(clip, AccessorToId(timeView, bufferView));
+                    timeView.Name += "-times";
+                }
+
+                AccessorId id = null;
+                if (translations != null)
+                {
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.translation, id);
+                    id.Value.Name += "-" + path + "-" + "translation";
+                }
+
+                if (scales != null)
+                {
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, scales, GLTFComponentType.Float), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.scale, id);
+                    id.Value.Name += "-" + path + "-" + "scales";
+                }
+
+                if (rotations != null)
+                {
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.rotation, id);
+                    id.Value.Name += "-" + path + "-" + "rotations";
+                }
+            }
+
+            return targets;
         }
 
-        public static void SaveJson(JToken json, string path)
+        public void Finish()
         {
-            var serializer = new JsonSerializer();
-            serializer.NullValueHandling = NullValueHandling.Ignore;
-            serializer.Formatting = Formatting.Indented;
-            using (var sw = new StreamWriter(path, false))
-            using (var writer = new JsonTextWriter(sw))
+            var prefixStr = Config.GeneratorName;
+            for (var i = Config.GeneratorName.Length; i < 24; i += 1)
             {
-                serializer.Serialize(writer, json);
-                sw.Flush();
+                prefixStr += " ";
+            }
+            var prefix = Encoding.ASCII.GetBytes(prefixStr);
+            var uri = name + ".bin";
+            var fp = Path.Combine(ExporterSettings.Export.folder, uri);
+            var bufferId = new BufferId { Id = 0, Root = root };
+            var outputFile = new FileStream(fp, FileMode.Create);
+            int offset = prefix.Length;
+
+            using (var binWriter = new BinaryWriter(outputFile)) {
+                binWriter.Write(prefix);
+
+                foreach (var bufferView in _bufferViews)
+                {
+                    int length = 0;
+
+                    if (bufferView.byteBuffer != null)
+                    {
+                        length = bufferView.byteBuffer.Length;
+                        binWriter.Write(bufferView.byteBuffer);
+                    } else if (bufferView.streamBuffer != null)
+                    {
+                        length = (int)bufferView.streamBuffer.Length;
+                        binWriter.Write(bufferView.streamBuffer.ToArray());
+                    }
+
+                    bufferView.view.ByteLength = length;
+                    bufferView.view.ByteOffset = offset;
+                    bufferView.view.Buffer = bufferId;
+
+                    offset += length;
+
+                    var rem = offset % 4;
+                    if (rem != 0)
+                    {
+                        binWriter.Write(new byte[4 - rem]);
+                        offset += 4 - rem;
+                    }
+                }
+
+                binWriter.Flush();
+            }
+
+            var buffer = new GLTF.Schema.Buffer();
+            buffer.ByteLength = offset;
+            buffer.Uri = uri;
+            root.Buffers = new List<GLTF.Schema.Buffer> { buffer };
+
+            using (var writer = File.CreateText(path))
+            {
+                root.Serialize(writer);
             }
         }
     }
