@@ -40,6 +40,7 @@ namespace SeinJS
     {
         public ImageId[] images;
         public SamplerId sampler;
+        public bool isImageCanRelease;
     }
 
     public class Sein_cubeTextureExtension : Extension
@@ -59,7 +60,8 @@ namespace SeinJS
                 }
                 value.Add(new JObject(
                     new JProperty("images", JArray.FromObject(images)),
-                    new JProperty("sampler", tex.sampler.Id)
+                    new JProperty("sampler", tex.sampler.Id),
+                    new JProperty("isImageCanRelease", tex.isImageCanRelease)
                 ));
             }
 

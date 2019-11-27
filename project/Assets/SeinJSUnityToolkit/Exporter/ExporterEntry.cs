@@ -690,7 +690,10 @@ namespace SeinJS
 
             var samplerId = GenerateSampler(texture);
 
-            var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId };
+            var gltfTexture = new GLTF.Schema.Texture { Source = imageId, Sampler = samplerId, Extensions = new Dictionary<string, Extension>() };
+
+            ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_textureImproveExtensionFactory)), this, gltfTexture.Extensions, texture);
+
             root.Textures.Add(gltfTexture);
 
             var id = new TextureId { Id = root.Textures.Count - 1, Root = root };

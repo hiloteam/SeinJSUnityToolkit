@@ -2,7 +2,7 @@
   "name": "22",
   "asset": {
     "generator": "Sein.js Toolkit",
-    "version": "1.0.6"
+    "version": "1.1.2"
   },
   "frames": {
     "01": {
@@ -111,5 +111,6 @@
       "w": 1804,
       "h": 1804
     }
-  }
+  },
+  "isImageCanRelease": true
 }

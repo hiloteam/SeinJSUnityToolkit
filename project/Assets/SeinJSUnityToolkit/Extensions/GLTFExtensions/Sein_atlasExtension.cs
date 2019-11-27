@@ -16,7 +16,7 @@ namespace SeinJS
     {
         public struct Atlas
         {
-            public JObject json;
+            public JObject json; 
         }
 
         public List<Atlas> atlases = new List<Atlas>();

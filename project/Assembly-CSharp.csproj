@@ -139,6 +139,8 @@
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_skyboxExtensionFactory.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_textureImproveExtensionFactory.cs" />
+    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_textureImproveExtension.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\AssetSerializer.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\AssetCache.cs" />
     <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\MaterialCacheData.cs" />

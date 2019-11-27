@@ -26,6 +26,7 @@ public class SeinAtlas : ScriptableObject
     public string atlasPath;
     public string jsonPath;
     public bool saveAfterPack = true;
+    public bool isImageCanRelease = true;
 
     public Texture2D Get(string frameName)
     {
@@ -115,7 +116,8 @@ public class SeinAtlas : ScriptableObject
                     new JProperty("w", maxWidth),
                     new JProperty("h", maxHeight)
                 ))
-            ))
+            )),
+            new JProperty("isImageCanRelease", isImageCanRelease)
         );
         for (int i = 0; i < rects.Length; i += 1)
         {
@@ -265,6 +267,7 @@ public class SeinAtlasEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxWidth"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("maxHeight"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("padding"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("isImageCanRelease"));
 
         var option = EEditorListOption.ListLabel | EEditorListOption.Buttons;
         EditorList.Show(serializedObject.FindProperty("images"), option);

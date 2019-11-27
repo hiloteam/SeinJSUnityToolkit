@@ -81,7 +81,8 @@ namespace SeinJS
                 i += 1;
             }
 
-            extension.textures.Add(new CubeTexture { images = images, sampler = opts.sampler });
+            // isImageCanRelease always be true
+            extension.textures.Add(new CubeTexture { images = images, sampler = opts.sampler, isImageCanRelease = true });
         }
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)
