@@ -228,7 +228,7 @@ namespace SeinJS
             attrs.Add("POSITION", PackAttrToBuffer(bufferView, mesh.vertices, offset, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }));
             offset += 3 * 4;
 
-            if (mesh.normals.Length > 0)
+            if (mesh.normals.Length > 0 && !ExporterSettings.Export.unlit)
             {
                 attrs.Add("NORMAL", PackAttrToBuffer(bufferView, mesh.normals, offset, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }));
                 offset += 3 * 4;
@@ -252,7 +252,7 @@ namespace SeinJS
                 offset += 2 * 4;
             }
 
-            if (mesh.tangents.Length > 0)
+            if (mesh.tangents.Length > 0 && !ExporterSettings.Export.unlit)
             {
                 attrs.Add("TANGENT", PackAttrToBuffer(bufferView, mesh.tangents, offset, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }));
                 offset += 4 * 4;
@@ -386,7 +386,7 @@ namespace SeinJS
         {
             int stride = 3 * 4; 
 
-            if (mesh.normals.Length > 0)
+            if (mesh.normals.Length > 0 && !ExporterSettings.Export.unlit)
             {
                 stride += 3 * 4;
             }
@@ -406,7 +406,7 @@ namespace SeinJS
                 stride += 2 * 4;
             }
 
-            if (mesh.tangents.Length > 0)
+            if (mesh.tangents.Length > 0 && !ExporterSettings.Export.unlit)
             {
                 stride += 4 * 4;
             }
@@ -709,15 +709,8 @@ namespace SeinJS
                 root.Samplers = new List<Sampler>();
             }
 
-            var hasMipMap = false;
-
-            if (texture is Texture2D)
-            {
-                hasMipMap = (texture as Texture2D).mipmapCount > 0;
-            } else if (texture is Cubemap)
-            {
-                hasMipMap = (texture as Cubemap).mipmapCount > 0;
-            }
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
+            var hasMipMap = im.mipmapEnabled;
 
             MagFilterMode magFilter = MagFilterMode.None;
             MinFilterMode minFilter = MinFilterMode.None;
@@ -769,6 +762,9 @@ namespace SeinJS
                     break;
                 case TextureWrapMode.Repeat:
                     wrap = GLTF.Schema.WrapMode.Repeat;
+                    break;
+                case TextureWrapMode.Mirror:
+                    wrap = GLTF.Schema.WrapMode.MirroredRepeat;
                     break;
             }
 

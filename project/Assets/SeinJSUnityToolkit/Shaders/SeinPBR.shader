@@ -433,7 +433,7 @@ Shader "Sein/PBR" {
             {
                 fixed4 baseColor = sampleTexture(_baseColorMap, i.uv);
                 baseColor *= _baseColor;
-                fixed4 color;
+                fixed4 color = baseColor;
                 
                 if (!unlit) {
                     color = processLight(baseColor, i);

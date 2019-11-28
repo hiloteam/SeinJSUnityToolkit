@@ -37,10 +37,11 @@ namespace SeinJS
 		{
 			public static string folder = "";
 			public static string name = "";
-            public static bool splitChunks = false;
-            public static bool skybox = true;
+      public static bool splitChunks = false;
+      public static bool skybox = true;
+      public static bool unlit = false;
 
-            public static void UpdateFolder(string folder)
+      public static void UpdateFolder(string folder)
 			{
                 if (folder.Substring(0, 1) == ".")
                 {
