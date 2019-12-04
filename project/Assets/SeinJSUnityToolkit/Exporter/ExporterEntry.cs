@@ -611,7 +611,11 @@ namespace SeinJS
             {
                 if (tex.width > maxSize || tex.height > maxSize)
                 {
-                    TextureScale.Bilinear(tex, maxSize, maxSize);
+                    if (tex.width > tex.height) {
+                        TextureScale.Bilinear(tex, maxSize, maxSize * tex.height / tex.width);
+                    } else {
+                        TextureScale.Bilinear(tex, maxSize * tex.width / tex.height, maxSize);
+                    }
                 }
 
                 if (format == ".png")
