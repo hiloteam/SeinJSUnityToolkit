@@ -450,15 +450,15 @@ namespace SeinJS
 
         public MaterialId SaveNormalMaterial(UnityEngine.Material material)
         {
-            if (root.Materials == null)
-            {
-                root.Materials = new List<GLTF.Schema.Material>();
-            }
-
             var mid = material.GetInstanceID();
             if (_material2ID.ContainsKey(mid))
             {
                 return _material2ID[mid];
+            }
+
+            if (root.Materials == null)
+            {
+                root.Materials = new List<GLTF.Schema.Material>();
             }
 
 			var mat = ExporterUtils.ConvertMaterial(material, this);
@@ -484,7 +484,7 @@ namespace SeinJS
             return id;
         }
 
-        public TextureId SaveTexture(Texture2D texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.RGBD, bool flipY = true)
+        public TextureId SaveTexture(Texture2D texture, bool hasTransparency = false, string path = null, int maxSize = -1, EHDRTextureType hdrType = EHDRTextureType.DEFAULT, bool flipY = true)
         {
             if (_texture2d2ID.ContainsKey(texture))
             {

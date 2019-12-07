@@ -22,6 +22,7 @@ namespace SeinJS
             public string frameName;
             public bool isBillboard;
             public bool frustumTest;
+            public MaterialId materialId;
         }
 
         public bool isGlobal = false;
@@ -46,18 +47,23 @@ namespace SeinJS
                 value.Add("sprites", sps);
                 foreach (var sprite in sprites)
                 {
-                    sps.Add(
-                        new JObject(
-                            new JProperty("width", sprite.width),
-                            new JProperty("height", sprite.height),
-                            new JProperty("atlas", new JObject(
-                                new JProperty("index", sprite.atlasId),
-                                new JProperty("frameName", sprite.frameName)
-                            )),
-                            new JProperty("isBillboard", sprite.isBillboard),
-                            new JProperty("frustumTest", sprite.frustumTest)
-                        )
+                    var s = new JObject(
+                        new JProperty("width", sprite.width),
+                        new JProperty("height", sprite.height),
+                        new JProperty("atlas", new JObject(
+                            new JProperty("index", sprite.atlasId),
+                            new JProperty("frameName", sprite.frameName)
+                        )),
+                        new JProperty("isBillboard", sprite.isBillboard),
+                        new JProperty("frustumTest", sprite.frustumTest)
                     );
+
+                    if (sprite.materialId != null)
+                    {
+                        s.Add("material", new JObject(new JProperty("index", sprite.materialId.Id)));
+                    }
+
+                    sps.Add(s);
                 }
             }
 

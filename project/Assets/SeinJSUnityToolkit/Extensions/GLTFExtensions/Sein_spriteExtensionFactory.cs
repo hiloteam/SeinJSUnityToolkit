@@ -71,6 +71,30 @@ namespace SeinJS
             s.frustumTest = sprite.frustumTest;
             s.atlasId = Sein_atlasExtensionFactory.GetAtlasIndex(entry, sprite.atlas);
             s.frameName = sprite.frameName;
+
+            var customMaterial = sprite.GetComponent<SeinCustomMaterial>();
+            GLTF.Schema.Material gltfMat = null;
+            if (customMaterial != null)
+            {
+                gltfMat = ExporterUtils.ConvertMaterial(customMaterial, entry);
+            } else if (sprite.material.shader.name != "Sein/Sprite" && sprite.material.shader.name.Contains("Sein/"))
+            {
+                gltfMat = ExporterUtils.ConvertSeinCustomMaterial(sprite.material, entry);
+            }
+
+            if (gltfMat != null)
+            {
+                var root = entry.root;
+                if (root.Materials == null)
+                {
+                    root.Materials = new List<GLTF.Schema.Material>();
+                }
+
+                root.Materials.Add(gltfMat);
+                var id = new MaterialId { Id = root.Materials.Count - 1, Root = root };
+                s.materialId = id;
+            }
+
             globalExtension.sprites.Add(s);
 
             var index = globalExtension.sprites.Count - 1;
@@ -103,6 +127,11 @@ namespace SeinJS
                         sp.frameName = sprite.Value<JObject>("atlas").Value<string>("frameName");
                         sp.atlasId = sprite.Value<JObject>("atlas").Value<int>("index");
 
+                        if (sprite["material"] != null)
+                        {
+                            sp.materialId = new MaterialId { Root = root, Id = sprite.Value<JObject>("material").Value<int>("index") };
+                        }
+
                         extension.sprites.Add(sp);
                     }
                 }
@@ -126,6 +155,12 @@ namespace SeinJS
             sprite.frustumTest = sp.frustumTest;
             sprite.frameName = sp.frameName;
             sprite.atlas = Sein_atlasExtensionFactory.IMPORTED_ATLASES[sp.atlasId];
+
+            if (sp.materialId != null)
+            {
+                sprite.material = importer.assetCache.MaterialCache[sp.materialId.Id].UnityMaterial;
+            }
+            
             sprite.SetFrame(sprite.atlas, sprite.frameName);
         }
     }

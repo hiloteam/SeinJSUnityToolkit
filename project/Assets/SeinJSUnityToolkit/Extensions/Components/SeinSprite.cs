@@ -20,12 +20,13 @@ public class SeinSprite : MonoBehaviour
     public string frameName;
     public bool isBillboard = false;
     public bool frustumTest = true;
+    public Material material;
     // materialOptions
 
     private SeinAtlas _preAtlas;
     private string _preFrameName;
+    private Material _preMat;
     private Mesh _mesh;
-    private Material _material;
 
     public void Generate()
     {
@@ -72,12 +73,12 @@ public class SeinSprite : MonoBehaviour
         if (!GetComponent<MeshRenderer>())
         {
             var mr = gameObject.AddComponent<MeshRenderer>();
-            _material = new Material(Shader.Find("Sein/Sprite"));
+            material = new Material(Shader.Find("Sein/Sprite"));
             var matPath = SPRITE_DATA_DIR_PATH + "/" + GetInstanceID().ToString() + ".mat";
-            AssetDatabase.CreateAsset(_material, matPath);
-            _material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
-            _material.hideFlags = HideFlags.HideInInspector;
-            mr.sharedMaterial = _material;
+            AssetDatabase.CreateAsset(material, matPath);
+            material = AssetDatabase.LoadAssetAtPath<Material>(matPath);
+            _preMat = material;
+            mr.sharedMaterial = material;
         }
 
         AssetDatabase.SaveAssets();
@@ -86,7 +87,7 @@ public class SeinSprite : MonoBehaviour
     public void SetFrame(SeinAtlas atlas, string frameName)
     {
         var tex = atlas.Get(frameName);
-        _material.SetTexture("_MainTex", tex);
+        material.SetTexture("_MainTex", tex);
     }
 
     public void Awake()
@@ -97,7 +98,8 @@ public class SeinSprite : MonoBehaviour
 
             if (GetComponent<MeshRenderer>())
             {
-                _material = GetComponent<MeshRenderer>().sharedMaterial;
+                material = GetComponent<MeshRenderer>().sharedMaterial;
+                _preMat = material;
             }
         }
     }
@@ -109,9 +111,14 @@ public class SeinSprite : MonoBehaviour
             return;
         }
 
+        if (_preMat != material)
+        {
+            gameObject.GetComponent<MeshRenderer>().sharedMaterial = material;
+        }
+
         if (_preAtlas != atlas || _preFrameName != frameName)
         {
-            if (_material)
+            if (material)
             {
                 SetFrame(atlas, frameName);
             }
@@ -159,6 +166,7 @@ public class SeinSpriteEditor : Editor
         EditorGUILayout.PropertyField(serializedObject.FindProperty("frameName"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("isBillboard"));
         EditorGUILayout.PropertyField(serializedObject.FindProperty("frustumTest"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("material"));
 
         if (GUILayout.Button("Generate", GUILayout.Width(160), GUILayout.Height(32)))
         {

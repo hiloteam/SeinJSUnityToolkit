@@ -451,7 +451,7 @@ namespace SeinJS
             return material;
         }
 
-        private static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material mat, ExporterEntry entry)
+        public static GLTF.Schema.Material ConvertSeinCustomMaterial(UnityEngine.Material mat, ExporterEntry entry)
         {
             if (_tempGO == null)
             {
@@ -539,6 +539,7 @@ namespace SeinJS
 
             var tempM = new GLTF.Schema.Material();
             customMaterial.transparent = ProcessTransparency(mat, tempM);
+
             var m = ConvertMaterial(customMaterial, entry);
 
             return m;

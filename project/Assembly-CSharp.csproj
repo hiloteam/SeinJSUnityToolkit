@@ -161,6 +161,7 @@
     <None Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBR.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinSprite.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinBackground.shader" />
+    <None Include="Assets\SeinCustomMaterials\ColoredSprite\SeinColoredSprite.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFFlipTexture.shader" />
     <None Include="Assets\SeinCustomMaterials\Unlit\SeinUnlit.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBR.shader" />

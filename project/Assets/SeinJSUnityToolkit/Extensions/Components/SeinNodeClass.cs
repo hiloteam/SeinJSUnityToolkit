@@ -3,6 +3,7 @@ using System.Collections;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System;
+using SeinJS;
 
 namespace SeinJS
 {
@@ -188,5 +189,17 @@ public class SeinNodeClass : MonoBehaviour
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Texture2D option)
     {
         return new SeinJS.SeinNodeOption("Tex2D", new JObject(new JProperty("index", entry.SaveTexture(option, true).Id)));
+    }
+
+    public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Cubemap option)
+    {
+        return new SeinJS.SeinNodeOption("TexCube", new JObject(new JProperty("index", entry.SaveCubeTexture(option, true).Id)));
+    }
+
+    public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, SeinAtlas option)
+    {
+        ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_atlasExtensionFactory)), entry, entry.root.Extensions, option);
+        var atlasId = Sein_atlasExtensionFactory.GetAtlasIndex(entry, option);
+        return new SeinJS.SeinNodeOption("Atlas", new JObject(new JProperty("index", atlasId)));
     }
 }

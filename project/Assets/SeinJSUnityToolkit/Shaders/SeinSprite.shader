@@ -8,7 +8,7 @@ Shader "Sein/Sprite"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        [HideInInspector] _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
