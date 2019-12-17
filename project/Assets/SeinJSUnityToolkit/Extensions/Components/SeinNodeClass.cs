@@ -95,6 +95,14 @@ public class SeinNodeClass : MonoBehaviour
         {
             return SerializeValue(entry, (Texture2D)option);
         }
+        else if (option is Cubemap)
+        {
+            return SerializeValue(entry, (Cubemap)option);
+        }
+        else if (option is SeinAtlas)
+        {
+            return SerializeValue(entry, (SeinAtlas)option);
+        }
         else if (option is Array)
         {
             var res = new JArray();

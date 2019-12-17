@@ -21,6 +21,7 @@ namespace SeinJS
 			window.titleContent.text = "Importer";
 			window.Show(true);
 
+            Config.Load();
             if (!Utils.inited)
             {
                 Utils.Init();

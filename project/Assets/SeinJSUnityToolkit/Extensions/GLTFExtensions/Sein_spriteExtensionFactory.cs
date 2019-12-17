@@ -49,7 +49,15 @@ namespace SeinJS
             var sprite = component as SeinSprite;
             var extension = new Sein_spriteExtension { isGlobal = false };
             var sp = sprite;
+            var customMaterial = sprite.GetComponent<SeinCustomMaterial>();
             var cacheId = $"w{sp.width}-h{sp.height}-at{sp.atlas.GetInstanceID()}-fn{sp.frameName}-bb{sp.isBillboard}-ft{sp.frustumTest}";
+            if (customMaterial != null)
+            {
+                cacheId += $"mat{customMaterial.GetInstanceID()}";
+            } else
+            {
+                cacheId += $"mat{sprite.material.GetInstanceID()}";
+            }
             if (!_CAHCE.ContainsKey(entry))
             {
                 _CAHCE.Add(entry, new Dictionary<string, int>());
@@ -72,7 +80,6 @@ namespace SeinJS
             s.atlasId = Sein_atlasExtensionFactory.GetAtlasIndex(entry, sprite.atlas);
             s.frameName = sprite.frameName;
 
-            var customMaterial = sprite.GetComponent<SeinCustomMaterial>();
             GLTF.Schema.Material gltfMat = null;
             if (customMaterial != null)
             {

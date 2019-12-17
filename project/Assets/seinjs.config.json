@@ -1,4 +1,33 @@
 {
   "exportPath": "../Output",
-  "importPath": "./Resources"
+  "importPath": "./Resources",
+  "exporterSettings": {
+    "Export": {
+      "folder": "/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Output",
+      "name": "Sprite",
+      "splitChunks": false,
+      "skybox": false,
+      "unlit": false
+    },
+    "NormalTexture": {
+      "maxSize": 1024,
+      "transparentType": 1,
+      "opaqueType": 0,
+      "pngFormat": 4,
+      "jpgQulity": 85
+    },
+    "HDR": {
+      "type": 1
+    },
+    "CubeTexture": {
+      "maxSize": 1024
+    },
+    "Lighting": {
+      "ambient": false,
+      "lightMap": true,
+      "lightMapSize": 1024,
+      "reflection": true,
+      "reflectionSize": 1024
+    }
+  }
 }
