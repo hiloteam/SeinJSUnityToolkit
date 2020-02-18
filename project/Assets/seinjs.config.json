@@ -1,9 +1,9 @@
 {
-  "exportPath": "../Output",
-  "importPath": "./Resources",
+  "exportPath": "..\\Output",
+  "importPath": ".\\Resources",
   "exporterSettings": {
     "Export": {
-      "folder": "/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Output",
+      "folder": "C:\\Users\\dtysky\\ComplexMind\\SeinUnityToolkit\\project\\Output",
       "name": "Sprite",
       "splitChunks": false,
       "skybox": false,
