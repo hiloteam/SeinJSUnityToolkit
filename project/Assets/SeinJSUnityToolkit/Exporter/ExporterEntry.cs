@@ -1028,7 +1028,8 @@ namespace SeinJS
             int accessorId = 0;
             foreach (var target in targets)
             {
-                var targetTr = tr.Find(targets[targetId]);
+                var targetName = targets[targetId].Replace("/", "");
+                var targetTr = tr.Find(targetName);
                 var targetNode = tr2node[targetTr];
 
                 foreach (var accessor in accessors[targetId])
