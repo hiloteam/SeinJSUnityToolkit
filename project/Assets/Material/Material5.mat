@@ -98,7 +98,7 @@ Material:
     - cloneForInst: 0
     - envReflection: 0
     - lightMode: 3
-    - lightType: 1
+    - lightType: 3
     - u_reflectivity: 0
     - u_refractRatio: 0
     - u_refractivity: 0
