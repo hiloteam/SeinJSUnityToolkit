@@ -9,36 +9,6 @@ import 'seinjs-audio';
 import 'seinjs-inspector';
 import * as CANNON from 'cannon-dtysky';
 
-function BasicMaterial({
-  uniforms,
-  options,
-  ...opts
-}) {
-  const lt = uniforms.lightType.value;
-  const lightType: any = lt === 0 ? 'NONE' : lt === 1 ? 'PHONE' : lt === 2 ? 'BLINN-PHONE' : 'LAMBERT';
-
-  console.log(lightType)
-
-  return new Sein.BasicMaterial({
-    lightType,
-    diffuse: (uniforms.u_diffuseMap || uniforms.u_diffuse || {}).value,
-    ambient: (uniforms.u_ambientMap || {}).value,
-    specular: (uniforms.u_specularMap || uniforms.u_specular || {}).value,
-    normalMap: (uniforms.u_normalMap || {}).value,
-    normalMapScale: (uniforms.u_normalMapScale || {}).value,
-    emission: (uniforms.u_emissionMap || uniforms.u_emission || {}).value,
-    shininess: (uniforms.u_shininess || {}).value,
-    reflectivity: (uniforms.u_reflectivity || {}).value,
-    refractivity: (uniforms.u_refractivity || {}).value,
-    refractRatio: (uniforms.u_refractRatio || {}).value,
-    ...opts
-  });
-}
-
-(Sein as any).BasicMaterial.prototype.initCommonOptions = () => {}
-(Sein as any).MetaSMaterials['BasicMaterial'] = BasicMaterial;
-
-
 import {EModelEvents} from './types';
 import {bindCameraControl, createNewModels, initEvents, createDefaultCamera, checkUpdate} from './script';
 

@@ -114,7 +114,9 @@ namespace SeinJS
                     new JProperty("name", Export.name),
                     new JProperty("splitChunks", Export.splitChunks),
                     new JProperty("skybox", Export.skybox),
-                    new JProperty("unlit", Export.unlit)
+                    new JProperty("unlit", Export.unlit),
+                    new JProperty("checkEmpty", Export.checkEmpty),
+                    new JProperty("clear", Export.clear)
                 )),
                 new JProperty("NormalTexture", new JObject(
                     new JProperty("maxSize", NormalTexture.maxSize),
@@ -156,6 +158,8 @@ namespace SeinJS
                 if (obj["splitChunks"] != null) { Export.splitChunks = (bool)obj["splitChunks"]; }
                 if (obj["skybox"] != null) { Export.skybox = (bool)obj["skybox"]; }
                 if (obj["unlit"] != null) { Export.unlit = (bool)obj["unlit"]; }
+                if (obj["checkEmpty"] != null) { Export.checkEmpty = (bool)obj["checkEmpty"]; }
+                if (obj["clear"] != null) { Export.clear = (bool)obj["clear"]; }
             }
 
             if (json["NormalTexture"] != null)

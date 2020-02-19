@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &431290675
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,7 +180,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b7a7de9738de140d2b809a0271065173, type: 2}
+  - {fileID: 2100000, guid: 1b9ddf803bba7467cb1dc8bdcb736a2d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -241,34 +241,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &953529601 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3669371564855431054, guid: d1a7e58c6d0bf496e8a8dcc673e853c0,
-    type: 3}
-  m_PrefabInstance: {fileID: 3669371565808892559}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &953529602
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 953529601}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c9c2a060d5234abf96a35acd112c9b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selfType: 2
-  childrenType: 1
-  className: 
-  tag: 
-  layer: 268435455
-  persistent: 0
-  emitComponentsDestroy: 1
-  updateOnEverTick: 1
-  isStatic: 0
-  skipThisNode: 0
 --- !u!1 &1050463521
 GameObject:
   m_ObjectHideFlags: 0
@@ -504,7 +476,7 @@ PrefabInstance:
     - target: {fileID: 3669371564855431054, guid: d1a7e58c6d0bf496e8a8dcc673e853c0,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3669371564855431052, guid: d1a7e58c6d0bf496e8a8dcc673e853c0,
         type: 3}
@@ -563,13 +535,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3669371564855431050, guid: d1a7e58c6d0bf496e8a8dcc673e853c0,
         type: 3}
-      propertyPath: frameName
-      value: 01
+      propertyPath: isBillboard
+      value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3669371564855431050, guid: d1a7e58c6d0bf496e8a8dcc673e853c0,
+    - target: {fileID: 3669371564855431051, guid: d1a7e58c6d0bf496e8a8dcc673e853c0,
         type: 3}
-      propertyPath: material
+      propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 2100000, guid: 1b9ddf803bba7467cb1dc8bdcb736a2d, type: 2}
+      objectReference: {fileID: 4300000, guid: c8c784ba491fe4b00990938b15ea77b5, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d1a7e58c6d0bf496e8a8dcc673e853c0, type: 3}

@@ -28,13 +28,14 @@ http://seinjs.com/cn/guide/unity
 12. Support import multiple primitives mesh and its hierarchy in unity(by using sub meshes).
 13. Support interleaved primitives.
 14. Add Sein/PBR material to replace Unity Standard material.
-15. Support IBL: SH and Reflection.
-16. Support ambient light.
-17. Support linear color space.
-18. Support SeinJS atlas.
-19. Support SeinJS Sprite.
-20. Support SeinJS Material Scripts.
-21. Support preview and inspector.
-22. Support cubmap.
-23. Support skybox.
-24. Support HDR texture.
+15. Add Sein/Basic material.
+16. Support IBL: SH and Reflection.
+17. Support ambient light.
+18. Support linear color space.
+19. Support SeinJS atlas.
+20. Support SeinJS Sprite.
+21. Support SeinJS Material Scripts.
+22. Support preview and inspector.
+23. Support cubmap.
+24. Support skybox.
+25. Support HDR texture.
