@@ -2,8 +2,9 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs">
     <Files>
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterWindow.cs" Line="258" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="1" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="38" Column="4" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,6 +16,13 @@
                 <Node name="Exporter" expanded="True">
                   <Node name="ExporterWindow.cs" selected="True" />
                 </Node>
+                <Node name="Extensions" expanded="True">
+                  <Node name="Components" expanded="True" />
+                  <Node name="GLTFExtensions" expanded="True" />
+                </Node>
+                <Node name="Importer" expanded="True" />
+                <Node name="Previewer" expanded="True" />
+                <Node name="Tools" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -24,7 +32,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="0520391b-8400-46b3-b548-3cd39c4ced2a" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="7033c225-7d9b-4caf-9487-9d2b906ec623" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

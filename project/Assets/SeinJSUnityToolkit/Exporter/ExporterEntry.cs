@@ -713,8 +713,12 @@ namespace SeinJS
                 root.Samplers = new List<Sampler>();
             }
 
+            var hasMipMap = true;
             TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
-            var hasMipMap = im.mipmapEnabled;
+            if (im != null)
+            {
+                hasMipMap = im.mipmapEnabled;
+            }
 
             MagFilterMode magFilter = MagFilterMode.None;
             MinFilterMode minFilter = MinFilterMode.None;

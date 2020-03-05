@@ -41,7 +41,7 @@ namespace SeinJS
             public static bool clear = false;
             public static bool checkEmpty = true;
             public static bool splitChunks = false;
-            public static bool skybox = true;
+            public static bool skybox = false;
             public static bool unlit = false;
 
             public static void UpdateFolder(string folder)

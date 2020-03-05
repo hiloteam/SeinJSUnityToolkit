@@ -47,12 +47,10 @@ namespace SeinJS
 
         void OnFocus()
         {
-            if (_exporter != null)
+            if (_exporter == null)
             {
-                return;
+                _exporter = new Exporter();
             }
-
-            _exporter = new Exporter();
 
             Config.Load();
             if (!Utils.inited)
@@ -83,7 +81,6 @@ namespace SeinJS
 
         void ResizeWindow(Vector2 size)
         {
-            //this.maxSize = size;
             minSize = size;
         }
 
