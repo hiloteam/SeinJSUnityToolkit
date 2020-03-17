@@ -50,7 +50,7 @@
     "seinjs-debug-tools": "^0.8.0",
     "seinjs-dom-hud": "^0.8.0",
     "seinjs-gpu-particle-system": "^0.8.3",
-    "seinjs-inspector": "^0.8.10",
+    "seinjs-inspector": "^0.9.1",
     "seinjs-post-processing-system": "^0.8.0"
   }
 }

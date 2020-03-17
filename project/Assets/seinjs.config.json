@@ -4,12 +4,12 @@
   "exporterSettings": {
     "Export": {
       "folder": "/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Output",
-      "name": "Sprite",
+      "name": "scene",
       "splitChunks": false,
-      "skybox": false,
+      "skybox": true,
       "unlit": false,
       "checkEmpty": true,
-      "clear": false
+      "clear": true
     },
     "NormalTexture": {
       "maxSize": 1024,
@@ -25,7 +25,7 @@
       "maxSize": 1024
     },
     "Lighting": {
-      "ambient": false,
+      "ambient": true,
       "lightMap": true,
       "lightMapSize": 1024,
       "reflection": true,
