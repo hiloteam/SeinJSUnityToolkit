@@ -23,8 +23,8 @@ namespace SeinJS
 
     public class Config
     {
-        public static Version Version = new Version("1.1.7");
-        public static string GeneratorName = "Sein.js Toolkit";
+        public static Version Version = new Version("1.2.1");
+        public static string GeneratorName = "SEIN.JS Toolkit";
         public static string DefaultExportFolder = "../Output";
         public static string DefaultImportFolder = "./Resources";
         public static string AppDataPath;

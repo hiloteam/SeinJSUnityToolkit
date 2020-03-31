@@ -275,7 +275,7 @@ namespace SeinJS
         {
             if (material.shader.name.Contains("Standard") || material.shader.name.Contains("Autodesk Interactive"))
             {
-                Utils.ThrowExcption("Toolkit doesn't support Unity Standard Material anymore, please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/material-sein");
+                Utils.ThrowExcption("Toolkit doesn't support Unity Standard Material anymore, please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/scene-editor/material-sein");
             }
 
             if (material.shader.name == "Sein/PBR")

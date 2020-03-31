@@ -1070,6 +1070,7 @@ namespace SeinJS
         private List<string> BakeAnimationClip(GLTF.Schema.Animation anim, Transform tr, AnimationClip clip)
         {
             var needGenerate = !_animClip2Accessors.ContainsKey(clip);
+            var smr = tr.GetComponent<UnityEngine.SkinnedMeshRenderer>();
             Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>> curves = null;
             Dictionary<string, bool> rotationIsEuler = null;
 
@@ -1158,7 +1159,15 @@ namespace SeinJS
                     else if (binding.propertyName.Contains(".z"))
                         current[GLTFAnimationChannelPath.rotation][2] = curve;
                 }
-                //todo: weights
+                else if (binding.propertyName.Contains("blendShape"))
+                {
+                    if (!current.ContainsKey(GLTFAnimationChannelPath.weights))
+                    {
+                        current.Add(GLTFAnimationChannelPath.weights, new AnimationCurve[smr.sharedMesh.blendShapeCount]);
+                    }
+                    var key = binding.propertyName.Replace("blendShape.", "");
+                    current[GLTFAnimationChannelPath.weights][smr.sharedMesh.GetBlendShapeIndex(key)] = curve;
+                }
             }
 
             if (!needGenerate)
@@ -1181,6 +1190,7 @@ namespace SeinJS
                 Vector3[] translations = null;
                 Vector3[] scales = null;
                 Vector4[] rotations = null;
+                float[] weights = null;
                 foreach (var curve in curves[path])
                 {
                     if (curve.Key == GLTFAnimationChannelPath.translation)
@@ -1194,6 +1204,10 @@ namespace SeinJS
                     else if (curve.Key == GLTFAnimationChannelPath.rotation)
                     {
                         rotations = new Vector4[nbSamples];
+                    }
+                    else if (curve.Key == GLTFAnimationChannelPath.weights)
+                    {
+                        weights = new float[nbSamples * smr.sharedMesh.blendShapeCount];
                     }
                 }
 
@@ -1226,6 +1240,15 @@ namespace SeinJS
                             rotations[i] = new Vector4(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime), curve[3].Evaluate(currentTime));
                         }
                     }
+
+                    if (weights != null)
+                    {
+                        var curve = curves[path][GLTFAnimationChannelPath.weights];
+                        for (int j = 0; j < smr.sharedMesh.blendShapeCount; j += 1)
+                        {
+                            weights[i * smr.sharedMesh.blendShapeCount + j] = curve[j].Evaluate(currentTime);
+                        }
+                    }
                 }
 
                 if (!_animClip2TimeAccessor.ContainsKey(clip))
@@ -1255,6 +1278,13 @@ namespace SeinJS
                     id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }), bufferView);
                     accessor.Add(GLTFAnimationChannelPath.rotation, id);
                     id.Value.Name += "-" + path + "-" + "rotations";
+                }
+
+                if (weights != null)
+                {
+                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, weights, GLTFComponentType.Float), bufferView);
+                    accessor.Add(GLTFAnimationChannelPath.weights, id);
+                    id.Value.Name += "-" + path + "-" + "weights";
                 }
             }
 

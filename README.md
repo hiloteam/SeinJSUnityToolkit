@@ -17,7 +17,7 @@ http://seinjs.com/cn/guide/unity
 ## Features
 
 1. Export and import node, mesh, material, texture, lights, cameras...
-2. Support animations.
+2. Support animations(transform, bones, morph...).
 3. Support texture compression.
 4. Support custom materials.
 5. Support binding scripts.

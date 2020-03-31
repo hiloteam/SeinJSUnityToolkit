@@ -25,7 +25,7 @@ namespace SeinJS
 
             extension.anisotropic = texture.anisoLevel;
             // for 3d modle's textures, it always be true
-            extension.isImageCanRelease = true;
+            extension.isImageCanRelease = texture.isReadable;
 
             AddExtension(extensions, extension);
         }

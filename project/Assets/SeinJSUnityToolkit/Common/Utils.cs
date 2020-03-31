@@ -107,7 +107,7 @@ namespace SeinJS
         [MenuItem("SeinJS/Help", priority = 3)]
         public static void Help()
         {
-            Application.OpenURL("http://seinjs.com/cn/guide/unity");
+            Application.OpenURL("http://seinjs.com/cn/guide/scene-editor/unity-extension");
         }
 
         static void EditorUpdate()
