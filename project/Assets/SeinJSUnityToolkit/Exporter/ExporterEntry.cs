@@ -296,11 +296,11 @@ namespace SeinJS
             for (int i = 0; i < mesh.blendShapeCount; i += 1)
             {
                 stride += 3 * 4;
-                if (mesh.normals.Length > 0)
+                if (mesh.normals.Length > 0 && !ExporterSettings.Export.unlit)
                 {
                     stride += 3 * 4;
                 }
-                if (mesh.tangents.Length > 0)
+                if (mesh.tangents.Length > 0 && !ExporterSettings.Export.unlit)
                 {
                     stride += 4 * 4;
                 }
@@ -314,8 +314,10 @@ namespace SeinJS
 
             m.Weights = new List<double>();
 
+            int attrsCount = 0;
             for (int i = 0; i < mesh.blendShapeCount; i += 1)
             {
+                attrsCount += 1;
                 var name = mesh.GetBlendShapeName(i);
                 var target = new Dictionary<string, AccessorId>();
                 targets.Add(target);
@@ -329,19 +331,25 @@ namespace SeinJS
                 target["POSITION"].Value.Name += "-" + name + "-POSITION";
                 offset += 3 * 4;
 
-                if (mesh.normals.Length > 0)
+                if (mesh.normals.Length > 0 && !ExporterSettings.Export.unlit)
                 {
+                    attrsCount += 1;
                     target.Add("NORMAL", PackAttrToBuffer(bufferView, normals, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
                     target["NORMAL"].Value.Name += "-" + name + "-NORMAL";
                     offset += 3 * 4;
                 }
 
-                if (mesh.tangents.Length > 0)
+                if (mesh.tangents.Length > 0 && !ExporterSettings.Export.unlit)
                 {
+                    attrsCount += 1;
                     target.Add("TANGENT", PackAttrToBuffer(bufferView, tangents, offset, (Vector3[] data, int index) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[index]); }));
                     target["TANGENT"].Value.Name += "-" + name + "-TANGENT";
                     offset += 4 * 3;
                 }
+            }
+
+            if (attrsCount > 8) {
+                Debug.LogWarning("Mesh '" + mesh.name + "' has blendShapes, but all attributes' count is larger than 8, check here: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#morph-targets");
             }
 
             _mesh2targets.Add(mesh, targets);
