@@ -27,6 +27,21 @@ namespace SeinJS
             // for 3d modle's textures, it always be true
             extension.isImageCanRelease = texture.isReadable;
 
+            if (ExporterSettings.NormalTexture.pngFormat == EPNGTextureFormat.RGBA4444)
+            {
+                extension.textureType = 32819;
+            } else
+            {
+                extension.textureType = 5121;
+            }
+
+            TextureImporter im = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
+
+            if (im)
+            {
+                extension.useMipmaps = im.mipmapEnabled;
+            }
+
             AddExtension(extensions, extension);
         }
 
@@ -41,6 +56,7 @@ namespace SeinJS
 
             extension.isImageCanRelease = (bool)extensionToken.Value["isImageCanRelease"];
             extension.anisotropic = (int)extensionToken.Value["anisotropic"];
+            extension.textureType = (int)extensionToken.Value["textureType"];
 
             return extension;
         }

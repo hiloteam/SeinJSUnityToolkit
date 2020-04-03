@@ -4,7 +4,9 @@
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="1" Column="1" />
       <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" />
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="320" Column="33" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="696" Column="60" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtension.cs" Line="27" Column="43" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtensionFactory.cs" Line="55" Column="14" />
       <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="26" Column="59" />
     </Files>
     <Pads>
@@ -35,7 +37,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="3672910b-922f-4698-8e1e-915d310cb73d" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="48cbea84-850d-4522-8258-3aa92e131e60" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />

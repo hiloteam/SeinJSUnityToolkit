@@ -18,7 +18,7 @@ http://seinjs.com/cn/guide/unity
 
 1. Export and import node, mesh, material, texture, lights, cameras...
 2. Support animations(transform, bones, morph...).
-3. Support texture compression.
+3. Support texture compression(RGBA4444).
 4. Support custom materials.
 5. Support binding scripts.
 6. Support physic system.
