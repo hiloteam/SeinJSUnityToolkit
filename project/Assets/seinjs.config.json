@@ -4,7 +4,7 @@
   "exporterSettings": {
     "Export": {
       "folder": "/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Output",
-      "name": "scene",
+      "name": "level0",
       "splitChunks": false,
       "skybox": true,
       "unlit": false,

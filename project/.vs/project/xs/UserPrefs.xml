@@ -1,13 +1,14 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Config.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Utils.cs">
     <Files>
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="1" Column="1" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="26" Column="89" />
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="696" Column="60" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtension.cs" Line="27" Column="43" />
-      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtensionFactory.cs" Line="55" Column="14" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtension.cs" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtensionFactory.cs" />
       <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="26" Column="59" />
+      <File FileName="Assets/SeinJSUnityToolkit/Dependencies/BinPacker.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,8 +18,9 @@
               <Node name="Resources" expanded="True" />
               <Node name="SeinJSUnityToolkit" expanded="True">
                 <Node name="Common" expanded="True">
-                  <Node name="Config.cs" selected="True" />
+                  <Node name="Utils.cs" selected="True" />
                 </Node>
+                <Node name="Dependencies" expanded="True" />
                 <Node name="Exporter" expanded="True" />
                 <Node name="Extensions" expanded="True">
                   <Node name="Components" expanded="True" />
@@ -37,11 +39,11 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="48cbea84-850d-4522-8258-3aa92e131e60" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="b805f25b-70ed-40c7-8d25-6a5d4568a8c0" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />
-      <Breakpoint file="/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" relfile="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" line="76" column="1" />
+      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" relfile="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" line="76" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />

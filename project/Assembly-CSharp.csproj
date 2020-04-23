@@ -170,40 +170,40 @@
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFHDR2RGBD.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinSprite.shader" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Rider.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Tilemap.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.2D.Tilemap.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.2D.Tilemap.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -383,22 +383,22 @@
       <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
     </Reference>
     <Reference Include="GLTFSerialization">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/GLTFSerialization.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/GLTFSerialization.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/Newtonsoft.Json.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Ionic.Zip.Unity">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/Ionic.Zip.Unity.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/Ionic.Zip.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/Unity.Analytics.Tracker.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Editor">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/Unity.Analytics.Editor.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/AnalyticsStandardEvents/Unity.Analytics.StandardEvents.dll</HintPath>
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/AnalyticsStandardEvents/Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>

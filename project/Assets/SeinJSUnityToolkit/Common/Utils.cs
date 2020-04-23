@@ -22,8 +22,8 @@ namespace SeinJS
         public static bool inited = false;
         static System.Version newVersion = null;
 
-        static string checlUrl = "https://api.github.com/repos/SeinJS/SeinUnityToolkit/git/refs/tags";
-        static string url = "https://github.com/SeinJS/SeinUnityToolkit/tree/master/bin";
+        static string checlUrl = "https://api.github.com/repos/hiloteam/SeinJSUnityToolkit/git/refs/tags";
+        static string url = "https://github.com/hiloteam/SeinJSUnityToolkit/tree/master/bin";
 
         static IEnumerator coroutine = null;
 
