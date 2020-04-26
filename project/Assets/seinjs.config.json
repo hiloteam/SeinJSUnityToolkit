@@ -3,7 +3,7 @@
   "importPath": "./Resources",
   "exporterSettings": {
     "Export": {
-      "folder": "/Users/dtysky/Projects/dtysky/SeinJSUnityToolkit/project/Output",
+      "folder": "/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Output",
       "name": "level0",
       "splitChunks": false,
       "skybox": true,
