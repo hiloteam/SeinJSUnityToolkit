@@ -30,7 +30,8 @@ public class SeinNodeClass_TestActor : SeinNodeClass
         public Color j;
         public float[] k;
         public Matrix4x4 l;
-        public TestActorComplex m;
+        public Material m;
+        public TestActorComplex n;
     }
 
     public new TestActorOptions options;

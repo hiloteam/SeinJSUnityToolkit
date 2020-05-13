@@ -103,6 +103,10 @@ public class SeinNodeClass : MonoBehaviour
         {
             return SerializeValue(entry, (SeinAtlas)option);
         }
+        else if (option is Material)
+        {
+            return SerializeValue(entry, (Material)option);
+        }
         else if (option is Array)
         {
             var res = new JArray();
@@ -209,5 +213,10 @@ public class SeinNodeClass : MonoBehaviour
         ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_atlasExtensionFactory)), entry, entry.root.Extensions, option);
         var atlasId = Sein_atlasExtensionFactory.GetAtlasIndex(entry, option);
         return new SeinJS.SeinNodeOption("Atlas", new JObject(new JProperty("index", atlasId)));
+    }
+
+    public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Material option)
+    {
+        return new SeinJS.SeinNodeOption("Mat", new JObject(new JProperty("index", entry.SaveNormalMaterial(option).Id)));
     }
 }

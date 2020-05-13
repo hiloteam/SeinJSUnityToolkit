@@ -64,7 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Resources\CustomSeinMaterial.cs" />
-    <Compile Include="Assets\Resources\SeinNodeClass_TestActor.cs" />
+    <Compile Include="Assets\SeinComponents\SeinNodeClass_TestActor.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancePBRShaderGUI.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBRCameraScript.cs" />
     <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\FreeCameraControl.cs" />

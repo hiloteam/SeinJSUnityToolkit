@@ -4,7 +4,7 @@
   "exporterSettings": {
     "Export": {
       "folder": "/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Output",
-      "name": "level0",
+      "name": "scene",
       "splitChunks": false,
       "skybox": true,
       "unlit": false,
@@ -14,7 +14,7 @@
     "NormalTexture": {
       "maxSize": 1024,
       "transparentType": 1,
-      "opaqueType": 0,
+      "opaqueType": 1,
       "pngFormat": 4,
       "jpgQulity": 85
     },
