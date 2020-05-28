@@ -12,12 +12,12 @@ Export unity scene to gltf for "Sein.js", or import gltf to unity.
 
 ## Usage
 
-http://seinjs.com/cn/guide/unity
+http://seinjs.com/cn/guide/scene-editor/unity-extension
 
 ## Features
 
 1. Export and import node, mesh, material, texture, lights, cameras...
-2. Support animations(transform, bones, morph...).
+2. Support animations(transform, bones, morph...) without baked(small size).
 3. Support texture compression(RGBA4444).
 4. Support custom materials.
 5. Support binding scripts.

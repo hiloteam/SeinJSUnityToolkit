@@ -38,6 +38,13 @@ namespace SeinJS
             public MemoryStream streamBuffer;
         }
 
+        public class GLTFAnimationInfo
+        {
+            public AccessorId timeId;
+            public AccessorId propertyId;
+            public AnimationUtility.TangentMode tangentMode;
+        }
+
         public string path;
         public string name;
         public Transform[] transforms;
@@ -60,9 +67,8 @@ namespace SeinJS
         private Dictionary<UnityEngine.Texture, CubeTextureId> _cubemap2ID = new Dictionary<UnityEngine.Texture, CubeTextureId>();
         private Dictionary<Texture2D, ImageId> _texture2d2ImageID = new Dictionary<Texture2D, ImageId>();
         private Dictionary<SkinnedMeshRenderer, SkinId> _skin2ID = new Dictionary<SkinnedMeshRenderer, SkinId>();
-        private Dictionary<AnimationClip, AccessorId> _animClip2TimeAccessor = new Dictionary<AnimationClip, AccessorId>();
         private Dictionary<AnimationClip, GLTF.Schema.Animation> _animClip2anim = new Dictionary<AnimationClip, GLTF.Schema.Animation>();
-        private Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>> _animClip2Accessors = new Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, AccessorId>>>();
+        private Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, GLTFAnimationInfo>>> _animClip2Accessors = new Dictionary<AnimationClip, List<Dictionary<GLTFAnimationChannelPath, GLTFAnimationInfo>>>();
         private Dictionary<UnityEngine.Camera, CameraId> _camera2ID = new Dictionary<UnityEngine.Camera, CameraId>();
 
         // key: instanceId
@@ -1034,7 +1040,6 @@ namespace SeinJS
             var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clipName };
             var targets = BakeAnimationClip(anim, tr, clip);
             var accessors = _animClip2Accessors[clip];
-            var timeAccessorId = _animClip2TimeAccessor[clip];
 
             int targetId = 0;
             int accessorId = 0;
@@ -1046,6 +1051,7 @@ namespace SeinJS
                 foreach (var accessor in accessors[targetId])
                 {
                     var path = accessor.Key;
+                    var value = accessor.Value;
 
                     anim.Channels.Add(
                         new AnimationChannel
@@ -1057,11 +1063,11 @@ namespace SeinJS
 
                     anim.Samplers.Add(
                         new AnimationSampler {
-                            Input = timeAccessorId,
-                            Output = accessor.Value,
-                            Interpolation = InterpolationType.LINEAR
+                            Input = value.timeId,
+                            Output = value.propertyId,
+                            Interpolation = value.tangentMode == AnimationUtility.TangentMode.Linear ? InterpolationType.LINEAR : value.tangentMode == AnimationUtility.TangentMode.Constant ? InterpolationType.STEP : InterpolationType.CUBICSPLINE
                         }
-                    );
+                    );;
 
                     accessorId += 1;
                 }
@@ -1080,12 +1086,10 @@ namespace SeinJS
             var needGenerate = !_animClip2Accessors.ContainsKey(clip);
             var smr = tr.GetComponent<UnityEngine.SkinnedMeshRenderer>();
             Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>> curves = null;
-            Dictionary<string, bool> rotationIsEuler = null;
 
             if (needGenerate)
             {
                 curves = new Dictionary<string, Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>>();
-                rotationIsEuler = new Dictionary<string, bool>();
             }
 
             List<string> targets = new List<string>();
@@ -1101,7 +1105,6 @@ namespace SeinJS
                     if (needGenerate)
                     {
                         curves.Add(path, new Dictionary<GLTFAnimationChannelPath, AnimationCurve[]>());
-                        rotationIsEuler.Add(path, false);
                     }
                 }
 
@@ -1152,20 +1155,12 @@ namespace SeinJS
                     else if (binding.propertyName.Contains(".w"))
                         current[GLTFAnimationChannelPath.rotation][3] = curve;
                 }
-                // Takes into account 'localEuler', 'localEulerAnglesBaked' and 'localEulerAnglesRaw'
                 else if (binding.propertyName.ToLower().Contains("localeuler"))
                 {
-                    if (!current.ContainsKey(GLTFAnimationChannelPath.rotation))
-                    {
-                        current.Add(GLTFAnimationChannelPath.rotation, new AnimationCurve[3]);
-                        rotationIsEuler[path] = true;
-                    }
-                    if (binding.propertyName.Contains(".x"))
-                        current[GLTFAnimationChannelPath.rotation][0] = curve;
-                    else if (binding.propertyName.Contains(".y"))
-                        current[GLTFAnimationChannelPath.rotation][1] = curve;
-                    else if (binding.propertyName.Contains(".z"))
-                        current[GLTFAnimationChannelPath.rotation][2] = curve;
+                    Utils.ThrowExcption(new Exception(
+                        "Only support rotation animation with interplation mode 'Quaternion', please change the mode from 'Euler' to 'Quaternion' in animation edtior !"
+                    ));
+                    return null;
                 }
                 else if (binding.propertyName.Contains("blendShape"))
                 {
@@ -1175,6 +1170,9 @@ namespace SeinJS
                     }
                     var key = binding.propertyName.Replace("blendShape.", "");
                     current[GLTFAnimationChannelPath.weights][smr.sharedMesh.GetBlendShapeIndex(key)] = curve;
+                } else
+                {
+                    continue;
                 }
             }
 
@@ -1185,114 +1183,103 @@ namespace SeinJS
 
             
             var bufferView = CreateStreamBufferView("animation-" + anim.Name);
-            int nbSamples = (int)(clip.length * 30);
-            float deltaTime = clip.length / nbSamples;
-            var accessors = new List<Dictionary<GLTFAnimationChannelPath, AccessorId>>();
+            var accessors = new List<Dictionary<GLTFAnimationChannelPath, GLTFAnimationInfo>>();
             _animClip2Accessors.Add(clip, accessors);
+            var emptyKeyFrame = new Keyframe();
 
             foreach (var path in curves.Keys)
             {
-                var accessor = new Dictionary<GLTFAnimationChannelPath, AccessorId>();
+                var accessor = new Dictionary<GLTFAnimationChannelPath, GLTFAnimationInfo>();
                 accessors.Add(accessor);
-                float[] times = new float[nbSamples];
-                Vector3[] translations = null;
-                Vector3[] scales = null;
-                Vector4[] rotations = null;
-                float[] weights = null;
+
                 foreach (var curve in curves[path])
                 {
-                    if (curve.Key == GLTFAnimationChannelPath.translation)
+                    HashSet<float> timesSet = new HashSet<float>();
+                    AnimationUtility.TangentMode tangentMode = AnimationUtility.TangentMode.Constant;
+                    foreach (var c in curve.Value)
                     {
-                        translations = new Vector3[nbSamples];
-                    }
-                    else if (curve.Key == GLTFAnimationChannelPath.scale)
-                    {
-                        scales = new Vector3[nbSamples];
-                    }
-                    else if (curve.Key == GLTFAnimationChannelPath.rotation)
-                    {
-                        rotations = new Vector4[nbSamples];
-                    }
-                    else if (curve.Key == GLTFAnimationChannelPath.weights)
-                    {
-                        weights = new float[nbSamples * smr.sharedMesh.blendShapeCount];
-                    }
-                }
-
-                for (int i = 0; i < nbSamples; i += 1)
-                {
-                    var currentTime = i * deltaTime;
-                    times[i] = currentTime;
-
-                    if (translations != null)
-                    {
-                        var curve = curves[path][GLTFAnimationChannelPath.translation];
-                        translations[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
-                    }
-
-                    if (scales != null)
-                    {
-                        var curve = curves[path][GLTFAnimationChannelPath.scale];
-                        scales[i] = new Vector3(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
-                    }
-
-                    if (rotations != null)
-                    {
-                        var curve = curves[path][GLTFAnimationChannelPath.rotation];
-                        if (rotationIsEuler[path])
+                        int i = 0;
+                        foreach (var key in c.keys)
                         {
-                            var q = Quaternion.Euler(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime));
-                            rotations[i] = new Vector4(q.x, q.y, q.z, q.w);
-                        } else
-                        {
-                            rotations[i] = new Vector4(curve[0].Evaluate(currentTime), curve[1].Evaluate(currentTime), curve[2].Evaluate(currentTime), curve[3].Evaluate(currentTime));
+                            var tmode = AnimationUtility.GetKeyLeftTangentMode(c, i);
+
+                            if (tmode == AnimationUtility.TangentMode.Free || tmode == AnimationUtility.TangentMode.ClampedAuto || tmode == AnimationUtility.TangentMode.Auto)
+                            {
+                                tangentMode = AnimationUtility.TangentMode.Free;
+                            } else if (tmode == AnimationUtility.TangentMode.Linear && tangentMode != AnimationUtility.TangentMode.Free)
+                            {
+                                tangentMode = AnimationUtility.TangentMode.Linear;
+                            }
+                            timesSet.Add(key.time);
+                            i += 1;
                         }
                     }
 
-                    if (weights != null)
+                    var times = new float[timesSet.Count];
+                    timesSet.CopyTo(times);
+                    Array.Sort(times);
+                    Dictionary<int, Keyframe>[] keys = new Dictionary<int, Keyframe>[times.Length];
+
+                    foreach (var c in curve.Value)
                     {
-                        var curve = curves[path][GLTFAnimationChannelPath.weights];
-                        for (int j = 0; j < smr.sharedMesh.blendShapeCount; j += 1)
+                        int i = 0;
+                        foreach (var key in c.keys)
                         {
-                            weights[i * smr.sharedMesh.blendShapeCount + j] = curve[j].Evaluate(currentTime);
+                            var time = key.time;
+                            var index = Array.IndexOf(times, time);
+
+                            if (keys[index] == null)
+                            {
+                                keys[index] = new Dictionary<int, Keyframe>();
+                            }
+
+                            var ks = keys[index];
+                            ks[i] = key;
+
+                            i += 1;
                         }
                     }
-                }
 
-                if (!_animClip2TimeAccessor.ContainsKey(clip))
-                {
-                    var timeView = ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float);
-                    _animClip2TimeAccessor.Add(clip, AccessorToId(timeView, bufferView));
-                    timeView.Name += "-times";
-                }
+                    var eleCount = tangentMode == AnimationUtility.TangentMode.Free ? 3 : 1;
+                    var curveCount = curve.Value.Length;
+                    var count = times.Length * curveCount * eleCount;
+                    float[] buf = new float[count];
+                    var convertLeftToRight = curve.Key == GLTFAnimationChannelPath.translation || curve.Key == GLTFAnimationChannelPath.rotation;
+                    for (int i = 0; i < times.Length; i += 1)
+                    {
+                        var time = times[i];
+                        var ks = keys[i];
 
-                AccessorId id = null;
-                if (translations != null)
-                {
-                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, translations, GLTFComponentType.Float, (Vector3[] data, int i) => { return Utils.ConvertVector3LeftToRightHandedness(ref data[i]); }), bufferView);
-                    accessor.Add(GLTFAnimationChannelPath.translation, id);
-                    id.Value.Name += "-" + path + "-" + "translation";
-                }
+                        for (int j = 0; j < curveCount; j += 1)
+                        {
+                            // vec3 or vec4
+                            var sign = (convertLeftToRight && (j == 2 || j == 3)) ? -1 : 1;
+                            var c = curve.Value[0];
+                            if (tangentMode != AnimationUtility.TangentMode.Free)
+                            {
+                                buf[i * curve.Value.Length + j] = sign * c.Evaluate(time);
+                                continue;
+                            }
 
-                if (scales != null)
-                {
-                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, scales, GLTFComponentType.Float), bufferView);
-                    accessor.Add(GLTFAnimationChannelPath.scale, id);
-                    id.Value.Name += "-" + path + "-" + "scales";
-                }
+                            var key = ks.ContainsKey(j) ? ks[j] : i == 0 ? emptyKeyFrame : keys[i - 1][j];
+                            if (!ks.ContainsKey(j))
+                            {
+                                ks[j] = key;
+                            }
+                            var start = i * curve.Value.Length * eleCount + j;
+                            // in1, in2, in3, v1, v2, v3, o1, o2, o3
+                            buf[start] = key.inTangent;
+                            buf[start + eleCount] = sign * c.Evaluate(time);
+                            buf[start + eleCount * 2] = key.outTangent;
+                        }
+                    }
 
-                if (rotations != null)
-                {
-                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, rotations, GLTFComponentType.Float, (Vector4[] data, int i) => { return Utils.ConvertVector4LeftToRightHandedness(ref data[i]); }), bufferView);
-                    accessor.Add(GLTFAnimationChannelPath.rotation, id);
-                    id.Value.Name += "-" + path + "-" + "rotations";
-                }
-
-                if (weights != null)
-                {
-                    id = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, weights, GLTFComponentType.Float), bufferView);
-                    accessor.Add(GLTFAnimationChannelPath.weights, id);
-                    id.Value.Name += "-" + path + "-" + "weights";
+                    GLTFAccessorAttributeType attributeType = curveCount == 1 ? GLTFAccessorAttributeType.SCALAR : curveCount == 2 ? GLTFAccessorAttributeType.VEC2 : curveCount == 3 ? GLTFAccessorAttributeType.VEC3 : GLTFAccessorAttributeType.VEC4;
+                    var timeId = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float), bufferView);
+                    timeId.Value.Name += "-" + path + "-" + curve.Key + "-" + "time";
+                    var id = AccessorToId(ExporterUtils.PackToBufferFloatArray(bufferView.streamBuffer, buf, attributeType, curveCount, GLTFComponentType.Float), bufferView);
+                    id.Value.Name += "-" + path + "-" + curve.Key;
+                    accessor.Add(curve.Key, new GLTFAnimationInfo { propertyId = id, tangentMode = tangentMode, timeId = timeId});
                 }
             }
 

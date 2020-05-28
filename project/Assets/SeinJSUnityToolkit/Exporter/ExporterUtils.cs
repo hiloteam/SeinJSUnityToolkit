@@ -199,6 +199,26 @@ namespace SeinJS
             return GetBytes(array, componentType);
         }
 
+        public static Accessor PackToBufferFloatArray(
+            MemoryStream stream, float[] data,
+            GLTFAccessorAttributeType attributeType,
+            int elementSize,
+            GLTFComponentType componentType
+        )
+        {
+            var accessor = new Accessor();
+            accessor.ByteOffset = (int)stream.Length;
+            accessor.ComponentType = componentType;
+            accessor.Type = attributeType;
+
+            // no need to calc max and min for animation
+            var bytes = GetBytes(data, componentType);
+            stream.Write(bytes, 0, bytes.Length);
+            accessor.Count = data.Length / elementSize;
+
+            return accessor;
+        }
+
         private static byte[] GetBytes(float[] array, GLTFComponentType componentType)
         {
             int size = 0;

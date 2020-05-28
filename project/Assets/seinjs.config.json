@@ -7,7 +7,7 @@
       "name": "scene",
       "splitChunks": false,
       "skybox": true,
-      "unlit": false,
+      "unlit": true,
       "checkEmpty": true,
       "clear": true
     },

@@ -37,7 +37,7 @@
     "tslint": "^4.1.1",
     "tslint-loader": "^3.5.4",
     "tslint-microsoft-contrib": "^4.0.0",
-    "typescript": "^3.7.5",
+    "typescript": "3.7.5",
     "url-loader": "^2.1.0",
     "webpack": "^4.38.0",
     "webpack-cli": "^3.3.6"

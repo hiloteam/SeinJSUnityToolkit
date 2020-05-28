@@ -9,10 +9,10 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{7CA597AC-799E-2D81-E8A0-0EA9A568434E}</ProjectGuid>
+    <ProjectGuid>{350FE3E3-48A3-F652-05DF-AA9DB89C53B0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>.</BaseDirectory>
@@ -47,7 +47,7 @@
   <PropertyGroup>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <UnityProjectGenerator>Unity/VSTU</UnityProjectGenerator>
-    <UnityProjectType>Game:1</UnityProjectType>
+    <UnityProjectType>Editor:5</UnityProjectType>
     <UnityBuildTarget>StandaloneOSX:2</UnityBuildTarget>
     <UnityVersion>2019.3.4f1</UnityVersion>
   </PropertyGroup>
@@ -63,127 +63,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Resources\CustomSeinMaterial.cs" />
-    <Compile Include="Assets\SeinComponents\SeinNodeClass_TestActor.cs" />
-    <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancePBRShaderGUI.cs" />
-    <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBRCameraScript.cs" />
-    <Compile Include="Assets\SeinCustomMaterials\EnhancedPBR\FreeCameraControl.cs" />
-    <Compile Include="Assets\SeinCustomMaterials\Unlit\SeinUnlitShaderGUI.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\Async\AsyncAction.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\Config.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\Exceptions.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\GLTFTextureUtils.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\GLTFUtils.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\TaskManager.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Common\Utils.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\BinPacker.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\Headers.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\Helper.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\IWebResource.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\MimeTypeMap.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\MultiPartEntry.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\Request.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\Response.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\ThreadedTaskQueue.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Dependencies\UniWebServer\WebServer.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\EditorExporter.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\Exporter.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\ExporterEntry.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\ExporterSettings.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\ExporterUtils.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\ExporterWindow.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Exporter\OpenInFileBrowser.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Basic\ExtensionManager.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Basic\SchemaExtensions.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Basic\SeinExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\EditList.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinAnimator.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinAtlas.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinAudioClip.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinAudioListener.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinAudioSource.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinCustomMaterial.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinNode.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinNodeClass.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinRigidBody.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\Components\SeinSprite.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_lights_punctualExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_lights_punctualExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_materials_unlitExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\KHR_materials_unlitExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_ambientLightExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_ambientLightExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_animatorExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_animatorExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_atlasExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_atlasExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioClipsExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioClipsExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioListenerExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioListenerExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioSourceExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_audioSourceExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_cubeTextureExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_cubeTextureExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_customMaterialExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_customMaterialExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_imageBasedLightingExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_imageBasedLightingExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_nodeExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_nodeExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_physicBodyExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_physicBodyExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_rendererExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_rendererExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_skyboxExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_skyboxExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_spriteExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_textureImproveExtension.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Extensions\GLTFExtensions\Sein_textureImproveExtensionFactory.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\AssetSerializer.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\AssetCache.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\MaterialCacheData.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\Cache\MeshCacheData.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\EditorImporter.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\Importer.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\ImporterWindow.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\Resizer.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Importer\UI.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Previewer\HeartBeatHandler.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Previewer\Previewer.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Previewer\PreviewerHandler.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Shaders\SeinBasicShaderGUI.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBRShaderGUI.cs" />
-    <Compile Include="Assets\SeinJSUnityToolkit\Tools\StandardToSeinPBR.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\DataStructureUtility\Heap.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\DataStructure\RelevanceSphere.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\DataStructure\Triangle.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\DataStructure\TriangleList.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\DataStructure\Vertex.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\Jobs\ComputeCostJob.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\Jobs\CopyMeshJob.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\Jobs\LocalToWorldJob.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\MeshSimplify\MeshSimplify.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\MeshSimplify\MeshSimplifyForEditor.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\MeshSimplify\MeshSimplifyStatic.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\MeshSimplify\Simplifier.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\Test\SimplifyMeshPreview.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\Util\MeshUtil.cs" />
-    <Compile Include="Assets\Test\MeshSimplify\Scripts\Util\UnsafeUtil.cs" />
-    <None Include="Assets\SeinCustomMaterials\EnhancedPBR\EnhancedPBR.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFLinear2sRGB.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinBasic.shader" />
-    <None Include="Assets\SeinCustomMaterials\ColoredSprite\SeinColoredSprite.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinPBR.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFPackOccMetalRough.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFFlipTexture.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinBackground.shader" />
-    <None Include="Assets\SeinCustomMaterials\Unlit\SeinUnlit.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFBumpToNormal.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFColorSpace.cginc" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFHDR2RGBD.shader" />
-    <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinSprite.shader" />
+    <Compile Include="Assets\Test\MeshSimplify\Editor\MeshSimplifyEditor.cs" />
+    <Reference Include="UnityEditor.TestRunner">
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/UnityEditor.TestRunner.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/UnityEngine.TestRunner.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
@@ -397,6 +283,18 @@
     <Reference Include="UnityEngine.XRModule">
       <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.XRModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.VR">
+      <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/UnityExtensions/Unity/UnityVR/Editor/UnityEditor.VR.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Graphs">
+      <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/Managed/UnityEditor.Graphs.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.OSXStandalone.Extensions">
+      <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
+      <HintPath>/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
+    </Reference>
     <Reference Include="GLTFSerialization">
       <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/GLTFSerialization.dll</HintPath>
     </Reference>
@@ -406,6 +304,9 @@
     <Reference Include="Ionic.Zip.Unity">
       <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Dependencies/Ionic.Zip.Unity.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.Advertisements">
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.ads@2.0.8/Editor/UnityEditor.Advertisements.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Analytics.Tracker">
       <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
@@ -414,6 +315,12 @@
     </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
       <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.analytics@3.3.5/AnalyticsStandardEvents/Unity.Analytics.StandardEvents.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.Purchasing">
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.purchasing@2.0.6/Editor/UnityEditor.Purchasing.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Library/PackageCache/com.unity.ext.nunit@1.0.0/net35/unity-custom/nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/4.7.1-api/mscorlib.dll</HintPath>
@@ -769,6 +676,12 @@
     <Reference Include="Boo.Lang">
       <HintPath>/Applications/2019.3.4f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/unityscript/Boo.Lang.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp.csproj">
+      <Project>{7CA597AC-799E-2D81-E8A0-0EA9A568434E}</Project>
+      <Name>Assembly-CSharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
