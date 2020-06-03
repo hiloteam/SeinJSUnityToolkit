@@ -43,6 +43,7 @@ namespace SeinJS
             public static bool splitChunks = false;
             public static bool skybox = false;
             public static bool unlit = false;
+            public static bool linearAnim = false;
 
             public static void UpdateFolder(string folder)
 			{
@@ -79,7 +80,12 @@ namespace SeinJS
 			}
 		}
 
-		public class NormalTexture
+        public class Animation
+        {
+            public static bool forceLinear = true;
+        }
+
+        public class NormalTexture
 		{
 			public static int maxSize = 1024;
 			public static ENormalTextureType transparentType = ENormalTextureType.PNG;
@@ -117,6 +123,9 @@ namespace SeinJS
                     new JProperty("unlit", Export.unlit),
                     new JProperty("checkEmpty", Export.checkEmpty),
                     new JProperty("clear", Export.clear)
+                )),
+                new JProperty("Animation", new JObject(
+                    new JProperty("forceLinear", Animation.forceLinear)
                 )),
                 new JProperty("NormalTexture", new JObject(
                     new JProperty("maxSize", NormalTexture.maxSize),
@@ -160,6 +169,12 @@ namespace SeinJS
                 if (obj["unlit"] != null) { Export.unlit = (bool)obj["unlit"]; }
                 if (obj["checkEmpty"] != null) { Export.checkEmpty = (bool)obj["checkEmpty"]; }
                 if (obj["clear"] != null) { Export.clear = (bool)obj["clear"]; }
+            }
+
+            if (json["Animation"] != null)
+            {
+                var obj = (JObject)json["Animation"];
+                if (obj["forceLinear"] != null) { Animation.forceLinear = (bool)obj["forceLinear"]; }
             }
 
             if (json["NormalTexture"] != null)

@@ -202,7 +202,6 @@ namespace SeinJS
         public static Accessor PackToBufferFloatArray(
             MemoryStream stream, float[] data,
             GLTFAccessorAttributeType attributeType,
-            int elementSize,
             GLTFComponentType componentType
         )
         {
@@ -210,6 +209,8 @@ namespace SeinJS
             accessor.ByteOffset = (int)stream.Length;
             accessor.ComponentType = componentType;
             accessor.Type = attributeType;
+
+            int elementSize = attributeType == GLTFAccessorAttributeType.VEC2 ? 2 : attributeType == GLTFAccessorAttributeType.VEC3 ? 3 : attributeType == GLTFAccessorAttributeType.VEC4 ? 4 : 1;
 
             // no need to calc max and min for animation
             var bytes = GetBytes(data, componentType);

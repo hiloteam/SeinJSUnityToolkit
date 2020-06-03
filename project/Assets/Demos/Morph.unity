@@ -278,7 +278,7 @@ PrefabInstance:
     - target: {fileID: 2316022613091268533, guid: d59ead53fe8f44f36b923c65c0cd02b3,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -2.5943642
       objectReference: {fileID: 0}
     - target: {fileID: 2316022613091268533, guid: d59ead53fe8f44f36b923c65c0cd02b3,
         type: 3}
@@ -378,7 +378,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: AnimatorController
   modelAnimations:
-  - Animation
-  defaultAnimation: Animation
+  - Animation3
+  - Animation3
+  defaultAnimation: Animation3
   prefixes:
-  - 13820
+  - -9632
+  - -9632

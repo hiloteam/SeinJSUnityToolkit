@@ -321,7 +321,7 @@ namespace SeinJS
             var node = entry.tr2node[tr];
             foreach (var component in tr.GetComponents<Component>())
             {
-                if (ExtensionManager.Component2Extensions.ContainsKey(component.GetType()))
+                if (component && ExtensionManager.Component2Extensions.ContainsKey(component.GetType()))
                 {
                     if (node.Extensions == null)
                     {

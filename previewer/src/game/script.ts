@@ -43,12 +43,6 @@ export async function createNewModels(
     newModels.push(...actors.array);
   }
 
-  newModels.forEach((m: Sein.StaticMeshActor) => {
-    if (!Sein.isStaticMeshActor(m)) {
-      return;
-    }
-  });
-
   return newModels;
 }
 

@@ -148,7 +148,10 @@ namespace SeinJS
             {
                 var matrix = new UnityEngine.Matrix4x4();
                 matrix.SetTRS(tr.localPosition, tr.localRotation, tr.localScale);
-                node.Matrix = Utils.ConvertMat4LeftToRightHandedness(matrix);
+                if (!matrix.Equals(Matrix4x4.identity))
+                {
+                    node.Matrix = Utils.ConvertMat4LeftToRightHandedness(matrix);
+                }
             }
             else
             {
@@ -187,7 +190,7 @@ namespace SeinJS
             }
 
             var attributes = GenerateAttributes(mesh);
-            var targets = GenerateMorphTargets(mesh, m);
+            var targets = GenerateMorphTargets(mesh, renderer, m);
             m.Name = mesh.name;
             m.Primitives = new List<MeshPrimitive>();
 
@@ -282,12 +285,14 @@ namespace SeinJS
             return attrs;
         }
 
-        private List<Dictionary<string, AccessorId>> GenerateMorphTargets(UnityEngine.Mesh mesh, GLTF.Schema.Mesh m)
+        private List<Dictionary<string, AccessorId>> GenerateMorphTargets(UnityEngine.Mesh mesh, Renderer renderer, GLTF.Schema.Mesh m)
         {
             if (mesh.blendShapeCount <= 0)
             {
                 return new List<Dictionary<string, AccessorId>>();
             }
+
+            var sm = (SkinnedMeshRenderer)renderer;
 
             if (_mesh2targets.ContainsKey(mesh))
             {
@@ -329,7 +334,7 @@ namespace SeinJS
                 targets.Add(target);
 
                 targetNames.Add(name);
-                m.Weights.Add(mesh.GetBlendShapeFrameWeight(i, 0));
+                m.Weights.Add(sm.GetBlendShapeWeight(i));
 
                 mesh.GetBlendShapeFrameVertices(i, 0, vertices, normals, tangents);
 
@@ -926,7 +931,7 @@ namespace SeinJS
             var node = tr2node[tr];
             var skin = new Skin();
             skin.Name = "skeleton-" + skinMesh.rootBone.name + "-" + tr.name;
-            skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(node), Root = root };
+            skin.Skeleton = new NodeId { Id = root.Nodes.IndexOf(tr2node[skinMesh.rootBone]), Root = root };
             skin.Joints = new List<NodeId>();
 
             foreach (var bone in skinMesh.bones)
@@ -1158,7 +1163,7 @@ namespace SeinJS
                 else if (binding.propertyName.ToLower().Contains("localeuler"))
                 {
                     Utils.ThrowExcption(new Exception(
-                        "Only support rotation animation with interplation mode 'Quaternion', please change the mode from 'Euler' to 'Quaternion' in animation edtior !"
+                        "Only support rotation animation with interpolation mode 'Quaternion', please change the mode from 'Euler' to 'Euler(Quaternion)' in animation edtior !"
                     ));
                     return null;
                 }
@@ -1215,14 +1220,19 @@ namespace SeinJS
                         }
                     }
 
+                    if (tangentMode == AnimationUtility.TangentMode.Free && ExporterSettings.Animation.forceLinear)
+                    {
+                        tangentMode = AnimationUtility.TangentMode.Linear;
+                    }
+
                     var times = new float[timesSet.Count];
                     timesSet.CopyTo(times);
                     Array.Sort(times);
                     Dictionary<int, Keyframe>[] keys = new Dictionary<int, Keyframe>[times.Length];
 
-                    foreach (var c in curve.Value)
+                    for (int i = 0; i < curve.Value.Length; i += 1)
                     {
-                        int i = 0;
+                        var c = curve.Value[i];
                         foreach (var key in c.keys)
                         {
                             var time = key.time;
@@ -1233,10 +1243,7 @@ namespace SeinJS
                                 keys[index] = new Dictionary<int, Keyframe>();
                             }
 
-                            var ks = keys[index];
-                            ks[i] = key;
-
-                            i += 1;
+                            keys[index][i] = key;
                         }
                     }
 
@@ -1252,9 +1259,9 @@ namespace SeinJS
 
                         for (int j = 0; j < curveCount; j += 1)
                         {
-                            // vec3 or vec4
+                            // vec3 or quat
                             var sign = (convertLeftToRight && (j == 2 || j == 3)) ? -1 : 1;
-                            var c = curve.Value[0];
+                            var c = curve.Value[j];
                             if (tangentMode != AnimationUtility.TangentMode.Free)
                             {
                                 buf[i * curve.Value.Length + j] = sign * c.Evaluate(time);
@@ -1266,18 +1273,18 @@ namespace SeinJS
                             {
                                 ks[j] = key;
                             }
-                            var start = i * curve.Value.Length * eleCount + j;
+                            var start = i * curveCount * eleCount + j;
                             // in1, in2, in3, v1, v2, v3, o1, o2, o3
-                            buf[start] = key.inTangent;
-                            buf[start + eleCount] = sign * c.Evaluate(time);
-                            buf[start + eleCount * 2] = key.outTangent;
+                            buf[start] = key.inTangent == Mathf.Infinity ? 0 : key.inTangent;
+                            buf[start + curveCount] = sign * c.Evaluate(time);
+                            buf[start + curveCount * 2] = key.outTangent == Mathf.Infinity ? 0 : key.outTangent;
                         }
                     }
 
-                    GLTFAccessorAttributeType attributeType = curveCount == 1 ? GLTFAccessorAttributeType.SCALAR : curveCount == 2 ? GLTFAccessorAttributeType.VEC2 : curveCount == 3 ? GLTFAccessorAttributeType.VEC3 : GLTFAccessorAttributeType.VEC4;
+                    GLTFAccessorAttributeType attributeType = curve.Key == GLTFAnimationChannelPath.rotation ? GLTFAccessorAttributeType.VEC4 : (curve.Key == GLTFAnimationChannelPath.translation || curve.Key == GLTFAnimationChannelPath.scale) ? GLTFAccessorAttributeType.VEC3 : GLTFAccessorAttributeType.SCALAR;
                     var timeId = AccessorToId(ExporterUtils.PackToBuffer(bufferView.streamBuffer, times, GLTFComponentType.Float), bufferView);
                     timeId.Value.Name += "-" + path + "-" + curve.Key + "-" + "time";
-                    var id = AccessorToId(ExporterUtils.PackToBufferFloatArray(bufferView.streamBuffer, buf, attributeType, curveCount, GLTFComponentType.Float), bufferView);
+                    var id = AccessorToId(ExporterUtils.PackToBufferFloatArray(bufferView.streamBuffer, buf, attributeType, GLTFComponentType.Float), bufferView);
                     id.Value.Name += "-" + path + "-" + curve.Key;
                     accessor.Add(curve.Key, new GLTFAnimationInfo { propertyId = id, tangentMode = tangentMode, timeId = timeId});
                 }

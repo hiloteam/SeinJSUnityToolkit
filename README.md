@@ -17,7 +17,7 @@ http://seinjs.com/cn/guide/scene-editor/unity-extension
 ## Features
 
 1. Export and import node, mesh, material, texture, lights, cameras...
-2. Support animations(transform, bones, morph...) without baked(small size).
+2. Support animations(transform, bones, morph...) without baking(small size), support interpolation mode `LINEAR`, `STEP(Constant)` and `CUBICSPLINE(FREE)`.
 3. Support texture compression(RGBA4444).
 4. Support custom materials.
 5. Support binding scripts.

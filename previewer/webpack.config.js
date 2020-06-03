@@ -37,10 +37,10 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     alias: {
       assets: path.resolve(__dirname, `src/assets`),
-      seinjs: path.resolve(__dirname, './node_modules/seinjs/lib/seinjs.umd.js')
-      // seinjs: path.resolve(__dirname, '../../../Sein.js/src'),
-      // hilo3d: path.resolve(__dirname, '../../../Sein.js/Hilo3d/seinjs-build/Hilo3d.js'),
-      // axios: path.resolve(__dirname, '../../../Sein.js/node_modules/axios/dist/axios.js'),
+      seinjs: path.resolve(__dirname, './node_modules/seinjs/lib/seinjs.umd.js'),
+      // seinjs: path.resolve(__dirname, '../../Sein.js/src'),
+      // hilo3d: path.resolve(__dirname, '../../Sein.js/Hilo3d/seinjs-build/Hilo3d.js'),
+      // axios: path.resolve(__dirname, '../../Sein.js/node_modules/axios/dist/axios.js'),
     }
   },
   

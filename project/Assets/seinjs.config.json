@@ -11,6 +11,9 @@
       "checkEmpty": true,
       "clear": true
     },
+    "Animation": {
+      "forceLinear": false
+    },
     "NormalTexture": {
       "maxSize": 1024,
       "transparentType": 1,
@@ -26,7 +29,7 @@
     },
     "Lighting": {
       "ambient": true,
-      "lightMap": true,
+      "lightMap": false,
       "lightMapSize": 1024,
       "reflection": true,
       "reflectionSize": 1024
