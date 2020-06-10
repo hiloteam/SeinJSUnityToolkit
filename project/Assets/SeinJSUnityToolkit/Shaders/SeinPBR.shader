@@ -124,6 +124,7 @@ Shader "Sein/PBR" {
             float3 viewNormal: NORMAL;
             float3 viewPos: TEXCOORD2;
             float3 worldPos: TEXCOORD3;
+            float4 color: Color;
             SHADOW_COORDS(5)
             float3x3 TBN: TEXCOORD6;
         };
@@ -348,6 +349,7 @@ Shader "Sein/PBR" {
             o.viewPos = UnityObjectToViewPos(v.vertex);
             o.worldPos = mul(unity_ObjectToWorld, v.vertex);
             o.uv1 = v.uv1 * unity_LightmapST.xy + unity_LightmapST.zw;
+            o.color = v.color;
             TRANSFER_SHADOW(o)
             
             #ifdef HAS_NORMAL_MAP
@@ -433,6 +435,7 @@ Shader "Sein/PBR" {
             {
                 fixed4 baseColor = sampleTexture(_baseColorMap, i.uv);
                 baseColor *= _baseColor;
+                baseColor *= i.color;
                 fixed4 color = baseColor;
                 
                 if (!unlit) {
@@ -511,6 +514,7 @@ Shader "Sein/PBR" {
             {
                fixed4 baseColor = sampleTexture(_baseColorMap, i.uv);
                 baseColor *= _baseColor;
+                baseColor *= i.color;
                 fixed4 color;
                 
                 if (!unlit) {
