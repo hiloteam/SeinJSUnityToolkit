@@ -243,7 +243,7 @@ namespace SeinJS
                 offset += 3 * 4;
             }
 
-            if (mesh.colors.Length > 0)
+            if (!ExporterSettings.Export.noVertexColor && mesh.colors.Length > 0)
             {
                 attrs.Add("COLOR_0", PackAttrToBuffer(bufferView, mesh.colors, offset));
                 offset += 4 * 4;
@@ -410,7 +410,7 @@ namespace SeinJS
                 stride += 3 * 4;
             }
 
-            if (mesh.colors.Length > 0)
+            if (!ExporterSettings.Export.noVertexColor && mesh.colors.Length > 0)
             {
                 stride += 4 * 4;
             }

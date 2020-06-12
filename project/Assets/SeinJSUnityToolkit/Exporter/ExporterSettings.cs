@@ -42,8 +42,8 @@ namespace SeinJS
             public static bool checkEmpty = true;
             public static bool splitChunks = false;
             public static bool skybox = false;
+            public static bool noVertexColor = false;
             public static bool unlit = false;
-            public static bool linearAnim = false;
 
             public static void UpdateFolder(string folder)
 			{
@@ -121,6 +121,7 @@ namespace SeinJS
                     new JProperty("splitChunks", Export.splitChunks),
                     new JProperty("skybox", Export.skybox),
                     new JProperty("unlit", Export.unlit),
+                    new JProperty("noVertexColor", Export.noVertexColor),
                     new JProperty("checkEmpty", Export.checkEmpty),
                     new JProperty("clear", Export.clear)
                 )),
@@ -167,6 +168,7 @@ namespace SeinJS
                 if (obj["splitChunks"] != null) { Export.splitChunks = (bool)obj["splitChunks"]; }
                 if (obj["skybox"] != null) { Export.skybox = (bool)obj["skybox"]; }
                 if (obj["unlit"] != null) { Export.unlit = (bool)obj["unlit"]; }
+                if (obj["noVertexColor"] != null) { Export.noVertexColor = (bool)obj["noVertexColor"]; }
                 if (obj["checkEmpty"] != null) { Export.checkEmpty = (bool)obj["checkEmpty"]; }
                 if (obj["clear"] != null) { Export.clear = (bool)obj["clear"]; }
             }

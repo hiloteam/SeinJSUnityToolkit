@@ -155,6 +155,8 @@ namespace SeinJS
             GUILayout.BeginHorizontal();
             ExporterSettings.Export.skybox = EditorGUILayout.Toggle("Export skybox(输出天空盒)", ExporterSettings.Export.skybox);
             GUILayout.FlexibleSpace();
+            ExporterSettings.Export.noVertexColor = EditorGUILayout.Toggle("No VertexColor(无顶点色)", ExporterSettings.Export.noVertexColor);
+            GUILayout.FlexibleSpace();
             ExporterSettings.Export.unlit = EditorGUILayout.Toggle("Unlit(No Normals)", ExporterSettings.Export.unlit);
             GUILayout.EndHorizontal();
 
