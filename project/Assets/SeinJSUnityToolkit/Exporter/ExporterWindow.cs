@@ -33,16 +33,12 @@ namespace SeinJS
 
         // UI dimensions (to be cleaned)
         [SerializeField]
-        Vector2 fullSize = new Vector2(520, 750);
+        Vector2 fullSize = new Vector2(520, 580);
 
         // Exporter UI: static elements
-        [SerializeField]
-        GUIStyle exporterTextArea;
-        GUIStyle exporterLabel;
-        GUIStyle exporterClickableLabel;
         int SPACE_SIZE = 10;
+        Vector2 scrollPos;
 
-        Rect windowRect;
         private Exporter _exporter;
 
         void OnFocus()
@@ -66,8 +62,6 @@ namespace SeinJS
             }
 
             ExtensionManager.Init();
-
-            ResizeWindow(fullSize);
         }
 
         void OnEnable()
@@ -79,18 +73,6 @@ namespace SeinJS
             }
         }
 
-        void ResizeWindow(Vector2 size)
-        {
-            minSize = size;
-        }
-
-        void ExpandWindow(bool expand)
-        {
-            windowRect = this.position;
-            windowRect.height = fullSize.y;
-            position = windowRect;
-        }
-
         // Update is called once per frame
         void OnInspectorUpdate()
         {
@@ -99,27 +81,9 @@ namespace SeinJS
 
         void OnGUI()
         {
+            
             GUILayout.Label(Config.header);
             GUILayout.Label("Version: " + Config.Version, EditorStyles.boldLabel);
-
-            if (exporterLabel == null)
-            {
-                exporterLabel = new GUIStyle(GUI.skin.label);
-                exporterLabel.richText = true;
-            }
-
-            if (exporterTextArea == null)
-            {
-                exporterTextArea = new GUIStyle(GUI.skin.textArea);
-                exporterTextArea.fixedWidth = fullSize.x;
-                exporterTextArea.fixedHeight = fullSize.y;
-            }
-
-            if (exporterClickableLabel == null)
-            {
-                exporterClickableLabel = new GUIStyle(EditorStyles.centeredGreyMiniLabel);
-                exporterClickableLabel.richText = true;
-            }
 
             GUILayout.Space(SPACE_SIZE);
 
@@ -143,6 +107,8 @@ namespace SeinJS
                 }
             }
             GUILayout.EndHorizontal();
+
+            scrollPos = EditorGUILayout.BeginScrollView(scrollPos, GUILayout.Height(fullSize.y - 330));
 
             GUILayout.BeginHorizontal();
             ExporterSettings.Export.splitChunks = EditorGUILayout.Toggle("Split chunks(分割物体)", ExporterSettings.Export.splitChunks);
@@ -211,6 +177,8 @@ namespace SeinJS
             GUILayout.FlexibleSpace();
             ExporterSettings.Lighting.reflectionSize = EditorGUILayout.IntField(ExporterSettings.Lighting.reflectionSize);
             GUILayout.EndHorizontal();
+
+            EditorGUILayout.EndScrollView();
 
             GUILayout.Space(12);
             GUILayout.BeginHorizontal();

@@ -25,12 +25,13 @@ namespace SeinJS
 
         private static void AssetsToSeinPBR(UnityEngine.Object[] objects)
         {
+            var needBak = CheckNeedBackup();
             foreach (var obj in objects)
             {
                 var type = obj.GetType();
                 if (type == typeof(Material))
                 {
-                    ToSeinPBR(obj as Material);
+                    ToSeinPBR(obj as Material, needBak);
                 }
                 else if (type == typeof(GameObject))
                 {
@@ -50,7 +51,7 @@ namespace SeinJS
 
                     foreach (var m in materials)
                     {
-                        ToSeinPBR(m);
+                        ToSeinPBR(m, needBak);
                     }
                 }
                 else
@@ -93,9 +94,10 @@ namespace SeinJS
                 }
             }
 
+            var needBak = CheckNeedBackup();
             foreach (var m in materials)
             {
-                ToSeinPBR(m);
+                ToSeinPBR(m, needBak);
             }
 
             AssetDatabase.Refresh();
@@ -115,16 +117,27 @@ namespace SeinJS
         private static void AllToSeinPBR()
         {
             Material[] materials = (Material[])Resources.FindObjectsOfTypeAll(typeof(Material));
+            var needBak = CheckNeedBackup();
 
             foreach (var m in materials)
             {
-                ToSeinPBR(m);
+                ToSeinPBR(m, needBak);
             }
 
             AssetDatabase.Refresh();
         }
 
-        private static void ToSeinPBR(Material material)
+        private static bool CheckNeedBackup()
+        {
+            return EditorUtility.DisplayDialog(
+                "Backup?",
+                "Need to backup orginal materials?",
+                "Yes",
+                "No"
+            );
+        }
+
+        private static void ToSeinPBR(Material material, bool backup = true)
         {
             var name = material.shader.name;
 
@@ -135,7 +148,10 @@ namespace SeinJS
 
             Debug.Log("Converting: " + material.name);
 
-            BackupMaterial(material);
+            if (backup)
+            {
+                BackupMaterial(material);
+            }
             ConvertMaterial(material);
         }
 
@@ -143,7 +159,12 @@ namespace SeinJS
         {
             var origPath = AssetDatabase.GetAssetPath(material);
             var fname = Path.GetFileNameWithoutExtension(origPath);
-            var dir = Path.GetDirectoryName(origPath);
+            var dir = Path.GetDirectoryName(origPath) + "/bak";
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
 
             SaveMaterial(new Material(material), dir + "/" + fname + "_bak");
         }

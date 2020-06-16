@@ -29,8 +29,8 @@
       "maxSize": 1024
     },
     "Lighting": {
-      "ambient": true,
-      "lightMap": false,
+      "ambient": false,
+      "lightMap": true,
       "lightMapSize": 1024,
       "reflection": true,
       "reflectionSize": 1024
