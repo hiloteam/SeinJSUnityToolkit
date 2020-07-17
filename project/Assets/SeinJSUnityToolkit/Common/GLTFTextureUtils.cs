@@ -12,6 +12,7 @@ namespace SeinJS
         private static string _splitCube = "GLTF/SplitCube";
         private static string _packOcclusionMetalRough = "GLTF/PackOcclusionMetalRough";
         private static string _convertBump = "GLTF/BumpToNormal";
+        private static string _generateMipmaps = "GLTF/GenerateMipmaps";
         public static bool _useOriginalImages = true;
 
         public static void setUseOriginalImage(bool useOriginal)
@@ -156,6 +157,26 @@ namespace SeinJS
             material.SetTexture("_HDRTexture", texture);
             material.SetInt("_FlipY", flipY ? 1 : 0);
             return processTextureMaterial(texture, material, useJPGTexture(texture));
+        }
+
+        public static Texture2D generateMipmaps(Texture2D texture)
+        {
+            Material material = new Material(Shader.Find(_generateMipmaps));
+            material.SetTexture("_HDRTexture", texture);
+
+            var exportTexture = new Texture2D(texture.width, texture.width, TextureFormat.RGBAFloat, false);
+            exportTexture.name = texture.name;
+
+            var renderTexture = RenderTexture.GetTemporary(texture.width, texture.width, 32, RenderTextureFormat.ARGBFloat);
+            Graphics.Blit(exportTexture, renderTexture, material);
+            RenderTexture.active = renderTexture;
+
+            exportTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+            exportTexture.Apply();
+
+            RenderTexture.ReleaseTemporary(renderTexture);
+
+            return exportTexture;
         }
 
         public static bool useJPGTexture(Texture2D texture)

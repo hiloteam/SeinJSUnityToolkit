@@ -166,6 +166,7 @@
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinBackground.shader" />
     <None Include="Assets\SeinCustomMaterials\Unlit\SeinUnlit.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFBumpToNormal.shader" />
+    <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFGenerateMipmaps.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFColorSpace.cginc" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\GLTFHDR2RGBD.shader" />
     <None Include="Assets\SeinJSUnityToolkit\Shaders\SeinSprite.shader" />

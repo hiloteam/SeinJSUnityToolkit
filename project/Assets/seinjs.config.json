@@ -1,19 +1,19 @@
 {
   "exportPath": "../Output",
-  "importPath": "./Resources",
+  "importPath": "/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project",
   "exporterSettings": {
     "Export": {
       "folder": "/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Output",
       "name": "scene",
       "splitChunks": false,
       "skybox": true,
-      "unlit": true,
+      "unlit": false,
       "noVertexColor": false,
       "checkEmpty": true,
       "clear": true
     },
     "Animation": {
-      "forceLinear": false
+      "forceLinear": true
     },
     "NormalTexture": {
       "maxSize": 1024,

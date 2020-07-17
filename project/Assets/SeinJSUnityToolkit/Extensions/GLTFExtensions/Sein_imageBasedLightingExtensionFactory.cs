@@ -165,10 +165,13 @@ namespace SeinJS
                 else if (skybox.shader.name == "Skybox/Panoramic")
                 {
                     var map = skybox.GetTexture("_MainTex") as Texture2D;
-                    var Id = entry.SaveTexture(map, false, maxSize: ExporterSettings.Lighting.reflectionSize, flipY: false);
+                    var fp = AssetDatabase.GetAssetPath(map);
+                    fp = fp.Replace(Path.GetExtension(fp), "-mipmaps" + Path.GetExtension(fp));
+                    var Id = entry.SaveTexture(GLTFTextureUtils.generateMipmaps(map), false, maxSize: ExporterSettings.Lighting.reflectionSize, flipY: false, path: fp);
                     textureId = Id.Id;
                     cacheId = Id.GetHashCode();
                     light.specType = "2D";
+                    light.specIncludeMipmaps = true;
                 }
                 else
                 {

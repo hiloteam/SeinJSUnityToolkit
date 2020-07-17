@@ -380,7 +380,7 @@ namespace SeinJS
             {
                 if (!entry.bones.Contains(tr))
                 {
-                    Debug.LogError("Error while exporting skin for " + skin.name + " (skipping skinning export).\nClick for more details:\n \nThe following bones are used but are not selected" + tr.name + "\n");
+                    Utils.ThrowExcption("Error while exporting skin for " + skin.name + " (skipping skinning export).\nClick for more details:\n \nThe following bones are used but are not selected" + tr.name + "\n");
                     return false;
                 }
             }

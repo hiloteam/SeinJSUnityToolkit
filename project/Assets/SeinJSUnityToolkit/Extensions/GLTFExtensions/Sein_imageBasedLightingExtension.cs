@@ -22,6 +22,7 @@ namespace SeinJS
             public int specMap;
             public float specIntensity;
             public string specType;
+            public bool specIncludeMipmaps;
         }
 
         public bool isGlobal = false;
@@ -64,6 +65,7 @@ namespace SeinJS
                     {
                         l.Add("specular", new JObject(
                             new JProperty("type", light.specType),
+                            new JProperty("includeMipmaps", light.specIncludeMipmaps),
                             new JProperty("intensity", light.specIntensity),
                             new JProperty("brdfLUT", new JObject(new JProperty("index", light.brdfLUT))),
                             new JProperty("map", new JObject(new JProperty("index", light.specMap)))

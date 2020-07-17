@@ -387,6 +387,7 @@ namespace SeinJS
                 ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort, (int[] data, int index) => {
                     var offset = index % 3;
 
+                    // reverse vertex sort
                     return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
                 }),
                 bufferView
