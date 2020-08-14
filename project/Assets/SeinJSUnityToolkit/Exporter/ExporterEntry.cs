@@ -1170,12 +1170,15 @@ namespace SeinJS
                 }
                 else if (binding.propertyName.Contains("blendShape"))
                 {
-                    if (!current.ContainsKey(GLTFAnimationChannelPath.weights))
+                    if (smr != null)
                     {
-                        current.Add(GLTFAnimationChannelPath.weights, new AnimationCurve[smr.sharedMesh.blendShapeCount]);
+                        if (!current.ContainsKey(GLTFAnimationChannelPath.weights))
+                        {
+                            current.Add(GLTFAnimationChannelPath.weights, new AnimationCurve[smr.sharedMesh.blendShapeCount]);
+                        }
+                        var key = binding.propertyName.Replace("blendShape.", "");
+                        current[GLTFAnimationChannelPath.weights][smr.sharedMesh.GetBlendShapeIndex(key)] = curve;
                     }
-                    var key = binding.propertyName.Replace("blendShape.", "");
-                    current[GLTFAnimationChannelPath.weights][smr.sharedMesh.GetBlendShapeIndex(key)] = curve;
                 } else
                 {
                     continue;
