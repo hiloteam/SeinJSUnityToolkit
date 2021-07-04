@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @File   : KHR_lights_punctualExtension.cs
  * @Author : dtysky (dtysky@outlook.com)
  * @Link   : dtysky.moe
