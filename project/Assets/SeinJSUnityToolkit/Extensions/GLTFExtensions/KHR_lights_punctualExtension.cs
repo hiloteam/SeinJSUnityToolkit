@@ -27,6 +27,10 @@ namespace SeinJS
             // spot
             public float innerConeAngle;
             public float outerConeAngle;
+
+            // area
+            public string mode;
+            public Vector2 size;
         }
 
         public bool isGlobal = false;
@@ -69,6 +73,12 @@ namespace SeinJS
                         l.Add("range", light.range);
                         l.Add("innerConeAngle", light.innerConeAngle);
                         l.Add("outerConeAngle", light.outerConeAngle);
+                    }
+                    else if (light.type == LightType.Rectangle || light.type == LightType.Disc)
+                    {
+                        l.Add("type", "area");
+                        l.Add("mode", light.mode);
+                        l.Add("size", new JArray { light.size.x, light.size.y });
                     }
 
                     eLights.Add(l);

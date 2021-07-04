@@ -65,6 +65,11 @@ namespace SeinJS
                 l.innerConeAngle = (spotAngleRad - (float)Math.PI / 180 * 5);
                 l.outerConeAngle = spotAngleRad;
             }
+            else if (light.type == LightType.Rectangle || light.type == LightType.Disc)
+            {
+                l.size = light.areaSize;
+                l.mode = light.type == LightType.Rectangle ? "rect" : "disc";
+            }
             else
             {
                 throw new Exception("Only support light type 'directional', 'point' or 'spot' now!");
@@ -116,6 +121,18 @@ namespace SeinJS
                         l.range = light.Value<float>("range");
                         l.innerConeAngle = light.Value<float>("innerConeAngle");
                         l.outerConeAngle = light.Value<float>("outerConeAngle");
+                    } else if (type == "area")
+                    {
+                        l.mode = light.Value<string>("mode");
+                        if (l.mode == "rect")
+                        {
+                            l.type = LightType.Rectangle;
+                        } else
+                        {
+                            l.type = LightType.Disc;
+                        }
+                        var size = light.Value<JArray>("size");
+                        l.size = new Vector2((float)size[0], (float)size[1]);
                     }
 
                     extension.lights.Add(l);
@@ -153,6 +170,10 @@ namespace SeinJS
             {
                 l.range = light.range;
                 l.spotAngle = light.outerConeAngle * 2 * 180 / (float)Math.PI;
+            }
+            else if (type == LightType.Rectangle || type == LightType.Disc)
+            {
+                l.areaSize = light.size;
             }
 
         }
