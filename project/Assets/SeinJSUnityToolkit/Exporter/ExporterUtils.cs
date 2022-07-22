@@ -324,7 +324,7 @@ namespace SeinJS
             if (!isMetal)
             {
                 // special
-                entry.AddExtension("KHR_materials_pbrSpecularGlossiness");
+                entry.AddExtension("KHR_materials_pbrSpecularGlossiness", true);
                 material.Extensions = new Dictionary<string, Extension>();
             }
             else

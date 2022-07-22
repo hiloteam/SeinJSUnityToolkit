@@ -17,7 +17,7 @@ namespace SeinJS
 {
     public class Sein_atlasExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_atlas"; }
+        public override string GetExtensionName() { return "SEIN_atlas"; }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global }; }
 
         private static Dictionary<ExporterEntry, List<SeinAtlas>> ENTRY_ATLASES = new Dictionary<ExporterEntry, List<SeinAtlas>>();

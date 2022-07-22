@@ -83,6 +83,7 @@ namespace SeinJS
         public class Animation
         {
             public static bool forceLinear = true;
+            public static bool useSeinAnimator = true;
         }
 
         public class NormalTexture

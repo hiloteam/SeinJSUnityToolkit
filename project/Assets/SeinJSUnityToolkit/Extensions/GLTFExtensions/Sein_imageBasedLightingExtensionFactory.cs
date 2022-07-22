@@ -19,7 +19,7 @@ namespace SeinJS
 {
     public class Sein_imageBasedLightingExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_imageBasedLighting"; }
+        public override string GetExtensionName() { return "SEIN_imageBasedLighting"; }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global, EExtensionType.Material }; }
         private static Texture2D brdfLUT;
 
@@ -127,7 +127,7 @@ namespace SeinJS
             light.specType = "Cube";
             if (isCustomCubMap)
             {
-                var Id = entry.SaveCubeTexture(RenderSettings.customReflection, maxSize: ExporterSettings.Lighting.reflectionSize);
+                var Id = entry.SaveCubeTexture((Cubemap)RenderSettings.customReflection, maxSize: ExporterSettings.Lighting.reflectionSize);
                 cacheId = Id.GetHashCode();
                 textureId = Id.Id;
             }

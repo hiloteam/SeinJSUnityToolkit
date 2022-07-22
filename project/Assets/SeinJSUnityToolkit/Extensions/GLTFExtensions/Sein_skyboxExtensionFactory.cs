@@ -17,8 +17,13 @@ namespace SeinJS
 {
     public class Sein_skyboxExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_skybox"; }
+        public override string GetExtensionName() { return "SEIN_skybox"; }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Camera }; }
+
+        public override bool GetExtensionRequired()
+        {
+            return true;
+        }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {

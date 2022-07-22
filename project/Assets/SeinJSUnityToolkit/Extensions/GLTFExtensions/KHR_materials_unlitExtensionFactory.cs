@@ -18,6 +18,11 @@ namespace SeinJS
         public override List<Type> GetBindedComponents() { return new List<Type>(); }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Material }; }
 
+        public override bool GetExtensionRequired()
+        {
+            return true;
+        }
+
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
             var extension = new KHR_materials_unlitExtension();

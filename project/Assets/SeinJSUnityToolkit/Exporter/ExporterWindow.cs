@@ -130,6 +130,8 @@ namespace SeinJS
             GUILayout.Label("Animation Settings(动画设置)", EditorStyles.boldLabel);
             EditorGUIUtility.labelWidth = 240;
             ExporterSettings.Animation.forceLinear = EditorGUILayout.Toggle("Force Linear Interpolation(强制线性插值)", ExporterSettings.Animation.forceLinear);
+            EditorGUIUtility.labelWidth = 240;
+            ExporterSettings.Animation.useSeinAnimator = EditorGUILayout.Toggle("Use SeiAnimator(使用SeinAnimator)", ExporterSettings.Animation.useSeinAnimator);
 
             GUILayout.Space(12);
             GUILayout.Label("Normal Texture Settings(一般纹理设置)", EditorStyles.boldLabel);

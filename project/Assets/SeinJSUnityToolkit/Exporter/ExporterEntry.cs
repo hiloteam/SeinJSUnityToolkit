@@ -114,7 +114,7 @@ namespace SeinJS
             return bufferView;
         }
 
-        public void AddExtension(string extension)
+        public void AddExtension(string extension, bool required)
         {
             if (root.ExtensionsRequired == null)
             {
@@ -125,7 +125,10 @@ namespace SeinJS
             if (!root.ExtensionsUsed.Contains(extension))
             {
                 root.ExtensionsUsed.Add(extension);
-                root.ExtensionsRequired.Add(extension);
+                if (required)
+                {
+                    root.ExtensionsRequired.Add(extension);
+                }
             }
         }
 
@@ -1007,15 +1010,19 @@ namespace SeinJS
                 return;
             }
 
-            SeinAnimator animator = tr.GetComponent<SeinAnimator>();
-            if (animator == null)
+            SeinAnimator animator = null;
+            if (ExporterSettings.Animation.useSeinAnimator)
             {
-                animator = tr.gameObject.AddComponent<SeinAnimator>();
+                animator = tr.GetComponent<SeinAnimator>();
+                if (animator == null)
+                {
+                    animator = tr.gameObject.AddComponent<SeinAnimator>();
+                }
+                animator.modelAnimations = new string[clips.Length];
+                animator.prefixes = new string[clips.Length];
+                animator.name = tr.GetComponent<Animator>().runtimeAnimatorController.name;
+                animator.defaultAnimation = defaultClip;
             }
-            animator.modelAnimations = new string[clips.Length];
-            animator.prefixes = new string[clips.Length];
-            animator.name = tr.GetComponent<Animator>().runtimeAnimatorController.name;
-            animator.defaultAnimation = defaultClip;
 
             for (int i = 0; i < clips.Length; i++)
             {
@@ -1030,9 +1037,11 @@ namespace SeinJS
 
                 SaveAnimationClip(tr, clip, prefix, clipName);
 
-                animator.modelAnimations[i] = clipName;
-
-                animator.prefixes[i] = prefix;
+                if (ExporterSettings.Animation.useSeinAnimator)
+                {
+                    animator.modelAnimations[i] = clipName;
+                    animator.prefixes[i] = prefix;
+                }
             }
         }
 
@@ -1043,7 +1052,8 @@ namespace SeinJS
                 return _animClip2anim[clip];
             }
 
-            var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clipName };
+            var animName = ExporterSettings.Animation.useSeinAnimator ? prefix + "@" + clipName : clipName;
+            var anim = new GLTF.Schema.Animation { Name = animName };
             var targets = BakeAnimationClip(anim, tr, clip);
             var accessors = _animClip2Accessors[clip];
 
