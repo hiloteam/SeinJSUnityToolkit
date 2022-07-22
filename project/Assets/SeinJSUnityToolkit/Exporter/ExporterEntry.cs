@@ -387,12 +387,16 @@ namespace SeinJS
             }
 
             primitive.Indices = AccessorToId(
-                ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort, (int[] data, int index) => {
-                    var offset = index % 3;
+                ExporterUtils.PackToBuffer(
+                    bufferView.streamBuffer, mesh.GetTriangles(i),
+                    mesh.indexFormat == UnityEngine.Rendering.IndexFormat.UInt16 ? GLTFComponentType.UnsignedShort : GLTFComponentType.UnsignedInt,
+                    (int[] data, int index) => {
+                        var offset = index % 3;
 
-                    // reverse vertex sort
-                    return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
-                }),
+                        // reverse vertex sort
+                        return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
+                    }
+                ),
                 bufferView
             );
             primitive.Indices.Value.Name += "-" + i;
