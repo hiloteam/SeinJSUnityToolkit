@@ -149,6 +149,8 @@
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinNodeClass.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinAnimator.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" />
+    <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtension.cs" />
+    <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtensionFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/SeinJSUnityToolkit/Dependencies/Ionic.Zip.Unity.dll" />

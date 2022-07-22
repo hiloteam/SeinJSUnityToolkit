@@ -1,27 +1,36 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />
-      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" relfile="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" line="1014" column="1" />
+      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" relfile="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" line="1017" column="1" />
+      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" relfile="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" line="75" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4d3d21f7-d163-4606-a0c7-986f9c1619af" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Utils.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_rendererExtension.cs">
     <Files>
       <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtensionFactory.cs" Line="132" Column="35" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="1013" Column="60" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="86" Column="55" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="26" Column="59" />
-      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="31" Column="10" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="20" Column="31" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="78" Column="24" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="58" Column="144" />
+      <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_rendererExtension.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="project" expanded="True">
-            <Node name="Assets" expanded="True" />
+            <Node name="Assets" expanded="True">
+              <Node name="SeinJSUnityToolkit" expanded="True">
+                <Node name="Common" expanded="True" />
+                <Node name="Exporter" expanded="True" />
+                <Node name="Extensions" expanded="True">
+                  <Node name="GLTFExtensions" expanded="True">
+                    <Node name="Sein_physicBodyExtension.cs" selected="True" />
+                  </Node>
+                </Node>
+              </Node>
+            </Node>
           </Node>
         </State>
       </Pad>
@@ -35,4 +44,6 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4920ed16-2787-49b0-a1ae-47342d08baff" />
 </Properties>
