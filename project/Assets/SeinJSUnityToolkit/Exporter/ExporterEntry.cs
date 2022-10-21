@@ -209,6 +209,13 @@ namespace SeinJS
                 {
                     primitive.Targets = targets;
                 }
+
+                if (ExporterSettings.Export.unlit)
+                {
+                    primitive.Extensions = new Dictionary<string, Extension>();
+                    ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_processedExtensionFactory)), this, primitive.Extensions, mesh, new ProcessedExtOptions { isGlobal = false });
+                }
+
                 SaveIndices(mesh, primitive, i, ref indices);
             }
 

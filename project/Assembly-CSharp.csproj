@@ -81,6 +81,7 @@
     <Compile Include="Assets/SeinJSUnityToolkit/Common/Exceptions.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_textureImproveExtension.cs" />
     <Compile Include="Assets/SeinCustomMaterials/EnhancedPBR/EnhancedPBRCameraScript.cs" />
+    <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtension.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Dependencies/UniWebServer/Response.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Basic/SchemaExtensions.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinCustomMaterial.cs" />
@@ -119,6 +120,7 @@
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinAtlas.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Dependencies/BinPacker.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Importer/EditorImporter.cs" />
+    <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtensionFactory.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_nodeExtensionFactory.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinNode.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" />
@@ -149,8 +151,6 @@
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinNodeClass.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/Components/SeinAnimator.cs" />
     <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_imageBasedLightingExtension.cs" />
-    <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtension.cs" />
-    <Compile Include="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtensionFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/SeinJSUnityToolkit/Dependencies/Ionic.Zip.Unity.dll" />

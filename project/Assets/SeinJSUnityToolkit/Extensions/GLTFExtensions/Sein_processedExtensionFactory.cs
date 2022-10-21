@@ -19,7 +19,10 @@ namespace SeinJS
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {
-            AddExtension(extensions, new Sein_processedExtension());
+            var ext = new Sein_processedExtension {
+                options = options == null ? new ProcessedExtOptions() : (ProcessedExtOptions)options
+            };
+            AddExtension(extensions, ext);
         }
 
         public override Extension Deserialize(GLTFRoot root, JProperty extensionToken)

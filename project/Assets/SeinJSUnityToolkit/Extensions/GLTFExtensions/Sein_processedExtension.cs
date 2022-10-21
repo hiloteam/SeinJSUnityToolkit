@@ -10,13 +10,30 @@ using UnityEngine;
 
 namespace SeinJS
 {
+    public class ProcessedExtOptions
+    {
+        public bool isGlobal = true;
+    }
+
     public class Sein_processedExtension : Extension
     {
+        public ProcessedExtOptions options;
+
         public JProperty Serialize()
         {
+            if (options.isGlobal)
+            {
+                return new JProperty(
+                    ExtensionManager.GetExtensionName(typeof(Sein_processedExtensionFactory)),
+                    new JObject()
+                );
+            }
+
             return new JProperty(
                 ExtensionManager.GetExtensionName(typeof(Sein_processedExtensionFactory)),
-                new JObject()
+                new JObject(
+                    new JProperty("dontNeedNormal", ExporterSettings.Export.unlit)
+                )
             );
         }
     }

@@ -29,7 +29,7 @@
       "maxSize": 1024
     },
     "Lighting": {
-      "ambient": false,
+      "ambient": true,
       "lightMap": true,
       "lightMapSize": 1024,
       "reflection": true,
