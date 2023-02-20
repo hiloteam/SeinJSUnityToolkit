@@ -13,7 +13,8 @@
       "clear": true
     },
     "Animation": {
-      "forceLinear": true
+      "forceLinear": true,
+      "useSeinAnimator": false
     },
     "NormalTexture": {
       "maxSize": 1024,

@@ -1,21 +1,20 @@
 ﻿<Properties StartupConfiguration="{7CA597AC-799E-2D81-E8A0-0EA9A568434E}|">
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />
-      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" relfile="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" line="1021" column="1" />
-      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" relfile="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" line="75" column="1" />
-    </BreakpointStore>
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="6964c7ab-60c4-4a8a-873c-5aa76cb80cbf" />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/SeinJSUnityToolkit/Common/Utils.cs">
     <Files>
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" Line="401" Column="15" />
-      <File FileName="Assets/SeinJSUnityToolkit/Exporter/Exporter.cs" Line="78" Column="24" />
       <File FileName="Assets/SeinJSUnityToolkit/Exporter/EditorExporter.cs" Line="58" Column="1" />
       <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtension.cs" Line="1" Column="1" />
       <File FileName="Assets/SeinJSUnityToolkit/Extensions/GLTFExtensions/Sein_processedExtensionFactory.cs" Line="23" Column="10" />
+      <File FileName="Assets/SeinJSUnityToolkit/Importer/AssetSerializer.cs" Line="15" Column="49" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Config.cs" Line="26" Column="59" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterSettings.cs" Line="131" Column="80" />
+      <File FileName="Assets/SeinJSUnityToolkit/Exporter/ExporterUtils.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/TaskManager.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/GLTFUtils.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/GLTFTextureUtils.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Exceptions.cs" Line="1" Column="1" />
+      <File FileName="Assets/SeinJSUnityToolkit/Common/Utils.cs" Line="25" Column="31" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -23,13 +22,11 @@
           <Node name="project" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="SeinJSUnityToolkit" expanded="True">
-                <Node name="Common" expanded="True" />
-                <Node name="Exporter" expanded="True">
-                  <Node name="ExporterEntry.cs" selected="True" />
+                <Node name="Common" expanded="True">
+                  <Node name="Utils.cs" selected="True" />
                 </Node>
-                <Node name="Extensions" expanded="True">
-                  <Node name="GLTFExtensions" expanded="True" />
-                </Node>
+                <Node name="Exporter" expanded="True" />
+                <Node name="Extensions" expanded="True" />
               </Node>
             </Node>
           </Node>
@@ -45,5 +42,14 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="16ca1062-563b-4efb-8341-704e6f0d51cc" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Catchpoint exceptionName="System.Exception" includeSubclasses="True" />
+      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" relfile="Assets/SeinJSUnityToolkit/Exporter/ExporterEntry.cs" line="1021" column="1" />
+      <Breakpoint file="/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" relfile="Assets/SeinJSUnityToolkit/Extensions/Basic/SeinExtensionFactory.cs" line="75" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
 </Properties>

@@ -127,7 +127,8 @@ namespace SeinJS
                     new JProperty("clear", Export.clear)
                 )),
                 new JProperty("Animation", new JObject(
-                    new JProperty("forceLinear", Animation.forceLinear)
+                    new JProperty("forceLinear", Animation.forceLinear),
+                    new JProperty("useSeinAnimator", Animation.useSeinAnimator)
                 )),
                 new JProperty("NormalTexture", new JObject(
                     new JProperty("maxSize", NormalTexture.maxSize),
@@ -178,6 +179,7 @@ namespace SeinJS
             {
                 var obj = (JObject)json["Animation"];
                 if (obj["forceLinear"] != null) { Animation.forceLinear = (bool)obj["forceLinear"]; }
+                if (obj["useSeinAnimator"] != null) { Animation.useSeinAnimator = (bool)obj["useSeinAnimator"]; }
             }
 
             if (json["NormalTexture"] != null)
