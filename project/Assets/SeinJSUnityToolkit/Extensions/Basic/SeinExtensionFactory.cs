@@ -45,6 +45,11 @@ namespace SeinJS
             return new List<EExtensionType> { EExtensionType.Node };
         }
 
+        public virtual bool GetExtensionRequired()
+        {
+            return false;
+        }
+
         public virtual void BeforeExport()
         {
 
@@ -67,7 +72,7 @@ namespace SeinJS
 
         public virtual void Awake(ExporterEntry entry)
         {
-            entry.AddExtension(ExtensionName);
+            entry.AddExtension(ExtensionName, GetExtensionRequired());
         }
 
         public void AddExtension(Dictionary<string, Extension> extensions, Extension extension)

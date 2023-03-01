@@ -20,7 +20,7 @@ namespace SeinJS
 {
     public class Sein_audioClipsExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_audioClips"; }
+        public override string GetExtensionName() { return "SEIN_audioClips"; }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Global }; }
 
         private static Dictionary<ExporterEntry, List<SeinAudioClip>> ENTRY_CLIPS = new Dictionary<ExporterEntry, List<SeinAudioClip>>();
@@ -70,7 +70,7 @@ namespace SeinJS
             }
             else
             {
-                extension = (Sein_audioClipsExtension)extensions["Sein_audioClips"];
+                extension = (Sein_audioClipsExtension)extensions["SEIN_audioClips"];
             }
 
             var list = ENTRY_CLIPS[entry];

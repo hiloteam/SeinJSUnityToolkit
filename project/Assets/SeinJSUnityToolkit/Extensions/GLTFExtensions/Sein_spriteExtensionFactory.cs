@@ -17,11 +17,16 @@ namespace SeinJS
 {
     public class Sein_spriteExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_sprite"; }
+        public override string GetExtensionName() { return "SEIN_sprite"; }
         public override List<EExtensionType> GetExtensionTypes() { return new List<EExtensionType> { EExtensionType.Mesh }; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinSprite) }; }
 
         private static Dictionary<ExporterEntry, Dictionary<string, int>> _CAHCE = new Dictionary<ExporterEntry, Dictionary<string, int>>();
+
+        public override bool GetExtensionRequired()
+        {
+            return true;
+        }
 
         public override void BeforeExport()
         {

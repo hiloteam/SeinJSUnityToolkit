@@ -296,7 +296,7 @@ namespace SeinJS
         {
             if (material.shader.name.Contains("Standard") || material.shader.name.Contains("Autodesk Interactive"))
             {
-                Utils.ThrowExcption("Toolkit doesn't support Unity Standard Material anymore, please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/scene-editor/material-sein");
+                Utils.ThrowExcption("Toolkit doesn't support Unity Standard Material anymore(" + material.name + "), please use converter to convert them to 'Sein/PBR', check here: http://seinjs.com/cn/guide/scene-editor/material-sein");
             }
 
             if (material.shader.name == "Sein/PBR")
@@ -324,7 +324,7 @@ namespace SeinJS
             if (!isMetal)
             {
                 // special
-                entry.AddExtension("KHR_materials_pbrSpecularGlossiness");
+                entry.AddExtension("KHR_materials_pbrSpecularGlossiness", true);
                 material.Extensions = new Dictionary<string, Extension>();
             }
             else

@@ -15,7 +15,7 @@ namespace SeinJS
 {
     public class Sein_textureImproveExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_textureImprove"; }
+        public override string GetExtensionName() { return "SEIN_textureImprove"; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {

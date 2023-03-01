@@ -170,17 +170,17 @@ public class SeinNodeClass : MonoBehaviour
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Vector3 option)
     {
-        return new SeinJS.SeinNodeOption("Vec3", new JArray { option.x, option.y, option.z });
+        return new SeinJS.SeinNodeOption("Vec3", new JArray { option.x, option.y, -option.z });
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Vector4 option)
     {
-        return new SeinJS.SeinNodeOption("Vec4", new JArray { option.x, option.y, option.z, option.w });
+        return new SeinJS.SeinNodeOption("Vec4", new JArray { option.x, option.y, -option.z, -option.w });
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Quaternion option)
     {
-        return new SeinJS.SeinNodeOption("Quat", new JArray { option.x, option.y, option.z, option.w });
+        return new SeinJS.SeinNodeOption("Quat", new JArray { option.x, option.y, -option.z, -option.w });
     }
 
     public virtual SeinJS.SeinNodeOption SerializeValue(SeinJS.ExporterEntry entry, Color option)

@@ -17,7 +17,7 @@ namespace SeinJS
 {
     public class Sein_physicBodyExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_physicBody"; }
+        public override string GetExtensionName() { return "SEIN_physicBody"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinRigidBody), typeof(BoxCollider), typeof(SphereCollider) }; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)

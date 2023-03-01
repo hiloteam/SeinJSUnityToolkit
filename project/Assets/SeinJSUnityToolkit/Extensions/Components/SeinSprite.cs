@@ -74,6 +74,7 @@ public class SeinSprite : MonoBehaviour
         {
             var mr = gameObject.AddComponent<MeshRenderer>();
             material = new Material(Shader.Find("Sein/Sprite"));
+            material.renderQueue = 3000;
             var matPath = SPRITE_DATA_DIR_PATH + "/" + GetInstanceID().ToString() + ".mat";
             AssetDatabase.CreateAsset(material, matPath);
             material = AssetDatabase.LoadAssetAtPath<Material>(matPath);

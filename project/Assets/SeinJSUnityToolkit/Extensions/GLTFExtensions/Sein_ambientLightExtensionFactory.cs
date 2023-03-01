@@ -14,7 +14,7 @@ namespace SeinJS
 {
     public class Sein_ambientLightExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_ambientLight"; }
+        public override string GetExtensionName() { return "SEIN_ambientLight"; }
 
         public override void Serialize(ExporterEntry entry, Dictionary<string, Extension> extensions, UnityEngine.Object component = null, object options = null)
         {

@@ -20,7 +20,7 @@ namespace SeinJS
 {
     public class Sein_animatorExtensionFactory : SeinExtensionFactory
     {
-        public override string GetExtensionName() { return "Sein_animator"; }
+        public override string GetExtensionName() { return "SEIN_animator"; }
         public override List<Type> GetBindedComponents() { return new List<Type> { typeof(SeinAnimator) }; }
 
         public static Dictionary<string, AnimationClip> IMPORTED_CLIPS = new Dictionary<string, AnimationClip>();

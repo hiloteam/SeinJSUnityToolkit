@@ -114,7 +114,7 @@ namespace SeinJS
             return bufferView;
         }
 
-        public void AddExtension(string extension)
+        public void AddExtension(string extension, bool required)
         {
             if (root.ExtensionsRequired == null)
             {
@@ -125,7 +125,10 @@ namespace SeinJS
             if (!root.ExtensionsUsed.Contains(extension))
             {
                 root.ExtensionsUsed.Add(extension);
-                root.ExtensionsRequired.Add(extension);
+                if (required)
+                {
+                    root.ExtensionsRequired.Add(extension);
+                }
             }
         }
 
@@ -206,6 +209,13 @@ namespace SeinJS
                 {
                     primitive.Targets = targets;
                 }
+
+                if (ExporterSettings.Export.unlit)
+                {
+                    primitive.Extensions = new Dictionary<string, Extension>();
+                    ExtensionManager.Serialize(ExtensionManager.GetExtensionName(typeof(Sein_processedExtensionFactory)), this, primitive.Extensions, mesh, new ProcessedExtOptions { isGlobal = false });
+                }
+
                 SaveIndices(mesh, primitive, i, ref indices);
             }
 
@@ -384,12 +394,16 @@ namespace SeinJS
             }
 
             primitive.Indices = AccessorToId(
-                ExporterUtils.PackToBuffer(bufferView.streamBuffer, mesh.GetTriangles(i), GLTFComponentType.UnsignedShort, (int[] data, int index) => {
-                    var offset = index % 3;
+                ExporterUtils.PackToBuffer(
+                    bufferView.streamBuffer, mesh.GetTriangles(i),
+                    mesh.indexFormat == UnityEngine.Rendering.IndexFormat.UInt16 ? GLTFComponentType.UnsignedShort : GLTFComponentType.UnsignedInt,
+                    (int[] data, int index) => {
+                        var offset = index % 3;
 
-                    // reverse vertex sort
-                    return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
-                }),
+                        // reverse vertex sort
+                        return data[offset == 0 ? index : offset == 1 ? index + 1 : index - 1];
+                    }
+                ),
                 bufferView
             );
             primitive.Indices.Value.Name += "-" + i;
@@ -1007,15 +1021,19 @@ namespace SeinJS
                 return;
             }
 
-            SeinAnimator animator = tr.GetComponent<SeinAnimator>();
-            if (animator == null)
+            SeinAnimator animator = null;
+            if (ExporterSettings.Animation.useSeinAnimator)
             {
-                animator = tr.gameObject.AddComponent<SeinAnimator>();
+                animator = tr.GetComponent<SeinAnimator>();
+                if (animator == null)
+                {
+                    animator = tr.gameObject.AddComponent<SeinAnimator>();
+                }
+                animator.modelAnimations = new string[clips.Length];
+                animator.prefixes = new string[clips.Length];
+                animator.name = tr.GetComponent<Animator>().runtimeAnimatorController.name;
+                animator.defaultAnimation = defaultClip;
             }
-            animator.modelAnimations = new string[clips.Length];
-            animator.prefixes = new string[clips.Length];
-            animator.name = tr.GetComponent<Animator>().runtimeAnimatorController.name;
-            animator.defaultAnimation = defaultClip;
 
             for (int i = 0; i < clips.Length; i++)
             {
@@ -1030,9 +1048,11 @@ namespace SeinJS
 
                 SaveAnimationClip(tr, clip, prefix, clipName);
 
-                animator.modelAnimations[i] = clipName;
-
-                animator.prefixes[i] = prefix;
+                if (ExporterSettings.Animation.useSeinAnimator)
+                {
+                    animator.modelAnimations[i] = clipName;
+                    animator.prefixes[i] = prefix;
+                }
             }
         }
 
@@ -1043,7 +1063,8 @@ namespace SeinJS
                 return _animClip2anim[clip];
             }
 
-            var anim = new GLTF.Schema.Animation { Name = prefix + "@" + clipName };
+            var animName = ExporterSettings.Animation.useSeinAnimator ? prefix + "@" + clipName : clipName;
+            var anim = new GLTF.Schema.Animation { Name = animName };
             var targets = BakeAnimationClip(anim, tr, clip);
             var accessors = _animClip2Accessors[clip];
 
