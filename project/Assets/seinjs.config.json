@@ -1,9 +1,9 @@
 {
-  "exportPath": "..\\Output",
-  "importPath": "\\Users\\dtysky\\Projects\\seinjs\\SeinJSUnityToolkit\\project",
+  "exportPath": "../Output",
+  "importPath": "/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project",
   "exporterSettings": {
     "Export": {
-      "folder": "H:\\ComplexMind\\seinjs\\SeinJSUnityToolkit\\project\\Output",
+      "folder": "/Users/dtysky/Projects/seinjs/SeinJSUnityToolkit/project/Output",
       "name": "scene",
       "splitChunks": false,
       "skybox": true,
@@ -13,7 +13,8 @@
       "clear": true
     },
     "Animation": {
-      "forceLinear": true
+      "forceLinear": true,
+      "useSeinAnimator": false
     },
     "NormalTexture": {
       "maxSize": 1024,
@@ -29,7 +30,7 @@
       "maxSize": 1024
     },
     "Lighting": {
-      "ambient": false,
+      "ambient": true,
       "lightMap": true,
       "lightMapSize": 1024,
       "reflection": true,
